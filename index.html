@@ -1,29 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>ReachViewApp</title>
-    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css">
-    <script src="https://code.jquery.com/jquery-1.8.2.min.js"></script>
-    <script src="https://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 </head>
 <body>
-<div data-role="page">
 
+<! Status page here:>
+<div data-role="page" id="status_page">
     <div data-role="header">
-        <h1>My Title</h1>
-    </div><!-- /header -->
+        <h1>Reach View</h1>
 
-    <div data-role="content">
-        <script src="main.js"> </script>
-        <p>Hello world</p>
-    </div><!-- /content -->
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#" class="ui-btn-active ui-state-persist">Status</a></li>
+                <li><a href="#config_page">Config</a></li>
+                <li><a href="#logs_page">Logs</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div data-role="main" class="ui-content">
+        <p>Status</p>
+    </div>
 
     <div data-role="footer" data-position="fixed">
-        <h4>My Footer</h4>
-    </div><!-- /footer -->
+        <h1>Emlid ltd</h1>
+    </div>
+</div>
 
-</div><!-- /page -->
+<! Config page here:>
+<div data-role="page" id="config_page">
+    <div data-role="header">
+        <h1>Reach View</h1>
+
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#status_page">Status</a></li>
+                <li><a href="#" class="ui-btn-active ui-state-persist">Config</a></li>
+                <li><a href="#logs_page">Logs</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div data-role="main" class="ui-content">
+        <p>Configuration</p>
+    </div>
+
+    <div data-role="footer" data-position="fixed">
+        <h1>Emlid ltd</h1>
+    </div>
+</div>
+
+<! Logs page here:>
+<div data-role="page" id="logs_page">
+    <div data-role="header">
+        <h1>Reach View</h1>
+
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#status_page">Status</a></li>
+                <li><a href="#config_page">Config</a></li>
+                <li><a href="#" class="ui-btn-active ui-state-persist">Logs</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div data-role="main" class="ui-content">
+        <p>Logs</p>
+    </div>
+
+    <div data-role="footer" data-position="fixed">
+        <h1>Emlid ltd</h1>
+    </div>
+</div>
+
+
 </body>
 </html>
