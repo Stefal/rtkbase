@@ -24,16 +24,8 @@ $(document).ready(function () {
         });
     }
 
-    //delay to do autoresize less often
-    var delay = (function () {
-        var timer = 0;
-        return function (callback, ms) {
-            clearTimeout(timer);
-            timer = setTimeout(callback, ms);
-        };
-    })();
 
-    function updateSatCharts() {
+    function createSatCharts() {
         drawSatChart(canvas1, sat_data1);
         drawSatChart(canvas2, sat_data2);
     }
@@ -74,7 +66,16 @@ $(document).ready(function () {
         ]
     };
 
-    updateSatCharts();
+    createSatCharts();
+
+    ////delay to do autoresize less often
+    //var delay = (function () {
+    //    var timer = 0;
+    //    return function (callback, ms) {
+    //        clearTimeout(timer);
+    //        timer = setTimeout(callback, ms);
+    //    };
+    //})();
 
     //take care of window resize
     //$(window).resize(function () {
