@@ -6,29 +6,8 @@ $(document).ready(function () {
     $("#lat_value").append("30");
     $("#height_value").append("20");
 
-    //maintain size chart ratio
-
-    var current_width = $(window).width();
-    var current_height = $(window).height();
     var canvas1 = $("#sat_chart1_canvas");
     var canvas2 = $("#sat_chart2_canvas");
-
-    function drawSatChart(canvas, sat_data) {
-        canvas.css("width", "99%");
-        canvas.css("margin", "1%");
-        var ctx = canvas.get(0).getContext("2d");
-        ctx.canvas.width = window.innerWidth;
-        ctx.canvas.height = 0.5 * window.innerWidth;
-        new Chart(ctx).Bar(sat_data, {
-            responsive: true
-        });
-    }
-
-
-    function createSatCharts() {
-        drawSatChart(canvas1, sat_data1);
-        drawSatChart(canvas2, sat_data2);
-    }
 
     var sat_data1 = {
         labels: ["January", "February", "March", "April", "May", "June", "July", "August"],
@@ -43,10 +22,10 @@ $(document).ready(function () {
             },
             {
                 label: "My Second dataset",
-                fillColor: "rgba(151,187,205,0.5)",
-                strokeColor: "rgba(151,187,205,0.8)",
-                highlightFill: "rgba(151,187,205,0.75)",
-                highlightStroke: "rgba(151,187,205,1)",
+                fillColor: "rgba(151, 187, 205, 0.9)",
+                strokeColor: "rgba(151, 187, 205, 0.8)",
+                highlightFill: "rgba(151, 187, 205, 0.75)",
+                highlightStroke: "rgba(151, 187, 205, 1)",
                 data: [28, 48, 40, 19, 86, 27, 90, 31]
             }
         ]
@@ -66,34 +45,6 @@ $(document).ready(function () {
         ]
     };
 
-    createSatCharts();
-
-    ////delay to do autoresize less often
-    //var delay = (function () {
-    //    var timer = 0;
-    //    return function (callback, ms) {
-    //        clearTimeout(timer);
-    //        timer = setTimeout(callback, ms);
-    //    };
-    //})();
-
-    //take care of window resize
-    //$(window).resize(function () {
-    //
-    //    var new_height = $(window).height(), new_width = $(window).width();
-    //
-    //    if (new_height != current_height) {
-    //        current_height = new_height;
-    //    }
-    //
-    //    if (new_width != current_width) {
-    //        current_width = new_width;
-    //        delay(function () {
-    //            //alert('Resize...');
-    //            updateSatCharts();
-    //        }, 500);
-    //    }
-    //
-    //});
+    createSatCharts(canvas1, sat_data1, canvas2, sat_data2);
 
 });
