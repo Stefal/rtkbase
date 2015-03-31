@@ -35,7 +35,7 @@ $(document).ready(function () {
         datasets: [
             {
                 label: "My First dataset",
-                fillColor: "rgba(220,220,220,0.5)",
+                fillColor: "rgba(0,255,00,0.9)",
                 strokeColor: "rgba(220,220,220,0.8)",
                 highlightFill: "rgba(220,220,220,0.75)",
                 highlightStroke: "rgba(220,220,220,1)",
@@ -52,7 +52,6 @@ $(document).ready(function () {
         var new_height = $(window).height(), new_width = $(window).width();
 
         if (new_height != current_height) {
-            $("#fix_value").append("new_size");
             current_height = new_height;
         }
 
@@ -61,7 +60,6 @@ $(document).ready(function () {
             delay(function () {
                 //alert('Resize...');
                 drawSatChart(sat_data);
-                $("#mode_value").append("resize");
             }, 500);
         }
 
