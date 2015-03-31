@@ -1,11 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <title>ReachViewApp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
     <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="lib/Chart.min.js"></script>
+    <script src="main.js" charset="utf-8"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 1%;
+        }
+    </style>
 </head>
 <body>
 
@@ -24,8 +34,17 @@
     </div>
 
     <div data-role="main" class="ui-content">
-        <p>Status</p>
+        <h3>Current status</h3>
+        <ul data-role="listview">
+            <li data-icon="false">Mode: <span id="mode_value"></span></li>
+            <li data-icon="false">Fix: <span id="fix_value"></span></li>
+            <li data-icon="false">Longitude: <span id="lon_value"></span></li>
+            <li data-icon="false">Latitude: <span id="lat_value"></span></li>
+            <li data-icon="false">Height: <span id="height_value"></span></li>
+        </ul>
     </div>
+
+    <canvas id="sat_chart" width="400" height="400"></canvas>
 
     <div data-role="footer" data-position="fixed">
         <h1>Emlid ltd</h1>
