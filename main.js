@@ -19,7 +19,9 @@ $(document).ready(function () {
         var ctx = canvas.get(0).getContext("2d");
         ctx.canvas.width = window.innerWidth;
         ctx.canvas.height = 0.5 * window.innerWidth;
-        new Chart(ctx).Bar(sat_data);
+        new Chart(ctx).Bar(sat_data, {
+            responsive: true
+        });
     }
 
     //delay to do autoresize less often
@@ -37,7 +39,7 @@ $(document).ready(function () {
     }
 
     var sat_data1 = {
-        labels: ["January", "February", "March", "April", "May", "June", "July"],
+        labels: ["January", "February", "March", "April", "May", "June", "July", "August"],
         datasets: [
             {
                 label: "My First dataset",
@@ -45,13 +47,21 @@ $(document).ready(function () {
                 strokeColor: "rgba(220, 220, 220, 0.8)",
                 highlightFill: "rgba(220, 220, 220, 0.75)",
                 highlightStroke: "rgba(220, 220, 220, 1)",
-                data: [65, 59, 80, 81, 56, 55, 40]
+                data: [65, 59, 80, 81, 56, 55, 40, 31]
+            },
+            {
+                label: "My Second dataset",
+                fillColor: "rgba(151,187,205,0.5)",
+                strokeColor: "rgba(151,187,205,0.8)",
+                highlightFill: "rgba(151,187,205,0.75)",
+                highlightStroke: "rgba(151,187,205,1)",
+                data: [28, 48, 40, 19, 86, 27, 90, 31]
             }
         ]
     };
 
     var sat_data2 = {
-        labels: ["January", "February", "March", "April", "May", "June", "July"],
+        labels: ["January", "February", "March", "April", "May", "June", "July", "August"],
         datasets: [
             {
                 label: "My First dataset",
@@ -59,7 +69,7 @@ $(document).ready(function () {
                 strokeColor: "rgba(220, 220, 220, 0.8)",
                 highlightFill: "rgba(220, 220, 220, 0.75)",
                 highlightStroke: "rgba(220, 220, 220, 1)",
-                data: [65, 59, 80, 81, 56, 55, 40]
+                data: [65, 59, 80, 81, 56, 55, 40, 31]
             }
         ]
     };
@@ -67,22 +77,22 @@ $(document).ready(function () {
     updateSatCharts();
 
     //take care of window resize
-    $(window).resize(function () {
-
-        var new_height = $(window).height(), new_width = $(window).width();
-
-        if (new_height != current_height) {
-            current_height = new_height;
-        }
-
-        if (new_width != current_width) {
-            current_width = new_width;
-            delay(function () {
-                //alert('Resize...');
-                updateSatCharts();
-            }, 500);
-        }
-
-    });
+    //$(window).resize(function () {
+    //
+    //    var new_height = $(window).height(), new_width = $(window).width();
+    //
+    //    if (new_height != current_height) {
+    //        current_height = new_height;
+    //    }
+    //
+    //    if (new_width != current_width) {
+    //        current_width = new_width;
+    //        delay(function () {
+    //            //alert('Resize...');
+    //            updateSatCharts();
+    //        }, 500);
+    //    }
+    //
+    //});
 
 });
