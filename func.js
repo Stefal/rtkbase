@@ -4,13 +4,19 @@ function drawSatChart(canvas, sat_data) {
     var ctx = canvas.get(0).getContext("2d");
     ctx.canvas.width = window.innerWidth;
     ctx.canvas.height = 0.5 * window.innerWidth;
+
+    // define best width between bars
+    var w = ctx.canvas.width;
+    if (w > 1000) {
+        w = 5;
+    } else {
+        w = 2;
+    }
+
     new Chart(ctx).Bar(sat_data, {
         responsive: true,
-        barDatasetSpacing: -1
+        barDatasetSpacing: -1,
+        barValueSpacing: w
     });
 }
 
-function createSatCharts(canvas1, sat_data1, canvas2, sat_data2) {
-    drawSatChart(canvas1, sat_data1);
-    drawSatChart(canvas2, sat_data2);
-}
