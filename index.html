@@ -3,12 +3,21 @@
 <head>
     <title>ReachViewApp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="lib/jquery.mobile-1.4.5.min.css">
-    <script src="lib/jquery-1.11.2.min.js"></script>
-    <script src="lib/jquery.mobile-1.4.5.min.js"></script>
-    <script src="lib/Chart.min.js"></script>
-    <script src="func.js" charset="utf-8"></script>
-    <script src="main.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery.mobile-1.4.5.min.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.mobile-1.4.5.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='func.js') }}" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}" charset="utf-8"></script>
+
+    <link rel="stylesheet" type="text/css" href="static/jquery.mobile-1.4.5.min.css">
+    <script src="static/jquery-1.11.2.min.js"></script>
+    <script src="static/jquery.mobile-1.4.5.min.js"></script>
+    <script src="static/Chart.min.js"></script>
+    <script src="static/socket.io.min.js"></script>
+    <script src="static/func.js" charset="utf-8"></script>
+    <script src="static/main.js" charset="utf-8"></script>
 </head>
 <body>
 
@@ -37,8 +46,9 @@
             <li data-icon="false" data-role="list-divider"><h1>Satellite levels:</h1></li>
         </ul>
     </div>
+
     <!-- Canvases for the graphs!!!!!!!!!!!!!!!!!! -->
-    <canvas id="sat_chart1_canvas"></canvas>
+    <canvas id="sat_chart_canvas"></canvas>
 
     <div data-role="footer">
         <h1>Emlid ltd</h1>
@@ -60,7 +70,18 @@
     </div>
 
     <div data-role="main" class="ui-content">
-        <p>Configuration</p>
+        <form>
+            <div class="ui-field-contain">
+                <fieldset data-role="controlgroup" data-type="horizontal">
+                    <legend>Act as a base station:</legend>
+                    <select name="base_slider" id="base_slider" data-role="slider">
+                        <option value="off">Rover</option>
+                        <option value="on">Base</option>
+                    </select>
+                </fieldset>
+            </div>
+        </form>
+
     </div>
 
     <div data-role="footer" data-position="fixed">
