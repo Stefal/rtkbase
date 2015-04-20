@@ -49,11 +49,41 @@ def broadcastSatellites():
             "data" : "Satellite levels"
         }
 
-        for i in range(0, sat_number):
-            json_data["rover" + str(i)] = randint(42, 45)
+        json_data["rover0"] = randint(48, 50)
+        json_data["base0"] = randint(40, 42)
 
-        for i in range(0, sat_number):
-            json_data["base" + str(i)] = randint(41, 44)
+        json_data["rover1"] = randint(48, 50)
+        json_data["base1"] = randint(43, 45)
+
+        json_data["rover2"] = randint(38, 40)
+        json_data["base2"] = randint(35, 37)
+
+        json_data["rover3"] = randint(45, 47)
+        json_data["base3"] = randint(35, 37)
+
+        json_data["rover4"] = randint(41, 42)
+        json_data["base4"] = randint(27, 29)
+
+        json_data["rover5"] = randint(48, 50)
+        json_data["base5"] = randint(40, 42)
+
+        json_data["rover6"] = randint(46, 49)
+        json_data["base6"] = randint(40, 42)
+
+        json_data["rover7"] = randint(46, 47)
+        json_data["base7"] = randint(35, 37)
+
+        json_data["rover8"] = randint(49, 51)
+        json_data["base8"] = randint(40, 42)
+
+        json_data["rover9"] = randint(43, 44)
+        json_data["base9"] = randint(40, 42)
+
+        # for i in range(0, sat_number):
+        #     json_data["rover" + str(i)] = randint(42, 45)
+
+        # for i in range(0, sat_number):
+        #     json_data["base" + str(i)] = randint(41, 44)
 
         socketio.emit("satellite broadcast", json_data, namespace = "/test")
         count+=1
@@ -70,7 +100,7 @@ def broadcastCoordinates():
             "mode" : "kinematic", # current rover mode
             "lat" : 60.085981 + float(randint(1,10)) / 10000000,
             "lon" : 30.420639 + float(randint(1,10)) / 10000000,
-            "height" : 16 + float(randint(1000,10000)) / 10000000
+            "height" : 16 + float(randint(1000,10000)) / 10000
         }
 
         socketio.emit("coordinate broadcast", json_data, namespace = "/test")
@@ -111,6 +141,6 @@ def test_disconnect():
 #     print("Connected socketio message received")
 
 if __name__ == "__main__":
-    socketio.run(app)
+    socketio.run(app, host = "0.0.0.0", port = 5000)
 
 
