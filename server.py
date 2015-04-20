@@ -16,6 +16,7 @@ app.config["SECRET_KEY"] = "secret!"
 socketio = SocketIO(app)
 time_thread = None
 satellite_thread = None
+coordinate_thread = None
 
 def broadcastTime():
     count = 0
@@ -23,11 +24,6 @@ def broadcastTime():
     while 1:
         time_string = time.strftime("%H:%M:%S")
         cur_time = [time_string[0:2], time_string[3:5], time_string[6:8]]
-
-        # socketio.emit("time broadcast",
-        #     {"data": "Server generated event", "count": count, "hours": cur_time[0],
-        #     "minutes": cur_time[1], "seconds": cur_time[2]},
-        #     namespace="/test")
 
         json_data = {
             "data" : "Server time",
@@ -54,18 +50,38 @@ def broadcastSatellites():
         }
 
         for i in range(0, sat_number):
-            json_data["rover" + str(i)] = randint(35, 45)
+            json_data["rover" + str(i)] = randint(42, 45)
 
         for i in range(0, sat_number):
-            json_data["base" + str(i)] = randint(30, 40)
+            json_data["base" + str(i)] = randint(41, 44)
 
         socketio.emit("satellite broadcast", json_data, namespace = "/test")
+        count+=1
+        time.sleep(1)
+
+def broadcastCoordinates():
+    count = 0
+    json_data = {}
+
+    while 1:
+
+        json_data = {
+            "fix" : "fix", # current fix mode
+            "mode" : "kinematic", # current rover mode
+            "lat" : 60.085981 + float(randint(1,10)) / 10000000,
+            "lon" : 30.420639 + float(randint(1,10)) / 10000000,
+            "height" : 16 + float(randint(1000,10000)) / 10000000
+        }
+
+        socketio.emit("coordinate broadcast", json_data, namespace = "/test")
+        count+=1
         time.sleep(1)
 
 @app.route("/")
 def index():
     global time_thread
     global satellite_thread
+    global coordinate_thread
 
     if time_thread is None:
         time_thread = Thread(target = broadcastTime)
@@ -74,6 +90,10 @@ def index():
     if satellite_thread is None:
         satellite_thread = Thread(target = broadcastSatellites)
         satellite_thread.start()
+
+    if coordinate_thread is None:
+        coordinate_thread = Thread(target = broadcastCoordinates)
+        coordinate_thread.start()
 
     return render_template("index.html")
 

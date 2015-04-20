@@ -10,11 +10,11 @@ $(document).ready(function () {
 
     // Center alignment
 
-    $("#mode_value").text("Fix");
-    $("#fix_value").text("3-D");
-    $("#lon_value").text("60w");
-    $("#lat_value").text("30");
-    //$("#height_value").html("20");
+    $("#mode_value").text("no link");
+    $("#fix_value").text("no link");
+    $("#lon_value").text("0");
+    $("#lat_value").text("0");
+    $("#height_value").html("0");
 
     // This canvas contains the satellite_graph
 
@@ -26,7 +26,7 @@ $(document).ready(function () {
 
     // keep aspect ratio
     ctx.canvas.width = window.innerWidth;
-    ctx.canvas.height = 0.5 * window.innerWidth;
+    ctx.canvas.height = 0.3 * window.innerWidth;
 
     // change between-bar width depending on screen width
     var bar_spacing = (ctx.canvas.width > 1000) ? 5 : 2;
@@ -37,19 +37,19 @@ $(document).ready(function () {
         datasets: [
             {
                 label: "Rover satellite levels",
-                fillColor: "rgba(0, 255, 0, 0.9)",
+                fillColor: "rgba(0, 255, 0, 0.5)",
                 strokeColor: "rgba(220, 220, 220, 0.8)",
                 highlightFill: "rgba(220, 220, 220, 0.75)",
                 highlightStroke: "rgba(220, 220, 220, 1)",
-                data: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             },
             {
                 label: "Base satellite levels",
-                fillColor: "rgba(151, 187, 205, 0.9)",
+                fillColor: "rgba(151, 187, 205, 0.5)",
                 strokeColor: "rgba(151, 187, 205, 0.8)",
                 highlightFill: "rgba(151, 187, 205, 0.75)",
                 highlightStroke: "rgba(151, 187, 205, 1)",
-                data: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }
         ]
     };
@@ -69,11 +69,12 @@ $(document).ready(function () {
     });
 
     socket.on("time broadcast", function (msg) {
-        $("#height_value").html("<span>Received time: #" + msg.count + " " + msg.hours + ":" + msg.minutes + ":" + msg.seconds + "</span");
+        console.log("time msg received");
+        //$("#height_value").html("<span>Received time: #" + msg.count + " " + msg.hours + ":" + msg.minutes + ":" + msg.seconds + "</span");
     });
 
     socket.on("satellite broadcast", function (msg) {
-        $("#mode_value").html("<span>Received rover1 val is " + msg.rover0 + "</span>")
+        console.log("satellite msg received");
 
         // get all the keys of msg object
         var msg_keys = [];
@@ -84,22 +85,35 @@ $(document).ready(function () {
             msg_keys.push(k);
             console.log(k);
 
+            // if this is a rover satellite level, then update the rover part of the satellite graph
             if (k.indexOf("rover") > -1) {
                 console.log("Got rover message in " + k + " Data is " + msg[k] + " rover count is " + rover_count);
                 satellite_graph.datasets[0].bars[rover_count].value = msg[k];
                 rover_count++;
             }
 
+            // if this is a base satellite level, update the base part of the satellite graph
             if (k.indexOf("base") > -1) {
                 console.log("Got rover message in " + k + " Data is " + msg[k] + " rover count is " + rover_count);
                 satellite_graph.datasets[1].bars[base_count].value = msg[k];
                 base_count++;
             }
-
         }
 
         satellite_graph.update();
     });
 
+    socket.on("coordinate broadcast", function (msg) {
+        console.log("coordinate msg received");
 
+        // status
+        $("#fix_value").html("<span>" + msg.fix + "</span>");
+        $("#mode_value").html("<span>" + msg.mode + "</span>");
+
+        // coordinates
+        $("#lon_value").html("<span>" + msg.lon.toFixed(8) + "</span>");
+        $("#lat_value").html("<span>" + msg.lat.toFixed(8) + "</span>");
+        $("#height_value").html("<span>" + msg.height.toFixed(8) + "</span>");
+
+    });
 });
