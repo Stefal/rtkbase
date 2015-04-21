@@ -77,7 +77,6 @@ $(document).ready(function () {
 
     socket.on("time broadcast", function (msg) {
         console.log("time msg received");
-        //$("#height_value").html("<span>Received time: #" + msg.count + " " + msg.hours + ":" + msg.minutes + ":" + msg.seconds + "</span");
     });
 
     socket.on("satellite broadcast", function (msg) {
@@ -95,7 +94,6 @@ $(document).ready(function () {
 
             // if this is a rover satellite level, then update the rover part of the satellite graph
             if (k.indexOf("rover") > -1) {
-                console.log("Got rover message in " + k + " Data is " + msg_data + " rover count is " + rover_count);
 
                 // var rover_number = k.charAt(5); // get satellite number for this value
                 satellite_graph.datasets[0].bars[rover_count].value = msg_data;
@@ -112,7 +110,6 @@ $(document).ready(function () {
                         fc = "rgba(0, 255, 0, 0.9)"; // Green
                         break;
                 }
-                console.log("Color is " + fc + "Value is " + msg_data);
 
                 satellite_graph.datasets[0].bars[rover_count].fillColor = fc;
                 rover_count++;
@@ -120,7 +117,6 @@ $(document).ready(function () {
 
             // if this is a base satellite level, update the base part of the satellite graph
             if (k.indexOf("base") > -1) {
-                console.log("Got rover message in " + k + " Data is " + msg_data + " rover count is " + rover_count);
 
                 // var base_number_ = k.charAt(4); // get satellite number for this value
                 satellite_graph.datasets[1].bars[base_count].value = msg_data;
