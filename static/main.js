@@ -38,7 +38,7 @@ $(document).ready(function () {
             {
                 label: "Rover satellite levels",
                 fillColor: "rgba(0, 255, 0, 0.9)",
-                strokeColor: "rgba(220, 220, 220, 0.8)",
+                strokeColor: "rgba(0, 0, 0, 0.7)",
                 highlightFill: "rgba(220, 220, 220, 0.75)",
                 highlightStroke: "rgba(220, 220, 220, 1)",
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -46,7 +46,7 @@ $(document).ready(function () {
             {
                 label: "Base satellite levels",
                 fillColor: "rgba(151, 187, 205, 0.9)",
-                strokeColor: "rgba(151, 187, 205, 0.8)",
+                strokeColor: "rgba(0, 0, 0, 0.7)",
                 highlightFill: "rgba(151, 187, 205, 0.75)",
                 highlightStroke: "rgba(151, 187, 205, 1)",
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -66,7 +66,7 @@ $(document).ready(function () {
         scaleStepWidth: 10,
         scaleStartValue: 0,
         scaleLineColor: "rgba(0, 0, 0, 0.8)",
-        scaleGridLineColor: "rgba(0, 0, 0, 0.3)",
+        scaleGridLineColor: "rgba(0, 0, 0, 0.7)",
         scaleShowVerticalLines: false
     });
 
