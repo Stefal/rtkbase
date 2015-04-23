@@ -31,6 +31,30 @@ $(document).ready(function () {
     $("#lat_value").text("0");
     $("#height_value").html("0");
 
+    // Config form settigns
+
+    // input 1 type active form
+    $("#input1_type").change(function () {
+        switch ($("#input1_type option:selected").text()) {
+            case "Off":
+                break;
+            case "Serial":
+                break;
+            case "File":
+                break;
+            case "TCP client":
+                break;
+            case "TCP server":
+                break;
+            case "NTRIP client":
+                break;
+            case "ftp":
+                break;
+            case "http":
+                break;
+        }
+    });
+
     // This canvas contains the satellite_graph
 
     var canvas = $("#sat_chart_canvas");

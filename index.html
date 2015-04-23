@@ -80,7 +80,7 @@
     </div>
 
     <div data-role="main" class="ui-content">
-        <form>
+        <form id="config_form">
             <div class="ui-field-contain">
                 <fieldset data-role="controlgroup" data-type="horizontal">
                     <legend>Act as a base station:</legend>
@@ -88,6 +88,22 @@
                         <option value="off">Rover</option>
                         <option value="on">Base</option>
                     </select>
+                </fieldset>
+                <fieldset class="ui-field-contain">
+                    <label for="input1_type">Select Day</label>
+                    <select id="input1_type">
+                        <option value="off">Off</option>
+                        <option value="serial">Serial</option>
+                        <option value="file">File</option>
+                        <option value="tcp_server">TCP server</option>
+                        <option value="tcp_client">TCP client</option>
+                        <option value="ntrip_client">NTRIP client</option>
+                        <option value="ftp">ftp</option>
+                        <option value="http">http</option>
+                    </select>
+                </fieldset>
+                <fieldset class="ui-field-contain">
+
                 </fieldset>
             </div>
         </form>
