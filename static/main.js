@@ -1,7 +1,22 @@
 $(document).ready(function () {
 
+    // Initial formatting for the info blocks
+    var grid_style = {
+        backgroundColor: "Gainsboro",
+        border: "1px solid black",
+        textAlign: "left",
+    };
+
+    $("#status_block").css(grid_style);
+    $("#mode_block").css(grid_style);
+    $("#lat_block").css(grid_style);
+    $("#lon_block").css(grid_style);
+    $("#height_block").css(grid_style);
+
     // SocketIO namespace:
     namespace = "/test";
+
+    // initiate SocketIO connection
     var socket = io.connect("http://" + document.domain + ":" + location.port + namespace);
 
     socket.on("connect", function () {
@@ -11,7 +26,7 @@ $(document).ready(function () {
     // Center alignment
 
     $("#mode_value").text("no link");
-    $("#fix_value").text("no link");
+    $("#status_value").text("no link");
     $("#lon_value").text("0");
     $("#lat_value").text("0");
     $("#height_value").html("0");
@@ -37,18 +52,14 @@ $(document).ready(function () {
         datasets: [
             {
                 label: "Rover satellite levels",
-                fillColor: "rgba(0, 255, 0, 0.9)",
+                fillColor: "rgba(0, 255, 0, 1)",
                 strokeColor: "rgba(0, 0, 0, 0.7)",
-                highlightFill: "rgba(220, 220, 220, 0.75)",
-                highlightStroke: "rgba(220, 220, 220, 1)",
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             },
             {
                 label: "Base satellite levels",
-                fillColor: "rgba(151, 187, 205, 0.9)",
+                fillColor: "rgba(151, 187, 205, 1)",
                 strokeColor: "rgba(0, 0, 0, 0.7)",
-                highlightFill: "rgba(151, 187, 205, 0.75)",
-                highlightStroke: "rgba(151, 187, 205, 1)",
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }
         ]
@@ -67,7 +78,9 @@ $(document).ready(function () {
         scaleStartValue: 0,
         scaleLineColor: "rgba(0, 0, 0, 0.8)",
         scaleGridLineColor: "rgba(0, 0, 0, 0.7)",
-        scaleShowVerticalLines: false
+        scaleShowVerticalLines: false,
+
+        showTooltips: false
     });
 
     // handle data broadcast
@@ -124,13 +137,13 @@ $(document).ready(function () {
                 // take care of the fill color
                 switch (true) {
                     case (msg_data < 30):
-                        fc = "rgba(255, 0, 0, 0.9)"; // Red
+                        fc = "rgba(255, 0, 0, 1)"; // Red
                         break;
                     case (msg_data >= 30 && msg_data <= 45):
-                        fc = "rgba(255, 255, 0, 0.9)"; // Yellow
+                        fc = "rgba(255, 255, 0, 1)"; // Yellow
                         break;
                     case (msg_data >= 45):
-                        fc = "rgba(0, 255, 0, 0.9)"; // Green
+                        fc = "rgba(0, 255, 0, 1)"; // Green
                         break;
                 }
                 console.log("Color is " + fc + "Value is " + msg_data);
@@ -147,7 +160,7 @@ $(document).ready(function () {
         console.log("coordinate msg received");
 
         // status
-        $("#fix_value").html("<span>" + msg.fix + "</span>");
+        $("#status_value").html("<span>" + msg.fix + "</span>");
         $("#mode_value").html("<span>" + msg.mode + "</span>");
 
         // coordinates

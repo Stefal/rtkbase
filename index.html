@@ -22,7 +22,7 @@
 <!-- Status page here: -->
 <div data-role="page" id="status_page">
     <div data-role="header">
-        <div data-role="navbar">
+        <div data-role="navbar" id="navbar1">
             <ul>
                 <li><a href="#" class="ui-btn-active ui-state-persist">Status</a></li>
                 <li><a href="#config_page">Config</a></li>
@@ -31,16 +31,35 @@
         </div>
     </div>
 
-    <div data-role="main" class="ui-content">
-        <ul data-role="listview" data-theme="c" data-divider-theme="a">
-            <li data-icon="false" data-role="list-divider"><h1>Current Position:</h1></li>
-            <li data-icon="false"><b>Mode: </b><span id="mode_value"></span></li>
-            <li data-icon="false"><b>Status: </b><span id="fix_value"></span></li>
-            <li data-icon="false"><b>Latitude: </b><span id="lat_value"></span></li>
-            <li data-icon="false"><b>Longitude: </b><span id="lon_value"></span></li>
-            <li data-icon="false"><b>Height: </b><span id="height_value"></span></li>
-            <li data-icon="false" data-role="list-divider"><h1>Satellite levels:</h1></li>
-        </ul>
+    <div class="ui-grid-a">
+        <div class="ui-block-a" id="mode_block">
+            <div class="ui-bar">
+                <b>Mode: </b><span id="mode_value"></span>
+            </div>
+        </div>
+        <div class="ui-block-b" id="status_block">
+            <div class="ui-bar">
+                <b>Status: </b><span id="status_value"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-grid-b">
+        <div class="ui-block-a" id="lat_block">
+            <div class="ui-bar">
+                <b>Lat: </b><span id="lat_value"></span>
+            </div>
+        </div>
+        <div class="ui-block-b" id="lon_block">
+            <div class="ui-bar">
+                <b>Lon: </b><span id="lon_value"></span>
+            </div>
+        </div>
+        <div class="ui-block-c" id="height_block">
+            <div class="ui-bar">
+                <b>H: </b><span id="height_value"></span>
+            </div>
+        </div>
     </div>
 
     <!-- Canvases for the graphs!!!!!!!!!!!!!!!!!! -->
@@ -51,7 +70,7 @@
 <! Config page here:>
 <div data-role="page" id="config_page">
     <div data-role="header">
-        <div data-role="navbar">
+        <div data-role="navbar" id="navbar2">
             <ul>
                 <li><a href="#status_page">Status</a></li>
                 <li><a href="#" class="ui-btn-active ui-state-persist">Config</a></li>
@@ -80,7 +99,7 @@
 <! Logs page here:>
 <div data-role="page" id="logs_page">
     <div data-role="header">
-        <div data-role="navbar">
+        <div data-role="navbar" id="navbar3">
             <ul>
                 <li><a href="#status_page">Status</a></li>
                 <li><a href="#config_page">Config</a></li>
