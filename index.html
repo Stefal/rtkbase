@@ -82,15 +82,15 @@
     <div data-role="main" class="ui-content">
         <form id="config_form">
             <div class="ui-field-contain">
-                <fieldset data-role="controlgroup" data-type="horizontal">
+                <div data-role="controlgroup" data-type="horizontal">
                     <legend>Act as a base station:</legend>
                     <select name="base_slider" id="base_slider" data-role="slider">
                         <option value="off">Rover</option>
                         <option value="on">Base</option>
                     </select>
-                </fieldset>
-                <fieldset class="ui-field-contain">
-                    <label for="input1_type">Select Day</label>
+                </div>
+                <div class="ui-field-contain">
+                    <label for="input1_type">Select source for input 1: </label>
                     <select id="input1_type">
                         <option value="off">Off</option>
                         <option value="serial">Serial</option>
@@ -101,10 +101,10 @@
                         <option value="ftp">ftp</option>
                         <option value="http">http</option>
                     </select>
-                </fieldset>
-                <fieldset class="ui-field-contain">
+                </div>
+                <div class="ui-field-contain" id="input1_type_parameters">
 
-                </fieldset>
+                </div>
             </div>
         </form>
 

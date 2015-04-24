@@ -4,7 +4,7 @@ $(document).ready(function () {
     var grid_style = {
         backgroundColor: "Gainsboro",
         border: "1px solid black",
-        textAlign: "left",
+        textAlign: "left"
     };
 
     $("#status_block").css(grid_style);
@@ -35,24 +35,55 @@ $(document).ready(function () {
 
     // input 1 type active form
     $("#input1_type").change(function () {
-        switch ($("#input1_type option:selected").text()) {
+        var selected_option = $("#input1_type option:selected").text();
+        var new_form = "";
+
+        switch (selected_option) {
+
             case "Off":
                 break;
             case "Serial":
+                new_form = '<label for="serial_port_value">Serial Device: </label>' +
+                    '<input type="text" id="serial_port_value" value="/dev/MFD1" data-clear-btn="true"/>' +
+                    '<label for="serial_port_baudrate">Baudrate: </label>' +
+                    '<select id="serial_port_baudrate"><option>9600</option><option>115200</option></select>';
                 break;
             case "File":
+                new_form = '<label for="file_path">Absolute Path to the file</label>' +
+                    '<input type="text" id="file_path" value="/home/root/" data-clear-btn="true"/>';
                 break;
             case "TCP client":
+                new_form = '<label for="tcp_client_address">TCP address</label>' +
+                    '<input type="text" id="tcp_client_address" value="192.168.1." data-clear-btn="true"/>';
                 break;
             case "TCP server":
+                new_form = '<label for="tcp_server_address">TCP address</label>' +
+                    '<input type="text" id="tcp_server_address" value="localhost" data-clear-btn="true"/>' +
+                    '<label for="tcp_server_port">TCP port</label>' +
+                    '<input type="text" id="tcp_server_port" data-clear-btn="true" data-clear-btn="true"/>';
                 break;
             case "NTRIP client":
+                new_form = '<label for="ntrip_client_address">NTRIP ip address: </label>' +
+                    '<input type="text" id="ntrip_client_address" data-clear-btn="true"/>' +
+                    '<label for="ntrip_client_port">Port: </label>' +
+                    '<input type="text" id="ntrip_client_port" data-clear-btn="true"/>' +
+                    '<label for="ntrip_client_username">Username: </label>' +
+                    '<input type="text" id="ntrip_client_username" data-clear-btn="true"/>' +
+                    '<label for="ntrip_client_password">Password: </label>' +
+                    '<input type="text" id="ntrip_client_password" data-clear-btn="true"/>';
                 break;
             case "ftp":
+                new_form = '<label for="ftp_path">FTP path: </label>' +
+                    '<input type="text" id="ftp_path" data-clear-btn="true"/>';
                 break;
             case "http":
+                new_form = '<label for="http_path">HTTP path: </label>' +
+                    '<input type="text" id="http_path" data-clear-btn="true"/>';
                 break;
         }
+
+        //update form vars
+        $("#input1_type_parameters").html(new_form).trigger("create");
     });
 
     // This canvas contains the satellite_graph
