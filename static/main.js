@@ -1,3 +1,75 @@
+function createInputTypeForm(select_id, container_id) {
+    select_id = select_id + " option:selected";
+    var selected_option = $(select_id).text();
+    var new_form = "";
+    var input_number = parseInt(select_id.charAt(6)); // the number of input, to be included in all ids
+
+    var sel = '<label for="format">Input format: </label>' +
+        '<select id="format">' +
+        '<option value="rtcm2">rtcm2</option>' +
+        '<option value="rtcm3">rtcm3</option>' +
+        '<option value="oem4">oem4</option>' +
+        '<option value="oem3">oem3</option>' +
+        '<option value="ubx" selected>ubx</option>' +
+        '<option value="ss2">ss2</option>' +
+        '<option value="hemis">hemis</option>' +
+        '<option value="skytraq">skytraq</option>' +
+        '<option value="sp3">sp3</option>' +
+        '</select>';
+
+    switch (selected_option) {
+        case "Off":
+            break;
+        case "Serial":
+            new_form = '<label for="serial_port_value">Serial Device: </label>' +
+                '<input type="text" id="serial_port_value" value="/dev/MFD1" data-clear-btn="true"/>' +
+                '<label for="serial_port_baudrate">Baudrate: </label>' +
+                '<select id="serial_port_baudrate"><option>9600</option><option>115200</option></select>';
+            break;
+        case "File":
+            new_form = '<label for="file_path">Absolute Path to the file</label>' +
+                '<input type="text" id="file_path" value="/home/root/" data-clear-btn="true"/>';
+            break;
+        case "TCP client":
+            new_form = '<label for="tcp_client_address">TCP address</label>' +
+                '<input type="text" id="tcp_client_address" value="192.168.1." data-clear-btn="true"/>';
+            break;
+        case "TCP server":
+            new_form = '<label for="tcp_server_address">TCP address</label>' +
+                '<input type="text" id="tcp_server_address" value="localhost" data-clear-btn="true"/>' +
+                '<label for="tcp_server_port">TCP port</label>' +
+                '<input type="text" id="tcp_server_port" data-clear-btn="true" data-clear-btn="true"/>';
+            break;
+        case "NTRIP client":
+            new_form = '<label for="ntrip_client_address">NTRIP address: </label>' +
+                '<input type="text" id="ntrip_client_address" data-clear-btn="true"/>' +
+                '<label for="ntrip_client_port">Port: </label>' +
+                '<input type="text" id="ntrip_client_port" data-clear-btn="true"/>' +
+                '<label for="ntrip_mount_point">Mount point</label>' +
+                '<input type="text" id="ntrip_mount_point" data-clear-btn="true"/>' +
+                '<label for="ntrip_client_username">Username: </label>' +
+                '<input type="text" id="ntrip_client_username" data-clear-btn="true"/>' +
+                '<label for="ntrip_client_password">Password: </label>' +
+                '<input type="text" id="ntrip_client_password" data-clear-btn="true"/>';
+            break;
+        case "ftp":
+            new_form = '<label for="ftp_path">FTP path: </label>' +
+                '<input type="text" id="ftp_path" data-clear-btn="true"/>';
+            break;
+        case "http":
+            new_form = '<label for="http_path">HTTP path: </label>' +
+                '<input type="text" id="http_path" data-clear-btn="true"/>';
+            break;
+    }
+
+    if (select_id != "Off") {
+        new_form = sel + new_form;
+    }
+
+    //update form vars
+    $(container_id).html(new_form).trigger("create");
+}
+
 $(document).ready(function () {
 
     // Initial formatting for the info blocks
@@ -33,61 +105,14 @@ $(document).ready(function () {
 
     // Config form settings
 
-    function createInputTypeForm(select_id, container_id) {
-        select_id = select_id + " option:selected";
-        var selected_option = $(select_id).text();
-        var new_form = "";
-
-        switch (selected_option) {
-            case "Off":
-                break;
-            case "Serial":
-                new_form = '<label for="serial_port_value">Serial Device: </label>' +
-                    '<input type="text" id="serial_port_value" value="/dev/MFD1" data-clear-btn="true"/>' +
-                    '<label for="serial_port_baudrate">Baudrate: </label>' +
-                    '<select id="serial_port_baudrate"><option>9600</option><option>115200</option></select>';
-                break;
-            case "File":
-                new_form = '<label for="file_path">Absolute Path to the file</label>' +
-                    '<input type="text" id="file_path" value="/home/root/" data-clear-btn="true"/>';
-                break;
-            case "TCP client":
-                new_form = '<label for="tcp_client_address">TCP address</label>' +
-                    '<input type="text" id="tcp_client_address" value="192.168.1." data-clear-btn="true"/>';
-                break;
-            case "TCP server":
-                new_form = '<label for="tcp_server_address">TCP address</label>' +
-                    '<input type="text" id="tcp_server_address" value="localhost" data-clear-btn="true"/>' +
-                    '<label for="tcp_server_port">TCP port</label>' +
-                    '<input type="text" id="tcp_server_port" data-clear-btn="true" data-clear-btn="true"/>';
-                break;
-            case "NTRIP client":
-                new_form = '<label for="ntrip_client_address">NTRIP address: </label>' +
-                    '<input type="text" id="ntrip_client_address" data-clear-btn="true"/>' +
-                    '<label for="ntrip_client_port">Port: </label>' +
-                    '<input type="text" id="ntrip_client_port" data-clear-btn="true"/>' +
-                    '<label for="ntrip_client_username">Username: </label>' +
-                    '<input type="text" id="ntrip_client_username" data-clear-btn="true"/>' +
-                    '<label for="ntrip_client_password">Password: </label>' +
-                    '<input type="text" id="ntrip_client_password" data-clear-btn="true"/>';
-                break;
-            case "ftp":
-                new_form = '<label for="ftp_path">FTP path: </label>' +
-                    '<input type="text" id="ftp_path" data-clear-btn="true"/>';
-                break;
-            case "http":
-                new_form = '<label for="http_path">HTTP path: </label>' +
-                    '<input type="text" id="http_path" data-clear-btn="true"/>';
-                break;
-        }
-
-        //update form vars
-        $(container_id).html(new_form).trigger("create");
-    }
-
     // input 1 type active form
     $("#input1_type").change(function () {
         createInputTypeForm("#input1_type", "#input1_type_parameters");
+    });
+
+    // input 2 type active form
+    $("#input2_type").change(function () {
+        createInputTypeForm("#input2_type", "#input2_type_parameters");
     });
 
     // This canvas contains the satellite_graph
