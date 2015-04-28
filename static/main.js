@@ -72,6 +72,8 @@ function createInputTypeForm(select_id, container_id) {
     $(container_id).html(new_form).trigger("create");
 }
 
+// main
+
 $(document).ready(function () {
 
     // Initial formatting for the info blocks
@@ -97,7 +99,15 @@ $(document).ready(function () {
         socket.emit("browser connected", {data: "I'm connected"});
     });
 
-    // Center alignment
+    // Current active tab
+    var active_tab = "Status";
+
+    $("a.tab").click(function () {
+        active_tab = $(this).text();
+        console.log("Active tab = " + active_tab);
+    });
+
+    // Default values
 
     $("#mode_value").text("no link");
     $("#status_value").text("no link");
@@ -105,14 +115,16 @@ $(document).ready(function () {
     $("#lat_value").text("0");
     $("#height_value").html("0");
 
-    // Config form settings
+    // Config FORM settings
 
     // input 1 type active form
+
     $("#input1_type").change(function () {
         createInputTypeForm("#input1_type", "#input1_type_parameters");
     });
 
     // input 2 type active form
+
     $("#input2_type").change(function () {
         createInputTypeForm("#input2_type", "#input2_type_parameters");
     });
@@ -126,13 +138,16 @@ $(document).ready(function () {
     var ctx = canvas.get(0).getContext("2d");
 
     // keep aspect ratio
+
     ctx.canvas.width = window.innerWidth;
     ctx.canvas.height = 0.5 * window.innerWidth;
 
     // change between-bar width depending on screen width
+
     var bar_spacing = (ctx.canvas.width > 1000) ? 5 : 2;
 
     // satellite_graph is created based on this data
+
     var sat_data = {
         labels: ["2", "4", "7", "10", "12", "14", "18", "20", "23", "31"],
         datasets: [
@@ -152,6 +167,7 @@ $(document).ready(function () {
     };
 
     // draw the satellite_graph
+
     var satellite_graph = new Chart(ctx).Bar(sat_data, {
         responsive: true,
 
@@ -170,89 +186,96 @@ $(document).ready(function () {
     });
 
     // handle data broadcast
+
     socket.on("my response", function (msg) {
 
     });
 
     socket.on("time broadcast", function (msg) {
-        console.log("time msg received");
+        if (active_tab == "Status") {
+            console.log("time msg received");
+        }
     });
 
     socket.on("satellite broadcast", function (msg) {
-        console.log("satellite msg received");
+        if (active_tab == "Status") {
+            console.log("satellite msg received");
 
-        // get all the keys of msg object
-        var rover_count = 0;
-        var base_count = 0;
-        var fc = 0;
+            // get all the keys of msg object
+            var rover_count = 0;
+            var base_count = 0;
+            var fc = 0;
 
-        // cycle through all the data of the incoming message
-        for (var k in msg) {
+            // cycle through all the data of the incoming message
+            for (var k in msg) {
 
-            var msg_data = msg[k];
+                var msg_data = msg[k];
 
-            // if this is a rover satellite level, then update the rover part of the satellite graph
-            if (k.indexOf("rover") > -1) {
+                // if this is a rover satellite level, then update the rover part of the satellite graph
+                if (k.indexOf("rover") > -1) {
 
-                // var rover_number = k.charAt(5); // get satellite number for this value
-                satellite_graph.datasets[0].bars[rover_count].value = msg_data;
+                    // var rover_number = k.charAt(5); // get satellite number for this value
+                    satellite_graph.datasets[0].bars[rover_count].value = msg_data;
 
-                // take care of the fill color
-                switch (true) {
-                    case (msg_data < 30):
-                        fc = "rgba(255, 0, 0, 0.9)"; // Red
-                        break;
-                    case (msg_data >= 30 && msg_data <= 45):
-                        fc = "rgba(255, 255, 0, 0.9)"; // Yellow
-                        break;
-                    case (msg_data >= 45):
-                        fc = "rgba(0, 255, 0, 0.9)"; // Green
-                        break;
+                    // take care of the fill color
+                    switch (true) {
+                        case (msg_data < 30):
+                            fc = "rgba(255, 0, 0, 0.9)"; // Red
+                            break;
+                        case (msg_data >= 30 && msg_data <= 45):
+                            fc = "rgba(255, 255, 0, 0.9)"; // Yellow
+                            break;
+                        case (msg_data >= 45):
+                            fc = "rgba(0, 255, 0, 0.9)"; // Green
+                            break;
+                    }
+
+                    satellite_graph.datasets[0].bars[rover_count].fillColor = fc;
+                    rover_count++;
                 }
 
-                satellite_graph.datasets[0].bars[rover_count].fillColor = fc;
-                rover_count++;
-            }
+                // if this is a base satellite level, update the base part of the satellite graph
+                if (k.indexOf("base") > -1) {
 
-            // if this is a base satellite level, update the base part of the satellite graph
-            if (k.indexOf("base") > -1) {
+                    // var base_number_ = k.charAt(4); // get satellite number for this value
+                    satellite_graph.datasets[1].bars[base_count].value = msg_data;
 
-                // var base_number_ = k.charAt(4); // get satellite number for this value
-                satellite_graph.datasets[1].bars[base_count].value = msg_data;
+                    // take care of the fill color
+                    switch (true) {
+                        case (msg_data < 30):
+                            fc = "rgba(255, 0, 0, 1)"; // Red
+                            break;
+                        case (msg_data >= 30 && msg_data <= 45):
+                            fc = "rgba(255, 255, 0, 1)"; // Yellow
+                            break;
+                        case (msg_data >= 45):
+                            fc = "rgba(0, 255, 0, 1)"; // Green
+                            break;
+                    }
+                    console.log("Color is " + fc + "Value is " + msg_data);
 
-                // take care of the fill color
-                switch (true) {
-                    case (msg_data < 30):
-                        fc = "rgba(255, 0, 0, 1)"; // Red
-                        break;
-                    case (msg_data >= 30 && msg_data <= 45):
-                        fc = "rgba(255, 255, 0, 1)"; // Yellow
-                        break;
-                    case (msg_data >= 45):
-                        fc = "rgba(0, 255, 0, 1)"; // Green
-                        break;
+                    satellite_graph.datasets[1].bars[base_count].fillColor = fc;
+                    base_count++;
                 }
-                console.log("Color is " + fc + "Value is " + msg_data);
-
-                satellite_graph.datasets[1].bars[base_count].fillColor = fc;
-                base_count++;
             }
+
+            satellite_graph.update();
         }
-
-        satellite_graph.update();
     });
 
     socket.on("coordinate broadcast", function (msg) {
-        console.log("coordinate msg received");
+        if (active_tab == "Status") {
+            console.log("coordinate msg received");
 
-        // status
-        $("#status_value").html("<span>" + msg.fix + "</span>");
-        $("#mode_value").html("<span>" + msg.mode + "</span>");
+            // status
+            $("#status_value").html("<span>" + msg.fix + "</span>");
+            $("#mode_value").html("<span>" + msg.mode + "</span>");
 
-        // coordinates
-        $("#lon_value").html("<span>" + msg.lon.toFixed(8) + "</span>");
-        $("#lat_value").html("<span>" + msg.lat.toFixed(8) + "</span>");
-        $("#height_value").html("<span>" + msg.height.toFixed(8) + "</span>");
+            // coordinates
+            $("#lon_value").html("<span>" + msg.lon.toFixed(8) + "</span>");
+            $("#lat_value").html("<span>" + msg.lat.toFixed(8) + "</span>");
+            $("#height_value").html("<span>" + msg.height.toFixed(8) + "</span>");
+        }
 
     });
 });
