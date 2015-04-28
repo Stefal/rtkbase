@@ -31,15 +31,14 @@ $(document).ready(function () {
     $("#lat_value").text("0");
     $("#height_value").html("0");
 
-    // Config form settigns
+    // Config form settings
 
-    // input 1 type active form
-    $("#input1_type").change(function () {
-        var selected_option = $("#input1_type option:selected").text();
+    function createInputTypeForm(select_id, container_id) {
+        select_id = select_id + " option:selected";
+        var selected_option = $(select_id).text();
         var new_form = "";
 
         switch (selected_option) {
-
             case "Off":
                 break;
             case "Serial":
@@ -63,7 +62,7 @@ $(document).ready(function () {
                     '<input type="text" id="tcp_server_port" data-clear-btn="true" data-clear-btn="true"/>';
                 break;
             case "NTRIP client":
-                new_form = '<label for="ntrip_client_address">NTRIP ip address: </label>' +
+                new_form = '<label for="ntrip_client_address">NTRIP address: </label>' +
                     '<input type="text" id="ntrip_client_address" data-clear-btn="true"/>' +
                     '<label for="ntrip_client_port">Port: </label>' +
                     '<input type="text" id="ntrip_client_port" data-clear-btn="true"/>' +
@@ -83,7 +82,12 @@ $(document).ready(function () {
         }
 
         //update form vars
-        $("#input1_type_parameters").html(new_form).trigger("create");
+        $(container_id).html(new_form).trigger("create");
+    }
+
+    // input 1 type active form
+    $("#input1_type").change(function () {
+        createInputTypeForm("#input1_type", "#input1_type_parameters");
     });
 
     // This canvas contains the satellite_graph
