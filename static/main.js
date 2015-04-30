@@ -72,9 +72,22 @@ function createInputTypeForm(select_id, container_id) {
     $(container_id).html(new_form).trigger("create");
 }
 
+var isActive = true;
+
+function onFocus() {
+    isActive = true;
+}
+
+function onBlur() {
+    isActive = false;
+}
+
 // main
 
 $(document).ready(function () {
+
+    window.onfocus = onFocus;
+    window.onblur = onBlur;
 
     // Initial formatting for the info blocks
     var grid_style = {
@@ -192,13 +205,14 @@ $(document).ready(function () {
     });
 
     socket.on("time broadcast", function (msg) {
-        if (active_tab == "Status") {
+        if ((active_tab == "Status") && (isActive == true)) {
             console.log("time msg received");
         }
     });
 
     socket.on("satellite broadcast", function (msg) {
-        if (active_tab == "Status") {
+        console.log("Satellite broadcast. Windows is active - " + isActive);
+        if ((active_tab == "Status") && (isActive == true)) {
             console.log("satellite msg received");
 
             // get all the keys of msg object
@@ -264,7 +278,7 @@ $(document).ready(function () {
     });
 
     socket.on("coordinate broadcast", function (msg) {
-        if (active_tab == "Status") {
+        if ((active_tab == "Status") && (isActive == true)) {
             console.log("coordinate msg received");
 
             // status
