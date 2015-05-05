@@ -1,69 +1,85 @@
-function createInputTypeForm(select_id, container_id) {
+function createIOTypeForm(select_id, container_id) {
     select_id = select_id + " option:selected";
     var selected_option = $(select_id).text();
     var new_form = "";
-    var input_number = parseInt(select_id.charAt(6)); // the number of input, to be included in all ids
+    var reg_exp = /\d/;
+    var number = select_id.match(reg_exp);
+    var format_select;
+    var io_number = "_" + select_id.charAt(1) + number;
+    console.log("New form for " + io_number);
 
-    var sel = '<label for="format' + input_number + '">Input format: </label>' +
-        '<select id="format' + input_number + '">' +
-        '<option value="rtcm2">rtcm2</option>' +
-        '<option value="rtcm3">rtcm3</option>' +
-        '<option value="oem4">oem4</option>' +
-        '<option value="oem3">oem3</option>' +
-        '<option value="ubx" selected>ubx</option>' +
-        '<option value="ss2">ss2</option>' +
-        '<option value="hemis">hemis</option>' +
-        '<option value="skytraq">skytraq</option>' +
-        '<option value="sp3">sp3</option>' +
-        '</select>';
+    if (select_id.charAt(1) == "i") {
+        format_select = '<label for="format' + io_number + '">Input format: </label>' +
+            '<select id="format' + io_number + '">' +
+            '<option value="rtcm2">rtcm2</option>' +
+            '<option value="rtcm3">rtcm3</option>' +
+            '<option value="oem4">oem4</option>' +
+            '<option value="oem3">oem3</option>' +
+            '<option value="ubx" selected>ubx</option>' +
+            '<option value="ss2">ss2</option>' +
+            '<option value="hemis">hemis</option>' +
+            '<option value="skytraq">skytraq</option>' +
+            '<option value="sp3">sp3</option>' +
+            '</select>';
+    } else {
+        format_select = '<label for="format' + io_number + '">Output format: </label>' +
+            '<select id="format' + io_number + '">' +
+            '<option value="llh">llh</option>' +
+            '<option value="xyz">xyz</option>' +
+            '<option value="enu">enu</option>' +
+            '<option value="nmea">nmea</option>' +
+            '</select>';
+    }
 
     switch (selected_option) {
         case "Off":
             break;
         case "Serial":
-            new_form = '<label for="serial_port_value' + input_number + '">Serial Device: </label>' +
-                '<input type="text" id="serial_port_value' + input_number + '" value="/dev/MFD1" data-clear-btn="true"/>' +
-                '<label for="serial_port_baudrate' + input_number + '">Baudrate: </label>' +
-                '<select id="serial_port_baudrate' + input_number + '"><option>9600</option><option>115200</option></select>';
+            new_form = '<label for="serial_port_value' + io_number + '">Serial Device: </label>' +
+                '<input type="text" id="serial_port_value' + io_number + '" value="/dev/MFD1" data-clear-btn="true"/>' +
+                '<label for="serial_port_baudrate' + io_number + '">Baudrate: </label>' +
+                '<select id="serial_port_baudrate' + io_number + '"><option>9600</option><option>115200</option></select>';
             break;
         case "File":
-            new_form = '<label for="file_path' + input_number + '">Absolute Path to the file</label>' +
-                '<input type="text" id="file_path' + input_number + '" value="/home/root/" data-clear-btn="true"/>';
+            new_form = '<label for="file_path' + io_number + '">Absolute Path to the file</label>' +
+                '<input type="text" id="file_path' + io_number + '" value="/home/root/" data-clear-btn="true"/>';
             break;
         case "TCP client":
-            new_form = '<label for="tcp_client_address' + input_number + '">TCP address</label>' +
-                '<input type="text" id="tcp_client_address' + input_number + '" value="192.168.1." data-clear-btn="true"/>';
+            new_form = '<label for="tcp_client_address' + io_number + '">TCP address</label>' +
+                '<input type="text" id="tcp_client_address' + io_number + '" value="192.168.1." data-clear-btn="true"/>';
             break;
         case "TCP server":
-            new_form = '<label for="tcp_server_address' + input_number + '">TCP address</label>' +
-                '<input type="text" id="tcp_server_address' + input_number + '" value="localhost" data-clear-btn="true"/>' +
-                '<label for="tcp_server_port' + input_number + '">TCP port</label>' +
-                '<input type="text" id="tcp_server_port' + input_number + '" data-clear-btn="true" data-clear-btn="true"/>';
+            new_form = '<label for="tcp_server_address' + io_number + '">TCP address</label>' +
+                '<input type="text" id="tcp_server_address' + io_number + '" value="localhost" data-clear-btn="true"/>' +
+                '<label for="tcp_server_port' + io_number + '">TCP port</label>' +
+                '<input type="text" id="tcp_server_port' + io_number + '" data-clear-btn="true" data-clear-btn="true"/>';
             break;
         case "NTRIP client":
-            new_form = '<label for="ntrip_client_address' + input_number + '">NTRIP address: </label>' +
-                '<input type="text" id="ntrip_client_address' + input_number + '" data-clear-btn="true"/>' +
-                '<label for="ntrip_client_port' + input_number + '">Port: </label>' +
-                '<input type="text" id="ntrip_client_port' + input_number + '" data-clear-btn="true"/>' +
-                '<label for="ntrip_mount_point' + input_number + '">Mount point</label>' +
-                '<input type="text" id="ntrip_mount_point' + input_number + '" data-clear-btn="true"/>' +
-                '<label for="ntrip_client_username' + input_number + '">Username: </label>' +
-                '<input type="text" id="ntrip_client_username' + input_number + '" data-clear-btn="true"/>' +
-                '<label for="ntrip_client_password' + input_number + '">Password: </label>' +
-                '<input type="text" id="ntrip_client_password' + input_number + '" data-clear-btn="true"/>';
+            new_form = '<label for="ntrip_client_address' + io_number + '">NTRIP address: </label>' +
+                '<input type="text" id="ntrip_client_address' + io_number + '" data-clear-btn="true"/>' +
+                '<label for="ntrip_client_port' + io_number + '">Port: </label>' +
+                '<input type="text" id="ntrip_client_port' + io_number + '" data-clear-btn="true"/>' +
+                '<label for="ntrip_mount_point' + io_number + '">Mount point</label>' +
+                '<input type="text" id="ntrip_mount_point' + io_number + '" data-clear-btn="true"/>' +
+                '<label for="ntrip_client_username' + io_number + '">Username: </label>' +
+                '<input type="text" id="ntrip_client_username' + io_number + '" data-clear-btn="true"/>' +
+                '<label for="ntrip_client_password' + io_number + '">Password: </label>' +
+                '<input type="text" id="ntrip_client_password' + io_number + '" data-clear-btn="true"/>';
             break;
+        case "NTRIP server":
+            new_form = '';
         case "ftp":
-            new_form = '<label for="ftp_path' + input_number + '">FTP path: </label>' +
-                '<input type="text" id="ftp_path' + input_number + '" data-clear-btn="true"/>';
+            new_form = '<label for="ftp_path' + io_number + '">FTP path: </label>' +
+                '<input type="text" id="ftp_path' + io_number + '" data-clear-btn="true"/>';
             break;
         case "http":
-            new_form = '<label for="http_path' + input_number + '">HTTP path: </label>' +
-                '<input type="text" id="http_path' + input_number + '" data-clear-btn="true"/>';
+            new_form = '<label for="http_path' + io_number + '">HTTP path: </label>' +
+                '<input type="text" id="http_path' + io_number + '" data-clear-btn="true"/>';
             break;
     }
 
     if (select_id != "Off") {
-        new_form = sel + new_form;
+        new_form += format_select;
     }
 
     console.log("New form = " + new_form);
@@ -133,15 +149,26 @@ $(document).ready(function () {
     // input 1 type active form
 
     $("#input1_type").change(function () {
-        createInputTypeForm("#input1_type", "#input1_type_parameters");
+        createIOTypeForm("#input1_type", "#input1_type_parameters");
     });
 
     // input 2 type active form
 
     $("#input2_type").change(function () {
-        createInputTypeForm("#input2_type", "#input2_type_parameters");
+        createIOTypeForm("#input2_type", "#input2_type_parameters");
     });
 
+    // output 1 type active form
+
+    $("#output1_type").change(function () {
+        createIOTypeForm("#output1_type", "#output1_type_parameters");
+    });
+
+    // output 2 type active form
+
+    $("#output2_type").change(function () {
+        createIOTypeForm("#output2_type", "#output2_type_parameters");
+    });
     // This canvas contains the satellite_graph
 
     var canvas = $("#sat_chart_canvas");
@@ -205,13 +232,14 @@ $(document).ready(function () {
     });
 
     socket.on("time broadcast", function (msg) {
+        // check if the browser tab and app tab
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("time msg received");
         }
     });
 
     socket.on("satellite broadcast", function (msg) {
-        console.log("Satellite broadcast. Windows is active - " + isActive);
+        // check if the browser tab and app tab
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("satellite msg received");
 
@@ -278,6 +306,7 @@ $(document).ready(function () {
     });
 
     socket.on("coordinate broadcast", function (msg) {
+        // check if the browser tab and app tab
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("coordinate msg received");
 
