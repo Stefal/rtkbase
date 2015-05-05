@@ -4,31 +4,34 @@ function createIOTypeForm(select_id, container_id) {
     var new_form = "";
     var reg_exp = /\d/;
     var number = select_id.match(reg_exp);
-    var format_select;
+    var format_select = "";
     var io_number = "_" + select_id.charAt(1) + number;
+
     console.log("New form for " + io_number);
 
-    if (select_id.charAt(1) == "i") {
-        format_select = '<label for="format' + io_number + '">Input format: </label>' +
-            '<select id="format' + io_number + '">' +
-            '<option value="rtcm2">rtcm2</option>' +
-            '<option value="rtcm3">rtcm3</option>' +
-            '<option value="oem4">oem4</option>' +
-            '<option value="oem3">oem3</option>' +
-            '<option value="ubx" selected>ubx</option>' +
-            '<option value="ss2">ss2</option>' +
-            '<option value="hemis">hemis</option>' +
-            '<option value="skytraq">skytraq</option>' +
-            '<option value="sp3">sp3</option>' +
-            '</select>';
-    } else {
-        format_select = '<label for="format' + io_number + '">Output format: </label>' +
-            '<select id="format' + io_number + '">' +
-            '<option value="llh">llh</option>' +
-            '<option value="xyz">xyz</option>' +
-            '<option value="enu">enu</option>' +
-            '<option value="nmea">nmea</option>' +
-            '</select>';
+    if (selected_option != "Off") {
+        if (select_id.charAt(1) == "i") {
+            format_select = '<label for="format' + io_number + '">Input format: </label>' +
+                '<select id="format' + io_number + '">' +
+                '<option value="rtcm2">rtcm2</option>' +
+                '<option value="rtcm3">rtcm3</option>' +
+                '<option value="oem4">oem4</option>' +
+                '<option value="oem3">oem3</option>' +
+                '<option value="ubx" selected>ubx</option>' +
+                '<option value="ss2">ss2</option>' +
+                '<option value="hemis">hemis</option>' +
+                '<option value="skytraq">skytraq</option>' +
+                '<option value="sp3">sp3</option>' +
+                '</select>';
+        } else if (select_id.charAt(1) == "o") {
+            format_select = '<label for="format' + io_number + '">Output format: </label>' +
+                '<select id="format' + io_number + '">' +
+                '<option value="llh">llh</option>' +
+                '<option value="xyz">xyz</option>' +
+                '<option value="enu">enu</option>' +
+                '<option value="nmea">nmea</option>' +
+                '</select>';
+        }
     }
 
     switch (selected_option) {
@@ -68,6 +71,7 @@ function createIOTypeForm(select_id, container_id) {
             break;
         case "NTRIP server":
             new_form = '';
+            break;
         case "ftp":
             new_form = '<label for="ftp_path' + io_number + '">FTP path: </label>' +
                 '<input type="text" id="ftp_path' + io_number + '" data-clear-btn="true"/>';
@@ -169,6 +173,7 @@ $(document).ready(function () {
     $("#output2_type").change(function () {
         createIOTypeForm("#output2_type", "#output2_type_parameters");
     });
+
     // This canvas contains the satellite_graph
 
     var canvas = $("#sat_chart_canvas");

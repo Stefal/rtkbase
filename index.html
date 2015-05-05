@@ -82,11 +82,34 @@
     <div data-role="main" class="ui-content">
         <form id="config_form">
             <div class="ui-field-contain">
-                <div data-role="controlgroup" data-type="horizontal">
-                    <legend>Act as a base station:</legend>
-                    <select name="base_slider" id="base_slider" data-role="slider">
-                        <option value="off">Rover</option>
-                        <option value="on">Base</option>
+                <div class="ui-field-contain" data-role="controlgroup" data-type="horizontal">
+                    <legend>This Reach wiil act as:</legend>
+                    <input type="radio" name="radio-choice-b" id="radio-choice-c" value="base">
+                    <label for="radio-choice-c">Base</label>
+                    <input type="radio" name="radio-choice-b" id="radio-choice-d" value="rover" checked="checked">
+                    <label for="radio-choice-d">Rover</label>
+                    <input type="radio" name="radio-choice-b" id="radio-choice-e" value="custom">
+                            <label for="radio-choice-e">Custom</label>
+                </div>
+                <div class="ui-field-contain">
+                    <label for="position_mode">Select positioning mode: </label>
+                    <select id="position_mode">
+                        <option value="single">single</option>
+                        <option value="dgps">dgps</option>
+                        <option value="kinematic">kinematic</option>
+                        <option value="static">static</option>
+                        <option value="movingbase">movingbase</option>
+                        <option value="fixed">fixed</option>
+                        <option value="ppp-kine">ppp-kine</option>
+                        <option value="ppp-static">ppp-static</option>
+                    </select>
+                </div>
+                <div class="ui-field-contain">
+                    <label for="position_frequency">Select positioning frequency: </label>
+                    <select id="position_frequency">
+                        <option value="l1">l1</option>
+                        <option value="l1+l2">l1+l2</option>
+                        <option value="l1+l2+l5">l1+l2+l5</option>
                     </select>
                 </div>
                 <div class="ui-field-contain">
@@ -141,6 +164,11 @@
                     </select>
                 </div>
                 <div class="ui-field-contain" id="output2_type_parameters"></div>
+                <div class="ui-field-contain" id="config_buttons">
+                    <a href="#" class="ui-btn ui-btn-inline" id="load_and_restart_button">Load & Restart</a>
+                    <a href="#" class="ui-btn ui-btn-inline" id="get_current_state_button">Get current state</a>
+                    <a href="#" class="ui-btn ui-btn-inline" id="get_default_parameters">Get default state</a>
+                </div>
             </div>
         </form>
 
@@ -165,7 +193,6 @@
     </div>
 
 </div>
-
 
 </body>
 </html>
