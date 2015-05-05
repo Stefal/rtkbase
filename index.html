@@ -82,14 +82,14 @@
     <div data-role="main" class="ui-content">
         <form id="config_form">
             <div class="ui-field-contain">
-                <div class="ui-field-contain" data-role="controlgroup" data-type="horizontal">
-                    <legend>This Reach wiil act as:</legend>
+                <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
+                    <legend>This Reach will act as:</legend>
                     <input type="radio" name="radio-choice-b" id="radio-choice-c" value="base">
                     <label for="radio-choice-c">Base</label>
                     <input type="radio" name="radio-choice-b" id="radio-choice-d" value="rover" checked="checked">
                     <label for="radio-choice-d">Rover</label>
                     <input type="radio" name="radio-choice-b" id="radio-choice-e" value="custom">
-                            <label for="radio-choice-e">Custom</label>
+                    <label for="radio-choice-e">Custom</label>
                 </div>
                 <div class="ui-field-contain">
                     <label for="position_mode">Select positioning mode: </label>
@@ -105,11 +105,20 @@
                     </select>
                 </div>
                 <div class="ui-field-contain">
-                    <label for="position_frequency">Select positioning frequency: </label>
+                    <label for="position_frequency">Select carrier frequency: </label>
                     <select id="position_frequency">
                         <option value="l1">l1</option>
                         <option value="l1+l2">l1+l2</option>
                         <option value="l1+l2+l5">l1+l2+l5</option>
+                    </select>
+                </div>
+                <div class="ui-field-contain">
+                    <label for="position_ar_mode">Select ambiguity resolution mode: </label>
+                    <select id="position_ar_mode">
+                        <option value="off">off</option>
+                        <option value="continuous">continuous</option>
+                        <option value="instantaneous">instantaneous</option>
+                        <option value="fix-and-hold">fix-and-hold</option>
                     </select>
                 </div>
                 <div class="ui-field-contain">
