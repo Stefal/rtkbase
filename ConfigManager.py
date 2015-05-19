@@ -1,6 +1,3 @@
-from gevent import monkey
-monkey.patch_all()
-
 from flask.ext.socketio import SocketIO, emit
 
 # This module aims to make working with RTKLIB configs easier
@@ -15,6 +12,7 @@ class ConfigManager:
         self.default_base_config = "reach_base_default.conf"
         self.default_rover_config = "reach_rover_default.conf"
         self.custom_config = ""
+        self.buff_options = {}
         self.buff_dict = {}
         self.buff_dict_order = []
         self.readConfig(self.default_base_config) # we do this to load config order from default reach base config
@@ -33,12 +31,17 @@ class ConfigManager:
                 # check if the line is empty or commented
                 if length > 0:
                     if separated_lines[0][0] != "#":
-                        param = separated_lines[0] # get first part of the line, before the equal  
-
+                        param = separated_lines[0] # get first part of the line, before the equal sign
                         val = separated_lines[1][1:] # get the second part of the line, discarding "=" symbol
 
+                        if length > 3:
+                            options = separated_lines[3]
+                            # some of the options are comments only
+                            if ":" in options:
+                                self.buff_options[param] = options
+
                         self.buff_dict[param] = val
-                        self.buff_dict_order.append(param) # this is needed to conserve the order of the parameters if the config file
+                        self.buff_dict_order.append(param) # this is needed to conserve the order of the parameters in the config file
 
     def writeConfig(self, to_file, dict_values = None):
 
@@ -46,8 +49,14 @@ class ConfigManager:
             dict_values = self.buff_dict
 
         with open(to_file, "w") as f:
+            line = "# rtkrcv options for rtk (2015, v.2.4.2)"
+            f.write(line + "\n\n")
             for key in self.buff_dict_order:
                 line = key + " " * (19 - len(key)) + "=" + self.buff_dict[key]
+                # check if options are available
+                if key in self.buff_options:
+                    line += " # " + self.buff_options[key]
+
                 f.write(line + "\n")
 
     def sendConfig(self, config_filename = None):
@@ -64,8 +73,6 @@ class ConfigManager:
 
 
 cm = ConfigManager()
-print("Default order is: ")
-print(cm.buff_dict_order)
 
 cm.readConfig("rtk_startup.conf")
 cm.writeConfig("rtk_startup2.conf")
