@@ -1,5 +1,6 @@
 import pexpect
 import time
+import timeit
 
 class RtkManager:
 
@@ -8,6 +9,7 @@ class RtkManager:
         self.child = 0
         self.status = {}
         self.obs = {}
+        self.updated = False
 
     def expectAnswer(self, last_command = ""):
         a = self.child.expect(["rtkrcv>", pexpect.EOF, "error"])
@@ -92,12 +94,13 @@ class RtkManager:
             spl = line.split(":")
 
             if len(spl) > 1:
-                key = spl[0].strip()
+                param = spl[0].strip()
                 value = spl[1].strip()
 
-                self.status[key] = value
+                self.status = {}
+                self.status[param] = value
 
-                print(key + ":::" + value)
+                print(param + ":::" + value)
 
             # get rid of extra whitespace
 
@@ -115,10 +118,33 @@ class RtkManager:
         # time to extract information from the obs form
 
         obs = self.child.before.split("\r\n")
+        obs = filter(None, obs)
 
-        for line in obs:
-            spl = line.split()
-            print(spl)
+        # check for the header string
+        matching_strings = [s for s in obs if "SAT" in s]
+
+        if matching_strings != []:
+            header_index = obs.index(matching_strings[0])
+
+            header = obs[header_index].split()
+
+            sat_name_index = header.index("SAT")
+            sat_level_index = header.index("D2(Hz)")
+
+            if len(obs) > (header_index + 1):
+                # we have some info about the actual satellites:
+
+                self.obs = {}
+
+                for line in obs[header_index+1:]:
+                    spl = line.split()
+                    print(spl)
+                    name = spl[sat_name_index]
+                    level = spl[sat_level_index]
+
+                    self.obs[name] = level
+
+                    print("new satellites: " + name + ":::" + level[-2:])
 
         return 1
 
