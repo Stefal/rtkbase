@@ -1,4 +1,5 @@
 import pexpect
+import time
 
 class RtkManager:
 
@@ -25,14 +26,14 @@ class RtkManager:
         return 1
 
     def start(self, config_name = "rtk.conf"):
-
         # run an rtkrcv instance with the specified config:
         # if there is a slash in the name we consider it a full location
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
+
         if "/" in config_name:
             self.child = pexpect.spawn("./rtkrcv -o " + config_name, cwd = self.bin_path, echo = False)
         else:
-            self.child = pexpect.spawn("./rtkrcv -o ../" + config_name, cwd = self.bin_path, echo = False)
+            self.child = pexpect.spawn("./rtkrcv -o ../" + config_name, cwd = self.bin_path, echo = True)
 
         if self.expectAnswer("start") < 0:
             return -1
@@ -54,6 +55,9 @@ class RtkManager:
         if self.expectAnswer("restart") < 0:
             return -1
 
+        if self.expectAnswer("restart") < 0:
+            return -1
+
         print("RTKLIB restart successful")
         print(self.child.before)
 
@@ -71,7 +75,6 @@ class RtkManager:
         return 1
 
     def getStatus(self):
-        print("### Getting status ###")
         self.child.send("status\r\n")
 
         if self.expectAnswer("get status") < 0:
@@ -82,33 +85,39 @@ class RtkManager:
 
         # time to extract information from the status form
 
-        print("Status == " + self.child.before)
-
         status = self.child.before.split("\r\n")
+        print(status)
 
         for line in status:
             spl = line.split(":")
-            print(spl)
 
-        print("@@@ Finished with status @@@")
+            if len(spl) > 1:
+                key = spl[0].strip()
+                value = spl[1].strip()
+
+                self.status[key] = value
+
+                print(key + ":::" + value)
+
+            # get rid of extra whitespace
 
         return 1
 
     def getObs(self):
-        print("### Getting Obs ###")
         self.child.send("obs\r\n")
+
+        if self.expectAnswer("get obs") < 0:
+            return -1
 
         if self.expectAnswer("get obs") < 0:
             return -1
 
         # time to extract information from the obs form
 
-        print("Obs: " + self.child.before)
-
         obs = self.child.before.split("\r\n")
 
         for line in obs:
-            spl = line.split(":")
+            spl = line.split()
             print(spl)
 
         return 1
@@ -117,4 +126,10 @@ rm = RtkManager("/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc")
 
 if rm.start() > 0:
     rm.restart()
-    rm.getStatus()
+
+    while(1):
+        rm.getStatus()
+        rm.getObs()
+        time.sleep(1)
+
+
