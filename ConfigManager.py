@@ -6,7 +6,7 @@ from flask.ext.socketio import SocketIO, emit
 # and keeps the order of settings, stored there 
 
 class ConfigManager:
-    
+
     def __init__(self, socketio = None):
         self.config_path = ""
         self.default_base_config = "reach_base_default.conf"

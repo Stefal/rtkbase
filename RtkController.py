@@ -1,6 +1,5 @@
 import pexpect
 import time
-import timeit
 
 class RtkManager:
 
@@ -76,6 +75,26 @@ class RtkManager:
 
         return 1
 
+    def stop(self):
+        self.child.send("shutdown\r\n")
+
+        a = self.child.expect([":", pexpect.EOF, "error"])
+        print("first expect from stop")
+        print("Stop expects: " + str(a))
+
+        if a > 0:
+            print("Stop error")
+            r = -1
+        else:
+            self.child.send("y\r\n")
+            r = 1
+
+        if self.expectAnswer("shutdown yes") < 0:
+            r = -1
+
+        return r
+
+
     def getStatus(self):
         self.child.send("status\r\n")
 
@@ -88,21 +107,18 @@ class RtkManager:
         # time to extract information from the status form
 
         status = self.child.before.split("\r\n")
-        print(status)
 
         for line in status:
             spl = line.split(":")
 
             if len(spl) > 1:
+                # get rid of extra whitespace
+
                 param = spl[0].strip()
                 value = spl[1].strip()
 
                 self.status = {}
                 self.status[param] = value
-
-                print(param + ":::" + value)
-
-            # get rid of extra whitespace
 
         return 1
 
@@ -118,6 +134,8 @@ class RtkManager:
         # time to extract information from the obs form
 
         obs = self.child.before.split("\r\n")
+
+        # strip out empty lines
         obs = filter(None, obs)
 
         # check for the header string
@@ -131,6 +149,7 @@ class RtkManager:
             sat_name_index = header.index("SAT")
             sat_level_index = header.index("D2(Hz)")
 
+
             if len(obs) > (header_index + 1):
                 # we have some info about the actual satellites:
 
@@ -138,7 +157,6 @@ class RtkManager:
 
                 for line in obs[header_index+1:]:
                     spl = line.split()
-                    print(spl)
                     name = spl[sat_name_index]
                     level = spl[sat_level_index]
 
@@ -148,14 +166,24 @@ class RtkManager:
 
         return 1
 
-rm = RtkManager("/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc")
 
-if rm.start() > 0:
-    rm.restart()
+import timeit
+print(timeit.timeit("rm.getStatus()", "import RtkManager; rm = RtkManager.RtkManager('/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc'); rm.start()", number = 100))
 
-    while(1):
-        rm.getStatus()
-        rm.getObs()
-        time.sleep(1)
+rc = RtkManager("/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc")
+
+if rc.start() > 0:
+    rc.restart()
+
+
+    rc.getStatus()
+    rc.getObs()
+    print("stop")
+    rc.stop()
+
+    # while(1):
+    #     rm.getStatus()
+    #     rm.getObs()
+    #     time.sleep(1)
 
 
