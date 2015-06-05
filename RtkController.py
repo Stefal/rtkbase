@@ -1,7 +1,7 @@
 import pexpect
 import time
 
-class RtkManager:
+class RtkController:
 
     def __init__(self, path_to_rtkrcv = "/home/root/RTKLIB/app/rtkrcv/gcc"):
         self.bin_path = path_to_rtkrcv
@@ -120,6 +120,8 @@ class RtkManager:
                 self.status = {}
                 self.status[param] = value
 
+                print(param + ":::" + value)
+
         return 1
 
     def getObs(self):
@@ -168,13 +170,15 @@ class RtkManager:
 
 
 import timeit
-print(timeit.timeit("rm.getStatus()", "import RtkManager; rm = RtkManager.RtkManager('/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc'); rm.start()", number = 100))
+print(timeit.timeit("rm.getStatus()", "import RtkController; rm = RtkController.RtkController('/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc'); rm.start()", number = 100))
 
-rc = RtkManager("/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc")
+print("finished")
+time.sleep(10)
+
+rc = RtkController("/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc")
 
 if rc.start() > 0:
     rc.restart()
-
 
     rc.getStatus()
     rc.getObs()
