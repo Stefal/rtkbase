@@ -41,7 +41,7 @@ class RtkController:
         else:
             spawn_command = self.bin_path + "/rtkrcv -o " + self.bin_path[0:-3] + config_name
 
-	    self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
+	self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
         print("Spawning command" + spawn_command)
 
         if self.expectAnswer("spawn") < 0:
