@@ -31,12 +31,20 @@ class RtkController:
         # if there is a slash in the name we consider it a full location
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
 
-        if "/" in config_name:
-            self.child = pexpect.spawn("./rtkrcv -o " + config_name, cwd = self.bin_path, echo = False)
-        else:
-            self.child = pexpect.spawn("./rtkrcv -o ../" + config_name, cwd = self.bin_path, echo = True)
+        #if "/" in config_name:
+            #self.child = pexpect.spawn("./rtkrcv -o " + config_name, cwd = self.bin_path, echo = False)
+        #else:
+            #self.child = pexpect.spawn("./rtkrcv -o ../" + config_name, cwd = self.bin_path, echo = True)
 
-        if self.expectAnswer("start") < 0:
+        if "/" in config_name:
+            spawn_command = self.bin_path + "/rtkrcv -o " + config_name
+        else:
+            spawn_command = self.bin_path + "/rtkrcv -o " + self.bin_path[0:-3] + config_name
+
+	    self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
+        print("Spawning command" + spawn_command)
+
+        if self.expectAnswer("spawn") < 0:
             return -1
 
         print("launched rtklib")
@@ -46,15 +54,13 @@ class RtkController:
             return -1
 
         # started without rtklib catching  errors
-        print("RTKLIB launch and started succesful")
+        print("RTKLIB launch and start succesful")
 
         return 1
 
     def restart(self):
+	print("Sending restart command")
         self.child.send("restart\r\n")
-
-        if self.expectAnswer("restart") < 0:
-            return -1
 
         if self.expectAnswer("restart") < 0:
             return -1
@@ -101,9 +107,6 @@ class RtkController:
         if self.expectAnswer("get status") < 0:
             return -1
 
-        if self.expectAnswer("get status") < 0:
-            return -1
-
         # time to extract information from the status form
 
         status = self.child.before.split("\r\n")
@@ -130,9 +133,6 @@ class RtkController:
         if self.expectAnswer("get obs") < 0:
             return -1
 
-        if self.expectAnswer("get obs") < 0:
-            return -1
-
         # time to extract information from the obs form
 
         obs = self.child.before.split("\r\n")
@@ -149,8 +149,7 @@ class RtkController:
             header = obs[header_index].split()
 
             sat_name_index = header.index("SAT")
-            sat_level_index = header.index("D2(Hz)")
-
+            sat_level_index = header.index("S1")
 
             if len(obs) > (header_index + 1):
                 # we have some info about the actual satellites:
@@ -164,30 +163,19 @@ class RtkController:
 
                     self.obs[name] = level
 
-                    print("new satellites: " + name + ":::" + level[-2:])
-
         return 1
 
+### example usage
 
-import timeit
-print(timeit.timeit("rm.getStatus()", "import RtkController; rm = RtkController.RtkController('/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc'); rm.start()", number = 100))
+#import timeit
+# print(timeit.timeit("rc.getStatus()", "import RtkController; rc = RtkController.RtkController(); rc.start()", number = 100))
 
-print("finished")
-time.sleep(10)
+# rc = RtkManager()
 
-rc = RtkController("/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc")
+# if rc.start() > 0:
+#     rc.restart()
 
-if rc.start() > 0:
-    rc.restart()
-
-    rc.getStatus()
-    rc.getObs()
-    print("stop")
-    rc.stop()
-
-    # while(1):
-    #     rm.getStatus()
-    #     rm.getObs()
-    #     time.sleep(1)
-
-
+#     while(1):
+#         rc.getStatus()
+#         rc.getObs()
+#         time.sleep(1)

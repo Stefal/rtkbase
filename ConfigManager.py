@@ -69,10 +69,3 @@ class ConfigManager:
             dict_values = self.buff_dict
 
         self.socketio.emit("config for " + config_filename, dict_values, namespace = "/test")
-
-
-
-cm = ConfigManager()
-
-cm.readConfig("rtk_startup.conf")
-cm.writeConfig("rtk_startup2.conf")
