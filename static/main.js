@@ -1,3 +1,5 @@
+// ####################### This function is used to create custom input forms #######################
+
 function createIOTypeForm(select_id, container_id) {
     select_id = select_id + " option:selected";
     var selected_option = $(select_id).text();
@@ -92,6 +94,8 @@ function createIOTypeForm(select_id, container_id) {
     $(container_id).html(new_form).trigger("create");
 }
 
+// ####################### HANDLE WINDOW FOCUS/UNFOCUS #######################
+
 var isActive = true;
 
 function onFocus() {
@@ -102,7 +106,7 @@ function onBlur() {
     isActive = false;
 }
 
-// main
+// ############################### MAIN ###############################
 
 $(document).ready(function () {
 
@@ -110,6 +114,7 @@ $(document).ready(function () {
     window.onblur = onBlur;
 
     // Initial formatting for the info blocks
+
     var grid_style = {
         backgroundColor: "Gainsboro",
         border: "1px solid black",
@@ -128,6 +133,7 @@ $(document).ready(function () {
     // initiate SocketIO connection
     var socket = io.connect("http://" + document.domain + ":" + location.port + namespace);
 
+    // say hello on connect
     socket.on("connect", function () {
         socket.emit("browser connected", {data: "I'm connected"});
     });
@@ -140,7 +146,7 @@ $(document).ready(function () {
         console.log("Active tab = " + active_tab);
     });
 
-    // Default values
+    // Default values for the info boxes
 
     $("#mode_value").text("no link");
     $("#status_value").text("no link");
@@ -150,29 +156,30 @@ $(document).ready(function () {
 
     // Config FORM settings
 
+    // Should be commented out for now
     // input 1 type active form
 
-    $("#input1_type").change(function () {
-        createIOTypeForm("#input1_type", "#input1_type_parameters");
-    });
-
-    // input 2 type active form
-
-    $("#input2_type").change(function () {
-        createIOTypeForm("#input2_type", "#input2_type_parameters");
-    });
-
-    // output 1 type active form
-
-    $("#output1_type").change(function () {
-        createIOTypeForm("#output1_type", "#output1_type_parameters");
-    });
-
-    // output 2 type active form
-
-    $("#output2_type").change(function () {
-        createIOTypeForm("#output2_type", "#output2_type_parameters");
-    });
+    //$("#input1_type").change(function () {
+    //    createIOTypeForm("#input1_type", "#input1_type_parameters");
+    //});
+    //
+    //// input 2 type active form
+    //
+    //$("#input2_type").change(function () {
+    //    createIOTypeForm("#input2_type", "#input2_type_parameters");
+    //});
+    //
+    //// output 1 type active form
+    //
+    //$("#output1_type").change(function () {
+    //    createIOTypeForm("#output1_type", "#output1_type_parameters");
+    //});
+    //
+    //// output 2 type active form
+    //
+    //$("#output2_type").change(function () {
+    //    createIOTypeForm("#output2_type", "#output2_type_parameters");
+    //});
 
     // This canvas contains the satellite_graph
 
@@ -236,12 +243,16 @@ $(document).ready(function () {
 
     });
 
+    // ####################### TIME BROADCAST. TO BE REMOVED #######################
+
     socket.on("time broadcast", function (msg) {
         // check if the browser tab and app tab
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("time msg received");
         }
     });
+
+    // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
     socket.on("satellite broadcast", function (msg) {
         // check if the browser tab and app tab
@@ -309,6 +320,8 @@ $(document).ready(function () {
             satellite_graph.update();
         }
     });
+
+    // ####################### HANDLE COORDINATE MESSAGES #######################
 
     socket.on("coordinate broadcast", function (msg) {
         // check if the browser tab and app tab

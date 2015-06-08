@@ -129,6 +129,19 @@ def test_connect():
 def test_disconnect():
     print("Browser client disconnected")
 
+
+@socketio.on("config read", namespace="/test")
+def readCurrentConfig():
+    print("Got signal to read the current config")
+
+    conm.readConfig()
+    emit("current config", conm.buff_dict, namespace="/test")
+
+@socketio.on("config write", namespace="/test")
+def writeConfig(json):
+    print("Received config to write!!!")
+    print(str(config))
+
 # @socketio.on("my event", namespace="/test")
 # def printEvent():
 #     print("Connected socketio message received")
