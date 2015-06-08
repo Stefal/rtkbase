@@ -31,17 +31,12 @@ class RtkController:
         # if there is a slash in the name we consider it a full location
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
 
-        #if "/" in config_name:
-            #self.child = pexpect.spawn("./rtkrcv -o " + config_name, cwd = self.bin_path, echo = False)
-        #else:
-            #self.child = pexpect.spawn("./rtkrcv -o ../" + config_name, cwd = self.bin_path, echo = True)
-
         if "/" in config_name:
             spawn_command = self.bin_path + "/rtkrcv -o " + config_name
         else:
             spawn_command = self.bin_path + "/rtkrcv -o " + self.bin_path[0:-3] + config_name
 
-	self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
+        self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
         print("Spawning command" + spawn_command)
 
         if self.expectAnswer("spawn") < 0:
@@ -111,6 +106,8 @@ class RtkController:
 
         status = self.child.before.split("\r\n")
 
+        self.status = {}
+
         for line in status:
             spl = line.split(":")
 
@@ -120,10 +117,7 @@ class RtkController:
                 param = spl[0].strip()
                 value = spl[1].strip()
 
-                self.status = {}
                 self.status[param] = value
-
-                print(param + ":::" + value)
 
         return 1
 
@@ -163,19 +157,35 @@ class RtkController:
 
                     self.obs[name] = level
 
+                self.info = {}
+
+                self.info["positioning_mode"] = self.status["positioning mode"]
+
+                self.info["obs_rover"] = self.status["# of input data rover"][4]
+                self.info["obs_base"] = self.status["# of input data base"][4]
+                self.info["solution_status"] = self.status["solution status"]
+
+                self.info["rover_llh"] = self.status["pos llh single (deg,m) rover"]
+
+                print("Useful info extracted from status: ")
+                print(self.info)
+
         return 1
 
 ### example usage
 
 #import timeit
-# print(timeit.timeit("rc.getStatus()", "import RtkController; rc = RtkController.RtkController(); rc.start()", number = 100))
+#print(timeit.timeit("rc.getStatus()", "import RtkController; rc = RtkController.RtkController('/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc'); rc.start()", number = 100))
 
-# rc = RtkManager()
+rtk_location = "/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc"
+rc = RtkController(rtk_location)
 
-# if rc.start() > 0:
-#     rc.restart()
+if rc.start() > 0:
+    rc.restart()
 
-#     while(1):
-#         rc.getStatus()
-#         rc.getObs()
-#         time.sleep(1)
+    while(1):
+        rc.getStatus()
+        print("###STATUS###")
+        print(rc.status)
+        rc.getObs()
+        time.sleep(1)

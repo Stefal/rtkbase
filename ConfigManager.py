@@ -2,28 +2,34 @@ from flask.ext.socketio import SocketIO, emit
 
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
-# Note that on startup it reads on of the default configs 
-# and keeps the order of settings, stored there 
+# Note that on startup it reads on of the default configs
+# and keeps the order of settings, stored there
 
 class ConfigManager:
 
-    def __init__(self, socketio = None):
-        self.config_path = ""
-        self.default_base_config = "reach_base_default.conf"
+    def __init__(self, socketio = None, config_path = None):
+
+        if config_path is None:
+            self.config_path = ""
+        else:
+            self.config_path = config_path
+
+        self.default_base_config = "rtk.conf"
         self.default_rover_config = "reach_rover_default.conf"
         self.custom_config = ""
+
         self.buff_options = {}
         self.buff_dict = {}
         self.buff_dict_order = []
         self.readConfig(self.default_base_config) # we do this to load config order from default reach base config
+
         self.buff_dict = {}
-        self.socketio = socketio
 
     def readConfig(self, from_file):
         self.buff_dict = {}
         self.buff_dict_order = []
 
-        with open(from_file, "r") as f:
+        with open(self.config_path + from_file, "r") as f:
             for line in f:
                 separated_lines = line.split() # separate lines with spaces, get rid of extra whitespace
                 length = len(separated_lines)
@@ -48,7 +54,7 @@ class ConfigManager:
         if dict_values == None:
             dict_values = self.buff_dict
 
-        with open(to_file, "w") as f:
+        with open(self.config_path + to_file, "w") as f:
             line = "# rtkrcv options for rtk (2015, v.2.4.2)"
             f.write(line + "\n\n")
             for key in self.buff_dict_order:
