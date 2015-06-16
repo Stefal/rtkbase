@@ -119,6 +119,18 @@ class RtkController:
 
                 self.status[param] = value
 
+                # print("Gotten status:\n" + str(self.status))
+
+                self.info = {}
+
+                # self.info["positioning_mode"] = self.status["positioning mode"]
+
+                # self.info["obs_rover"] = self.status["# of input data rover"][4]
+                # self.info["obs_base"] = self.status["# of input data base"][4]
+                # self.info["solution_status"] = self.status["solution status"]
+
+                # self.info["rover_llh"] = self.status["pos llh single (deg,m) rover"]
+
         return 1
 
     def getObs(self):
@@ -138,10 +150,13 @@ class RtkController:
         matching_strings = [s for s in obs if "SAT" in s]
 
         if matching_strings != []:
+            # find the header of the OBS table
             header_index = obs.index(matching_strings[0])
 
+            # split the header string into columns
             header = obs[header_index].split()
 
+            # find the indexes of the needed columns
             sat_name_index = header.index("SAT")
             sat_level_index = header.index("S1")
 
@@ -152,23 +167,16 @@ class RtkController:
 
                 for line in obs[header_index+1:]:
                     spl = line.split()
-                    name = spl[sat_name_index]
-                    level = spl[sat_level_index]
 
-                    self.obs[name] = level
+                    if len(spl) > sat_level_index:
+                        name = spl[sat_name_index]
+                        level = spl[sat_level_index]
 
-                self.info = {}
+                        self.obs[name] = level
+                        # print("print from getObs:\n" + str(self.obs))
 
-                self.info["positioning_mode"] = self.status["positioning mode"]
-
-                self.info["obs_rover"] = self.status["# of input data rover"][4]
-                self.info["obs_base"] = self.status["# of input data base"][4]
-                self.info["solution_status"] = self.status["solution status"]
-
-                self.info["rover_llh"] = self.status["pos llh single (deg,m) rover"]
-
-                print("Useful info extracted from status: ")
-                print(self.info)
+#                print("Useful info extracted from status: ")
+#                print(self.info)
 
         return 1
 
@@ -177,15 +185,15 @@ class RtkController:
 #import timeit
 #print(timeit.timeit("rc.getStatus()", "import RtkController; rc = RtkController.RtkController('/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc'); rc.start()", number = 100))
 
-rtk_location = "/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc"
-rc = RtkController(rtk_location)
+#rtk_location = "/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc"
+#rc = RtkController(rtk_location)
 
-if rc.start() > 0:
-    rc.restart()
+# if rc.start() > 0:
+#     rc.restart()
 
-    while(1):
-        rc.getStatus()
-        print("###STATUS###")
-        print(rc.status)
-        rc.getObs()
-        time.sleep(1)
+#     while(1):
+#         rc.getStatus()
+#         print("###STATUS###")
+#         print(rc.status)
+#         rc.getObs()
+#         time.sleep(1)

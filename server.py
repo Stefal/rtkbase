@@ -67,6 +67,7 @@ def broadcastSatellites():
         # update satellite levels
         rtkc.getObs()
 
+        # add new obs data to the message
         json_data.update(rtkc.obs)
 
         print("Sending sat levels:\n" + str(json_data))
@@ -94,7 +95,7 @@ def broadcastCoordinates():
 
         json_data.update(rtkc.status)
 
-        print("Sending RTKLIB status:\n" + str(rtkc.status))
+        print("Sending RTKLIB status select information:\n" + str(json_data))
 
         socketio.emit("coordinate broadcast", json_data, namespace = "/test")
         count += 1
@@ -129,12 +130,11 @@ def test_connect():
 def test_disconnect():
     print("Browser client disconnected")
 
-
-@socketio.on("config read", namespace="/test")
+@socketio.on("read config", namespace="/test")
 def readCurrentConfig():
     print("Got signal to read the current config")
 
-    conm.readConfig()
+    conm.readConfig(conm.default_base_config)
     emit("current config", conm.buff_dict, namespace="/test")
 
 @socketio.on("config write", namespace="/test")

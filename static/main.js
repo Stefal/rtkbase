@@ -339,4 +339,15 @@ $(document).ready(function () {
         }
 
     });
+
+    // ####################### HANDLE CONFIG FORM BUTTONS #######################
+
+    $("#get_current_state_button").click(function() {
+        console.log("Request for config!");
+        socket.emit("read config");
+    });
+
+    socket.on("current config", function (msg) {
+        console.log("Got config: " + msg);
+    });
 });
