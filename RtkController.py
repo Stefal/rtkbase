@@ -106,30 +106,34 @@ class RtkController:
 
         status = self.child.before.split("\r\n")
 
-        self.status = {}
+        if status != {}:
+            for line in status:
+                spl = line.split(":")
 
-        for line in status:
-            spl = line.split(":")
+                if len(spl) > 1:
+                    # get rid of extra whitespace
 
-            if len(spl) > 1:
-                # get rid of extra whitespace
+                    param = spl[0].strip()
+                    value = spl[1].strip()
 
-                param = spl[0].strip()
-                value = spl[1].strip()
+                    self.status[param] = value
 
-                self.status[param] = value
+                    # print("Gotten status:\n" + str(self.status))
 
-                # print("Gotten status:\n" + str(self.status))
+            print("Current status:\n" + str(self.status))
+            self.info = {}
 
-                self.info = {}
+            start_rover = self.status["# of input data rover"].find("(")
+            end_rover = self.status["# of input data rover"].find(")")
+            start_base = self.status["# of input data base"].find("(")
+            end_base = self.status["# of input data base"].find(")")
 
-                # self.info["positioning_mode"] = self.status["positioning mode"]
+            self.info["obs_rover"] = self.status["# of input data rover"][start_rover+1:end_rover]
+            self.info["obs_base"] = self.status["# of input data base"][start_base+1:end_base]
 
-                # self.info["obs_rover"] = self.status["# of input data rover"][4]
-                # self.info["obs_base"] = self.status["# of input data base"][4]
-                # self.info["solution_status"] = self.status["solution status"]
-
-                # self.info["rover_llh"] = self.status["pos llh single (deg,m) rover"]
+            self.info["solution_status"] = self.status["solution status"]
+            self.info["positioning_mode"] = self.status["positioning mode"]
+            self.info["rover_llh"] = self.status["pos llh single (deg,m) rover"]
 
         return 1
 

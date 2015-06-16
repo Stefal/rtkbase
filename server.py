@@ -82,18 +82,18 @@ def broadcastCoordinates():
 
     while 1:
 
-        json_data = {
-            "fix" : "fix", # current fix mode
-            "mode" : "kinematic", # current rover mode
-            "lat" : 60.085981 + float(randint(1,10)) / 100000000,
-            "lon" : 30.420639 + float(randint(1,10)) / 100000000,
-            "height" : 16 + float(randint(1000,10000)) / 10000
-        }
+        # json_data = {
+        #     "fix" : "fix", # current fix mode
+        #     "mode" : "kinematic", # current rover mode
+        #     "lat" : 60.085981 + float(randint(1,10)) / 100000000,
+        #     "lon" : 30.420639 + float(randint(1,10)) / 100000000,
+        #     "height" : 16 + float(randint(1000,10000)) / 10000
+        # }
 
         # update RTKLIB status
         rtkc.getStatus()
 
-        json_data.update(rtkc.status)
+        json_data.update(rtkc.info)
 
         print("Sending RTKLIB status select information:\n" + str(json_data))
 
