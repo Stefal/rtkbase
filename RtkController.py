@@ -9,6 +9,7 @@ class RtkController:
         self.status = {}
         self.obs = {}
         self.updated = False
+        self.info = {}
 
     def expectAnswer(self, last_command = ""):
         a = self.child.expect(["rtkrcv>", pexpect.EOF, "error"])
@@ -97,6 +98,7 @@ class RtkController:
 
 
     def getStatus(self):
+        flag = 0 # flag, signaling the contents of the status output
         self.child.send("status\r\n")
 
         if self.expectAnswer("get status") < 0:
@@ -107,6 +109,8 @@ class RtkController:
         status = self.child.before.split("\r\n")
 
         if status != {}:
+            self.status = {}
+
             for line in status:
                 spl = line.split(":")
 
@@ -118,22 +122,25 @@ class RtkController:
 
                     self.status[param] = value
 
+                    flag = 1
+
                     # print("Gotten status:\n" + str(self.status))
 
-            print("Current status:\n" + str(self.status))
-            self.info = {}
+            if flag == 1:
+                # print("Current status:\n" + str(self.status))
+                self.info = {}
 
-            start_rover = self.status["# of input data rover"].find("(")
-            end_rover = self.status["# of input data rover"].find(")")
-            start_base = self.status["# of input data base"].find("(")
-            end_base = self.status["# of input data base"].find(")")
+                start_rover = self.status["# of input data rover"].find("(")
+                end_rover = self.status["# of input data rover"].find(")")
+                start_base = self.status["# of input data base"].find("(")
+                end_base = self.status["# of input data base"].find(")")
 
-            self.info["obs_rover"] = self.status["# of input data rover"][start_rover+1:end_rover]
-            self.info["obs_base"] = self.status["# of input data base"][start_base+1:end_base]
+                self.info["obs_rover"] = self.status["# of input data rover"][start_rover+1:end_rover]
+                self.info["obs_base"] = self.status["# of input data base"][start_base+1:end_base]
 
-            self.info["solution_status"] = self.status["solution status"]
-            self.info["positioning_mode"] = self.status["positioning mode"]
-            self.info["rover_llh"] = self.status["pos llh single (deg,m) rover"]
+                self.info["solution_status"] = self.status["solution status"]
+                self.info["positioning_mode"] = self.status["positioning mode"]
+                self.info["rover_llh"] = self.status["pos llh single (deg,m) rover"]
 
         return 1
 
