@@ -363,9 +363,9 @@ $(document).ready(function () {
             $("#mode_value").html("<span>" + msg.positioning_mode + "</span>");
 
             // coordinates
-            $("#lon_value").html("<span>" + msg.lon.substring(0, 6) + "</span>");
-            $("#lat_value").html("<span>" + msg.lon.substring(0, 6) + "</span>");
-            $("#height_value").html("<span>" + msg.height.substring(0, 6) + "</span>");
+            $("#lon_value").html("<span>" + msg.lon.substring(0, 9) + "</span>");
+            $("#lat_value").html("<span>" + msg.lon.substring(0, 9) + "</span>");
+            $("#height_value").html("<span>" + msg.height.substring(0, 9) + "</span>");
 
             // obs values: heartbeat
         }
