@@ -201,7 +201,7 @@ $(document).ready(function () {
     // satellite_graph is created based on this data
 
     var sat_data = {
-        labels: ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        labels: ["G29", "G08", "G30", "G18", "G19", "G22", "G20", "G27", "G07", "G16"],
         datasets: [
             {
                 label: "Rover satellite levels",
