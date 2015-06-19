@@ -1,6 +1,15 @@
 Flask==0.10.1
 Flask-SocketIO==0.6.0
+Jinja2==2.7.3
+MarkupSafe==0.23
+PIL==1.1.7
+Werkzeug==0.10.1
+argparse==1.2.1
 gevent==1.0.1
 gevent-socketio==0.3.6
-Jinja2==2.7.3
-Werkzeug==0.10.1
+gevent-websocket==0.9.5
+greenlet==0.4.7
+itsdangerous==0.24
+pexpect==3.3
+smart==1.4.1
+wsgiref==0.1.2
