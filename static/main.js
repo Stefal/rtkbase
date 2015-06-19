@@ -380,6 +380,23 @@ $(document).ready(function () {
     });
 
     socket.on("current config", function (msg) {
-        console.log("Got config: " + msg);
+        console.log("Got config: ");
+
+        // clean previous versions
+        var form_div = $("#config_form_column_space");
+
+        form_div.html("");
+        form_div.append('<div class="ui-field-contain">');
+
+        for (var k in msg) {
+            console.log("config item: " + k + " = " + msg[k]);
+
+            form_div.append('<label for="' + k + '_entry">' + k + '</label>');
+            form_div.append('<input type="text" id="' + k + '_entry" value="' + msg[k] + '">');
+
+        }
+
+        form_div.append('</div>');
+
     });
 });
