@@ -201,20 +201,20 @@ $(document).ready(function () {
     // satellite_graph is created based on this data
 
     var sat_data = {
-        labels: ["2", "4", "7", "10", "12", "14", "18", "20", "23", "31"],
+        labels: ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
         datasets: [
             {
                 label: "Rover satellite levels",
                 fillColor: "rgba(0, 255, 0, 1)",
                 strokeColor: "rgba(0, 0, 0, 0.7)",
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            },
-            {
-                label: "Base satellite levels",
-                fillColor: "rgba(151, 187, 205, 1)",
-                strokeColor: "rgba(0, 0, 0, 0.7)",
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }
+            //{
+            //    label: "Base satellite levels",
+            //    fillColor: "rgba(151, 187, 205, 1)",
+            //    strokeColor: "rgba(0, 0, 0, 0.7)",
+            //    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            //}
         ]
     };
 
@@ -255,69 +255,99 @@ $(document).ready(function () {
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
     socket.on("satellite broadcast", function (msg) {
-        // check if the browser tab and app tab
+        // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("satellite msg received");
 
             // get all the keys of msg object
-            var rover_count = 0;
-            var base_count = 0;
             var fc = 0;
+            var current_level = 0;
+            var current_sat = "";
 
-            // cycle through all the data of the incoming message
+            var new_sat_values = [];
+
             for (var k in msg) {
+                new_sat_values.push({sat:k, level:msg[k]});
+            }
 
-                var msg_data = msg[k];
+            // sort the sat levels by ascension
+            new_sat_values.sort(function(a, b) {return a.level - b.level});
 
-                // if this is a rover satellite level, then update the rover part of the satellite graph
-                if (k.indexOf("rover") > -1) {
+            var i;
+            var new_length = new_sat_values.length;
 
-                    // var rover_number = k.charAt(5); // get satellite number for this value
-                    satellite_graph.datasets[0].bars[rover_count].value = msg_data;
+            for (i = new_length - 10; i < new_length; i++) {
+                if (i < 0) {
+                    current_level = 0;
+                    current_sat = "";
+                } else {
+                    current_sat = new_sat_values[i].sat;
+                    current_level = parseInt(new_sat_values[i].level) || 0;
+
+                    console.log("new sat values for number " + (10 - new_length + i) + ": " + current_sat + " " + current_level);
+
+                    if (current_level < 0) {
+                       current_level = 0;
+                    } else if (current_level > 60) {
+                        current_level = 59;
+                    }
+
+
 
                     // take care of the fill color
                     switch (true) {
-                        case (msg_data < 30):
+                        case (current_level < 30):
                             fc = "rgba(255, 0, 0, 0.9)"; // Red
                             break;
-                        case (msg_data >= 30 && msg_data <= 45):
+                        case (current_level >= 30 && current_level <= 45):
                             fc = "rgba(255, 255, 0, 0.9)"; // Yellow
                             break;
-                        case (msg_data >= 45):
+                        case (current_level >= 45):
                             fc = "rgba(0, 255, 0, 0.9)"; // Green
                             break;
                     }
 
-                    satellite_graph.datasets[0].bars[rover_count].fillColor = fc;
-                    rover_count++;
                 }
 
-                // if this is a base satellite level, update the base part of the satellite graph
-                if (k.indexOf("base") > -1) {
-
-                    // var base_number_ = k.charAt(4); // get satellite number for this value
-                    satellite_graph.datasets[1].bars[base_count].value = msg_data;
-
-                    // take care of the fill color
-                    switch (true) {
-                        case (msg_data < 30):
-                            fc = "rgba(255, 0, 0, 1)"; // Red
-                            break;
-                        case (msg_data >= 30 && msg_data <= 45):
-                            fc = "rgba(255, 255, 0, 1)"; // Yellow
-                            break;
-                        case (msg_data >= 45):
-                            fc = "rgba(0, 255, 0, 1)"; // Green
-                            break;
-                    }
-                    console.log("Color is " + fc + "Value is " + msg_data);
-
-                    satellite_graph.datasets[1].bars[base_count].fillColor = fc;
-                    base_count++;
-                }
+                satellite_graph.datasets[0].bars[10 - new_length + i].fillColor = fc;
+                satellite_graph.labels = current_sat;
+                satellite_graph.datasets[0].bars[10 - new_length + i].value = current_level;
             }
 
             satellite_graph.update();
+
+
+            // find the ten biggest elements and put them on the graph
+
+            //for (i = (new_length > 10) ? 9 : new_length - 1; i >= 0; i--) {
+            //    current_sat = new_sat_values[i].sat;
+            //    current_level = parseInt(new_sat_values[i].level);
+            //
+            //    if (current_level < 0) {
+            //        current_level = 0;
+            //    }
+            //
+            //    console.log("new sat values: " + current_sat + " " + current_level);
+            //
+            //    // take care of the fill color
+            //    switch (true) {
+            //        case (current_level< 30):
+            //            fc = "rgba(255, 0, 0, 0.9)"; // Red
+            //            break;
+            //        case (current_level >= 30 && current_level <= 45):
+            //            fc = "rgba(255, 255, 0, 0.9)"; // Yellow
+            //            break;
+            //        case (current_level >= 45):
+            //            fc = "rgba(0, 255, 0, 0.9)"; // Green
+            //            break;
+            //    }
+            //
+            //
+            //    satellite_graph.datasets[0].bars[i].fillColor = fc;
+            //    satellite_graph.labels = current_sat;
+            //    satellite_graph.datasets[0].bars[i].value = current_level;
+            //}
+
         }
     });
 
@@ -329,13 +359,15 @@ $(document).ready(function () {
             console.log("coordinate msg received");
 
             // status
-            $("#status_value").html("<span>" + msg.fix + "</span>");
-            $("#mode_value").html("<span>" + msg.mode + "</span>");
+            $("#status_value").html("<span>" + msg.solution_status + "</span>");
+            $("#mode_value").html("<span>" + msg.positioning_mode + "</span>");
 
             // coordinates
-            $("#lon_value").html("<span>" + msg.lon.toFixed(8) + "</span>");
-            $("#lat_value").html("<span>" + msg.lat.toFixed(8) + "</span>");
-            $("#height_value").html("<span>" + msg.height.toFixed(8) + "</span>");
+            $("#lon_value").html("<span>" + msg.lon + "</span>");
+            $("#lat_value").html("<span>" + msg.lat + "</span>");
+            $("#height_value").html("<span>" + msg.height + "</span>");
+
+            // obs values: heartbeat
         }
 
     });

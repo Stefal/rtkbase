@@ -98,7 +98,6 @@ class RtkController:
 
 
     def getStatus(self):
-        flag = 0 # flag, signaling the contents of the status output
         self.child.send("status\r\n")
 
         if self.expectAnswer("get status") < 0:
@@ -109,7 +108,8 @@ class RtkController:
         status = self.child.before.split("\r\n")
 
         if status != {}:
-            self.status = {}
+
+            # print("Got status!!!:")
 
             for line in status:
                 spl = line.split(":")
@@ -122,25 +122,40 @@ class RtkController:
 
                     self.status[param] = value
 
-                    flag = 1
+                    # print(param + ":::"  + value)
 
                     # print("Gotten status:\n" + str(self.status))
 
-            if flag == 1:
+            if self.status != {}:
                 # print("Current status:\n" + str(self.status))
                 self.info = {}
 
-                start_rover = self.status["# of input data rover"].find("(")
-                end_rover = self.status["# of input data rover"].find(")")
-                start_base = self.status["# of input data base"].find("(")
-                end_base = self.status["# of input data base"].find(")")
+                if "# of input data rover" in self.status:
 
-                self.info["obs_rover"] = self.status["# of input data rover"][start_rover+1:end_rover]
-                self.info["obs_base"] = self.status["# of input data base"][start_base+1:end_base]
+                    start_rover = self.status["# of input data rover"].find("(")
+                    end_rover = self.status["# of input data rover"].find(")")
+                    start_base = self.status["# of input data base"].find("(")
+                    end_base = self.status["# of input data base"].find(")")
 
-                self.info["solution_status"] = self.status["solution status"]
-                self.info["positioning_mode"] = self.status["positioning mode"]
-                self.info["rover_llh"] = self.status["pos llh single (deg,m) rover"]
+                    self.info["obs_rover"] = self.status["# of input data rover"][start_rover+1:end_rover]
+                    self.info["obs_base"] = self.status["# of input data base"][start_base+1:end_base]
+
+                if "solution status" in self.status:
+                    self.info["solution_status"] = self.status["solution status"]
+
+                if "positioning mode" in self.status:
+                    self.info["positioning_mode"] = self.status["positioning mode"]
+
+                if "pos llh single (deg,m) rover" in self.status:
+                    llh = self.status["pos llh single (deg,m) rover"].split(",")
+                    if len(llh) > 2:
+                        lat = llh[0]
+                        lon = llh[1]
+                        height = llh[2]
+
+                        self.info["lat"] = lat
+                        self.info["lon"] = lon
+                        self.info["height"] = height
 
         return 1
 
@@ -168,26 +183,27 @@ class RtkController:
             header = obs[header_index].split()
 
             # find the indexes of the needed columns
-            sat_name_index = header.index("SAT")
-            sat_level_index = header.index("S1")
+            if "S1" in header:
+                sat_name_index = header.index("SAT")
+                sat_level_index = header.index("S1")
 
-            if len(obs) > (header_index + 1):
-                # we have some info about the actual satellites:
+                if len(obs) > (header_index + 1):
+                    # we have some info about the actual satellites:
 
-                self.obs = {}
+                    self.obs = {}
 
-                for line in obs[header_index+1:]:
-                    spl = line.split()
+                    for line in obs[header_index+1:]:
+                        spl = line.split()
 
-                    if len(spl) > sat_level_index:
-                        name = spl[sat_name_index]
-                        level = spl[sat_level_index]
+                        if len(spl) > sat_level_index:
+                            name = spl[sat_name_index]
+                            level = spl[sat_level_index]
 
-                        self.obs[name] = level
-                        # print("print from getObs:\n" + str(self.obs))
+                            self.obs[name] = level
+                            # print("print from getObs:\n" + str(self.obs))
 
-#                print("Useful info extracted from status: ")
-#                print(self.info)
+    #                print("Useful info extracted from status: ")
+    #                print(self.info)
 
         return 1
 
