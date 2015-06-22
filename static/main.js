@@ -364,7 +364,7 @@ $(document).ready(function () {
 
             // coordinates
             $("#lon_value").html("<span>" + msg.lon.substring(0, 9) + "</span>");
-            $("#lat_value").html("<span>" + msg.lon.substring(0, 9) + "</span>");
+            $("#lat_value").html("<span>" + msg.lat.substring(0, 9) + "</span>");
             $("#height_value").html("<span>" + msg.height.substring(0, 9) + "</span>");
 
             // obs values: heartbeat
@@ -374,29 +374,64 @@ $(document).ready(function () {
 
     // ####################### HANDLE CONFIG FORM BUTTONS #######################
 
+    // this part is responsible for reading current configuration
+
     $("#get_current_state_button").click(function() {
         console.log("Request for config!");
         socket.emit("read config");
     });
 
     socket.on("current config", function (msg) {
+        var to_append = "";
         console.log("Got config: ");
 
         // clean previous versions
         var form_div = $("#config_form_column_space");
 
         form_div.html("");
-        form_div.append('<div class="ui-field-contain">');
+
+        to_append += '<div class="ui-field-contain">';
 
         for (var k in msg) {
             console.log("config item: " + k + " = " + msg[k]);
 
-            form_div.append('<label for="' + k + '_entry">' + k + '</label>');
-            form_div.append('<input type="text" id="' + k + '_entry" value="' + msg[k] + '">');
-
+            to_append += '<div class="ui-field-contain>"';
+            to_append += '<label for="' + k + '_entry">' + k + '</label>';
+            to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
+            to_append += '</div>';
         }
 
-        form_div.append('</div>');
+        to_append += '</div>';
+
+        form_div.html(to_append).trigger("create");
 
     });
+
+    // this part is responsible for taking the changed form elements
+
+    $("#load_and_restart_button").click(function() {
+        var config_to_send = {};
+        var current_id = "";
+        var current_value = "";
+        console.log("Request to load new config and restart");
+
+        // first, we need to read all the needed info from config form elements
+        // we create a js object with this info and send to our server
+
+        // find all the needed fields
+        console.log("Getting current form values!");
+
+        $('input[type="text"][id*="_entry"]').each(function(i, obj){
+            current_id = obj.id.substring(0, obj.id.length - 6);
+            current_value = obj.value;
+
+            console.log("id == " + current_id + " value == " + current_value);
+
+            config_to_send[current_id] = current_value;
+        });
+
+        socket.emit("temp config modified", config_to_send);
+
+    });
+
 });

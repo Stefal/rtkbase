@@ -1,6 +1,9 @@
 import pexpect
 import time
 
+# This module automates working with RTKRCV directly
+# You can get sat levels, current status, start and restart the software
+
 class RtkController:
 
     def __init__(self, path_to_rtkrcv = "/home/root/RTKLIB/app/rtkrcv/gcc"):
@@ -69,8 +72,10 @@ class RtkController:
     def loadConfig(self, config_name = "rtk.conf"):
         self.child.send("load " + config_name + "\r\n")
 
-        if self.expectAnswer("load config"):
+        if self.expectAnswer("load config") < 0:
             return -1
+
+        print("Got config reloaded. Now restart")
 
         if self.restart() < 0:
             return -1

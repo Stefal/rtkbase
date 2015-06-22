@@ -125,10 +125,16 @@ def readCurrentConfig():
     conm.readConfig(conm.default_base_config)
     emit("current config", conm.buff_dict, namespace="/test")
 
-@socketio.on("config write", namespace="/test")
+@socketio.on("read default base config", namespace="/test")
+def readDefaultBaseConfig():
+    print("Got signal to read the default base config")
+
+@socketio.on("temp config modified", namespace="/test")
 def writeConfig(json):
-    print("Received config to write!!!")
-    print(str(config))
+    print("Received temp config to write!!!")
+    print(str(json))
+    conm.writeConfig("temp.conf", json)
+    print("reloading config result: " + str(rtkc.loadConfig("../temp.conf")))
 
 # @socketio.on("my event", namespace="/test")
 # def printEvent():

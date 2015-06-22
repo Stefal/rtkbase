@@ -16,7 +16,7 @@ class ConfigManager:
 
         self.default_base_config = "rtk.conf"
         self.default_rover_config = "reach_rover_default.conf"
-        self.custom_config = ""
+        self.default_custom_config_template_name = "reach_custom_.conf"
 
         self.buff_options = {}
         self.buff_dict = {}
@@ -54,24 +54,26 @@ class ConfigManager:
         if dict_values == None:
             dict_values = self.buff_dict
 
+        print("Printing temp config" + str(dict_values))
+
+        print("Printing temp config we're about to write")
         with open(self.config_path + to_file, "w") as f:
             line = "# rtkrcv options for rtk (2015, v.2.4.2)"
             f.write(line + "\n\n")
             for key in self.buff_dict_order:
-                line = key + " " * (19 - len(key)) + "=" + self.buff_dict[key]
+                k = str(key)
+                v = str(dict_values[key])
+
+                line = k + " " * (19 - len(k)) + "=" + v
+
+                print("line = " + line)
                 # check if options are available
                 if key in self.buff_options:
                     line += " # " + self.buff_options[key]
 
                 f.write(line + "\n")
 
-    def sendConfig(self, config_filename = None):
 
-        # either read settings from the buffer, or update buffer by the filename.conf
-        if config_filename == None:
-            dict_values = self.buff_dict
-        else:
-            self.readConfig(config_filename)
-            dict_values = self.buff_dict
 
-        self.socketio.emit("config for " + config_filename, dict_values, namespace = "/test")
+
+
