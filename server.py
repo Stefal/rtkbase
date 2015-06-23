@@ -18,6 +18,7 @@ app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 
 socketio = SocketIO(app)
+server_not_interrupted = 1
 
 rtk_location = "/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc"
 
@@ -36,7 +37,7 @@ coordinate_thread = None
 def broadcastTime():
     count = 0
     json_data = {}
-    while 1:
+    while server_not_interrupted:
         time_string = time.strftime("%H:%M:%S")
         cur_time = [time_string[0:2], time_string[3:5], time_string[6:8]]
 
@@ -58,7 +59,7 @@ def broadcastSatellites():
     sat_number = 10
     json_data = {}
 
-    while 1:
+    while server_not_interrupted:
 
         # update satellite levels
         rtkc.getObs()
@@ -76,7 +77,7 @@ def broadcastCoordinates():
     count = 0
     json_data = {}
 
-    while 1:
+    while server_not_interrupted:
 
         # update RTKLIB status
         rtkc.getStatus()
@@ -141,6 +142,9 @@ def writeConfig(json):
 #     print("Connected socketio message received")
 
 if __name__ == "__main__":
-    socketio.run(app, host = "0.0.0.0", port = 5000)
-
+    try:
+        socketio.run(app, host = "0.0.0.0", port = 5000)
+    except KeyboardInterrupt:
+        print("Server interrupted by user!!")
+        server_not_interrupted = 0
 
