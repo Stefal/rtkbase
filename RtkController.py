@@ -1,5 +1,6 @@
 import pexpect
 import time
+from threading import Semaphore
 
 # This module automates working with RTKRCV directly
 # You can get sat levels, current status, start and restart the software
@@ -13,6 +14,7 @@ class RtkController:
         self.obs = {}
         self.updated = False
         self.info = {}
+        self.semaphore = Semaphore()
 
     def expectAnswer(self, last_command = ""):
         a = self.child.expect(["rtkrcv>", pexpect.EOF, "error"])
@@ -35,6 +37,8 @@ class RtkController:
         # if there is a slash in the name we consider it a full location
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
 
+        self.semaphore.acquire()
+
         if "/" in config_name:
             spawn_command = self.bin_path + "/rtkrcv -o " + config_name
         else:
@@ -44,45 +48,65 @@ class RtkController:
         print("Spawning command" + spawn_command)
 
         if self.expectAnswer("spawn") < 0:
+            self.semaphore.release()
             return -1
 
         print("launched rtklib")
         self.child.send("start\r\n")
 
         if self.expectAnswer("start") < 0:
+            self.semaphore.release()
             return -1
 
         # started without rtklib catching  errors
         print("RTKLIB launch and start succesful")
 
+        self.semaphore.release()
+
         return 1
 
     def restart(self):
-	print("Sending restart command")
+
+        self.semaphore.acquire()
+
         self.child.send("restart\r\n")
 
         if self.expectAnswer("restart") < 0:
+            self.semaphore.release()
             return -1
 
         print("RTKLIB restart successful")
         print(self.child.before)
 
+        self.semaphore.release()
+
         return 1
 
     def loadConfig(self, config_name = "rtk.conf"):
+
+        self.semaphore.acquire()
+
         self.child.send("load " + config_name + "\r\n")
 
         if self.expectAnswer("load config") < 0:
+            self.semaphore.release()
             return -1
+
+        self.semaphore.release()
 
         print("Got config reloaded. Now restart")
 
         if self.restart() < 0:
+            self.semaphore.release()
             return -1
+
 
         return 1
 
     def stop(self):
+
+        self.semaphore.acquire()
+
         self.child.send("shutdown\r\n")
 
         a = self.child.expect([":", pexpect.EOF, "error"])
@@ -99,13 +123,19 @@ class RtkController:
         if self.expectAnswer("shutdown yes") < 0:
             r = -1
 
+        self.semaphore.release()
+
         return r
 
 
     def getStatus(self):
+
+        self.semaphore.acquire()
+
         self.child.send("status\r\n")
 
         if self.expectAnswer("get status") < 0:
+            self.semaphore.release()
             return -1
 
         # time to extract information from the status form
@@ -162,12 +192,19 @@ class RtkController:
                         self.info["lon"] = lon
                         self.info["height"] = height
 
+
+        self.semaphore.release()
+
         return 1
 
     def getObs(self):
+
+        self.semaphore.acquire()
+
         self.child.send("obs\r\n")
 
         if self.expectAnswer("get obs") < 0:
+            self.semaphore.release()
             return -1
 
         # time to extract information from the obs form
@@ -209,6 +246,8 @@ class RtkController:
 
     #                print("Useful info extracted from status: ")
     #                print(self.info)
+
+        self.semaphore.release()
 
         return 1
 
