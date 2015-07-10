@@ -243,15 +243,6 @@ $(document).ready(function () {
 
     });
 
-    // ####################### TIME BROADCAST. TO BE REMOVED #######################
-
-    socket.on("time broadcast", function (msg) {
-        // check if the browser tab and app tab
-        if ((active_tab == "Status") && (isActive == true)) {
-            console.log("time msg received");
-        }
-    });
-
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
     socket.on("satellite broadcast", function (msg) {
@@ -292,8 +283,6 @@ $(document).ready(function () {
                         current_level = 59;
                     }
 
-
-
                     // take care of the fill color
                     switch (true) {
                         case (current_level < 30):
@@ -310,7 +299,7 @@ $(document).ready(function () {
                 }
 
                 satellite_graph.datasets[0].bars[10 - new_length + i].fillColor = fc;
-                satellite_graph.labels = current_sat;
+                satellite_graph.scale.xLabels = current_sat;
                 satellite_graph.datasets[0].bars[10 - new_length + i].value = current_level;
             }
 
@@ -376,14 +365,14 @@ $(document).ready(function () {
 
     // this part is responsible for reading current configuration
 
-    $("#get_current_state_button").click(function() {
+    $("#get_current_state_button").unbind().click(function() {
         console.log("Request for config!");
         socket.emit("read config");
     });
 
     socket.on("current config", function (msg) {
         var to_append = "";
-        console.log("Got config: ");
+        console.log("Received current config:");
 
         // clean previous versions
         var form_div = $("#config_form_column_space");

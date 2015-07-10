@@ -1,3 +1,4 @@
+#!venv/bin/python
 from gevent import monkey
 monkey.patch_all()
 
@@ -5,12 +6,11 @@ import time
 import json
 from RtkController import RtkController
 from ConfigManager import ConfigManager
+from port import changeBaudrateTo230400
 
 from threading import Thread
 from flask import Flask, render_template, session, request
 from flask.ext.socketio import *
-
-from random import randint
 
 app = Flask(__name__)
 app.template_folder = "."
@@ -20,7 +20,10 @@ app.config["SECRET_KEY"] = "secret!"
 socketio = SocketIO(app)
 server_not_interrupted = 1
 
-rtk_location = "/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc"
+rtk_location = "/home/reach/RTKLIB/app/rtkrcv/gcc"
+
+# configure Ublox for 230400 baudrate!
+changeBaudrateTo230400()
 
 # prepare RtkController, run RTKLIB
 print("prepare rtk")
@@ -30,29 +33,8 @@ rtkc.start()
 # prepare ConfigManager
 conm = ConfigManager(socketio, rtk_location[:-3])
 
-time_thread = None
 satellite_thread = None
 coordinate_thread = None
-
-def broadcastTime():
-    count = 0
-    json_data = {}
-    while server_not_interrupted:
-        time_string = time.strftime("%H:%M:%S")
-        cur_time = [time_string[0:2], time_string[3:5], time_string[6:8]]
-
-        json_data = {
-            "data" : "Server time",
-            "count" : count,
-            "hours" : cur_time[0],
-            "minutes" : cur_time[1],
-            "seconds" : cur_time[2]
-        }
-
-        socketio.emit("time broadcast", json_data, namespace = "/test")
-
-        count += 1
-        time.sleep(0.1)
 
 def broadcastSatellites():
     count = 0
@@ -67,7 +49,8 @@ def broadcastSatellites():
         # add new obs data to the message
         json_data.update(rtkc.obs)
 
-        print("Sending sat levels:\n" + str(json_data))
+        if count % 10 == 0:
+            print("Sending sat levels:\n" + str(json_data))
 
         socketio.emit("satellite broadcast", json_data, namespace = "/test")
         count += 1
@@ -84,7 +67,8 @@ def broadcastCoordinates():
 
         json_data.update(rtkc.info)
 
-        print("Sending RTKLIB status select information:\n" + str(json_data))
+        if count % 10 == 0:
+            print("Sending RTKLIB status select information:\n" + str(json_data))
 
         socketio.emit("coordinate broadcast", json_data, namespace = "/test")
         count += 1
@@ -92,13 +76,8 @@ def broadcastCoordinates():
 
 @app.route("/")
 def index():
-    global time_thread
     global satellite_thread
     global coordinate_thread
-
-    if time_thread is None:
-        time_thread = Thread(target = broadcastTime)
-        time_thread.start()
 
     if satellite_thread is None:
         satellite_thread = Thread(target = broadcastSatellites)
