@@ -205,9 +205,9 @@ $(document).ready(function () {
         datasets: [
             {
                 label: "Rover satellite levels",
-                fillColor: "rgba(0, 255, 0, 1)",
-                strokeColor: "rgba(0, 0, 0, 0.7)",
-                data: [10, 10, 10, 0, 0, 0, 0, 0, 0, 0]
+                backgroundColor: "rgba(0, 255, 0, 1)",
+                borderColor: "rgba(0, 0, 0, 0.7)",
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }
         ]
     };
@@ -307,62 +307,23 @@ $(document).ready(function () {
                 new_values[10 - new_length + i] = current_level;
                 new_fill_colors[10 - new_length + i] = fc;
                 new_labels[10 - new_length + i] = current_sat;
-
-                // $.each(satellite_graph.data.datasets, function (i, dataset) {
-                //     dataset.data[10 - new_length + i] = current_level;
-                //     dataset.metaData[10 - new_length + i].custom = {
-                //         backgroundColor: fc
-                //     };
-                //     dataset.labels[10 - new_length + i] = current_sat
-                // })
-
-                // satellite_graph.labels[10 - new_length + i] = current_sat;
-                // satellite_graph.datasets[0].data[10 - new_length + i].fillColor = fc;
-                // satellite_graph.datasets[0].data[10 - new_length + i].value = current_level;
             }
 
             $.each(satellite_graph.data.datasets, function (i, dataset) {
-                dataset.metaData.custom = {
-                    backgroundColor: fc
-                };
+                var j = 0;
+                dataset.metaData.forEach(function(el) {
+                    el.custom = {
+                        backgroundColor: new_fill_colors[j]
+                    };
+                    j++;
+                })
+
                 dataset.data = new_values;
             });
 
             satellite_graph.data.labels = new_labels;
 
             satellite_graph.update();
-
-            // find the ten biggest elements and put them on the graph
-
-            //for (i = (new_length > 10) ? 9 : new_length - 1; i >= 0; i--) {
-            //    current_sat = new_sat_values[i].sat;
-            //    current_level = parseInt(new_sat_values[i].level);
-            //
-            //    if (current_level < 0) {
-            //        current_level = 0;
-            //    }
-            //
-            //    console.log("new sat values: " + current_sat + " " + current_level);
-            //
-            //    // take care of the fill color
-            //    switch (true) {
-            //        case (current_level< 30):
-            //            fc = "rgba(255, 0, 0, 0.9)"; // Red
-            //            break;
-            //        case (current_level >= 30 && current_level <= 45):
-            //            fc = "rgba(255, 255, 0, 0.9)"; // Yellow
-            //            break;
-            //        case (current_level >= 45):
-            //            fc = "rgba(0, 255, 0, 0.9)"; // Green
-            //            break;
-            //    }
-            //
-            //
-            //    satellite_graph.datasets[0].bars[i].fillColor = fc;
-            //    satellite_graph.labels = current_sat;
-            //    satellite_graph.datasets[0].bars[i].value = current_level;
-            //}
-
         }
     });
 
@@ -382,7 +343,7 @@ $(document).ready(function () {
             $("#lat_value").html("<span>" + msg.lat.substring(0, 9) + "</span>");
             $("#height_value").html("<span>" + msg.height.substring(0, 9) + "</span>");
 
-            // obs values: heartbeat
+            // TODO: obs values: heartbeat
         }
 
     });
@@ -419,7 +380,6 @@ $(document).ready(function () {
         to_append += '</div>';
 
         form_div.html(to_append).trigger("create");
-
     });
 
     // this part is responsible for taking the changed form elements
@@ -446,7 +406,6 @@ $(document).ready(function () {
         });
 
         socket.emit("temp config modified", config_to_send);
-
     });
 
 });
