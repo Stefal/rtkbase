@@ -206,7 +206,8 @@ $(document).ready(function () {
             {
                 label: "Rover satellite levels",
                 backgroundColor: "rgba(0, 255, 0, 1)",
-                borderColor: "rgba(0, 0, 0, 0.7)",
+                borderColor: "rgba(0, 0, 0, 1)",
+                borderWidth: 1,
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }
         ]
@@ -215,9 +216,17 @@ $(document).ready(function () {
     var sat_options = {
         responsive: true,
         scales: {
+            xAxes: [{
+                display: true,
+                gridLines: {
+                    color: "rgba(0, 0, 0, 0)",
+                }
+            }],
             yAxes: [{
                 display: true,
-
+                gridLines: {
+                    color: "rgba(0, 0, 0, 0.7)",
+                },
                 override: {
                     start: 0,
                     stepWidth: 10,
@@ -226,7 +235,11 @@ $(document).ready(function () {
             }]
         },
 
-        barDatasetSpacing: -1,
+        tooltips: {
+            enabled: false
+        },
+
+
         barValueSpacing: bar_spacing,
 
         scaleLineColor: "rgba(0, 0, 0, 0.8)",
