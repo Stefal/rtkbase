@@ -201,7 +201,7 @@ $(document).ready(function () {
     // satellite_graph is created based on this data
 
     var sat_data = {
-        labels: ["", "", "", "", "", "", "", "", "", ""],
+        labels: ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
         datasets: [
             {
                 label: "Rover satellite levels",
@@ -308,20 +308,27 @@ $(document).ready(function () {
                 new_fill_colors[10 - new_length + i] = fc;
                 new_labels[10 - new_length + i] = current_sat;
 
+                // $.each(satellite_graph.data.datasets, function (i, dataset) {
+                //     dataset.data[10 - new_length + i] = current_level;
+                //     dataset.metaData[10 - new_length + i].custom = {
+                //         backgroundColor: fc
+                //     };
+                //     dataset.labels[10 - new_length + i] = current_sat
+                // })
+
                 // satellite_graph.labels[10 - new_length + i] = current_sat;
                 // satellite_graph.datasets[0].data[10 - new_length + i].fillColor = fc;
                 // satellite_graph.datasets[0].data[10 - new_length + i].value = current_level;
             }
 
-            satellite_graph.datasets[0].data = new_values;
-            satellite_graph.datasets[0].fillColor = new_fill_colors;
-            satellite_graph.labels = new_labels;
-
-            $.each(satellite_graph.datasets, function(index, dataset){
-                // dataset.data.fillColor = new_fill_colors;
+            $.each(satellite_graph.data.datasets, function (i, dataset) {
+                dataset.metaData.custom = {
+                    backgroundColor: fc
+                };
                 dataset.data = new_values;
-                dataset.labels = new_labels;
             });
+
+            satellite_graph.data.labels = new_labels;
 
             satellite_graph.update();
 
