@@ -214,14 +214,21 @@ $(document).ready(function () {
 
     var sat_options = {
         responsive: true,
+        scales: {
+            yAxes: [{
+                display: true,
+
+                override: {
+                    start: 0,
+                    stepWidth: 10,
+                    steps: 6
+                }
+            }]
+        },
 
         barDatasetSpacing: -1,
         barValueSpacing: bar_spacing,
 
-        scaleOverride: true,
-        scaleSteps: 6,
-        scaleStepWidth: 10,
-        scaleStartValue: 0,
         scaleLineColor: "rgba(0, 0, 0, 0.8)",
         scaleGridLineColor: "rgba(0, 0, 0, 0.7)",
         scaleShowVerticalLines: false,
