@@ -201,26 +201,18 @@ $(document).ready(function () {
     // satellite_graph is created based on this data
 
     var sat_data = {
-        labels: ["G29", "G08", "G30", "G18", "G19", "G22", "G20", "G27", "G07", "G16"],
+        labels: ["", "", "", "", "", "", "", "", "", ""],
         datasets: [
             {
                 label: "Rover satellite levels",
                 fillColor: "rgba(0, 255, 0, 1)",
                 strokeColor: "rgba(0, 0, 0, 0.7)",
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                data: [10, 10, 10, 0, 0, 0, 0, 0, 0, 0]
             }
-            //{
-            //    label: "Base satellite levels",
-            //    fillColor: "rgba(151, 187, 205, 1)",
-            //    strokeColor: "rgba(0, 0, 0, 0.7)",
-            //    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            //}
         ]
     };
 
-    // draw the satellite_graph
-
-    var satellite_graph = new Chart(ctx).Bar(sat_data, {
+    var sat_options = {
         responsive: true,
 
         barDatasetSpacing: -1,
@@ -235,6 +227,14 @@ $(document).ready(function () {
         scaleShowVerticalLines: false,
 
         showTooltips: false
+    }
+
+    // draw the satellite_graph
+
+    var satellite_graph = new Chart(ctx, {
+        type : 'bar',
+        data: sat_data,
+        options: sat_options
     });
 
     // handle data broadcast
@@ -267,6 +267,12 @@ $(document).ready(function () {
             var i;
             var new_length = new_sat_values.length;
 
+            // create 3 placeholders for the new graph values
+
+            var new_values = new Array(10);
+            var new_fill_colors = new Array(10);
+            var new_labels = new Array(10);
+
             for (i = new_length - 10; i < new_length; i++) {
                 if (i < 0) {
                     current_level = 0;
@@ -298,10 +304,24 @@ $(document).ready(function () {
 
                 }
 
-                satellite_graph.datasets[0].bars[10 - new_length + i].fillColor = fc;
-                satellite_graph.scale.xLabels = current_sat;
-                satellite_graph.datasets[0].bars[10 - new_length + i].value = current_level;
+                new_values[10 - new_length + i] = current_level;
+                new_fill_colors[10 - new_length + i] = fc;
+                new_labels[10 - new_length + i] = current_sat;
+
+                // satellite_graph.labels[10 - new_length + i] = current_sat;
+                // satellite_graph.datasets[0].data[10 - new_length + i].fillColor = fc;
+                // satellite_graph.datasets[0].data[10 - new_length + i].value = current_level;
             }
+
+            satellite_graph.datasets[0].data = new_values;
+            satellite_graph.datasets[0].fillColor = new_fill_colors;
+            satellite_graph.labels = new_labels;
+
+            $.each(satellite_graph.datasets, function(index, dataset){
+                // dataset.data.fillColor = new_fill_colors;
+                dataset.data = new_values;
+                dataset.labels = new_labels;
+            });
 
             satellite_graph.update();
 
