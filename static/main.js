@@ -305,7 +305,6 @@ $(document).ready(function () {
 
             satellite_graph.update();
 
-
             // find the ten biggest elements and put them on the graph
 
             //for (i = (new_length > 10) ? 9 : new_length - 1; i >= 0; i--) {

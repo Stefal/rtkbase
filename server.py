@@ -28,7 +28,7 @@ changeBaudrateTo230400()
 # prepare RtkController, run RTKLIB
 print("prepare rtk")
 rtkc = RtkController(rtk_location)
-rtkc.start()
+rtkc.start("reach_rover_default.conf")
 
 # prepare ConfigManager
 conm = ConfigManager(socketio, rtk_location[:-3])
