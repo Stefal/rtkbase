@@ -234,19 +234,10 @@ $(document).ready(function () {
                 }
             }]
         },
-
         tooltips: {
             enabled: false
         },
-
-
         barValueSpacing: bar_spacing,
-
-        scaleLineColor: "rgba(0, 0, 0, 0.8)",
-        scaleGridLineColor: "rgba(0, 0, 0, 0.7)",
-        scaleShowVerticalLines: false,
-
-        showTooltips: false
     }
 
     // draw the satellite_graph
@@ -359,9 +350,19 @@ $(document).ready(function () {
             $("#mode_value").html("<span>" + msg.positioning_mode + "</span>");
 
             // coordinates
-            $("#lon_value").html("<span>" + msg.lon.substring(0, 9) + "</span>");
-            $("#lat_value").html("<span>" + msg.lat.substring(0, 9) + "</span>");
-            $("#height_value").html("<span>" + msg.height.substring(0, 9) + "</span>");
+            // fix length of the strings
+            var lon_value = msg.lon.substring(0, 9) + Array(9 - msg.lon.substring(0, 9).length + 1).join("x");
+            var lat_value = msg.lat.substring(0, 9) + Array(9 - msg.lat.substring(0, 9).length + 1).join("x");
+            var height_value = msg.height.substring(0, 9) + Array(9 - msg.height.substring(0, 9).length + 1).join("x");
+
+            console.log("coordinate grid debug:");
+            console.log("lat: " + lat_value);
+            console.log("lon: " + lon_value);
+            console.log("hei: " + height_value);
+
+            $("#lon_value").html("<span>" + lon_value + "</span>");
+            $("#lat_value").html("<span>" + lat_value + "</span>");
+            $("#height_value").html("<span>" + height_value + "</span>");
 
             // TODO: obs values: heartbeat
         }
