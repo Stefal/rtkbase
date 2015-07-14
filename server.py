@@ -12,6 +12,18 @@ from threading import Thread
 from flask import Flask, render_template, session, request
 from flask.ext.socketio import *
 
+# This is the main ReachView module.
+# Here we start the Flask server and handle socket.io messages
+# But before this some preparation is done:
+# 1. Prepare the flask-socketio server to be run
+# 2. Change Ublox UART baudrate to 230400 from default 9600
+# 3. Launch RTKLIB instance with the default reach rover config file
+# 4. Launch ConfigManager to read and write config files for RTKLIB
+#    Note, that we use the /path/to/RTKLIB/app/rtkrcv directory for config files
+# 5. Server launches threads, reading status info from running RTKLIB
+# 6. Server handles config file requests: reading existing ones and writing new ones
+#    Through the ConfigManager
+
 app = Flask(__name__)
 app.template_folder = "."
 app.debug = False
@@ -20,21 +32,26 @@ app.config["SECRET_KEY"] = "secret!"
 socketio = SocketIO(app)
 server_not_interrupted = 1
 
+# this is the default location for Reach modules
 rtk_location = "/home/reach/RTKLIB/app/rtkrcv/gcc"
 
 # configure Ublox for 230400 baudrate!
 changeBaudrateTo230400()
 
 # prepare RtkController, run RTKLIB
-print("prepare rtk")
 rtkc = RtkController(rtk_location)
-rtkc.start("reach_rover_default.conf")
+
+if rtkc.launch() < 0:
+    print("Rtklib launch failed")
+else:
+    print("Rtklib launch successful")
 
 # prepare ConfigManager
-conm = ConfigManager(socketio, rtk_location[:-3])
+conm = ConfigManager(rtk_location[:-3])
 
 satellite_thread = None
 coordinate_thread = None
+rtklib_launched = None
 
 def broadcastSatellites():
     count = 0
@@ -43,18 +60,21 @@ def broadcastSatellites():
 
     while server_not_interrupted:
 
-        # update satellite levels
-        rtkc.getObs()
+        # check if RTKLIB is started
+        if rtkc.started is True:
 
-        # add new obs data to the message
-        json_data.update(rtkc.obs)
+            # update satellite levels
+            rtkc.getObs()
 
-        if count % 10 == 0:
-            print("Sending sat levels:\n" + str(json_data))
+            # add new obs data to the message
+            json_data.update(rtkc.obs)
 
-        socketio.emit("satellite broadcast", json_data, namespace = "/test")
-        count += 1
-        time.sleep(1)
+            if count % 10 == 0:
+                print("Sending sat levels:\n" + str(json_data))
+
+            socketio.emit("satellite broadcast", json_data, namespace = "/test")
+            count += 1
+            time.sleep(1)
 
 def broadcastCoordinates():
     count = 0
@@ -62,22 +82,30 @@ def broadcastCoordinates():
 
     while server_not_interrupted:
 
-        # update RTKLIB status
-        rtkc.getStatus()
+        # check if RTKLIB is started
+        if rtkc.started is True:
 
-        json_data.update(rtkc.info)
+            # update RTKLIB status
+            rtkc.getStatus()
 
-        if count % 10 == 0:
-            print("Sending RTKLIB status select information:\n" + str(json_data))
+            # add new status/coordinate data to the message
+            json_data.update(rtkc.info)
 
-        socketio.emit("coordinate broadcast", json_data, namespace = "/test")
-        count += 1
-        time.sleep(1)
+            if count % 10 == 0:
+                print("Sending RTKLIB status select information:\n" + str(json_data))
+
+            socketio.emit("coordinate broadcast", json_data, namespace = "/test")
+            count += 1
+            time.sleep(1)
 
 @app.route("/")
 def index():
     global satellite_thread
     global coordinate_thread
+    global rtklib_launched
+
+    if rtklib_launched is None:
+        rtkc.start()
 
     if satellite_thread is None:
         satellite_thread = Thread(target = broadcastSatellites)
@@ -98,10 +126,35 @@ def test_connect():
 def test_disconnect():
     print("Browser client disconnected")
 
+#### RTKLIB start/stop signal handling ####
+
+@socketio.on("start rtklib", namespace="/test")
+def startRtklib():
+    print("Attempting to start RTKLIB...")
+    res = rtkc.start()
+    if res == -1:
+        print("RTKLIB start failed")
+    elif res == 1:
+        print("RTKLIB start successful")
+    elif res == 2:
+        print("RTKLIB already started")
+
+@socketio.on("stop rtklib", namespace="/test")
+def stopRtklib():
+    print("Attempting to stop RTKLIB...")
+    res = rtkc.start()
+    if res == -1:
+        print("RTKLIB stop failed")
+    elif res == 1:
+        print("RTKLIB stop successful")
+    elif res == 2:
+        print("RTKLIB already stopped")
+
+#### RTKLIB config handling ####
+
 @socketio.on("read config", namespace="/test")
 def readCurrentConfig():
     print("Got signal to read the current config")
-
     conm.readConfig(conm.default_base_config)
     emit("current config", conm.buff_dict, namespace="/test")
 

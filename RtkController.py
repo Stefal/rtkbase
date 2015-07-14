@@ -12,9 +12,10 @@ class RtkController:
         self.child = 0
         self.status = {}
         self.obs = {}
-        self.updated = False
         self.info = {}
         self.semaphore = Semaphore()
+
+        self.started = False
 
     def expectAnswer(self, last_command = ""):
         a = self.child.expect(["rtkrcv>", pexpect.EOF, "error"])
@@ -32,7 +33,7 @@ class RtkController:
 
         return 1
 
-    def start(self, config_name = "rtk.conf"):
+    def launch(self, config_name = "reach_rover_default.conf"):
         # run an rtkrcv instance with the specified config:
         # if there is a slash in the name we consider it a full location
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
@@ -45,25 +46,56 @@ class RtkController:
             spawn_command = self.bin_path + "/rtkrcv -o " + self.bin_path[0:-3] + config_name
 
         self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
-        print("Spawning command" + spawn_command)
+
+        print('Launching rtklib with: "' + spawn_command + '"')
 
         if self.expectAnswer("spawn") < 0:
             self.semaphore.release()
             return -1
 
-        print("launched rtklib")
-        self.child.send("start\r\n")
-
-        if self.expectAnswer("start") < 0:
-            self.semaphore.release()
-            return -1
-
-        # started without rtklib catching  errors
-        print("RTKLIB launch and start succesful")
-
         self.semaphore.release()
 
         return 1
+
+    def start(self):
+
+        if not self.started:
+            self.semaphore.acquire()
+
+            self.child.send("start\r\n")
+
+            if self.expectAnswer("start") < 0:
+                self.semaphore.release()
+                return -1
+
+            self.semaphore.release()
+
+            self.started = True
+
+            return 1
+
+        # already started
+        return 2
+
+    def stop(self):
+
+        if self.started:
+            self.semaphore.acquire()
+
+            self.child.send("stop\r\n")
+
+            if self.expectAnswer("stop") < 0:
+                self.semaphore.release()
+                return -1
+
+            self.semaphore.release()
+
+            self.started = False
+
+            return 1
+
+        # already stopped
+        return 2
 
     def restart(self):
 
@@ -74,9 +106,6 @@ class RtkController:
         if self.expectAnswer("restart") < 0:
             self.semaphore.release()
             return -1
-
-        print("RTKLIB restart successful")
-        print(self.child.before)
 
         self.semaphore.release()
 
@@ -94,16 +123,13 @@ class RtkController:
 
         self.semaphore.release()
 
-        print("Got config reloaded. Now restart")
-
         if self.restart() < 0:
             self.semaphore.release()
             return -1
 
-
         return 1
 
-    def stop(self):
+    def shutdown(self):
 
         self.semaphore.acquire()
 

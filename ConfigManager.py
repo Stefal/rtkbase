@@ -1,5 +1,3 @@
-from flask.ext.socketio import SocketIO, emit
-
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
 # Note that on startup it reads on of the default configs
@@ -7,7 +5,7 @@ from flask.ext.socketio import SocketIO, emit
 
 class ConfigManager:
 
-    def __init__(self, socketio = None, config_path = None):
+    def __init__(self, config_path = None):
 
         if config_path is None:
             self.config_path = ""
@@ -72,8 +70,3 @@ class ConfigManager:
                     line += " # " + self.buff_options[key]
 
                 f.write(line + "\n")
-
-
-
-
-
