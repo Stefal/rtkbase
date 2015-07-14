@@ -221,7 +221,10 @@ $(document).ready(function () {
                 categorySpacing: bar_spacing,
                 gridLines: {
                     color: "rgba(0, 0, 0, 0)",
-                }
+                },
+                labels: {
+                    fontSize: 10,
+                },
             }],
             yAxes: [{
                 display: true,
@@ -238,8 +241,7 @@ $(document).ready(function () {
         tooltips: {
             enabled: false
         },
-        barValueSpacing: bar_spacing,
-    }
+    };
 
     // draw the satellite_graph
 
