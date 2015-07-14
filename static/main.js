@@ -218,6 +218,7 @@ $(document).ready(function () {
         scales: {
             xAxes: [{
                 display: true,
+                categorySpacing: bar_spacing,
                 gridLines: {
                     color: "rgba(0, 0, 0, 0)",
                 }
@@ -351,18 +352,18 @@ $(document).ready(function () {
 
             // coordinates
             // fix length of the strings
-            var lon_value = msg.lon.substring(0, 9) + Array(9 - msg.lon.substring(0, 9).length + 1).join("x");
-            var lat_value = msg.lat.substring(0, 9) + Array(9 - msg.lat.substring(0, 9).length + 1).join("x");
-            var height_value = msg.height.substring(0, 9) + Array(9 - msg.height.substring(0, 9).length + 1).join("x");
+            var lon_value = msg.lon.substring(0, 9) + Array(9 - msg.lon.substring(0, 9).length + 1).join(" ");
+            var lat_value = msg.lat.substring(0, 9) + Array(9 - msg.lat.substring(0, 9).length + 1).join(" ");
+            var height_value = msg.height.substring(0, 9) + Array(9 - msg.height.substring(0, 9).length + 1 + 2).join(" ");
 
             console.log("coordinate grid debug:");
             console.log("lat: " + lat_value);
             console.log("lon: " + lon_value);
             console.log("hei: " + height_value);
 
-            $("#lon_value").html("<span>" + lon_value + "</span>");
-            $("#lat_value").html("<span>" + lat_value + "</span>");
-            $("#height_value").html("<span>" + height_value + "</span>");
+            $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
+            $("#lat_value").html("<span style='white-space:pre;'>" + lat_value + "</span>");
+            $("#height_value").html("<span style='white-space:pre;'>" + height_value + "  " + "</span>");
 
             // TODO: obs values: heartbeat
         }
