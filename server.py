@@ -41,11 +41,6 @@ changeBaudrateTo230400()
 # prepare RtkController, run RTKLIB
 rtkc = RtkController(rtk_location)
 
-if rtkc.launch() < 0:
-    print("Rtklib launch failed")
-else:
-    print("Rtklib launch successful")
-
 # prepare ConfigManager
 conm = ConfigManager(rtk_location[:-3])
 
@@ -125,6 +120,22 @@ def test_connect():
 @socketio.on("disconnect", namespace="/test")
 def test_disconnect():
     print("Browser client disconnected")
+
+#### RTKLIB launch/shutdown signal handling ####
+
+@socketio.on("launch rtklib", namespace="/test")
+def launchRtklib():
+    if rtkc.launch() < 0:
+        print("RTKLIB launch failed")
+    else:
+        print("RTKLIB launch successful")
+
+@socketio.on("shutdown rtklib", namespace="/test")
+def shutdownRtklib():
+    if rtkc.launch() < 0:
+        print("RTKLIB launch failed")
+    else:
+        print("RTKLIB launch successful")
 
 #### RTKLIB start/stop signal handling ####
 

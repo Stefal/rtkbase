@@ -1,5 +1,4 @@
 import pexpect
-import time
 from threading import Semaphore
 
 # This module automates working with RTKRCV directly
