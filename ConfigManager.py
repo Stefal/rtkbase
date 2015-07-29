@@ -1,3 +1,5 @@
+from os import walk
+
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
 # Note that on startup it reads on of the default configs
