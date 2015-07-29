@@ -90,7 +90,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
 
 <!-- Config page here:-->
 <div data-role="page" id="config_page">
-    <div class="loader" style='text-align:center;position:absolute;height:100%;width:100%;background: rgba(0,0,0,0.3);z-index:1000;'><img src="static/images/ajax-loader.gif" alt="" style="position:relative;top:10%;"></div>
+    <div class="loader" style='text-align:center;position:absolute;top:33.5px;width:100%;height:100%;z-index:1000;background:rgba(0,0,0,0.3);'><img src="static/images/ajax-loader.gif" alt="" style="position:relative;top:10%;"></div>
     <div data-role="header">
         <div data-role="navbar" id="navbar2">
             <ul>
@@ -149,6 +149,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     </div>
 
     <div data-role="main" class="ui-content">
+        <a href="http://reach/local:5000" target="_blank">Wi-Fi setup</a>
         <ol data-role="listview" data-inset="true" id="logs_list">
             {% for log in logs %}
                 <li><a href="/logs/{{ log.name }}" target="_blank" class="log_string">{{ log.name }},{{ log.size }}</a><a href="#" data-role="button" data-icon="delete" data-iconpos="notext" class='delete-log-button'>Delete</a></li>
