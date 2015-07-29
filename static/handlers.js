@@ -85,13 +85,13 @@ $(document).on("pageinit", "#config_page", function() {
 				$('input[name=config-title]').val('');
 				$('input[name=config-title]').prop('type', 'text');
 				$('input[name=config-title]').parent().css({'visibility':'visible', 'border':'1px solid #ddd', 'width':'125px', 'float':'left' ,'margin-right':'10px'});
-				$('input[name=config-title]').parent().after('<span class="conf_tail" style="position:relative;top:15px;font-weight: bold;">.conf</span>');
+				$('.conf_tail').css('display', 'inline');
 			}
 			else{
          		$('input[name=config-title]').val(conf.substr(0, conf.length - 5));
          		$('input[name=config-title]').prop('type', 'hidden');
          		$('input[name=config-title]').parent().css({'visibility':'hidden', 'border':'none'});
-         		$('.conf_tail').remove();
+         		$('.conf_tail').css('display', 'none');
 			}
         }
 
