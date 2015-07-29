@@ -28,6 +28,154 @@ from glob import glob
 # Note that on startup it reads on of the default configs
 # and keeps the order of settings, stored there
 
+class Config:
+
+    def __init__(self, file_name = None, items = None):
+        # we keep all the options for current config file and their order here
+
+        # config file name
+        self.current_file_name = None
+
+        # due to how sending stuff over socket.io works, we need to keep config data
+        # as a dictionary. to maintain order later in the browser we keep it in the
+        # following form:
+        # items = {
+        #     "0": item0,
+        #     "1": item1
+        # }
+        # where item is also a dictionary:
+        # item0 = {
+        #     "parameter": "p",
+        #     "value": "v",
+        #     "comment": "c",
+        #     "description": "d"
+        # }
+
+        if items is not None:
+            self.items = {}
+
+        # if we pass the file to the constructor, then read the values
+        if file_name is not None:
+            self.readFromFile(file_name)
+
+    def formStringFromItem(self, item):
+        # form a line to put into a RTKLIB config file:
+
+        # item must be a dict, described in the __init__ method comments!
+
+        # we want to write values aligned for easier reading
+        # hence need to add a number of spaces after the parameter
+        parameter_with_trailing_spaces = item["parameter"] + " " * (18 - len(item["parameter"]))
+
+        s = [parameter_with_trailing_spaces, "=" + item["value"]]
+
+        if "comment" in item:
+            s.append("#")
+            s.append(item["comment"])
+
+        if "description" in item:
+            s.append("##")
+            s.append(item["description"])
+
+        return " ".join(s)
+
+    def extractItemFromString(self, string):
+        # extract information from a config file line
+        # return true, if the line
+
+        # create an empty item
+        item = {}
+
+        # cut the line into pieces by spaces
+        separated_lines = string.split()
+        length = len(separated_lines)
+
+        print("DEBUG SEPARATED LINES")
+        print(separated_lines)
+
+        # first, check if this line is empty
+        if length > 0:
+
+            # second, check if it's fully commented
+            if separated_lines[0][0] != "#":
+
+                # extract the parameter and value
+                item["parameter"] = separated_lines[0]
+                item["value"] = separated_lines[1][1:]
+
+                # check if we have more info, possibly useful comment
+                if length > 3 and separated_lines[2] == "#":
+                    item["comment"] = separated_lines[3]
+
+                    # check if we have more info, possibly description
+                    if length > 5 and separated_lines[4] == "##":
+                        # in order to have a description with spaces, we take all what's left
+                        # after the "##" symbols and create a single line out of it:
+                        description = separated_lines[5:]
+                        description = " ".join(description)
+                        item["description"] = description
+                
+                # check if we have only a description, rather than a comment and description
+                if length >3 and separated_lines[2] == "##":
+                    description = separated_lines[3:]
+                    description = " ".join(description)
+                    item["description"] = description
+
+        # we return the item we managed to extract form from string. if it's empty,
+        # then we could not parse the string, hence it's empty, commented, or invalid
+        return item
+
+    def readFromFile(self, from_file):
+
+        # save file name as current
+        self.current_file_name = from_file
+
+        # clear previous data
+        self.items = {}
+
+        # current item container
+        item = {}
+
+        with open(from_file, "r") as f:
+            i = 0
+            for line in f:
+                # we mine for info in every line of the file
+                # if the info is valid, we add this item to the items dict
+                item = self.extractItemFromString(line)
+
+                if item:
+                    # save the info as {"0": item0, ...}
+                    self.items[str(i)] = item
+
+                    print("DEBUG READ FROM FILE")
+                    print("i == " + str(i) + " item == " + str(item))
+
+                    i += 1
+
+    def writeToFile(self, to_file = None):
+
+        # by default, we write to the current file
+        if to_file == None:
+            to_file = self.current_file_name
+
+        # we keep the config as a dict, which is unordered
+        # now is a time to convert it to a list, so that we could
+        # write it to a file maintaining the order
+
+        # create an empty list of the same length as we have items
+        items_list = [""] * len(self.items)
+
+        # turn our dict with current items into a list in the correct order:
+        for item_number in self.items:
+            items_list[int(item_number)] = self.items[item_number]
+
+        with open(to_file, "w") as f:
+            line = "# rtkrcv options for rtk (v.2.4.2)"
+            f.write(line + "\n\n")
+
+            for item in items_list:
+                f.write(self.formStringFromItem(item) + "\n")
+
 class ConfigManager:
 
     def __init__(self, config_path = None):
@@ -42,10 +190,10 @@ class ConfigManager:
         self.available_configs = []
         self.updateAvailableConfigs()
 
-        self.buff_dict_comments = {}
-        self.buff_dict = {}
-        self.buff_dict_order = []
-        self.readConfig(self.default_rover_config) # we do this to load config order from default reach base config
+        # create a buffer for keeping config data
+        # read default one into buffer
+
+        self.buffered_config = Config(self.config_path + self.default_rover_config)
 
     def updateAvailableConfigs(self):
 
@@ -71,38 +219,10 @@ class ConfigManager:
         else:
             config_file_path = self.config_path + from_file
 
-        self.buff_dict = {}
-        self.buff_dict_order = []
+        print("DEBUG READING ROVER CONFIG FROM FILE: " + config_file_path)
+        self.buffered_config.readFromFile(config_file_path)
 
-        with open(config_file_path, "r") as f:
-            for line in f:
-                separated_lines = line.split() # separate lines with spaces, get rid of extra whitespace
-                length = len(separated_lines)
-
-                # check if the line is empty or commented
-                if length > 0:
-                    if separated_lines[0][0] != "#":
-                        param = separated_lines[0] # get first part of the line, before the equal sign
-                        val = separated_lines[1][1:] # get the second part of the line, discarding "=" symbol
-
-                        if length > 3:
-                            comments = separated_lines[3]
-                            # some of the options are comments only
-                            # frontend need to check if the comment has ":" in it
-                            # then, it can be used to generate a dropdown menu
-                            # if ":" in options:
-
-                            self.buff_dict_comments[param] = comments
-
-                        self.buff_dict[param] = val
-                        self.buff_dict_order.append(param) # this is needed to conserve the order of the parameters in the config file
-
-            self.buff_dict["config_file_name"] = from_file
-
-    def writeConfig(self, to_file, dict_values = None):
-
-        if dict_values is None:
-            dict_values = self.buff_dict
+    def writeConfig(self, to_file = None, config_values = None):
 
         if to_file is None:
             to_file = self.default_rover_config
@@ -114,24 +234,23 @@ class ConfigManager:
         else:
             config_file_path = self.config_path + to_file
 
-        print("Printing config we are about to write to " + config_file_path + "\n" + str(dict_values))
+        # do the actual writing
 
-        with open(config_file_path, "w") as f:
-            line = "# rtkrcv options for rtk (v.2.4.2)"
-            f.write(line + "\n\n")
+        # if we receive config_values to write, then we create another config instance
+        # and use write on it
+        if config_values is None:
+            self.buffered_config.writeToFile(to_file)
+        else:
+            conf = Config(items = config_values)
+            conf.writeToFile(to_file)
 
-            for key in self.buff_dict_order:
 
-                k = str(key)
-                if k in dict_values:
-                    v = str(dict_values[key])
 
-                    line = k + " " * (19 - len(k)) + "=" + v
 
-                    print("line = " + line)
-                    # check if comments are available
-                    if key in self.buff_dict_comments:
-                        line += " # " + self.buff_dict_comments[key]
 
-                    f.write(line + "\n")
+
+
+
+
+
 

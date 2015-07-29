@@ -318,7 +318,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
     var to_append = "";
     var config_key = "";
     var config_value = "";
+    var config_description = "";
+    var config_parameter = "";
     var config_comment = "";
+    var input_title = "";
     var splitArr = "";
     var innerSplit = "";
     var topClassArr = ['inpstr1-type', 'inpstr1-format' ,'inpstr2-type', 'inpstr2-format', 'inpstr3-type', 'inpstr3-format', 'outstr1-type', 'outstr1-format' , 'outstr2-type', 'outstr2-format', 'logstr1-type', 'logstr1-format', 'logstr2-type', 'logstr2-format', 'logstr3-type', 'logstr3-format'];
@@ -338,48 +341,50 @@ function showRover(msg, rover_config_order, rover_config_comments){
     to_append += '<button class="ui-btn" id="adv-set-btn">Advanced settings</button>';
     to_append += '<div class="advanced-settings" style="display:none">';
 
-    if (!$.isEmptyObject(rover_config_order)) {
-        for (var k in rover_config_order) {
+    // console.log();
 
-            config_key = rover_config_order[k];
+    if (!$.isEmptyObject(msg)) {
+        for (var k in msg) {
 
-            if (rover_config_order[k] in msg) {
-                config_value = msg[rover_config_order[k]];
-                config_comment = rover_config_comments[config_key] || "";
 
-                if (config_comment)
-                    config_comment = " # " + config_comment;
 
-                console.log("config rover item: " + config_key + " = " + config_value);
+            config_key = msg[k];
+		    config_value = config_key['value'];
+		    config_parameter = config_key['parameter'];
+		    config_description = (typeof config_key['description'] == "undefined") ? '' : config_key['description'];
+ 
+		    config_comment = (typeof config_key['comment'] == "undefined") ? '' : config_key['comment'];
+		    input_title = (config_description == '') ? config_parameter : config_description;
 
-                to_append += '<div class="ui-field-contain>"';
-                to_append += '<label for="' + config_key + '_entry">' + config_key + '</label>';
+            console.log("config rover item: " + config_parameter + " = " + config_value + ' ' + config_description);
 
-                if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
-                    splitArr = config_comment.split(',');                    
+            to_append += '<div class="ui-field-contain>"';
+            to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
 
-                    if(jQuery.inArray(config_key, topClassArr) >= 0)
-						to_append +=  '<select name="select-native-1" id="' + config_key + '_entry" class="config_form_field top_input">';
-					else
-						to_append +=  '<select name="select-native-1" id="' + config_key + '_entry" class="config_form_field">';
-                    
-                    $.each(splitArr, function(index, value){
-                        value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
-                        innerSplit = value.split(':');
+            if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
+                splitArr = config_comment.split(',');                    
 
-                        if(innerSplit['1'] == config_value)
-                            to_append += '<option value="' + innerSplit['1'] + '" selected="selected">' + innerSplit['1'] + '</option>';
-                        else
-                        	to_append += '<option value="' + innerSplit['1'] + '">' + innerSplit['1'] + '</option>';
-                    })
+                if(jQuery.inArray(config_parameter, topClassArr) >= 0)
+					to_append +=  '<select name="select-native-1" id="' + config_parameter + '_entry" class="config_form_field top_input">';
+				else
+					to_append +=  '<select name="select-native-1" id="' + config_parameter + '_entry" class="config_form_field">';
+                
+                $.each(splitArr, function(index, value){
+                    value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
+                    innerSplit = value.split(':');
 
-                    to_append += '</select>';
-                }
-                else
-                    to_append += '<input type="text" data-clear-btn="true" id="' + config_key + '_entry" value="' + config_value + '" class="config_form_field" >';                    
+                    if(innerSplit['1'] == config_value)
+                        to_append += '<option value="' + innerSplit['1'] + '" selected="selected">' + innerSplit['1'] + '</option>';
+                    else
+                    	to_append += '<option value="' + innerSplit['1'] + '">' + innerSplit['1'] + '</option>';
+                })
 
-                to_append += '</div>';
+                to_append += '</select>';
             }
+            else
+                to_append += '<input type="text" data-clear-btn="true" id="' + config_parameter + '_entry" value="' + config_value + '" class="config_form_field" >';                    
+
+            to_append += '</div>';
         }
 
     }
