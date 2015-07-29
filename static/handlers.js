@@ -107,6 +107,7 @@ $(document).on("pageinit", "#config_page", function() {
             $('#config-title-submit').click(function(){
             	var confTitle = $('input[name=config-title]').val();
             	var config_name = (confTitle.substr(confTitle.length - 5) == '.conf') ? confTitle.substr(0, confTitle.length - 5) : confTitle;
+                config_name += '.conf';
 
                 $( "#popupLogin" ).popup( "close");
                 console.log('got signal to write config ' + config_name);
