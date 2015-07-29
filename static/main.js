@@ -136,22 +136,24 @@ $(document).ready(function () {
         }
     });
 
-    var rover_config_order = {};
+    // var rover_config_order = {};
 
-    socket.on("current config rover order", function(msg) {
-        console.log("Received current rover config order")
-        rover_config_order = msg;
-    });
+    // socket.on("current config rover order", function(msg) {
+    //     console.log("Received current rover config order")
+    //     rover_config_order = msg;
+    // });
 
-    var rover_config_comments = {};
+    // var rover_config_comments = {};
 
-    socket.on("current config rover comments", function(msg) {
-        console.log("Received current rover config comments")
-        rover_config_comments = msg;
-    })
+    // socket.on("current config rover comments", function(msg) {
+    //     console.log("Received current rover config comments")
+    //     rover_config_comments = msg;
+    // })
 
     socket.on("current config rover", function(msg) {
-    	showRover(msg, rover_config_order, rover_config_comments);
+        // console.log(msg);
+        // showRover(msg, rover_config_order, rover_config_comments);
+    	showRover(msg);
     });
 
     socket.on("current config base", function(msg) {
