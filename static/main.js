@@ -91,6 +91,7 @@ $(document).ready(function () {
         // add current configs to the dropdown menu
 
         var select_options = $("#config_select");
+        var select_options_hidden = $('#config_select_hidden');
         var to_append = "";
 
         for (var i = 0; i < msg.available_configs.length; i++) {
@@ -98,14 +99,29 @@ $(document).ready(function () {
         }
 
         select_options.html(to_append).trigger("create");
+        select_options_hidden.html('<option value="custom">New config title</option>' + to_append).trigger("create");
 
         select_options.val(msg.rover.current_config);
+        select_options_hidden.val(msg.rover.current_config);
 
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
         } else if (msg.state == "base") {
             $('input:radio[name="radio_base_rover"]').filter('[value="base"]').next().click();
         }
+    });
+
+    socket.on("available configs", function(msg) {
+        var select_options = $("#config_select");
+        var select_options_hidden = $('#config_select_hidden');
+        var to_append = "";
+
+        for (var i = 0; i < msg.available_configs.length; i++) {
+            to_append += "<option value='" + msg.available_configs[i] + "'>" + msg.available_configs[i] + "</option>";
+        }
+
+        select_options.html(to_append).trigger("create");
+        select_options_hidden.html('<option value="custom">New config title</option>' + to_append).trigger("create");
     });
 
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################

@@ -349,6 +349,11 @@ class RTKLIB:
 
         self.conm.writeConfig(config_file, config)
 
+        self.conm.updateAvailableConfigs()
+
+        # send available configs to the browser
+        self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
+
         self.semaphore.release()
 
     def loadConfigRover(self, config_file = None):
