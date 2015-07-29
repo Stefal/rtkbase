@@ -10,7 +10,7 @@ from port import changeBaudrateTo230400
 
 from threading import Thread
 from flask import Flask, render_template, session, request
-from flask.ext.socketio import *
+from flask.ext.socketio import SocketIO, emit, disconnect
 
 app = Flask(__name__)
 app.template_folder = "."
