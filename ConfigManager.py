@@ -109,7 +109,17 @@ class Config:
 
                     # check if we have more info, possibly description
                     if length > 5 and separated_lines[4] == "##":
-                        item["description"] = separated_lines[5]
+                        # in order to have a description with spaces, we take all what's left
+                        # after the "##" symbols and create a single line out of it:
+                        description = separated_lines[5:]
+                        description = " ".join(description)
+                        item["description"] = description
+                
+                # check if we have only a description, rather than a comment and description
+                if length >3 and separated_lines[2] == "##":
+                    description = separated_lines[3:]
+                    description = " ".join(description)
+                    item["description"] = description
 
         # we return the item we managed to extract form from string. if it's empty,
         # then we could not parse the string, hence it's empty, commented, or invalid
@@ -232,7 +242,7 @@ class ConfigManager:
             self.buffered_config.writeToFile(to_file)
         else:
             conf = Config(items = config_values)
-            config_values.writeToFile(to_file)
+            conf.writeToFile(to_file)
 
 
 
