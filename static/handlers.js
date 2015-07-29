@@ -71,7 +71,15 @@ $(document).on("pageinit", "#config_page", function() {
 
             console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-            var payload = {"parameter": current_parameter, "description": current_description, "comment": current_comment, "value": current_value}
+            // var payload = {"parameter": current_parameter, "description": current_description, "comment": current_comment, "value": current_value};
+            var payload = {};
+            payload['parameter'] = current_parameter;
+            payload['value'] = current_value;
+
+            if(current_description != '')
+                payload['description'] = current_description;
+            if(current_comment != '')
+            payload['comment'] = current_comment;
 
             config_to_send[current_id] = payload;
         });
@@ -85,7 +93,15 @@ $(document).on("pageinit", "#config_page", function() {
 
             console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-            var payload = {"parameter": current_parameter, "description": current_description, "comment": current_comment, "value": current_value}
+            // var payload = {"parameter": current_parameter, "description": current_description, "comment": current_comment, "value": current_value}
+            var payload = {};
+            payload['parameter'] = current_parameter;
+            payload['value'] = current_value;
+
+            if(current_description != '')
+                payload['description'] = current_description;
+            if(current_comment != '')
+            payload['comment'] = current_comment;
 
             config_to_send[current_id] = payload;
         });
