@@ -451,6 +451,20 @@ class RTKLIB:
         # otherwise, we are inactive
         return 1
 
+    def deleteConfig(self, config_name):
+        # pass deleteConfig to conm
+
+        print("Got signal to delete config " + config_name)
+
+        self.conm.deleteConfig(config_name)
+
+        self.conm.updateAvailableConfigs()
+
+        # send available configs to the browser
+        self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
+
+        print(self.conm.available_configs)
+
     def saveState(self):
         # save current state for future resurrection:
         # state is a list of parameters:

@@ -151,7 +151,8 @@ def deleteLog(json):
 #### Delete config
 @socketio.on("delete config", namespace="/test")
 def deleteLog(json):
-    rtk.conm.deleteConfig(json.get("name"))
+    rtk.deleteConfig(json.get("name"))
+    # rtk.conm.deleteConfig(json.get("name"))
 
 @socketio.on("update reachview", namespace="/test")
 def updateReachView():

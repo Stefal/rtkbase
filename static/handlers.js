@@ -52,6 +52,20 @@ $(document).on("pageinit", "#config_page", function() {
         socket.emit("read config " + mode, to_send);
     });
 
+    $('#delete_config_button').click(function(){
+        var denyToDelete = ['reach_single_default.conf', 'reach_kinematic_default.conf', 'reach_base_default.conf'];
+        var conf_to_delete = $(this).parent().find('select').val();
+
+        if(jQuery.inArray( conf_to_delete, denyToDelete ) >= 0){
+            console.log(conf_to_delete);
+            console.log("Don't try to delete default config");
+        }
+        else{
+            console.log("Delete conf: " + conf_to_delete);
+            socket.emit("delete config", {"name": conf_to_delete});
+        }
+    });
+
     $(document).on("click", ".save_configs_button", function(e) {
         var config_to_send = {};
         var current_id = "";
@@ -83,7 +97,7 @@ $(document).on("pageinit", "#config_page", function() {
 
             config_to_send[current_id] = payload;
         });
-
+    
         $('select[id*="_entry"]').each(function(i, obj){
             current_parameter = obj.id.substring(0, obj.id.length - 6);
             current_id = $('input[id="' + current_parameter +'_order"]').val();
@@ -211,6 +225,8 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
     switch($(this).val()) {
         case "rover":
             $('#config_select-button').parent().parent().css('display', 'block');
+            $('#save_as_button').css('display', 'inline-block');
+            $('#save_button').css('display', 'inline-block');
             mode = "rover";
             console.log("Launching rover mode");
             socket.emit("shutdown base")
@@ -219,6 +235,8 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             break;
         case "base":
             $('#config_select-button').parent().parent().css('display', 'none');
+            $('#save_as_button').css('display', 'none');
+            $('#save_button').css('display', 'none');
             mode = "base";
             console.log("Launching base mode");
             socket.emit("shutdown rover");

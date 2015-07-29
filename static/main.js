@@ -114,6 +114,8 @@ $(document).ready(function () {
     socket.on("available configs", function(msg) {
         var select_options = $("#config_select");
         var select_options_hidden = $('#config_select_hidden');
+        var oldVal = select_options.val();
+        var oldNum = select_options.children('option').length;
         var to_append = "";
 
         for (var i = 0; i < msg.available_configs.length; i++) {
@@ -122,6 +124,24 @@ $(document).ready(function () {
 
         select_options.html(to_append).trigger("create");
         select_options_hidden.html('<option value="custom">New config title</option>' + to_append).trigger("create");
+
+        var newNum = select_options.children('option').length;
+    
+        if(newNum<oldNum){
+            select_options.val('reach_single_default.conf');
+            select_options.parent().find('span').html('reach_single_default.conf');
+            select_options_hidden.val('reach_single_default.conf');
+            select_options_hidden.parent().find('span').html('reach_single_default.conf');
+        }
+        else if(newNum >= oldNum){
+            select_options.val(oldVal);
+            select_options.parent().find('span').html(oldVal);
+            select_options_hidden.val(oldVal);
+            select_options_hidden.parent().find('span').html(oldVal);
+        }
+
+        select_options.change();
+        select_options_hidden.change();   
     });
 
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
