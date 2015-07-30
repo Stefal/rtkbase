@@ -17,7 +17,7 @@ from flask.ext.socketio import *
 # But before this some preparation is done:
 # 1. Prepare the flask-socketio server to be run
 # 2. Change Ublox UART baudrate to 230400 from default 9600
-# 3. Launch RTKLIB instance with the default reach rover config file
+# 3. Prepare to launch RTKLIB instance with the default reach rover config file
 # 4. Launch ConfigManager to read and write config files for RTKLIB
 #    Note, that we use the /path/to/RTKLIB/app/rtkrcv directory for config files
 # 5. Server launches threads, reading status info from running RTKLIB
@@ -30,23 +30,26 @@ app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 
 socketio = SocketIO(app)
-server_not_interrupted = 1
-
-# this is the default location for Reach modules
-rtk_location = "/home/reach/RTKLIB/app/rtkrcv/gcc"
 
 # configure Ublox for 230400 baudrate!
 changeBaudrateTo230400()
 
-# prepare RtkController, run RTKLIB
-rtkc = RtkController(rtk_location)
+# default location for rtkrcv binaries is /home/reach/RTKLIB/app/rtkrcv/gcc
+# prepare RtkController, but don't start rtklib
+rtkc = RtkController()
 
-# prepare ConfigManager
-conm = ConfigManager(rtk_location[:-3])
+# default location for RTKLIB binaries is /home/reach/RTKLIB/app/rtkrcv
+# prepare ConfigManager, read the default config
+conm = ConfigManager()
 
+
+# default location for str2str binaries is /home/reach/RTKLIB/app/str2str/gcc
+
+# simple preparation work
 satellite_thread = None
 coordinate_thread = None
 rtklib_launched = None
+server_not_interrupted = 1
 
 def broadcastSatellites():
     count = 0
@@ -98,9 +101,6 @@ def index():
     global satellite_thread
     global coordinate_thread
     global rtklib_launched
-
-    if rtklib_launched is None:
-        rtkc.start()
 
     if satellite_thread is None:
         satellite_thread = Thread(target = broadcastSatellites)
@@ -168,17 +168,6 @@ def readCurrentConfig():
     print("Got signal to read the current config")
     conm.readConfig(conm.default_base_config)
     emit("current config", conm.buff_dict, namespace="/test")
-
-@socketio.on("read default base config", namespace="/test")
-def readDefaultBaseConfig():
-    print("Got signal to read the default base config")
-
-@socketio.on("temp config modified", namespace="/test")
-def writeConfig(json):
-    print("Received temp config to write!!!")
-    print(str(json))
-    conm.writeConfig("temp.conf", json)
-    print("reloading config result: " + str(rtkc.loadConfig("../temp.conf")))
 
 # @socketio.on("my event", namespace="/test")
 # def printEvent():

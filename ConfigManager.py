@@ -8,18 +8,16 @@ class ConfigManager:
     def __init__(self, config_path = None):
 
         if config_path is None:
-            self.config_path = ""
+            self.config_path = "/home/reach/RTKLIB/app/rtkrcv/"
         else:
             self.config_path = config_path
 
-        self.default_base_config = "rtk.conf"
         self.default_rover_config = "reach_rover_default.conf"
-        self.default_custom_config_template_name = "reach_custom_.conf"
 
         self.buff_options = {}
         self.buff_dict = {}
         self.buff_dict_order = []
-        self.readConfig(self.default_base_config) # we do this to load config order from default reach base config
+        self.readConfig(self.default_rover_config) # we do this to load config order from default reach base config
 
         self.buff_dict = {}
 
