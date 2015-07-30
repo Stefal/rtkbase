@@ -1,5 +1,4 @@
 import pexpect
-import time
 
 # This module automates working with STR2STR software
 
@@ -8,6 +7,8 @@ class Str2StrController:
     def __init__(self, path_to_str2str = "/home/reach/RTKLIB/app/str2str/gcc", path_to_gps_cmd_file = "/home/reach/RTKLIB/app/rtkrcv/ublox_raw.cmd"):
         self.bin_path = path_to_str2str
         self.child = 0
+
+        self.started = False
 
         # port settings are kept as class properties:
         self.input_stream = ""
@@ -50,9 +51,7 @@ class Str2StrController:
 
         if serial_parameters is None:
             serial_parameters = def_parameters
-            print("None thing triggered")
 
-        print(serial_parameters)
         port = "serial://" + ":".join(serial_parameters)
 
         self.setPort(port, input, format)
@@ -126,65 +125,63 @@ class Str2StrController:
         # To pass parameters to this function use string lists, like ["1002", "1006"] or ["60", "30", "100"]
         print("Starting str2str...")
 
-        if rtcm3_messages is None:
-            rtcm3_messages = self.rtcm3_messages
+        if not self.started:
+            if rtcm3_messages is None:
+                rtcm3_messages = self.rtcm3_messages
 
-        if base_position is None:
-            base_position = self.base_position
+            if base_position is None:
+                base_position = self.base_position
 
-        if gps_cmd_file is None:
-            gps_cmd_file = self.gps_cmd_file
+            if gps_cmd_file is None:
+                gps_cmd_file = self.gps_cmd_file
 
-        cmd = "/str2str -in " + self.input_stream + " -out " + self.output_stream + " -msg " + ",".join(rtcm3_messages)
+            cmd = "/str2str -in " + self.input_stream + " -out " + self.output_stream + " -msg " + ",".join(rtcm3_messages)
 
-        if base_position:
-            cmd += " -p " + " ".join(base_position)
+            if base_position:
+                cmd += " -p " + " ".join(base_position)
 
-        if gps_cmd_file:
-            cmd += " -c " + gps_cmd_file
+            if gps_cmd_file:
+                cmd += " -c " + gps_cmd_file
 
-        cmd = self.bin_path + cmd
-        print("Starting str2str with")
-        print(cmd)
+            cmd = self.bin_path + cmd
+            print("Starting str2str with")
+            print(cmd)
 
-        self.child = pexpect.spawn(cmd, cwd = self.bin_path, echo = False)
+            self.child = pexpect.spawn(cmd, cwd = self.bin_path, echo = False)
 
-        a = self.child.expect(["stream server start", pexpect.EOF, "error"])
-        # check if we encountered any errors launching str2str
-        if a == 1:
-            print("got EOF while waiting for stream start. Shutting down")
-            print("This means something went wrong and str2str just stopped")
-            print("output before exception: " + str(self.child))
-            return -1
+            a = self.child.expect(["stream server start", pexpect.EOF, "error"])
+            # check if we encountered any errors launching str2str
+            if a == 1:
+                print("got EOF while waiting for stream start. Shutting down")
+                print("This means something went wrong and str2str just stopped")
+                print("output before exception: " + str(self.child))
+                return -1
 
-        if a == 2:
-            print("Could not start str2str. Please check path to binary or parameters, like serial port")
-            print("You may also check serial, tcp, ntrip ports for availability")
-            return -2
+            if a == 2:
+                print("Could not start str2str. Please check path to binary or parameters, like serial port")
+                print("You may also check serial, tcp, ntrip ports for availability")
+                return -2
 
-        # if we are here, everything is good
-        return 1
+            # if we are here, everything is good
+            self.started = True
+            return 1
+
+        # str2str already started
+        return 2
 
     def stop(self):
         # terminate the stream
-        return self.child.terminate()
 
+        if self.started:
+            if self.child.terminate():
+                self.started = False
+                return 1
+            else:
+                # something went wrong
+                print("Could not terminate str2str")
+                return -1
 
-s = Str2StrController()
-
-print (s.start())
-time.sleep(30)
-print (s.stop())
-
-
-
-
-
-
-
-
-
-
-
+        # str2str already stopped
+        return 2
 
 
