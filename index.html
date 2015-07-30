@@ -84,16 +84,20 @@
             <div class="ui-field-contain">
                 <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
                     <legend>This Reach will act as:</legend>
-                    <input type="radio" name="radio-choice-b" id="radio-choice-c" value="base">
-                    <label for="radio-choice-c">Base</label>
-                    <input type="radio" name="radio-choice-b" id="radio-choice-d" value="rover" checked="checked">
-                    <label for="radio-choice-d">Rover</label>
+                    <input type="radio" name="radio_base_rover" id="radio_base" value="base">
+                    <label for="radio_base">Base</label>
+                    <input type="radio" name="radio_base_rover" id="radio_rover" value="rover">
+                    <label for="radio_rover">Rover</label>
+                </div>
+                <div class="ui-field-contain" id="control_buttons">
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="start_button">Start</a>
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="stop_button">Stop</a>
                 </div>
                 <div id="config_form_column_space"></div>
                 <div class="ui-field-contain" id="config_buttons">
-                    <a href="#" class="ui-btn ui-btn-inline" id="load_and_restart_button">Load & Restart</a>
-                    <a href="#" class="ui-btn ui-btn-inline" id="get_current_state_button">Get current state</a>
-                    <a href="#" class="ui-btn ui-btn-inline" id="get_default_parameters">Get default state</a>
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="load_and_restart_button">Load & Restart</a>
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="get_current_state_button">Get current state</a>
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="get_default_parameters">Get default state</a>
                 </div>
             </div>
         </form>

@@ -106,10 +106,24 @@ function onBlur() {
     isActive = false;
 }
 
+$(document).on("change", "input[type=radio][name=radio_base_rover]", function() {
+    switch($(this).val()) {
+        case "base":
+            alert("base");
+            $("#config_form_column_space").html("Base!!!!");
+            break;
+        case "rover":
+            alert("rover");
+            $("#config_form_column_space").html("Rover!!!!");
+            break;
+    }
+});
+
 // ############################### MAIN ###############################
 
 $(document).ready(function () {
 
+    // We don't want to do extra work like updating the graph in background
     window.onfocus = onFocus;
     window.onblur = onBlur;
 
@@ -131,7 +145,7 @@ $(document).ready(function () {
     namespace = "/test";
 
     // initiate SocketIO connection
-    var socket = io.connect("http://" + document.domain + ":" + location.port + namespace);
+    socket = io.connect("http://" + document.domain + ":" + location.port + namespace);
 
     // say hello on connect
     socket.on("connect", function () {
@@ -251,15 +265,13 @@ $(document).ready(function () {
         options: sat_options
     });
 
+    // ####################### HANDLE REACH MODES, START AND STOP MESSAGES #######################
+
     // handle data broadcast
-
-    socket.on("my response", function (msg) {
-
-    });
 
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
-    socket.on("satellite broadcast", function (msg) {
+    socket.on("satellite broadcast", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("satellite msg received");
@@ -343,7 +355,7 @@ $(document).ready(function () {
 
     // ####################### HANDLE COORDINATE MESSAGES #######################
 
-    socket.on("coordinate broadcast", function (msg) {
+    socket.on("coordinate broadcast", function(msg) {
         // check if the browser tab and app tab
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("coordinate msg received");
@@ -372,16 +384,7 @@ $(document).ready(function () {
 
     });
 
-    // ####################### HANDLE CONFIG FORM BUTTONS #######################
-
-    // this part is responsible for reading current configuration
-
-    $("#get_current_state_button").unbind().click(function() {
-        console.log("Request for config!");
-        socket.emit("read config");
-    });
-
-    socket.on("current config", function (msg) {
+    socket.on("current config", function(msg) {
         var to_append = "";
         console.log("Received current config:");
 
@@ -408,10 +411,24 @@ $(document).ready(function () {
 
     // this part is responsible for taking the changed form elements
 
-    $("#load_and_restart_button").click(function() {
+
+    // ####################### HANDLE CONFIG FORM BUTTONS #######################
+
+    // this part is responsible for reading current configuration
+
+    $(document).on("click", "#get_current_state_button", function(e) {
+        e.stopImmediatePropagation();
+        console.log("Request for config!");
+        socket.emit("read config");
+    });
+
+    $(document).on("click", "#load_and_restart_button", function(e) {
         var config_to_send = {};
         var current_id = "";
         var current_value = "";
+
+        e.stopImmediatePropagation();
+
         console.log("Request to load new config and restart");
 
         // first, we need to read all the needed info from config form elements
@@ -432,4 +449,20 @@ $(document).ready(function () {
         socket.emit("temp config modified", config_to_send);
     });
 
+
+// end of document.ready
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
