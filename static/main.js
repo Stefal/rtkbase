@@ -106,15 +106,67 @@ function onBlur() {
     isActive = false;
 }
 
-$(document).on("change", "input[type=radio][name=radio_base_rover]", function() {
+// here we will register events for all buttons/switches and so on...
+// it is guaranteed the binding will only trigger once, on the first time
+// config page is opened
+
+$(document).on("pageinit", "#config_page", function() {
+
+    $(document).on("click", "#start_button", function(e) {
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        console.log("Starting " + mode);
+        socket.emit("start " + mode);
+    });
+
+    $(document).on("click", "#stop_button", function(e) {
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        console.log("Stopping " + mode);
+        socket.emit("stop " + mode);
+    });
+
+    $(document).on("click", "#get_current_state_button", function(e) {
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        console.log("Request for " + mode + " config");
+        socket.emit("read config " + mode);
+    });
+
+    $(document).on("click", "#load_and_restart_button", function(e) {
+        var config_to_send = {};
+        var current_id = "";
+        var current_value = "";
+
+        console.log("Request to load new config and restart");
+
+        // first, we need to read all the needed info from config form elements
+        // we create a js object with this info and send to our server
+
+        // find all the needed fields
+        console.log("Getting current form values!");
+
+        $('input[type="text"][id*="_entry"]').each(function(i, obj){
+            current_id = obj.id.substring(0, obj.id.length - 6);
+            current_value = obj.value;
+
+            console.log("id == " + current_id + " value == " + current_value);
+
+            config_to_send[current_id] = current_value;
+        });
+
+        socket.emit("temp config modified", config_to_send);
+    });
+
+});
+
+$(document).on("change", "input[name='radio_base_rover']", function() {
     switch($(this).val()) {
-        case "base":
-            alert("base");
-            $("#config_form_column_space").html("Base!!!!");
-            break;
         case "rover":
-            alert("rover");
-            $("#config_form_column_space").html("Rover!!!!");
+            console.log("Launching rover mode");
+            socket.emit("stop base")
+            socket.emit("launch rover");
+            break;
+        case "base":
+            console.log("Launching base mode");
+            socket.emit("shutdown rover");
             break;
     }
 });
@@ -409,48 +461,8 @@ $(document).ready(function () {
         form_div.html(to_append).trigger("create");
     });
 
-    // this part is responsible for taking the changed form elements
-
-
-    // ####################### HANDLE CONFIG FORM BUTTONS #######################
-
-    // this part is responsible for reading current configuration
-
-    $(document).on("click", "#get_current_state_button", function(e) {
-        e.stopImmediatePropagation();
-        console.log("Request for config!");
-        socket.emit("read config");
-    });
-
-    $(document).on("click", "#load_and_restart_button", function(e) {
-        var config_to_send = {};
-        var current_id = "";
-        var current_value = "";
-
-        e.stopImmediatePropagation();
-
-        console.log("Request to load new config and restart");
-
-        // first, we need to read all the needed info from config form elements
-        // we create a js object with this info and send to our server
-
-        // find all the needed fields
-        console.log("Getting current form values!");
-
-        $('input[type="text"][id*="_entry"]').each(function(i, obj){
-            current_id = obj.id.substring(0, obj.id.length - 6);
-            current_value = obj.value;
-
-            console.log("id == " + current_id + " value == " + current_value);
-
-            config_to_send[current_id] = current_value;
-        });
-
-        socket.emit("temp config modified", config_to_send);
-    });
-
-
 // end of document.ready
+
 });
 
 

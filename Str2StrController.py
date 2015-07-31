@@ -22,6 +22,25 @@ class Str2StrController:
         self.setSerialStream() # input ublox serial
         self.setTCPServerStream(input = False) # output tcp server on port 9000
 
+    def readConfig(self):
+        parameters_to_send = {}
+
+        parameters_to_send["input_stream"] = self.input_stream
+        parameters_to_send["output_stream"] = self.output_stream
+
+        parameters_to_send["base_position"] = self.base_position
+        parameters_to_send["rtcm3_messages"] = self.rtcm3_messages
+
+        return parameters_to_send
+
+    def writeConfig(self, parameters_received):
+
+        self.input_stream = parameters_received["input_stream"]
+        self.output_stream = parameters_received["output_stream"]
+
+        self.base_position = parameters_received["base_position"]
+        self.rtcm3_messages = parameters_received["rtcm3_messages"]
+
     def setPort(self, port, input = True, format = "ubx"):
         if input:
             self.input_stream = port + "#" + format

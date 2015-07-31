@@ -97,12 +97,10 @@ s2sc = Str2StrController()
 # simple preparation work
 global satellite_thread
 global coordinate_thread
-global rtklib_launched
 global server_not_interrupted
 
 satellite_thread = None
 coordinate_thread = None
-rtklib_launched = None
 server_not_interrupted = True
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
@@ -123,26 +121,36 @@ def testDisconnect():
 
 #### rtkrcv launch/shutdown signal handling ####
 
-@socketio.on("launch rtkrcv", namespace="/test")
+@socketio.on("launch rover", namespace="/test")
 def launchRtkrcv():
+
+    print("Attempting to launch RTKLIB...")
+
     if rtkc.launch() < 0:
         print("RTKLIB launch failed")
     else:
         print("RTKLIB launch successful")
 
-@socketio.on("shutdown rtkrcv", namespace="/test")
+@socketio.on("shutdown rover", namespace="/test")
 def shutdownRtkrcv():
-    if rtkc.launch() < 0:
-        print("RTKLIB launch failed")
+
+    print("Attempting to shutdown RTKLIB...")
+
+    if rtkc.shutdown() < 0:
+        print("RTKLIB shutdown failed")
     else:
-        print("RTKLIB launch successful")
+        print("RTKLIB shutdown successful")
 
 #### rtkrcv start/stop signal handling ####
 
-@socketio.on("start rtkrcv", namespace="/test")
+@socketio.on("start rover", namespace="/test")
 def startRtkrcv():
 
     print("Attempting to start RTKLIB...")
+
+    global satellite_thread
+    global coordinate_thread
+    global server_not_interrupted
 
     res = rtkc.start()
 
@@ -151,6 +159,8 @@ def startRtkrcv():
     elif res == 1:
         print("RTKLIB start successful")
         print("Starting coordinate and satellite thread")
+
+        server_not_interrupted = True
 
         if satellite_thread is None:
             satellite_thread = Thread(target = broadcastSatellites)
@@ -163,18 +173,22 @@ def startRtkrcv():
     elif res == 2:
         print("RTKLIB already started")
 
-@socketio.on("stop rtkrcv", namespace="/test")
+@socketio.on("stop rover", namespace="/test")
 def stopRtkrcv():
 
+    global satellite_thread
+    global coordinate_thread
+    global server_not_interrupted
+
     print("Attempting to stop RTKLIB...")
+
+    res = rtkc.stop()
 
     server_not_interrupted = False
     satellite_thread.join()
     satellite_thread = None
     coordinate_thread.join()
     coordinate_thread = None
-
-    res = rtkc.stop()
 
     if res == -1:
         print("rtkrcv stop failed")
@@ -184,7 +198,7 @@ def stopRtkrcv():
         print("rtkrcv already stopped")
 
 #### str2str start/stop handling ####
-@socketio.on("start str2str", namespace="/test")
+@socketio.on("start base", namespace="/test")
 def startStr2Str():
 
     print("Attempting to start str2str...")
@@ -198,11 +212,10 @@ def startStr2Str():
             print("str2str start successful")
         elif res == 2:
             print("str2str already started")
-
     else:
         print("Can't start str2str with rtkrcv still running!!!!")
 
-@socketio.on("stop str2str", namespace="/test")
+@socketio.on("stop base", namespace="/test")
 def stopStr2Str():
 
     print("Attempting to stop str2str...")
@@ -210,18 +223,18 @@ def stopStr2Str():
     res = s2sc.stop()
 
     if res == -1:
-        print("rtkrcv stop failed")
+        print("str2str stop failed")
     elif res == 1:
-        print("rtkrcv stop successful")
+        print("str2str stop successful")
     elif res == 2:
-        print("rtkrcv already stopped")
+        print("str2str already stopped")
 
 #### rtkrcv config handling ####
 
 @socketio.on("read config", namespace="/test")
 def readCurrentConfig():
     print("Got signal to read the current config")
-    conm.readConfig(conm.default_base_config)
+    conm.readConfig(conm.default_rover_config)
     emit("current config", conm.buff_dict, namespace="/test")
 
 # @socketio.on("my event", namespace="/test")
@@ -233,5 +246,5 @@ if __name__ == "__main__":
         socketio.run(app, host = "0.0.0.0", port = 5000)
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
-        server_not_interrupted = 0
+        server_not_interrupted = False
 

@@ -1,12 +1,13 @@
 import pexpect
 from threading import Semaphore
+import time
 
 # This module automates working with RTKRCV directly
 # You can get sat levels, current status, start and restart the software
 
 class RtkController:
 
-    def __init__(self, path_to_rtkrcv = "/home/root/RTKLIB/app/rtkrcv/gcc"):
+    def __init__(self, path_to_rtkrcv = "/home/reach/RTKLIB/app/rtkrcv/gcc"):
         self.bin_path = path_to_rtkrcv
         self.child = 0
         self.status = {}
@@ -15,6 +16,7 @@ class RtkController:
         self.semaphore = Semaphore()
 
         self.started = False
+        self.launched = False
 
     def expectAnswer(self, last_command = ""):
         a = self.child.expect(["rtkrcv>", pexpect.EOF, "error"])
@@ -37,24 +39,67 @@ class RtkController:
         # if there is a slash in the name we consider it a full location
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
 
-        self.semaphore.acquire()
+        if not self.launched:
 
-        if "/" in config_name:
-            spawn_command = self.bin_path + "/rtkrcv -o " + config_name
-        else:
-            spawn_command = self.bin_path + "/rtkrcv -o " + self.bin_path[0:-3] + config_name
+            self.semaphore.acquire()
 
-        self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
+            if "/" in config_name:
+                spawn_command = self.bin_path + "/rtkrcv -o " + config_name
+            else:
+                spawn_command = self.bin_path + "/rtkrcv -o " + self.bin_path[0:-3] + config_name
 
-        print('Launching rtklib with: "' + spawn_command + '"')
+            self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
 
-        if self.expectAnswer("spawn") < 0:
+            print('Launching rtklib with: "' + spawn_command + '"')
+
+            if self.expectAnswer("spawn") < 0:
+                self.semaphore.release()
+                return -1
+
             self.semaphore.release()
-            return -1
+            self.launched = True
 
-        self.semaphore.release()
+            return 1
 
-        return 1
+        # already launched
+        return 2
+
+    def shutdown(self):
+
+        if self.launched:
+            self.semaphore.acquire()
+
+            self.child.send("shutdown\r\n")
+
+            a = self.child.expect([":", pexpect.EOF, "error"])
+            print("Stop expects: " + str(a))
+
+            if a > 0:
+                print("Stop error")
+                r = -1
+            else:
+                self.child.send("y\r\n")
+                r = 1
+
+            # wait for rtkrcv to shutdown
+            self.child.wait()
+            print("Process is alive " + str(self.child.isalive()))
+            print("Process is alive " + str(self.child.isalive()))
+            print("Process is alive " + str(self.child.isalive()))
+            print("Process is alive " + str(self.child.isalive()))
+            print("Process is alive " + str(self.child.isalive()))
+            if self.child.isalive():
+                r = -1
+
+            self.semaphore.release()
+
+            self.launched = False
+
+            return r
+
+        # already shut down
+        return 2
+
 
     def start(self):
 
@@ -128,29 +173,6 @@ class RtkController:
 
         return 1
 
-    def shutdown(self):
-
-        self.semaphore.acquire()
-
-        self.child.send("shutdown\r\n")
-
-        a = self.child.expect([":", pexpect.EOF, "error"])
-        print("first expect from stop")
-        print("Stop expects: " + str(a))
-
-        if a > 0:
-            print("Stop error")
-            r = -1
-        else:
-            self.child.send("y\r\n")
-            r = 1
-
-        if self.expectAnswer("shutdown yes") < 0:
-            r = -1
-
-        self.semaphore.release()
-
-        return r
 
 
     def getStatus(self):
