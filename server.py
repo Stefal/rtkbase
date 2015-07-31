@@ -108,7 +108,7 @@ server_not_interrupted = True
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", current_status = "Cool!!!")
 
 @socketio.on("connect", namespace="/test")
 def testConnect():
@@ -126,20 +126,28 @@ def launchRtkrcv():
 
     print("Attempting to launch RTKLIB...")
 
-    if rtkc.launch() < 0:
+    res = rtkc.launch()
+
+    if res < 0:
         print("RTKLIB launch failed")
-    else:
+    elif res == 1:
         print("RTKLIB launch successful")
+    elif res == 2:
+        print("RTKLIB already launched")
 
 @socketio.on("shutdown rover", namespace="/test")
 def shutdownRtkrcv():
 
     print("Attempting to shutdown RTKLIB...")
 
-    if rtkc.shutdown() < 0:
+    res = rtkc.shutdown()
+
+    if res < 0:
         print("RTKLIB shutdown failed")
-    else:
+    elif res == 1:
         print("RTKLIB shutdown successful")
+    elif res == 2:
+        print("RTKLIB shutdown launched")
 
 #### rtkrcv start/stop signal handling ####
 
@@ -231,11 +239,20 @@ def stopStr2Str():
 
 #### rtkrcv config handling ####
 
-@socketio.on("read config", namespace="/test")
+@socketio.on("read config rover", namespace="/test")
 def readCurrentConfig():
-    print("Got signal to read the current config")
+    print("Got signal to read the current rover config")
     conm.readConfig(conm.default_rover_config)
-    emit("current config", conm.buff_dict, namespace="/test")
+    emit("current config rover", conm.buff_dict, namespace="/test")
+
+@socketio.on("write config rover", namespace="/test")
+def writeCurrentConfig(json):
+    print("Got signal to write current rover config")
+    conm.writeConfig(conm.default_rover_config, json)
+    print("Reloading with new config...")
+
+    print(rtkc.loadConfig("../" + conm.default_rover_config))
+
 
 # @socketio.on("my event", namespace="/test")
 # def printEvent():

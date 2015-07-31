@@ -9,13 +9,6 @@
     <script type="text/javascript" src="{{ url_for('static', filename='Chart.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}" charset="utf-8"></script>
-
-    <link rel="stylesheet" type="text/css" href="static/jquery.mobile-1.4.5.min.css">
-    <script src="static/jquery-1.11.2.min.js"></script>
-    <script src="static/jquery.mobile-1.4.5.min.js"></script>
-    <script src="static/Chart.min.js"></script>
-    <script src="static/socket.io.min.js"></script>
-    <script src="static/main.js" charset="utf-8"></script>
 </head>
 <body>
 
@@ -93,11 +86,11 @@
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="start_button">Start</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="stop_button">Stop</a>
                 </div>
-                <div id="config_form_column_space"></div>
                 <div class="ui-field-contain" id="config_buttons">
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="load_and_restart_button">Load & Restart</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="get_current_state_button">Get current state</a>
                 </div>
+                <div id="config_form_column_space"></div>
             </div>
         </form>
 

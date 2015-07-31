@@ -152,7 +152,7 @@ $(document).on("pageinit", "#config_page", function() {
             config_to_send[current_id] = current_value;
         });
 
-        socket.emit("temp config modified", config_to_send);
+        socket.emit("write config rover", config_to_send);
     });
 
 });
@@ -436,7 +436,7 @@ $(document).ready(function () {
 
     });
 
-    socket.on("current config", function(msg) {
+    socket.on("current config rover", function(msg) {
         var to_append = "";
         console.log("Received current config:");
 

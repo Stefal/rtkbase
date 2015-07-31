@@ -143,17 +143,22 @@ class RtkController:
 
     def restart(self):
 
-        self.semaphore.acquire()
+        if self.started:
+            self.semaphore.acquire()
 
-        self.child.send("restart\r\n")
+            self.child.send("restart\r\n")
 
-        if self.expectAnswer("restart") < 0:
+            if self.expectAnswer("restart") < 0:
+                self.semaphore.release()
+                return -1
+
             self.semaphore.release()
-            return -1
 
-        self.semaphore.release()
+            return 1
+        else:
+            # if we are not started yet, just start
 
-        return 1
+            return self.start()
 
     def loadConfig(self, config_name = "rtk.conf"):
 
