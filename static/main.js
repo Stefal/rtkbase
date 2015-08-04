@@ -135,7 +135,9 @@ $(document).on("pageinit", "#config_page", function() {
         var current_id = "";
         var current_value = "";
 
-        console.log("Request to load new config and restart");
+        var mode = $("input[name=radio_base_rover]:checked").val();
+
+        console.log("Request to load new " + mode + "config and restart");
 
         // first, we need to read all the needed info from config form elements
         // we create a js object with this info and send to our server
@@ -152,7 +154,7 @@ $(document).on("pageinit", "#config_page", function() {
             config_to_send[current_id] = current_value;
         });
 
-        socket.emit("write config rover", config_to_send);
+        socket.emit("write config " + mode, config_to_send);
     });
 
 });
@@ -438,7 +440,7 @@ $(document).ready(function () {
 
     socket.on("current config rover", function(msg) {
         var to_append = "";
-        console.log("Received current config:");
+        console.log("Received current rover config:");
 
         // clean previous versions
         var form_div = $("#config_form_column_space");
@@ -449,6 +451,31 @@ $(document).ready(function () {
 
         for (var k in msg) {
             console.log("config item: " + k + " = " + msg[k]);
+
+            to_append += '<div class="ui-field-contain>"';
+            to_append += '<label for="' + k + '_entry">' + k + '</label>';
+            to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
+            to_append += '</div>';
+        }
+
+        to_append += '</div>';
+
+        form_div.html(to_append).trigger("create");
+    });
+
+    socket.on("current config base", function(msg) {
+        var to_append = "";
+        console.log("Received current base config:");
+
+        // clean prev versions
+        var form_div =$("#config_form_column_space");
+
+        form_div.html("");
+
+        to_append += '<div class="ui-field-contain">';
+
+        for (var k in msg) {
+            console.log("base config item: " + k + " = " + msg[k]);
 
             to_append += '<div class="ui-field-contain>"';
             to_append += '<label for="' + k + '_entry">' + k + '</label>';

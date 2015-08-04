@@ -16,7 +16,7 @@ class Str2StrController:
 
         # Reach defaults for base position and rtcm3 messages:
         self.rtcm3_messages = ["1002", "1006", "1013", "1019"]
-        self.base_position = []
+        self.base_position = [] # lat, lon, height
         self.gps_cmd_file = path_to_gps_cmd_file
 
         self.setSerialStream() # input ublox serial
@@ -25,21 +25,48 @@ class Str2StrController:
     def readConfig(self):
         parameters_to_send = {}
 
-        parameters_to_send["input_stream"] = self.input_stream
-        parameters_to_send["output_stream"] = self.output_stream
+        parameters_to_send["Input stream"] = self.input_stream
+        parameters_to_send["Output stream"] = self.output_stream
 
-        parameters_to_send["base_position"] = self.base_position
-        parameters_to_send["rtcm3_messages"] = self.rtcm3_messages
+        # if we don't have a set base position we want to send empty strings
+        if not self.base_position:
+            base_pos = ["", "", ""]
+        else:
+            base_pos = self.base_position
+
+        parameters_to_send["Base " + "lat"] = base_pos[0]
+        parameters_to_send["Base " + "lon"] = base_pos[1]
+        parameters_to_send["Base " + "height"] = base_pos[2]
+
+        parameters_to_send["RTCM3 messages for output"] = ",".join(self.rtcm3_messages)
 
         return parameters_to_send
 
     def writeConfig(self, parameters_received):
 
-        self.input_stream = parameters_received["input_stream"]
-        self.output_stream = parameters_received["output_stream"]
+        coordinate_filled_flag = 3
+        base_pos = []
 
-        self.base_position = parameters_received["base_position"]
-        self.rtcm3_messages = parameters_received["rtcm3_messages"]
+        self.input_stream = parameters_received["Input stream"]
+        self.output_stream = parameters_received["Output stream"]
+
+        # llh
+        base_pos.append(parameters_received["Base lat"])
+        base_pos.append(parameters_received["Base lon"])
+        base_pos.append(parameters_received["Base height"])
+
+        for coordinate in base_pos:
+            if not coordinate:
+                coordinate_filled_flag -= 1
+
+        if coordinate_filled_flag == 3:
+            self.base_position = base_pos
+        else:
+            self.base_position = []
+            print("An error evaluating base position. One or more of the coordinates is empty")
+            print("Falling back to base postition single mode")
+
+        self.rtcm3_messages = parameters_received["RTCM3 messages for output"].split(",")
 
     def setPort(self, port, input = True, format = "ubx"):
         if input:

@@ -18,7 +18,6 @@ from flask.ext.socketio import *
 def broadcastSatellites():
     count = 0
     sat_number = 10
-    json_data = {}
 
     while server_not_interrupted:
 
@@ -28,20 +27,16 @@ def broadcastSatellites():
             # update satellite levels
             rtkc.getObs()
 
-            # add new obs data to the message
-            json_data.update(rtkc.obs)
-
             if count % 10 == 0:
-                print("Sending sat levels:\n" + str(json_data))
+                print("Sending sat levels:\n" + str(rtkc.obs))
 
-            socketio.emit("satellite broadcast", json_data, namespace = "/test")
+            socketio.emit("satellite broadcast", rtkc.obs, namespace = "/test")
             count += 1
             time.sleep(1)
 
 # this function reads current rtklib status, coordinates and obs count
 def broadcastCoordinates():
     count = 0
-    json_data = {}
 
     while server_not_interrupted:
 
@@ -52,12 +47,11 @@ def broadcastCoordinates():
             rtkc.getStatus()
 
             # add new status/coordinate data to the message
-            json_data.update(rtkc.info)
 
             if count % 10 == 0:
-                print("Sending RTKLIB status select information:\n" + str(json_data))
+                print("Sending RTKLIB status select information:\n" + str(rtkc.info))
 
-            socketio.emit("coordinate broadcast", json_data, namespace = "/test")
+            socketio.emit("coordinate broadcast", rtkc.info, namespace = "/test")
             count += 1
             time.sleep(1)
 
@@ -147,7 +141,7 @@ def shutdownRtkrcv():
     elif res == 1:
         print("RTKLIB shutdown successful")
     elif res == 2:
-        print("RTKLIB shutdown launched")
+        print("RTKLIB already shutdown")
 
 #### rtkrcv start/stop signal handling ####
 
@@ -253,6 +247,27 @@ def writeCurrentConfig(json):
 
     print(rtkc.loadConfig("../" + conm.default_rover_config))
 
+#### str2str config handling ####
+
+@socketio.on("read config base", namespace="/test")
+def readCurrentBaseConfig():
+    print("Got signal to read the current base config")
+    emit("current config base", s2sc.readConfig())
+
+@socketio.on("write config base", namespace="/test")
+def writeCurrentBaseConfig(json):
+    print("Got signal to write the base config")
+
+    s2sc.writeConfig(json)
+
+    print("Restarting str2str...")
+
+    res = s2sc.stop() + s2sc.start()
+
+    if res > 1:
+        print("Restart successful")
+    else:
+        print("Restart failed")
 
 # @socketio.on("my event", namespace="/test")
 # def printEvent():

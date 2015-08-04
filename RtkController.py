@@ -298,6 +298,8 @@ class RtkController:
 
     #                print("Useful info extracted from status: ")
     #                print(self.info)
+                else:
+                    self.obs = {}
 
         self.semaphore.release()
 
