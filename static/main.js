@@ -159,6 +159,8 @@ $(document).on("pageinit", "#config_page", function() {
 
 });
 
+// handle base/rover switching
+
 $(document).on("change", "input[name='radio_base_rover']", function() {
     switch($(this).val()) {
         case "rover":
@@ -438,8 +440,18 @@ $(document).ready(function () {
 
     });
 
+    var rover_config_order = {};
+
+    socket.on("current config rover order", function(msg) {
+        console.log("Received current rover config order")
+        rover_config_order = msg;
+    });
+
     socket.on("current config rover", function(msg) {
         var to_append = "";
+        var config_key = "";
+        var config_value = "";
+
         console.log("Received current rover config:");
 
         // clean previous versions
@@ -449,13 +461,23 @@ $(document).ready(function () {
 
         to_append += '<div class="ui-field-contain">';
 
-        for (var k in msg) {
-            console.log("config item: " + k + " = " + msg[k]);
+        if (!$.isEmptyObject(rover_config_order)) {
+            for (var k in rover_config_order) {
 
-            to_append += '<div class="ui-field-contain>"';
-            to_append += '<label for="' + k + '_entry">' + k + '</label>';
-            to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
-            to_append += '</div>';
+                config_key = rover_config_order[k];
+
+                if (rover_config_order[k] in msg) {
+                    config_value = msg[rover_config_order[k]];
+
+                    console.log("config rover item: " + config_key + " = " + config_value);
+
+                    to_append += '<div class="ui-field-contain>"';
+                    to_append += '<label for="' + config_key + '_entry">' + config_key + '</label>';
+                    to_append += '<input type="text" id="' + config_key + '_entry" value="' + config_value + '">';
+                    to_append += '</div>';
+                }
+            }
+
         }
 
         to_append += '</div>';

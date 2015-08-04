@@ -22,6 +22,8 @@ class ConfigManager:
         self.buff_dict = {}
 
     def readConfig(self, from_file):
+        i = 0 # for counting parameter order
+
         self.buff_dict = {}
         self.buff_dict_order = []
 
@@ -45,16 +47,17 @@ class ConfigManager:
                         self.buff_dict[param] = val
                         self.buff_dict_order.append(param) # this is needed to conserve the order of the parameters in the config file
 
+                        i += 1
+
     def writeConfig(self, to_file, dict_values = None):
 
         if dict_values == None:
             dict_values = self.buff_dict
 
-        print("Printing temp config" + str(dict_values))
+        print("Printing config we are about to write to " + to_file + "\n" + str(dict_values))
 
-        print("Printing temp config we're about to write")
         with open(self.config_path + to_file, "w") as f:
-            line = "# rtkrcv options for rtk (2015, v.2.4.2)"
+            line = "# rtkrcv options for rtk (v.2.4.2)"
             f.write(line + "\n\n")
             for key in self.buff_dict_order:
                 k = str(key)
@@ -68,3 +71,5 @@ class ConfigManager:
                     line += " # " + self.buff_options[key]
 
                 f.write(line + "\n")
+
+

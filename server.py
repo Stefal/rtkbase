@@ -237,6 +237,17 @@ def stopStr2Str():
 def readCurrentConfig():
     print("Got signal to read the current rover config")
     conm.readConfig(conm.default_rover_config)
+    # after this, to preserve the order of the options in the frontend we send a special order message
+    print("Sending rover config order")
+
+    options_order = {}
+
+    for index, value in enumerate(conm.buff_dict_order):
+        options_order[str(index)] = value
+
+    emit("current config rover order", options_order, namespace="/test")
+    # now we send the whole config with values
+    print("Sending rover config values")
     emit("current config rover", conm.buff_dict, namespace="/test")
 
 @socketio.on("write config rover", namespace="/test")
