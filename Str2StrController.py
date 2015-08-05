@@ -4,7 +4,7 @@ import pexpect
 
 class Str2StrController:
 
-    def __init__(self, path_to_str2str = "/home/reach/RTKLIB/app/str2str/gcc", path_to_gps_cmd_file = "/home/reach/RTKLIB/app/rtkrcv/ublox_raw.cmd"):
+    def __init__(self, path_to_str2str = "/home/reach/RTKLIB/app/str2str/gcc", path_to_gps_cmd_file = "/home/reach/RTKLIB/app/rtkrcv/reach_raw.cmd"):
         self.bin_path = path_to_str2str
         self.child = 0
 
@@ -16,7 +16,7 @@ class Str2StrController:
 
         # Reach defaults for base position and rtcm3 messages:
         self.rtcm3_messages = ["1002", "1006", "1013", "1019"]
-        self.base_position = [] # lat, lon, height
+        self.base_position = ["59.969352285", "30.309005233", "41.5555"] # lat, lon, height
         self.gps_cmd_file = path_to_gps_cmd_file
 
         self.setSerialStream() # input ublox serial
