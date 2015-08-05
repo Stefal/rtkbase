@@ -94,6 +94,54 @@ function createIOTypeForm(select_id, container_id) {
     $(container_id).html(new_form).trigger("create");
 }
 
+function updateCoordinateGrid(msg) {
+        // status
+        $("#status_value").html("<span>" + msg.solution_status + "</span>");
+        $("#mode_value").html("<span>" + msg.positioning_mode + "</span>");
+
+        // coordinates
+        // fix length of the strings
+        var lon_value = msg.lon.substring(0, 9) + Array(9 - msg.lon.substring(0, 9).length + 1).join(" ");
+        var lat_value = msg.lat.substring(0, 9) + Array(9 - msg.lat.substring(0, 9).length + 1).join(" ");
+        var height_value = msg.height.substring(0, 9) + Array(9 - msg.height.substring(0, 9).length + 1 + 2).join(" ");
+
+        console.log("coordinate grid debug:");
+        console.log("lat: " + lat_value);
+        console.log("lon: " + lon_value);
+        console.log("hei: " + height_value);
+
+        $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
+        $("#lat_value").html("<span style='white-space:pre;'>" + lat_value + "</span>");
+        $("#height_value").html("<span style='white-space:pre;'>" + height_value + "  " + "</span>");
+
+        // TODO: obs values: heartbeat
+};
+
+function cleanStatus() {
+    console.log("Got signal to clean the graph")
+    var empty_string_list = [];
+    for (var i = 0; i < 10; i++) {
+        empty_string_list[i] = "";
+    }
+
+    $.each(satellite_graph.data.datasets, function(i, dataset) {
+        dataset.data = empty_string_list;
+    });
+
+    satellite_graph.data.labels = empty_string_list;
+    satellite_graph.update();
+
+    var msg = {
+        "lat" : "0",
+        "lon" : "0",
+        "height": "0",
+        "solution_status": "-",
+        "positioning_mode": "rtklib stopped"
+    };
+
+    updateCoordinateGrid(msg);
+}
+
 // ####################### HANDLE WINDOW FOCUS/UNFOCUS #######################
 
 var isActive = true;
@@ -122,6 +170,10 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
         console.log("Stopping " + mode);
         socket.emit("stop " + mode);
+        // after sending the stop command, we should clean the sat graph
+        // and change status in the coordinate grid
+
+        cleanStatus();
     });
 
     $(document).on("click", "#get_current_state_button", function(e) {
@@ -315,7 +367,7 @@ $(document).ready(function () {
 
     // draw the satellite_graph
 
-    var satellite_graph = new Chart(ctx, {
+    satellite_graph = new Chart(ctx, {
         type : 'bar',
         data: sat_data,
         options: sat_options
@@ -415,27 +467,7 @@ $(document).ready(function () {
         // check if the browser tab and app tab
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("coordinate msg received");
-
-            // status
-            $("#status_value").html("<span>" + msg.solution_status + "</span>");
-            $("#mode_value").html("<span>" + msg.positioning_mode + "</span>");
-
-            // coordinates
-            // fix length of the strings
-            var lon_value = msg.lon.substring(0, 9) + Array(9 - msg.lon.substring(0, 9).length + 1).join(" ");
-            var lat_value = msg.lat.substring(0, 9) + Array(9 - msg.lat.substring(0, 9).length + 1).join(" ");
-            var height_value = msg.height.substring(0, 9) + Array(9 - msg.height.substring(0, 9).length + 1 + 2).join(" ");
-
-            console.log("coordinate grid debug:");
-            console.log("lat: " + lat_value);
-            console.log("lon: " + lon_value);
-            console.log("hei: " + height_value);
-
-            $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
-            $("#lat_value").html("<span style='white-space:pre;'>" + lat_value + "</span>");
-            $("#height_value").html("<span style='white-space:pre;'>" + height_value + "  " + "</span>");
-
-            // TODO: obs values: heartbeat
+            updateCoordinateGrid(msg);
         }
 
     });

@@ -1,13 +1,14 @@
 import pexpect
-from threading import Semaphore
+from threading import Semaphore, Thread
 import time
+# from flask.ext.socketio import SocketIO, emit, disconnect
 
 # This module automates working with RTKRCV directly
 # You can get sat levels, current status, start and restart the software
 
 class RtkController:
 
-    def __init__(self, path_to_rtkrcv = "/home/reach/RTKLIB/app/rtkrcv/gcc"):
+    def __init__(self, socketio, path_to_rtkrcv = "/home/reach/RTKLIB/app/rtkrcv/gcc"):
         self.bin_path = path_to_rtkrcv
         self.child = 0
         self.status = {}
@@ -17,6 +18,13 @@ class RtkController:
 
         self.started = False
         self.launched = False
+
+        # handle coordinate broadcast
+        self.socketio = socketio
+
+        self.satellite_thread = None
+        self.coordinate_thread = None
+        self.server_not_interrupted = True
 
     def expectAnswer(self, last_command = ""):
         a = self.child.expect(["rtkrcv>", pexpect.EOF, "error"])
@@ -59,6 +67,7 @@ class RtkController:
             self.semaphore.release()
             self.launched = True
 
+            # launch success
             return 1
 
         # already launched
@@ -108,8 +117,19 @@ class RtkController:
                 return -1
 
             self.semaphore.release()
-
             self.started = True
+
+            # start fresh data broadcast
+
+            self.server_not_interrupted = True
+
+            if self.satellite_thread is None:
+                self.satellite_thread = Thread(target = self.broadcastSatellites)
+                self.satellite_thread.start()
+
+            if self.coordinate_thread is None:
+                self.coordinate_thread = Thread(target = self.broadcastCoordinates)
+                self.coordinate_thread.start()
 
             return 1
 
@@ -130,6 +150,16 @@ class RtkController:
             self.semaphore.release()
 
             self.started = False
+
+            self.server_not_interrupted = False
+
+            if self.satellite_thread is not None:
+                self.satellite_thread.join()
+                self.satellite_thread = None
+
+            if self.coordinate_thread is not None:
+                self.coordinate_thread.join()
+                self.coordinate_thread = None
 
             return 1
 
@@ -172,8 +202,6 @@ class RtkController:
             return -1
 
         return 1
-
-
 
     def getStatus(self):
 
@@ -299,6 +327,44 @@ class RtkController:
         self.semaphore.release()
 
         return 1
+
+    # this function reads satellite levels from an exisiting rtkrcv instance
+    # and emits them to the connected browser as messages
+    def broadcastSatellites(self):
+        count = 0
+
+        while self.server_not_interrupted:
+
+            # update satellite levels
+            self.getObs()
+
+            if count % 10 == 0:
+                print("Sending sat levels:\n" + str(self.obs))
+
+            self.socketio.emit("satellite broadcast", self.obs, namespace = "/test")
+            count += 1
+            time.sleep(1)
+
+        # when the server is interrupted we want to send an empty message to update the graphs
+        self.socketio.emit("satellite broadcast", {}, namespace = "/test")
+
+    # this function reads current rtklib status, coordinates and obs count
+    def broadcastCoordinates(self):
+        count = 0
+
+        while self.server_not_interrupted:
+
+            # update RTKLIB status
+            self.getStatus()
+
+            if count % 10 == 0:
+                print("Sending RTKLIB status select information:\n" + str(self.info))
+
+            self.socketio.emit("coordinate broadcast", self.info, namespace = "/test")
+            count += 1
+            time.sleep(1)
+
+        self.socketio.emit("coordinate broadcast", {"lat": "0", "lon": "0", "height": "0", "solution_status": "-", "positioning_mode": "rtklib stopped"}, namespace = "/test")
 
 ### example usage
 
