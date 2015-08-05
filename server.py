@@ -187,10 +187,13 @@ def stopRtkrcv():
     res = rtkc.stop()
 
     server_not_interrupted = False
-    satellite_thread.join()
-    satellite_thread = None
-    coordinate_thread.join()
-    coordinate_thread = None
+    if satellite_thread is not None:
+        satellite_thread.join()
+        satellite_thread = None
+
+    if coordinate_thread is not None:
+        coordinate_thread.join()
+        coordinate_thread = None
 
     if res == -1:
         print("rtkrcv stop failed")
@@ -256,7 +259,14 @@ def writeCurrentConfig(json):
     conm.writeConfig(conm.default_rover_config, json)
     print("Reloading with new config...")
 
-    print(rtkc.loadConfig("../" + conm.default_rover_config))
+    res = rtkc.loadConfig("../" + conm.default_rover_config) + rtkc.restart()
+
+    if res == 2:
+        print("Restart successful")
+    elif res == 1:
+        print("rtkrcv started instead of restart")
+    elif res == -1:
+        print("rtkrcv restart failed")
 
 #### str2str config handling ####
 

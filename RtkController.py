@@ -83,11 +83,6 @@ class RtkController:
 
             # wait for rtkrcv to shutdown
             self.child.wait()
-            print("Process is alive " + str(self.child.isalive()))
-            print("Process is alive " + str(self.child.isalive()))
-            print("Process is alive " + str(self.child.isalive()))
-            print("Process is alive " + str(self.child.isalive()))
-            print("Process is alive " + str(self.child.isalive()))
             if self.child.isalive():
                 r = -1
 
@@ -154,7 +149,7 @@ class RtkController:
 
             self.semaphore.release()
 
-            return 1
+            return 2
         else:
             # if we are not started yet, just start
 
