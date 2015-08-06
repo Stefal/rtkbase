@@ -113,8 +113,7 @@ function updateCoordinateGrid(msg) {
 }
 
 function updateSatelliteGraphRover(msg) {
-    // levels_for parameter determines if this is base or rover data
-    // msg object contains satellite data in {"name0": "level0", "name1": "level1"} format
+    // msg object contains satellite data for rover in {"name0": "level0", "name1": "level1"} format
 
     // we want to display the top 10 results
     var number_of_satellites = 10;
@@ -159,13 +158,13 @@ function updateSatelliteGraphRover(msg) {
             // determine the fill color depending on the sat level
             switch(true) {
                 case (current_level < 30):
-                    current_fillcolor = "rgba(255, 0, 0, 0.9)"; // Red
+                    current_fillcolor = "rgba(255, 0, 0, 0.8)"; // Red
                     break;
                 case (current_level >= 30 && current_level <= 45):
-                    current_fillcolor = "rgba(255, 255, 0, 0.9)"; // Yellow
+                    current_fillcolor = "rgba(255, 255, 0, 0.8)"; // Yellow
                     break;
                 case (current_level >= 45):
-                    current_fillcolor = "rgba(0, 255, 0, 0.9)"; // Green
+                    current_fillcolor = "rgba(0, 255, 0, 0.8)"; // Green
                     break;
             }
 
@@ -184,7 +183,46 @@ function updateSatelliteGraphRover(msg) {
         };
     });
 
+}
 
+function updateSatelliteGraphBase(msg) {
+    // this function also updates the sat levels chart, but it handles base data
+    // on the contrary from the updateSatelliteGraphRover(msg) this function adds base data to the 
+    // corresponding rover satellites. In other words, we have a comparison of how the rover
+    // and the base see the top 10 rover's satellies
+
+    var base_dataset_number = 1;
+    var current_level = 0;
+    var current_fillcolor;
+
+    // cycle through the graphs's labels and extract base levels for them
+    satellite_graph.data.labels.forEach(function(label, label_index) {
+        if (label in msg) {
+            // get the sat level as an integer
+            current_level = parseInt(msg[label]);
+
+            // determine the fill color depending on the sat level
+            switch(true) {
+                case (current_level < 30):
+                    current_fillcolor = "rgba(255, 0, 0, 0.1)"; // Red
+                    break;
+                case (current_level >= 30 && current_level <= 45):
+                    current_fillcolor = "rgba(255, 255, 0, 0.1)"; // Yellow
+                    break;
+                case (current_level >= 45):
+                    current_fillcolor = "rgba(0, 255, 0, 0.1)"; // Green
+                    break;
+            }
+
+            satellite_graph.data.datasets[base_dataset_number].data[label_index] = current_level;
+            satellite_graph.data.datasets[base_dataset_number].metaData[label_index].custom = {
+                backgroundColor: "rgba(186, 186, 186, 0.8)"
+            }
+        }
+    });
+
+    // we update the graph here because we want to update the rover info first
+    // then update base info depending on the rover's new values
     satellite_graph.update();
 }
 
@@ -387,9 +425,6 @@ $(document).ready(function () {
     ctx.canvas.width = window.innerWidth;
     ctx.canvas.height = 0.5 * window.innerWidth;
 
-    // change between-bar width depending on screen width
-
-    var bar_spacing = (ctx.canvas.width > 1000) ? 5 : 2;
 
     // satellite_graph is created based on this data
 
@@ -413,12 +448,16 @@ $(document).ready(function () {
         ]
     };
 
+    // change between-bar width depending on screen width
+    var bar_spacing = (ctx.canvas.width > 1000) ? 10 : 5;
+
     var sat_options = {
         responsive: true,
         scales: {
             xAxes: [{
                 display: true,
                 categorySpacing: bar_spacing,
+                //spacing: -101,
                 gridLines: {
                     color: "rgba(0, 0, 0, 0)",
                 },
@@ -469,7 +508,7 @@ $(document).ready(function () {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("satellite msg received");
-            updateSatelliteGraph("base", msg);
+            updateSatelliteGraphBase(msg);
         }
     });
     // ####################### HANDLE COORDINATE MESSAGES #######################

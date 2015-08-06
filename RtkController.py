@@ -1,7 +1,6 @@
 import pexpect
 from threading import Semaphore, Thread
 import time
-# from flask.ext.socketio import SocketIO, emit, disconnect
 
 # This module automates working with RTKRCV directly
 # You can get sat levels, current status, start and restart the software
