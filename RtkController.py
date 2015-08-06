@@ -12,7 +12,8 @@ class RtkController:
         self.bin_path = path_to_rtkrcv
         self.child = 0
         self.status = {}
-        self.obs = {}
+        self.obs_rover = {}
+        self.obs_base = {}
         self.info = {}
         self.semaphore = Semaphore()
 
@@ -299,15 +300,17 @@ class RtkController:
             # split the header string into columns
             header = obs[header_index].split()
 
-            # find the indexes of the needed columns
             if "S1" in header:
+                # find the indexes of the needed columns
                 sat_name_index = header.index("SAT")
                 sat_level_index = header.index("S1")
+                sat_input_source_index = header.index("R")
 
                 if len(obs) > (header_index + 1):
                     # we have some info about the actual satellites:
 
-                    self.obs = {}
+                    self.obs_rover = {}
+                    self.obs_base = {}
 
                     for line in obs[header_index+1:]:
                         spl = line.split()
@@ -316,13 +319,21 @@ class RtkController:
                             name = spl[sat_name_index]
                             level = spl[sat_level_index]
 
-                            self.obs[name] = level
+                            # R parameter corresponds to the input source number
+                            if spl[sat_input_source_index] == "1":
+                                # we consider 1 to be rover,
+                                self.obs_rover[name] = level
+                            elif spl[sat_input_source_index] == "2":
+                                # 2 to be base
+                                self.obs_base[name] = level
+
                             # print("print from getObs:\n" + str(self.obs))
 
     #                print("Useful info extracted from status: ")
     #                print(self.info)
                 else:
-                    self.obs = {}
+                    self.obs_base = {}
+                    self.obs_rover = {}
 
         self.semaphore.release()
 
@@ -339,14 +350,13 @@ class RtkController:
             self.getObs()
 
             if count % 10 == 0:
-                print("Sending sat levels:\n" + str(self.obs))
+                print("Sending sat rover levels:\n" + str(self.obs_rover))
+                print("Sending sat base levels:\n" + str(self.obs_base))
 
-            self.socketio.emit("satellite broadcast", self.obs, namespace = "/test")
+            self.socketio.emit("satellite broadcast rover", self.obs_rover, namespace = "/test")
+            self.socketio.emit("satellite broadcast base", self.obs_base, namespace = "/test")
             count += 1
             time.sleep(1)
-
-        # when the server is interrupted we want to send an empty message to update the graphs
-        self.socketio.emit("satellite broadcast", {}, namespace = "/test")
 
     # this function reads current rtklib status, coordinates and obs count
     def broadcastCoordinates(self):
@@ -363,8 +373,6 @@ class RtkController:
             self.socketio.emit("coordinate broadcast", self.info, namespace = "/test")
             count += 1
             time.sleep(1)
-
-        self.socketio.emit("coordinate broadcast", {"lat": "0", "lon": "0", "height": "0", "solution_status": "-", "positioning_mode": "rtklib stopped"}, namespace = "/test")
 
 ### example usage
 

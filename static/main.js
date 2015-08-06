@@ -105,17 +105,88 @@ function updateCoordinateGrid(msg) {
         var lat_value = msg.lat.substring(0, 9) + Array(9 - msg.lat.substring(0, 9).length + 1).join(" ");
         var height_value = msg.height.substring(0, 9) + Array(9 - msg.height.substring(0, 9).length + 1 + 2).join(" ");
 
-        console.log("coordinate grid debug:");
-        console.log("lat: " + lat_value);
-        console.log("lon: " + lon_value);
-        console.log("hei: " + height_value);
-
         $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
         $("#lat_value").html("<span style='white-space:pre;'>" + lat_value + "</span>");
         $("#height_value").html("<span style='white-space:pre;'>" + height_value + "  " + "</span>");
 
         // TODO: obs values: heartbeat
-};
+}
+
+function updateSatelliteGraphRover(msg) {
+    // levels_for parameter determines if this is base or rover data
+    // msg object contains satellite data in {"name0": "level0", "name1": "level1"} format
+
+    // we want to display the top 10 results
+    var number_of_satellites = 10;
+
+    // graph has a list of datasets. rover sat values are in the first one
+    var rover_dataset_number = 0;
+
+    // first, we convert the msg object into a list of satellites to make it sortable
+
+    var new_sat_values = [];
+
+    for (var k in msg) {
+        new_sat_values.push({sat:k, level:msg[k]});
+    }
+
+    // sort the sat levels by ascension
+    new_sat_values.sort(function(a, b) {return a.level - b.level});
+
+    // next step is to cycle through top 10 values if they exist
+    // and extract info about them: level, name, and define their color depending on the level
+
+    var new_sat_values_length = new_sat_values.length;
+    var new_sat_levels = [];
+    var new_sat_labels = [];
+    var new_sat_fillcolors = [];
+
+    for(var i = new_sat_values_length - number_of_satellites; i < new_sat_values_length; i++) {
+        // check if we actually have enough satellites to plot:
+        if (i <  0) {
+            // we have less than number_of_satellites to plot
+            // so we fill the first bars of the graph with zeroes and stuff
+            new_sat_levels.push(0);
+            new_sat_labels.push("");
+            new_sat_fillcolors.push("rgba(0, 0, 0, 0.9)");
+        } else {
+            // we have gotten to useful data!! let's add it to the the array too
+
+            // for some reason I sometimes get undefined here. So plot zero just to be safe
+            var current_level = parseInt(new_sat_values[i].level) || 0;
+            var current_fillcolor;
+
+            // determine the fill color depending on the sat level
+            switch(true) {
+                case (current_level < 30):
+                    current_fillcolor = "rgba(255, 0, 0, 0.9)"; // Red
+                    break;
+                case (current_level >= 30 && current_level <= 45):
+                    current_fillcolor = "rgba(255, 255, 0, 0.9)"; // Yellow
+                    break;
+                case (current_level >= 45):
+                    current_fillcolor = "rgba(0, 255, 0, 0.9)"; // Green
+                    break;
+            }
+
+            new_sat_levels.push(current_level);
+            new_sat_labels.push(new_sat_values[i].sat);
+            new_sat_fillcolors.push(current_fillcolor);
+        }
+    }
+
+    // now, that we have a 3 arrays of names, levels and colors we add them to the graph data structure
+    satellite_graph.data.datasets[rover_dataset_number].data = new_sat_levels;
+    satellite_graph.data.labels = new_sat_labels;
+    satellite_graph.data.datasets[rover_dataset_number].metaData.forEach(function(bar, bar_index) {
+        bar.custom = {
+            backgroundColor: new_sat_fillcolors[bar_index]
+        };
+    });
+
+
+    satellite_graph.update();
+}
 
 function cleanStatus() {
     console.log("Got signal to clean the graph")
@@ -331,6 +402,13 @@ $(document).ready(function () {
                 borderColor: "rgba(0, 0, 0, 1)",
                 borderWidth: 1,
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            {
+                label: "Base satellite levels",
+                backgroundColor: "rgba(0, 255, 0, 1)",
+                borderColor: "rgba(0, 0, 0, 1)",
+                borderWidth: 1,
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }
         ]
     };
@@ -379,88 +457,21 @@ $(document).ready(function () {
 
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
-    socket.on("satellite broadcast", function(msg) {
+    socket.on("satellite broadcast rover", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("satellite msg received");
-
-            // get all the keys of msg object
-            var fc = 0;
-            var current_level = 0;
-            var current_sat = "";
-
-            var new_sat_values = [];
-
-            for (var k in msg) {
-                new_sat_values.push({sat:k, level:msg[k]});
-            }
-
-            // sort the sat levels by ascension
-            new_sat_values.sort(function(a, b) {return a.level - b.level});
-
-            var i;
-            var new_length = new_sat_values.length;
-
-            // create 3 placeholders for the new graph values
-
-            var new_values = new Array(10);
-            var new_fill_colors = new Array(10);
-            var new_labels = new Array(10);
-
-            for (i = new_length - 10; i < new_length; i++) {
-                if (i < 0) {
-                    current_level = 0;
-                    current_sat = "";
-                } else {
-                    current_sat = new_sat_values[i].sat;
-                    current_level = parseInt(new_sat_values[i].level) || 0;
-
-                    console.log("new sat values for number " + (10 - new_length + i) + ": " + current_sat + " " + current_level);
-
-                    if (current_level < 0) {
-                       current_level = 0;
-                    } else if (current_level > 60) {
-                        current_level = 59;
-                    }
-
-                    // take care of the fill color
-                    switch (true) {
-                        case (current_level < 30):
-                            fc = "rgba(255, 0, 0, 0.9)"; // Red
-                            break;
-                        case (current_level >= 30 && current_level <= 45):
-                            fc = "rgba(255, 255, 0, 0.9)"; // Yellow
-                            break;
-                        case (current_level >= 45):
-                            fc = "rgba(0, 255, 0, 0.9)"; // Green
-                            break;
-                    }
-
-                }
-
-                new_values[10 - new_length + i] = current_level;
-                new_fill_colors[10 - new_length + i] = fc;
-                new_labels[10 - new_length + i] = current_sat;
-            }
-
-            $.each(satellite_graph.data.datasets, function (i, dataset) {
-                var j = 0;
-                dataset.metaData.forEach(function(el) {
-                    el.custom = {
-                        backgroundColor: new_fill_colors[j]
-                    };
-                    j++;
-                })
-
-                dataset.data = new_values;
-            });
-
-            satellite_graph.data.labels = new_labels;
-
-            satellite_graph.update();
+            updateSatelliteGraphRover(msg);
         }
     });
 
+    socket.on("satellite broadcast base", function(msg) {
+        // check if the browser tab and app tab are active
+        if ((active_tab == "Status") && (isActive == true)) {
+            console.log("satellite msg received");
+            updateSatelliteGraph("base", msg);
+        }
+    });
     // ####################### HANDLE COORDINATE MESSAGES #######################
 
     socket.on("coordinate broadcast", function(msg) {
