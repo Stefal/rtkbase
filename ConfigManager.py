@@ -14,7 +14,7 @@ class ConfigManager:
 
         self.default_rover_config = "reach_rover_default.conf"
 
-        self.buff_options = {}
+        self.buff_dict_comments = {}
         self.buff_dict = {}
         self.buff_dict_order = []
         self.readConfig(self.default_rover_config) # we do this to load config order from default reach base config
@@ -39,10 +39,13 @@ class ConfigManager:
                         val = separated_lines[1][1:] # get the second part of the line, discarding "=" symbol
 
                         if length > 3:
-                            options = separated_lines[3]
+                            comments = separated_lines[3]
                             # some of the options are comments only
-                            if ":" in options:
-                                self.buff_options[param] = options
+                            # frontend need to check if the comment has ":" in it
+                            # then, it can be used to generate a dropdown menu
+                            # if ":" in options:
+
+                            self.buff_dict_comments[param] = comments
 
                         self.buff_dict[param] = val
                         self.buff_dict_order.append(param) # this is needed to conserve the order of the parameters in the config file
@@ -66,9 +69,9 @@ class ConfigManager:
                 line = k + " " * (19 - len(k)) + "=" + v
 
                 print("line = " + line)
-                # check if options are available
-                if key in self.buff_options:
-                    line += " # " + self.buff_options[key]
+                # check if comments are available
+                if key in self.buff_dict_comments:
+                    line += " # " + self.buff_dict_comments[key]
 
                 f.write(line + "\n")
 

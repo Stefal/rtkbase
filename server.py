@@ -166,10 +166,18 @@ def readCurrentConfig():
 
     options_order = {}
 
+    # create a structure the corresponds to the options order
     for index, value in enumerate(conm.buff_dict_order):
         options_order[str(index)] = value
 
+    # send the options order
     emit("current config rover order", options_order, namespace="/test")
+
+    # send the options comments
+    print("Sending rover config comments")
+    print(conm.buff_dict_comments)
+    emit("current config rover comments", conm.buff_dict_comments, namespace="/test")
+
     # now we send the whole config with values
     print("Sending rover config values")
     emit("current config rover", conm.buff_dict, namespace="/test")

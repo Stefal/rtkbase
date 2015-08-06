@@ -130,7 +130,7 @@ function updateSatelliteGraphRover(msg) {
     }
 
     // sort the sat levels by ascension
-    new_sat_values.sort(function(a, b) {return a.level - b.level});
+    new_sat_values.sort(function(a, b) {return a.level - b.level + 3});
 
     // next step is to cycle through top 10 values if they exist
     // and extract info about them: level, name, and define their color depending on the level
@@ -218,6 +218,9 @@ function updateSatelliteGraphBase(msg) {
             satellite_graph.data.datasets[base_dataset_number].metaData[label_index].custom = {
                 backgroundColor: "rgba(186, 186, 186, 0.8)"
             }
+        } else {
+            // if we don't the same satellite in the base
+            satellite_graph.data.datasets[base_dataset_number].data[label_index] = 0;
         }
     });
 
@@ -449,7 +452,7 @@ $(document).ready(function () {
     };
 
     // change between-bar width depending on screen width
-    var bar_spacing = (ctx.canvas.width > 1000) ? 10 : 5;
+    var bar_spacing = (ctx.canvas.width > 1000) ? 10 : 2;
 
     var sat_options = {
         responsive: true,
@@ -529,10 +532,18 @@ $(document).ready(function () {
         rover_config_order = msg;
     });
 
+    var rover_config_comments = {};
+
+    socket.on("current config rover comments", function(msg) {
+        console.log("Received current rover config comments")
+        rover_config_comments = msg;
+    })
+
     socket.on("current config rover", function(msg) {
         var to_append = "";
         var config_key = "";
         var config_value = "";
+        var config_comment = "";
 
         console.log("Received current rover config:");
 
@@ -550,11 +561,14 @@ $(document).ready(function () {
 
                 if (rover_config_order[k] in msg) {
                     config_value = msg[rover_config_order[k]];
+                    config_comment = rover_config_comments[config_key] || "";
+                    if (config_comment)
+                        config_comment = " # " + config_comment;
 
                     console.log("config rover item: " + config_key + " = " + config_value);
 
                     to_append += '<div class="ui-field-contain>"';
-                    to_append += '<label for="' + config_key + '_entry">' + config_key + '</label>';
+                    to_append += '<label for="' + config_key + '_entry">' + config_key  + config_comment + '</label>';
                     to_append += '<input type="text" id="' + config_key + '_entry" value="' + config_value + '">';
                     to_append += '</div>';
                 }
