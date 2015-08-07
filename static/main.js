@@ -459,6 +459,7 @@ $(document).ready(function () {
         scales: {
             xAxes: [{
                 display: true,
+                stacked: true,
                 categorySpacing: bar_spacing,
                 //spacing: -101,
                 gridLines: {

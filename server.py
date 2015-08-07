@@ -92,7 +92,7 @@ def writeConfigRover(json):
 #### str2str config handling ####
 
 @socketio.on("read config base", namespace="/test")
-def readConfigBase():
+def readConfigBase(json):
     rtk.readConfigBase()
 
 @socketio.on("write config base", namespace="/test")
