@@ -26,7 +26,6 @@ class Str2StrController:
         # Reach defaults for base position and rtcm3 messages:
         self.rtcm3_messages = ["1002", "1006", "1013", "1019"]
         self.base_position = ["59.969352285", "30.309005233", "41.5555"] # lat, lon, height
-        self.gps_cmd_file = path_to_gps_cmd_file
 
         self.setSerialStream() # input ublox serial
         self.setTCPServerStream(input = False) # output tcp server on port 9000
