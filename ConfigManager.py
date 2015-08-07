@@ -24,10 +24,20 @@ class ConfigManager:
     def readConfig(self, from_file):
         i = 0 # for counting parameter order
 
+        if from_file is None:
+            from_file = self.default_rover_config
+
+        # check if this is a full path or just a name
+        # if it's a name, then we use the default location
+        if "/" in from_file:
+            config_file_path = from_file
+        else:
+            config_file_path = self.config_path + from_file
+
         self.buff_dict = {}
         self.buff_dict_order = []
 
-        with open(self.config_path + from_file, "r") as f:
+        with open(config_file_path, "r") as f:
             for line in f:
                 separated_lines = line.split() # separate lines with spaces, get rid of extra whitespace
                 length = len(separated_lines)
@@ -52,14 +62,26 @@ class ConfigManager:
 
                         i += 1
 
+            self.buff_dict["config_file_name"] = from_file
+
     def writeConfig(self, to_file, dict_values = None):
 
-        if dict_values == None:
+        if dict_values is None:
             dict_values = self.buff_dict
 
-        print("Printing config we are about to write to " + to_file + "\n" + str(dict_values))
+        if to_file is None:
+            to_file = self.default_rover_config
 
-        with open(self.config_path + to_file, "w") as f:
+        # check if this is a full path or just a name
+        # if it's a name, then we use the default location
+        if "/" in from_file:
+            config_file_path = from_file
+        else:
+            config_file_path = self.config_path + from_file
+
+        print("Printing config we are about to write to " + config_file_path + "\n" + str(dict_values))
+
+        with open(config_file_path, "w") as f:
             line = "# rtkrcv options for rtk (v.2.4.2)"
             f.write(line + "\n\n")
             for key in self.buff_dict_order:
@@ -74,5 +96,17 @@ class ConfigManager:
                     line += " # " + self.buff_dict_comments[key]
 
                 f.write(line + "\n")
+
+
+
+
+
+
+
+
+
+
+
+
 
 

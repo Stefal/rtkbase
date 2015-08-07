@@ -12,7 +12,7 @@ class Str2StrController:
             self.bin_path = path_to_str2str
 
         if path_to_gps_cmd_file is None:
-            self.bin_path = "/home/reach/RTKLIB/app/rtkrcv/reach_raw.cmd"
+            self.gps_cmd_file = "/home/reach/RTKLIB/app/rtkrcv/reach_raw.cmd"
         else:
             self.gps_cmd_file = path_to_gps_cmd_file
 
@@ -178,7 +178,8 @@ class Str2StrController:
         # 2. base position in llh. By default we don't pass any values, however it is best to use this feature
         # 3. gps cmd file will take care of msg frequency and msg types
         # To pass parameters to this function use string lists, like ["1002", "1006"] or ["60", "30", "100"]
-        print("Starting str2str...")
+
+        print(self.bin_path)
 
         if not self.started:
             if rtcm3_messages is None:

@@ -10,7 +10,10 @@ from threading import Semaphore
 
 class RTKLIB:
 
-    def __init__(self, socketio, path_to_rtkrcv = None, path_to_str2str = None, path_to_configs = None, path_to_gps_cmd_file = None):
+    def __init__(self, socketio, path_to_rtkrcv = None, path_to_configs = None, path_to_str2str = None, path_to_gps_cmd_file = None):
+
+        # we need this to broadcast stuff
+        self.socketio = socketio
 
         # these are necessary to handle base mode
         self.rtkc = RtkController(socketio, path_to_rtkrcv)
@@ -107,7 +110,7 @@ class RTKLIB:
 
         print("Attempting to start str2str...")
 
-        if not rtkc.started:
+        if not self.rtkc.started:
             res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
 
             if res < 0:
@@ -141,6 +144,100 @@ class RTKLIB:
         self.semaphore.release()
 
         return res
+
+    def readConfigBase(self):
+
+        self.semaphore.acquire()
+
+        print("Got signal to read current base config")
+
+        self.socketio.emit("current config base", self.s2sc.readConfig(), namespace = "/test")
+
+        self.semaphore.release()
+
+    def writeConfigBase(self, config):
+
+        self.semaphore.acquire()
+
+        print("Got signal to write current base config")
+
+        self.s2sc.writeConfig(config)
+
+        print("Restarting str2str...")
+
+        res = self.s2sc.stop() + self.s2sc.start()
+
+        if res > 1:
+            print("Restart successful")
+        else:
+            print("Restart failed")
+
+        self.semaphore.release()
+
+        return res
+
+    def writeConfigRover(self, config):
+        # config dict must include config_name field
+
+        self.semaphore.acquire()
+        print("Got signal to write current rover config")
+
+        if "config_file_name" not in config:
+            config_file = None
+        else:
+            config_file = config["config_file_name"]
+
+        conm.writeConfig(config["config_file_name"], config)
+
+        print("Reloading with new config...")
+
+        res = self.rtkc.loadConfig("../" + self.conm.default_rover_config) + self.rtkc.restart()
+
+        if res == 2:
+            print("Restart successful")
+        elif res == 1:
+            print("rtkrcv started instead of restart")
+        elif res == -1:
+            print("rtkrcv restart failed")
+
+        self.semaphore.release()
+
+        return res
+
+    def readConfigRover(self, config_name = None):
+
+        self.semaphore.acquire()
+
+        if config_name is None:
+            config_name = self.conm.default_rover_config
+
+        print("Got signal to read the current rover config")
+
+        self.conm.readConfig(config_name)
+
+        # after this, to preserve the order of the options in the frontend we send a special order message
+        print("Sending rover config order")
+
+        options_order = {}
+
+        # create a structure the corresponds to the options order
+        for index, value in enumerate(self.conm.buff_dict_order):
+            options_order[str(index)] = value
+
+        # send the options order
+        self.socketio.emit("current config rover order", options_order, namespace="/test")
+
+        # send the options comments
+        print("Sending rover config comments")
+        self.socketio.emit("current config rover comments", self.conm.buff_dict_comments, namespace="/test")
+
+        # now we send the whole config with values
+        print("Sending rover config values")
+        self.emit("current config rover", self.conm.buff_dict, namespace="/test")
+
+        self.semaphore.release()
+
+
 
 
 

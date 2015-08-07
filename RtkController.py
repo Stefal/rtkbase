@@ -86,7 +86,6 @@ class RtkController:
             self.child.send("shutdown\r\n")
 
             a = self.child.expect([":", pexpect.EOF, "error"])
-            print("Stop expects: " + str(a))
 
             if a > 0:
                 print("Stop error")
