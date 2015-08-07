@@ -119,7 +119,7 @@ function updateSatelliteGraphRover(msg) {
     var number_of_satellites = 10;
 
     // graph has a list of datasets. rover sat values are in the first one
-    var rover_dataset_number = 0;
+    var rover_dataset_number = 1;
 
     // first, we convert the msg object into a list of satellites to make it sortable
 
@@ -130,7 +130,15 @@ function updateSatelliteGraphRover(msg) {
     }
 
     // sort the sat levels by ascension
-    new_sat_values.sort(function(a, b) {return a.level - b.level + 3});
+    new_sat_values.sort(function(a, b) {
+        var diff = a.level - b.level;
+
+        if (Math.abs(diff) < 3) {
+            diff = 0;
+        }
+
+        return diff
+    });
 
     // next step is to cycle through top 10 values if they exist
     // and extract info about them: level, name, and define their color depending on the level
@@ -158,13 +166,13 @@ function updateSatelliteGraphRover(msg) {
             // determine the fill color depending on the sat level
             switch(true) {
                 case (current_level < 30):
-                    current_fillcolor = "rgba(255, 0, 0, 0.8)"; // Red
+                    current_fillcolor = "rgba(255, 0, 0, 0.7)"; // Red
                     break;
                 case (current_level >= 30 && current_level <= 45):
-                    current_fillcolor = "rgba(255, 255, 0, 0.8)"; // Yellow
+                    current_fillcolor = "rgba(255, 255, 0, 0.7)"; // Yellow
                     break;
                 case (current_level >= 45):
-                    current_fillcolor = "rgba(0, 255, 0, 0.8)"; // Green
+                    current_fillcolor = "rgba(0, 255, 0, 0.7)"; // Green
                     break;
             }
 
@@ -191,7 +199,7 @@ function updateSatelliteGraphBase(msg) {
     // corresponding rover satellites. In other words, we have a comparison of how the rover
     // and the base see the top 10 rover's satellies
 
-    var base_dataset_number = 1;
+    var base_dataset_number = 0;
     var current_level = 0;
     var current_fillcolor;
 
@@ -435,6 +443,7 @@ $(document).ready(function () {
         labels: ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
         datasets: [
             {
+                // base sats
                 label: "Rover satellite levels",
                 backgroundColor: "rgba(0, 255, 0, 1)",
                 borderColor: "rgba(0, 0, 0, 1)",
@@ -442,6 +451,7 @@ $(document).ready(function () {
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             },
             {
+                // rover sats
                 label: "Base satellite levels",
                 backgroundColor: "rgba(0, 255, 0, 1)",
                 borderColor: "rgba(0, 0, 0, 1)",
@@ -493,6 +503,9 @@ $(document).ready(function () {
         data: sat_data,
         options: sat_options
     });
+
+    console.log("SAT GRAPH DEBUG");
+    console.dir(satellite_graph);
 
     // ####################### HANDLE REACH MODES, START AND STOP MESSAGES #######################
 
