@@ -55,7 +55,6 @@ def index():
 
 @socketio.on("connect", namespace="/test")
 def testConnect():
-    emit("my response", {"data": "Connected", "count": 0})
     print("Browser client connected")
 
 @socketio.on("disconnect", namespace="/test")
@@ -67,61 +66,18 @@ def testDisconnect():
 @socketio.on("launch rover", namespace="/test")
 def launchRtkrcv():
 
-    print("Attempting to launch RTKLIB...")
-
-    res = rtkc.launch()
-
-    if res < 0:
-        print("RTKLIB launch failed")
-    elif res == 1:
-        print("RTKLIB launch successful")
-    elif res == 2:
-        print("RTKLIB already launched")
-
 @socketio.on("shutdown rover", namespace="/test")
 def shutdownRtkrcv():
-
-    print("Attempting to shutdown RTKLIB...")
-
-    res = rtkc.shutdown()
-
-    if res < 0:
-        print("RTKLIB shutdown failed")
-    elif res == 1:
-        print("RTKLIB shutdown successful")
-    elif res == 2:
-        print("RTKLIB already shutdown")
 
 #### rtkrcv start/stop signal handling ####
 
 @socketio.on("start rover", namespace="/test")
 def startRtkrcv():
 
-    print("Attempting to start RTKLIB...")
-
-    res = rtkc.start()
-
-    if res == -1:
-        print("RTKLIB start failed")
-    elif res == 1:
-        print("RTKLIB start successful")
-        print("Starting coordinate and satellite thread")
-    elif res == 2:
-        print("RTKLIB already started")
 
 @socketio.on("stop rover", namespace="/test")
 def stopRtkrcv():
 
-    print("Attempting to stop RTKLIB...")
-
-    res = rtkc.stop()
-
-    if res == -1:
-        print("rtkrcv stop failed")
-    elif res == 1:
-        print("rtkrcv stop successful")
-    elif res == 2:
-        print("rtkrcv already stopped")
 
 #### str2str start/stop handling ####
 @socketio.on("start base", namespace="/test")
