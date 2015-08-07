@@ -7,8 +7,13 @@ import time
 
 class RtkController:
 
-    def __init__(self, socketio, path_to_rtkrcv = "/home/reach/RTKLIB/app/rtkrcv/gcc"):
-        self.bin_path = path_to_rtkrcv
+    def __init__(self, socketio, path_to_rtkrcv = None):
+
+        if path_to_rtkrcv is None:
+            self.bin_path = "/home/reach/RTKLIB/app/rtkrcv/gcc"
+        else:
+            self.bin_path = path_to_rtkrcv
+
         self.child = 0
         self.status = {}
         self.obs_rover = {}
@@ -81,7 +86,6 @@ class RtkController:
             self.child.send("shutdown\r\n")
 
             a = self.child.expect([":", pexpect.EOF, "error"])
-            print("Stop expects: " + str(a))
 
             if a > 0:
                 print("Stop error")

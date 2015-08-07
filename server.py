@@ -4,9 +4,7 @@ monkey.patch_all()
 
 import time
 import json
-from RtkController import RtkController
-from ConfigManager import ConfigManager
-from Str2StrController import Str2StrController
+from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
 
 from threading import Thread
@@ -35,16 +33,7 @@ socketio = SocketIO(app)
 # configure Ublox for 230400 baudrate!
 changeBaudrateTo230400()
 
-# default location for rtkrcv binaries is /home/reach/RTKLIB/app/rtkrcv/gcc
-# prepare RtkController, but don't start rtklib
-rtkc = RtkController(socketio)
-
-# default location for rtkrcv configs is /home/reach/RTKLIB/app/rtkrcv
-# prepare ConfigManager, read the default config
-conm = ConfigManager()
-
-# default location for str2str binaries is /home/reach/RTKLIB/app/str2str/gcc
-s2sc = Str2StrController()
+rtk = RTKLIB(socketio)
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -55,7 +44,6 @@ def index():
 
 @socketio.on("connect", namespace="/test")
 def testConnect():
-    emit("my response", {"data": "Connected", "count": 0})
     print("Browser client connected")
 
 @socketio.on("disconnect", namespace="/test")
@@ -65,159 +53,51 @@ def testDisconnect():
 #### rtkrcv launch/shutdown signal handling ####
 
 @socketio.on("launch rover", namespace="/test")
-def launchRtkrcv():
-
-    print("Attempting to launch RTKLIB...")
-
-    res = rtkc.launch()
-
-    if res < 0:
-        print("RTKLIB launch failed")
-    elif res == 1:
-        print("RTKLIB launch successful")
-    elif res == 2:
-        print("RTKLIB already launched")
+def launchRover():
+    rtk.launchRover()
 
 @socketio.on("shutdown rover", namespace="/test")
-def shutdownRtkrcv():
-
-    print("Attempting to shutdown RTKLIB...")
-
-    res = rtkc.shutdown()
-
-    if res < 0:
-        print("RTKLIB shutdown failed")
-    elif res == 1:
-        print("RTKLIB shutdown successful")
-    elif res == 2:
-        print("RTKLIB already shutdown")
+def shutdownRover():
+    rtk.shutdownRover()
 
 #### rtkrcv start/stop signal handling ####
 
 @socketio.on("start rover", namespace="/test")
-def startRtkrcv():
-
-    print("Attempting to start RTKLIB...")
-
-    res = rtkc.start()
-
-    if res == -1:
-        print("RTKLIB start failed")
-    elif res == 1:
-        print("RTKLIB start successful")
-        print("Starting coordinate and satellite thread")
-    elif res == 2:
-        print("RTKLIB already started")
+def startRover():
+    rtk.startRover()
 
 @socketio.on("stop rover", namespace="/test")
 def stopRtkrcv():
-
-    print("Attempting to stop RTKLIB...")
-
-    res = rtkc.stop()
-
-    if res == -1:
-        print("rtkrcv stop failed")
-    elif res == 1:
-        print("rtkrcv stop successful")
-    elif res == 2:
-        print("rtkrcv already stopped")
+    rtk.stopRover()
 
 #### str2str start/stop handling ####
 @socketio.on("start base", namespace="/test")
-def startStr2Str():
-
-    print("Attempting to start str2str...")
-
-    if not rtkc.started:
-        res = s2sc.start()
-
-        if res < 0:
-            print("str2str start failed")
-        elif res == 1:
-            print("str2str start successful")
-        elif res == 2:
-            print("str2str already started")
-    else:
-        print("Can't start str2str with rtkrcv still running!!!!")
+def startBase():
+    rtk.startBase()
 
 @socketio.on("stop base", namespace="/test")
-def stopStr2Str():
-
-    print("Attempting to stop str2str...")
-
-    res = s2sc.stop()
-
-    if res == -1:
-        print("str2str stop failed")
-    elif res == 1:
-        print("str2str stop successful")
-    elif res == 2:
-        print("str2str already stopped")
+def stopBase():
+    rtk.stopBase()
 
 #### rtkrcv config handling ####
 
 @socketio.on("read config rover", namespace="/test")
-def readCurrentConfig():
-    print("Got signal to read the current rover config")
-    conm.readConfig(conm.default_rover_config)
-    # after this, to preserve the order of the options in the frontend we send a special order message
-    print("Sending rover config order")
-
-    options_order = {}
-
-    # create a structure the corresponds to the options order
-    for index, value in enumerate(conm.buff_dict_order):
-        options_order[str(index)] = value
-
-    # send the options order
-    emit("current config rover order", options_order, namespace="/test")
-
-    # send the options comments
-    print("Sending rover config comments")
-    print(conm.buff_dict_comments)
-    emit("current config rover comments", conm.buff_dict_comments, namespace="/test")
-
-    # now we send the whole config with values
-    print("Sending rover config values")
-    emit("current config rover", conm.buff_dict, namespace="/test")
+def readConfigRover(json):
+    rtk.readConfigRover(json)
 
 @socketio.on("write config rover", namespace="/test")
-def writeCurrentConfig(json):
-    print("Got signal to write current rover config")
-    conm.writeConfig(conm.default_rover_config, json)
-    print("Reloading with new config...")
-
-    res = rtkc.loadConfig("../" + conm.default_rover_config) + rtkc.restart()
-
-    if res == 2:
-        print("Restart successful")
-    elif res == 1:
-        print("rtkrcv started instead of restart")
-    elif res == -1:
-        print("rtkrcv restart failed")
+def writeConfigRover(json):
+    rtk.writeConfigRover(json)
 
 #### str2str config handling ####
 
 @socketio.on("read config base", namespace="/test")
-def readCurrentBaseConfig():
-    print("Got signal to read the current base config")
-    emit("current config base", s2sc.readConfig())
+def readConfigBase():
+    rtk.readConfigBase()
 
 @socketio.on("write config base", namespace="/test")
-def writeCurrentBaseConfig(json):
-    print("Got signal to write the base config")
-
-    s2sc.writeConfig(json)
-
-    print("Restarting str2str...")
-
-    res = s2sc.stop() + s2sc.start()
-
-    if res > 1:
-        print("Restart successful")
-    else:
-        print("Restart failed")
+def writeConfigBase(json):
+    rtk.writeConfigBase(json)
 
 # @socketio.on("my event", namespace="/test")
 # def printEvent():
@@ -228,5 +108,5 @@ if __name__ == "__main__":
         socketio.run(app, host = "0.0.0.0", port = 5000)
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
-        rtkc.server_not_interrupted = False
+        rtk.rtkc.server_not_interrupted = False
 
