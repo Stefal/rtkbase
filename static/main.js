@@ -291,7 +291,7 @@ $(document).on("pageinit", "#config_page", function() {
     $(document).on("click", "#get_current_state_button", function(e) {
         var mode = $("input[name=radio_base_rover]:checked").val();
         console.log("Request for " + mode + " config");
-        socket.emit("read config " + mode);
+        socket.emit("read config " + mode, {});
     });
 
     $(document).on("click", "#load_and_restart_button", function(e) {

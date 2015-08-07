@@ -74,10 +74,10 @@ class ConfigManager:
 
         # check if this is a full path or just a name
         # if it's a name, then we use the default location
-        if "/" in from_file:
-            config_file_path = from_file
+        if "/" in to_file:
+            config_file_path = to_file
         else:
-            config_file_path = self.config_path + from_file
+            config_file_path = self.config_path + to_file
 
         print("Printing config we are about to write to " + config_file_path + "\n" + str(dict_values))
 
@@ -96,17 +96,4 @@ class ConfigManager:
                     line += " # " + self.buff_dict_comments[key]
 
                 f.write(line + "\n")
-
-
-
-
-
-
-
-
-
-
-
-
-
 

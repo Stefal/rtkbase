@@ -187,7 +187,7 @@ class RTKLIB:
         else:
             config_file = config["config_file_name"]
 
-        conm.writeConfig(config["config_file_name"], config)
+        self.conm.writeConfig(config_file, config)
 
         print("Reloading with new config...")
 
@@ -204,16 +204,18 @@ class RTKLIB:
 
         return res
 
-    def readConfigRover(self, config_name = None):
+    def readConfigRover(self, config):
 
         self.semaphore.acquire()
 
-        if config_name is None:
-            config_name = self.conm.default_rover_config
+        if "config_file_name" not in config:
+            config_file = None
+        else:
+            config_file = config["config_file_name"]
 
         print("Got signal to read the current rover config")
 
-        self.conm.readConfig(config_name)
+        self.conm.readConfig(config_file)
 
         # after this, to preserve the order of the options in the frontend we send a special order message
         print("Sending rover config order")
@@ -233,7 +235,7 @@ class RTKLIB:
 
         # now we send the whole config with values
         print("Sending rover config values")
-        self.emit("current config rover", self.conm.buff_dict, namespace="/test")
+        self.socketio.emit("current config rover", self.conm.buff_dict, namespace="/test")
 
         self.semaphore.release()
 
