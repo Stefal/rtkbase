@@ -3,6 +3,7 @@ from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
 
 from threading import Semaphore
+import json
 
 # master class for working with all RTKLIB programmes
 # prevents them from stacking up and handles errors
@@ -10,7 +11,12 @@ from threading import Semaphore
 
 class RTKLIB:
 
-    def __init__(self, socketio, path_to_rtkrcv = None, path_to_configs = None, path_to_str2str = None, path_to_gps_cmd_file = None):
+    # we will save RTKLIB state here for later loading
+    state_file = "/home/reach/.reach/rtk_state"
+
+    def __init__(self, socketio, recover_flag = True, path_to_rtkrcv = None, path_to_configs = None, path_to_str2str = None, path_to_gps_cmd_file = None):
+        # default state for RTKLIB is "inactive"
+        self.state = "inactive"
 
         # we need this to broadcast stuff
         self.socketio = socketio
@@ -24,6 +30,9 @@ class RTKLIB:
 
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()
+
+        # in case we are recovering from a powerdown we should try to resurrect previous configurations
+
 
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
@@ -42,14 +51,21 @@ class RTKLIB:
             print("rtkrcv launch failed")
         elif res == 1:
             print("rtkrcv launch successful")
+            self.state = "rover"
         elif res == 2:
             print("rtkrcv already launched")
+
+        self.saveState()
+
+        print("Rover mode launched")
 
         self.semaphore.release()
 
         return res
 
     def shutdownRover(self):
+
+        self.stopRover()
 
         self.semaphore.acquire()
         print("Attempting rtkrcv shutdown")
@@ -60,8 +76,13 @@ class RTKLIB:
             print("rtkrcv shutdown failed")
         elif res == 1:
             print("rtkrcv shutdown successful")
+            self.state = "inactive"
         elif res == 2:
             print("rtkrcv already shutdown")
+
+        self.saveState()
+
+        print("Rover mode shutdown")
 
         self.semaphore.release()
 
@@ -82,6 +103,7 @@ class RTKLIB:
         elif res == 2:
             print("rtkrcv already started")
 
+        self.saveState()
         self.semaphore.release()
 
         return res
@@ -100,9 +122,45 @@ class RTKLIB:
         elif res == 2:
             print("rtkrcv already stopped")
 
+        self.saveState()
+
         self.semaphore.release()
 
         return res
+
+    def launchBase(self):
+        # due to the way str2str works, we can't really separate launch and start
+        # all the configuration goes to startBase() function
+        # this launchBase() function exists to change the state of RTKLIB instance
+        # and to make the process for base and rover modes similar
+
+        self.semaphore.acquire()
+
+        self.state = "base"
+
+        self.saveState()
+
+        print("Base mode launched")
+
+        self.semaphore.release()
+
+    def shutdownBase(self):
+        # due to the way str2str works, we can't really separate launch and start
+        # all the configuration goes to startBase() function
+        # this shutdownBase() function exists to change the state of RTKLIB instance
+        # and to make the process for base and rover modes similar
+
+        self.stopBase()
+
+        self.semaphore.acquire()
+
+        self.state = "inactive"
+
+        self.saveState()
+
+        print("Base mode shutdown")
+
+        self.semaphore.release()
 
     def startBase(self, rtcm3_messages = None, base_position = None, gps_cmd_file = None):
 
@@ -122,6 +180,7 @@ class RTKLIB:
         else:
             print("Can't start str2str with rtkrcv still running!!!!")
 
+        self.saveState()
         self.semaphore.release()
 
         return res
@@ -141,6 +200,7 @@ class RTKLIB:
         elif res == 2:
             print("str2str already stopped")
 
+        self.saveState()
         self.semaphore.release()
 
         return res
@@ -172,6 +232,8 @@ class RTKLIB:
         else:
             print("Restart failed")
 
+        self.saveState()
+
         self.semaphore.release()
 
         return res
@@ -191,7 +253,7 @@ class RTKLIB:
 
         print("Reloading with new config...")
 
-        res = self.rtkc.loadConfig("../" + self.conm.default_rover_config) + self.rtkc.restart()
+        res = self.rtkc.loadConfig(self.rtkc.current_config) + self.rtkc.restart()
 
         if res == 2:
             print("Restart successful")
@@ -199,6 +261,8 @@ class RTKLIB:
             print("rtkrcv started instead of restart")
         elif res == -1:
             print("rtkrcv restart failed")
+
+        self.saveState()
 
         self.semaphore.release()
 
@@ -239,7 +303,42 @@ class RTKLIB:
 
         self.semaphore.release()
 
+    def saveState(self):
+        # save current state for future resurrection:
+        # state is a list of parameters:
+        # rover state example: ["rover", "started", "reach_single_default.conf"]
+        # base state example: ["base", "stopped", "input_stream", "output_stream"]
 
+        state = {}
+
+        # save "rover", "base" or "inactive" state
+        state["state"] = self.state
+
+        if self.state == "rover":
+            started = self.rtkc.started
+        elif self.state == "base":
+            started = self.s2sc.started
+        elif self.state == "inactive":
+            started = False
+
+        state["started"] = "yes" if started else "no"
+
+        # dump rover state
+        state["rover"] = [{"current_config": self.rtkc.current_config}]
+
+        # dump rover state
+        state["base"] = [{
+            "input_stream": self.s2sc.input_stream,
+            "output_stream": self.s2sc.output_stream,
+            "rtcm3_messages": self.s2sc.rtcm3_messages,
+            "base_position": self.s2sc.base_position,
+            "gps_cmd_file": self.s2sc.gps_cmd_file
+        }]
+
+        json_state = json.dumps(state, sort_keys = True, indent = 4)
+
+        with open(self.state_file, "w") as f:
+            f.writelines(json_state)
 
 
 

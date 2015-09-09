@@ -25,7 +25,7 @@ class Str2StrController:
 
         # Reach defaults for base position and rtcm3 messages:
         self.rtcm3_messages = ["1002", "1006", "1013", "1019"]
-        self.base_position = ["59.969352285", "30.309005233", "41.5555"] # lat, lon, height
+        self.base_position = [] # lat, lon, height
 
         self.setSerialStream() # input ublox serial
         self.setTCPServerStream(input = False) # output tcp server on port 9000
@@ -59,20 +59,9 @@ class Str2StrController:
         self.output_stream = parameters_received["Output stream"]
 
         # llh
-        base_pos.append(parameters_received["Base lat"])
-        base_pos.append(parameters_received["Base lon"])
-        base_pos.append(parameters_received["Base height"])
-
-        for coordinate in base_pos:
-            if not coordinate:
-                coordinate_filled_flag -= 1
-
-        if coordinate_filled_flag == 3:
-            self.base_position = base_pos
-        else:
-            self.base_position = []
-            print("An error evaluating base position. One or more of the coordinates is empty")
-            print("Falling back to base postition single mode")
+        self.base_position.append(parameters_received["Base lat"])
+        self.base_position.append(parameters_received["Base lon"])
+        self.base_position.append(parameters_received["Base height"])
 
         self.rtcm3_messages = parameters_received["RTCM3 messages for output"].split(",")
 
@@ -191,6 +180,9 @@ class Str2StrController:
                 gps_cmd_file = self.gps_cmd_file
 
             cmd = "/str2str -in " + self.input_stream + " -out " + self.output_stream + " -msg " + ",".join(rtcm3_messages)
+
+            if "" in base_position:
+                base_position = []
 
             if base_position:
                 cmd += " -p " + " ".join(base_position)

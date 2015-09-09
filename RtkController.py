@@ -23,6 +23,7 @@ class RtkController:
 
         self.started = False
         self.launched = False
+        self.current_config = ""
 
         # handle coordinate broadcast
         self.socketio = socketio
@@ -71,6 +72,7 @@ class RtkController:
 
             self.semaphore.release()
             self.launched = True
+            self.current_config = config_name
 
             # launch success
             return 1
@@ -193,6 +195,11 @@ class RtkController:
 
         self.semaphore.acquire()
 
+        if "/" not in config_name:
+            # we assume this is not the full path
+            # so it must be in the upper dir
+            config_name = "../" + config_name
+
         self.child.send("load " + config_name + "\r\n")
 
         if self.expectAnswer("load config") < 0:
@@ -204,6 +211,8 @@ class RtkController:
         if self.restart() < 0:
             self.semaphore.release()
             return -1
+
+        self.current_config = config_name
 
         return 1
 

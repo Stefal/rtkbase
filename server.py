@@ -59,7 +59,18 @@ def startRover():
 def stopRtkrcv():
     rtk.stopRover()
 
+#### str2str launch/shutdown handling ####
+
+@socketio.on("launch base", namespace="/test")
+def startBase():
+    rtk.launchBase()
+
+@socketio.on("shutdown base", namespace="/test")
+def stopBase():
+    rtk.shutdownBase()
+
 #### str2str start/stop handling ####
+
 @socketio.on("start base", namespace="/test")
 def startBase():
     rtk.startBase()
@@ -87,10 +98,6 @@ def readConfigBase(json):
 @socketio.on("write config base", namespace="/test")
 def writeConfigBase(json):
     rtk.writeConfigBase(json)
-
-# @socketio.on("my event", namespace="/test")
-# def printEvent():
-#     print("Connected socketio message received")
 
 if __name__ == "__main__":
     try:
