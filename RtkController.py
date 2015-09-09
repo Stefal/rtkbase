@@ -48,10 +48,13 @@ class RtkController:
 
         return 1
 
-    def launch(self, config_name = "reach_rover_default.conf"):
+    def launch(self, config_name = None):
         # run an rtkrcv instance with the specified config:
         # if there is a slash in the name we consider it a full location
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
+
+        if config_name is None:
+            config_name = "reach_rover_default.conf"
 
         if not self.launched:
 

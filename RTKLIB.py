@@ -31,8 +31,8 @@ class RTKLIB:
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()
 
-        # in case we are recovering from a powerdown we should try to resurrect previous configurations
-
+        # we try to restore previous state
+        self.loadState()
 
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
@@ -324,21 +324,81 @@ class RTKLIB:
         state["started"] = "yes" if started else "no"
 
         # dump rover state
-        state["rover"] = [{"current_config": self.rtkc.current_config}]
+        state["rover"] = {"current_config": self.rtkc.current_config}
 
         # dump rover state
-        state["base"] = [{
+        state["base"] = {
             "input_stream": self.s2sc.input_stream,
             "output_stream": self.s2sc.output_stream,
             "rtcm3_messages": self.s2sc.rtcm3_messages,
             "base_position": self.s2sc.base_position,
             "gps_cmd_file": self.s2sc.gps_cmd_file
-        }]
+        }
 
-        json_state = json.dumps(state, sort_keys = True, indent = 4)
 
         with open(self.state_file, "w") as f:
-            f.writelines(json_state)
+            json_state = json.dump(state, f, sort_keys = True, indent = 4)
+
+    def byteify(self, input):
+        # thanks to Mark Amery from StackOverFlow for this awesome function
+        if isinstance(input, dict):
+            return {self.byteify(key): self.byteify(value) for key, value in input.iteritems()}
+        elif isinstance(input, list):
+            return [self.byteify(element) for element in input]
+        elif isinstance(input, unicode):
+            return input.encode('utf-8')
+        else:
+            return input
+
+    def loadState(self):
+        # load previously saved state
+        # we assume this function is not to be run until the very end of __init__ of RTKLIB
+
+        try:
+            f = open(self.state_file, "r")
+        except IOError:
+            # can't find the file, let's create a new one with default state
+            self.saveState()
+        else:
+
+            json_state = json.load(f)
+            f.close()
+
+            # convert unicode strings to normal
+            json_state = self.byteify(json_state)
+
+            # first, we restore the base state, because no matter what we end up doing,
+            # we need to restore base state
+
+            self.s2sc.input_stream = json_state["base"]["input_stream"]
+            self.s2sc.output_stream = json_state["base"]["output_stream"]
+            self.s2sc.rtcm3_messages = json_state["base"]["rtcm3_messages"]
+            self.s2sc.base_position = json_state["base"]["base_position"]
+            self.s2sc.gps_cmd_file = json_state["base"]["gps_cmd_file"]
+
+            if json_state["state"] == "rover":
+                saved_config = json_state["rover"]["current_config"]
+
+                if saved_config == "":
+                    saved_config = None
+
+                self.launchRover(saved_config)
+
+                if json_state["started"] == "yes":
+                    self.startRover()
+            elif json_state["state"] == "base":
+                self.launchBase()
+
+                if json_state["started"] == "yes":
+                    self.startBase()
+
+            # if we are "inactive", don't do anything as this the default state
+
+
+
+
+
+
 
 
 
