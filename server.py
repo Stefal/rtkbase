@@ -5,6 +5,9 @@ monkey.patch_all()
 
 import time
 import json
+import os
+import signal
+
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
 
@@ -23,6 +26,8 @@ socketio = SocketIO(app)
 changeBaudrateTo230400()
 
 rtk = RTKLIB(socketio)
+
+perform_update = False
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -99,10 +104,28 @@ def readConfigBase(json):
 def writeConfigBase(json):
     rtk.writeConfigBase(json)
 
+@socketio.on("update reachview", namespace="/test")
+def updateReachView():
+    print("Got signal to update!!!")
+    print("Server interrupted by user to update!!")
+    socketio.server.stop()
+    os.execl("/home/reach/ReachView/update.sh", "", str(os.getpid()))
+
 if __name__ == "__main__":
     try:
         socketio.run(app, host = "0.0.0.0", port = 80)
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
         rtk.rtkc.server_not_interrupted = False
+
+
+
+
+
+
+
+
+
+
+
 

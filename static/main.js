@@ -331,6 +331,13 @@ $(document).on("pageinit", "#config_page", function() {
 
 });
 
+$(document).on("pageinit", "#logs_page", function() {
+    $(document).on("click", "#update_button", function(e) {
+        console.log("Sending update message");
+        socket.emit("update reachview");
+    });
+});
+
 // handle base/rover switching
 
 $(document).on("change", "input[name='radio_base_rover']", function() {
