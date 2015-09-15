@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+from threading import Thread
 from GPIO import GPIO
 
 class ReachLED:
@@ -11,6 +12,12 @@ class ReachLED:
 
     def __init__(self):
         self.pins = [GPIO(12), GPIO(13), GPIO(182)] # green, red, blue
+
+        # thread, used to blink later
+        self.blinker_thread = None
+
+        # to stop blinker later
+        self.blinker_interrupted = False
 
         self.colors_dict = {
             "off": [0, 0, 0],
@@ -49,10 +56,10 @@ class ReachLED:
                 f.write("1000000")
 
         # turn off all of it by default
-        for ch in self.pwm_channels:
-            self.setDutyCycle(ch, 0)
+        #for ch in self.pwm_channels:
+        #    self.setDutyCycle(ch, 0)
 
-    def setDutyCycle(self, channel, percentage):
+    def setDutyCycle(self, channel, percentage = None):
         # 0% = 1000000
         # 100% = 0
 
@@ -62,7 +69,7 @@ class ReachLED:
         with open(self.pwm_prefix + "pwm" + str(channel) + "/duty_cycle", "w") as f:
             f.write(str(duty_value))
 
-    def setColor(self, color, power_percentage):
+    def setColor(self, color, power_percentage = None):
         # available colors:
         # red
         # green
@@ -72,11 +79,57 @@ class ReachLED:
         # cyan
         # magenta
 
+        # defalt power percentage value
+        if power_percentage == None:
+            power_percentage = 100
+
         if color in self.colors_dict:
             for i in range(0, 3):
                 self.setDutyCycle(i, self.colors_dict[color][i] * power_percentage)
+
+            return 0
         else:
-            print("Can't set this color. You may add this in the colors_dict variable")
+            # no such color available :(
+            return -1
+
+    def startBlinker(self, pattern, delay = None):
+        # start a new thread that blinks
+
+        if self.blinker_thread == None:
+            self.blinker_interrupted = False
+            self.blinker_thread = Thread(target = self.blinkPattern(pattern, delay))
+            self.blinker_thread.start()
+        else:
+            # we already have a blinker started and need to restart it using new colors
+            self.stopBlinker()
+            self.startBlinker(pattern, delay)
+
+    def stopBlinker(self):
+        # stop existing thread
+
+        self.blinker_interrupted = True
+
+        if self.blinker_thread is not None:
+            self.blinker_thread.join()
+            self.blinker_thread = None
+
+    def blinkPattern(self, pattern, delay = None):
+        # start blinking in a special pattern
+        # pattern is a string of colors, separated by commas
+        # for example: "red,blue,off"
+        # they will be flashed one by one
+        # and separated by a time of delay, which 0.5s by default
+
+        color_list = pattern.split(",")
+
+        if delay == None:
+            delay = 0.5
+
+        while not self.blinker_interrupted:
+            for color in color_list:
+                print("DEBUG" + str(color))
+                self.setColor(color)
+                time.sleep(delay)
 
 def test():
     led = ReachLED()
@@ -104,10 +157,18 @@ if __name__ == "__main__":
     led = ReachLED()
 
     if len(sys.argv) < 2:
-        print("You need to specify a color\nList of colors: off, white, red, blue, green, cyan, magenta, yellow")
+        print("You need to specify a color")
+        print("List of colors:")
+
+        colors = ""
+        for color in led.colors_dict:
+            colors += color + ", "
+
+        print(colors)
+
     else:
-        led.setColor(sys.argv[1], 100)
-    
+        if led.setColor(sys.argv[1]) < 0:
+            print("Can't set this color. You may add this in the colors_dict variable")
 
 
 
