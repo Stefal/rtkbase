@@ -17,7 +17,7 @@ class ReachLED:
         self.blinker_thread = None
 
         # to stop blinker later
-        self.blinker_interrupted = False
+        self.blinker_not_interrupted = True
 
         self.colors_dict = {
             "off": [0, 0, 0],
@@ -96,7 +96,7 @@ class ReachLED:
         # start a new thread that blinks
 
         if self.blinker_thread == None:
-            self.blinker_interrupted = False
+            self.blinker_not_interrupted = True
             self.blinker_thread = Thread(target = self.blinkPattern(pattern, delay))
             self.blinker_thread.start()
         else:
@@ -107,7 +107,7 @@ class ReachLED:
     def stopBlinker(self):
         # stop existing thread
 
-        self.blinker_interrupted = True
+        self.blinker_not_interrupted = False
 
         if self.blinker_thread is not None:
             self.blinker_thread.join()
@@ -125,9 +125,8 @@ class ReachLED:
         if delay == None:
             delay = 0.5
 
-        while not self.blinker_interrupted:
+        while self.blinker_not_interrupted:
             for color in color_list:
-                print("DEBUG" + str(color))
                 self.setColor(color)
                 time.sleep(delay)
 
