@@ -1,6 +1,7 @@
 from RtkController import RtkController
 from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
+from ReachLED import ReachLED
 
 from threading import Semaphore
 import json
@@ -14,7 +15,7 @@ class RTKLIB:
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
 
-    def __init__(self, socketio, recover_flag = True, path_to_rtkrcv = None, path_to_configs = None, path_to_str2str = None, path_to_gps_cmd_file = None):
+    def __init__(self, socketio, path_to_rtkrcv = None, path_to_configs = None, path_to_str2str = None, path_to_gps_cmd_file = None):
         # default state for RTKLIB is "inactive"
         self.state = "inactive"
 
@@ -30,6 +31,9 @@ class RTKLIB:
 
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()
+
+        # we need this to send led signals
+        self.led = ReachLED()
 
         # we try to restore previous state
         self.loadState()
@@ -56,6 +60,7 @@ class RTKLIB:
             print("rtkrcv already launched")
 
         self.saveState()
+        self.updateLED()
 
         print("Rover mode launched")
 
@@ -81,6 +86,7 @@ class RTKLIB:
             print("rtkrcv already shutdown")
 
         self.saveState()
+        self.updateLED()
 
         print("Rover mode shutdown")
 
@@ -104,6 +110,7 @@ class RTKLIB:
             print("rtkrcv already started")
 
         self.saveState()
+        self.updateLED()
         self.semaphore.release()
 
         return res
@@ -123,6 +130,7 @@ class RTKLIB:
             print("rtkrcv already stopped")
 
         self.saveState()
+        self.updateLED()
 
         self.semaphore.release()
 
@@ -139,6 +147,7 @@ class RTKLIB:
         self.state = "base"
 
         self.saveState()
+        self.updateLED()
 
         print("Base mode launched")
 
@@ -157,6 +166,7 @@ class RTKLIB:
         self.state = "inactive"
 
         self.saveState()
+        self.updateLED()
 
         print("Base mode shutdown")
 
@@ -181,6 +191,7 @@ class RTKLIB:
             print("Can't start str2str with rtkrcv still running!!!!")
 
         self.saveState()
+        self.updateLED()
         self.semaphore.release()
 
         return res
@@ -201,6 +212,7 @@ class RTKLIB:
             print("str2str already stopped")
 
         self.saveState()
+        self.updateLED()
         self.semaphore.release()
 
         return res
@@ -393,6 +405,48 @@ class RTKLIB:
                     self.startBase()
 
             # if we are "inactive", don't do anything as this the default state
+
+    def updateLED(self):
+
+        blink_pattern = ""
+        delay = 0.5
+
+        if self.state == "base":
+            if self.s2sc.started:
+                # we have a started base
+                blink_pattern = "green,off,magenta,off"
+            else:
+                # we have a stopped base
+                blink_pattern = "red,off,magenta,off"
+        elif self.state == "rover":
+            if self.rtkc.started:
+                # we have a started rover
+                status_pattern_dict = {
+                    "fix": "blue,off,green,off",
+                    "float": "blue,off,green,off,yellow,off",
+                    "single": "blue,off,yellow,off"
+                }
+
+                # we need to acquire RtkController in case it's currently updating info dict
+                self.rtkc.semaphore.acquire()
+                current_rover_solutuon_status = self.rtkc.info.get("solution_status", "")
+                self.rtkc.semaphore.release()
+
+                blink_pattern = status_pattern_dict.get(current_rover_solutuon_status, "blue,off")
+            else:
+                # we have a stopped rover
+                blink_pattern = "blue,off,red,off"
+
+        elif self.state == "inactive":
+            blink_pattern = "yellow, off"
+            delay = 1
+
+        if blink_pattern:
+            # if we decided we need a new pattern, then start blinking it
+            self.led.startBlinker(blink_pattern, delay)
+
+
+
 
 
 

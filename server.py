@@ -117,9 +117,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
         rtk.rtkc.server_not_interrupted = False
-
-
-
+        rtk.led.blinker_not_interrupted = False
 
 
 
