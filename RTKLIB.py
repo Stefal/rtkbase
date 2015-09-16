@@ -3,12 +3,13 @@ from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
 from ReachLED import ReachLED
 
-from threading import Semaphore
+from threading import Semaphore, Thread
 import json
+import time
 
 # master class for working with all RTKLIB programmes
 # prevents them from stacking up and handles errors
-# TODO: save current state and it reload it when relaunched
+# also handles all data broadcast through websockets
 
 class RTKLIB:
 
@@ -23,7 +24,7 @@ class RTKLIB:
         self.socketio = socketio
 
         # these are necessary to handle base mode
-        self.rtkc = RtkController(socketio, path_to_rtkrcv)
+        self.rtkc = RtkController(path_to_rtkrcv)
         self.conm = ConfigManager(path_to_configs)
 
         # this one handles base settings
@@ -34,6 +35,11 @@ class RTKLIB:
 
         # we need this to send led signals
         self.led = ReachLED()
+
+        # broadcast satellite levels and status with these
+        self.server_not_interrupted = True
+        self.satellite_thread = None
+        self.coordinate_thread = None
 
         # we try to restore previous state
         self.loadState()
@@ -109,6 +115,18 @@ class RTKLIB:
         elif res == 2:
             print("rtkrcv already started")
 
+        # start fresh data broadcast
+
+        self.server_not_interrupted = True
+
+        if self.satellite_thread is None:
+            self.satellite_thread = Thread(target = self.broadcastSatellites)
+            self.satellite_thread.start()
+
+        if self.coordinate_thread is None:
+            self.coordinate_thread = Thread(target = self.broadcastCoordinates)
+            self.coordinate_thread.start()
+
         self.saveState()
         self.updateLED()
         self.semaphore.release()
@@ -128,6 +146,16 @@ class RTKLIB:
             print("rtkrcv stop successful")
         elif res == 2:
             print("rtkrcv already stopped")
+
+        self.server_not_interrupted = False
+
+        if self.satellite_thread is not None:
+            self.satellite_thread.join()
+            self.satellite_thread = None
+
+        if self.coordinate_thread is not None:
+            self.coordinate_thread.join()
+            self.coordinate_thread = None
 
         self.saveState()
         self.updateLED()
@@ -379,6 +407,8 @@ class RTKLIB:
             # convert unicode strings to normal
             json_state = self.byteify(json_state)
 
+            print("DEBUG" + str(json_state))
+
             # first, we restore the base state, because no matter what we end up doing,
             # we need to restore base state
 
@@ -398,6 +428,7 @@ class RTKLIB:
 
                 if json_state["started"] == "yes":
                     self.startRover()
+
             elif json_state["state"] == "base":
                 self.launchBase()
 
@@ -442,44 +473,47 @@ class RTKLIB:
             delay = 1
 
         if blink_pattern:
-            # if we decided we need a new pattern, then start blinking it
-            self.led.startBlinker(blink_pattern, delay)
+            # check blink_pattern contains something new
+            if blink_pattern != self.led.current_blink_pattern:
+                # if we decided we need a new pattern, then start blinking it
+                self.led.startBlinker(blink_pattern, delay)
 
 
+    # thread workers for broadcasing rtkrcv status
 
+    # this function reads satellite levels from an exisiting rtkrcv instance
+    # and emits them to the connected browser as messages
+    def broadcastSatellites(self):
+        count = 0
 
+        while self.server_not_interrupted:
 
+            # update satellite levels
+            self.rtkc.getObs()
 
+            if count % 10 == 0:
+                print("Sending sat rover levels:\n" + str(self.rtkc.obs_rover))
+                print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
 
+            self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
+            self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
+            count += 1
+            time.sleep(1)
 
+    # this function reads current rtklib status, coordinates and obs count
+    def broadcastCoordinates(self):
+        count = 0
 
+        while self.server_not_interrupted:
 
+            # update RTKLIB status
+            self.rtkc.getStatus()
 
+            if count % 10 == 0:
+                print("Sending RTKLIB status select information:")
+                print(self.rtkc.info)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            self.socketio.emit("coordinate broadcast", self.rtkc.info, namespace = "/test")
+            self.updateLED()
+            count += 1
+            time.sleep(1)

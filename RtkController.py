@@ -7,7 +7,7 @@ import time
 
 class RtkController:
 
-    def __init__(self, socketio, path_to_rtkrcv = None):
+    def __init__(self, path_to_rtkrcv = None):
 
         if path_to_rtkrcv is None:
             self.bin_path = "/home/reach/RTKLIB/app/rtkrcv/gcc"
@@ -24,13 +24,6 @@ class RtkController:
         self.started = False
         self.launched = False
         self.current_config = ""
-
-        # handle coordinate broadcast
-        self.socketio = socketio
-
-        self.satellite_thread = None
-        self.coordinate_thread = None
-        self.server_not_interrupted = True
 
     def expectAnswer(self, last_command = ""):
         a = self.child.expect(["rtkrcv>", pexpect.EOF, "error"])
@@ -54,7 +47,7 @@ class RtkController:
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
 
         if config_name is None:
-            config_name = "reach_rover_default.conf"
+            config_name = "reach_single_default.conf"
 
         if not self.launched:
 
@@ -128,18 +121,6 @@ class RtkController:
             self.semaphore.release()
             self.started = True
 
-            # start fresh data broadcast
-
-            self.server_not_interrupted = True
-
-            if self.satellite_thread is None:
-                self.satellite_thread = Thread(target = self.broadcastSatellites)
-                self.satellite_thread.start()
-
-            if self.coordinate_thread is None:
-                self.coordinate_thread = Thread(target = self.broadcastCoordinates)
-                self.coordinate_thread.start()
-
             return 1
 
         # already started
@@ -159,16 +140,6 @@ class RtkController:
             self.semaphore.release()
 
             self.started = False
-
-            self.server_not_interrupted = False
-
-            if self.satellite_thread is not None:
-                self.satellite_thread.join()
-                self.satellite_thread = None
-
-            if self.coordinate_thread is not None:
-                self.coordinate_thread.join()
-                self.coordinate_thread = None
 
             return 1
 
@@ -395,43 +366,6 @@ class RtkController:
         self.semaphore.release()
 
         return 1
-
-    # this function reads satellite levels from an exisiting rtkrcv instance
-    # and emits them to the connected browser as messages
-    def broadcastSatellites(self):
-        count = 0
-
-        while self.server_not_interrupted:
-
-            # update satellite levels
-            self.getObs()
-
-            if count % 10 == 0:
-                print("Sending sat rover levels:\n" + str(self.obs_rover))
-                print("Sending sat base levels:\n" + str(self.obs_base))
-
-            self.socketio.emit("satellite broadcast rover", self.obs_rover, namespace = "/test")
-            self.socketio.emit("satellite broadcast base", self.obs_base, namespace = "/test")
-            count += 1
-            time.sleep(1)
-
-    # this function reads current rtklib status, coordinates and obs count
-    def broadcastCoordinates(self):
-        count = 0
-
-        while self.server_not_interrupted:
-
-            # update RTKLIB status
-            self.getStatus()
-
-            if count % 10 == 0:
-                print("Sending RTKLIB status select information:")
-                print(self.info)
-
-            self.socketio.emit("coordinate broadcast", self.info, namespace = "/test")
-            count += 1
-            time.sleep(1)
-
 ### example usage
 
 #import timeit
