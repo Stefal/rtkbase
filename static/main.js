@@ -347,16 +347,21 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
 
     switch($(this).val()) {
         case "rover":
+            var mode = "rover";
             console.log("Launching rover mode");
             socket.emit("shutdown base")
             socket.emit("launch rover");
             break;
         case "base":
+            var mode = "base";
             console.log("Launching base mode");
             socket.emit("shutdown rover");
             socket.emit("launch base");
         break;
     }
+
+    console.log("Request for " + mode + " config");
+    socket.emit("read config " + mode, {});
 });
 
 // ############################### MAIN ###############################
