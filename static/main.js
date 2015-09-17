@@ -237,8 +237,13 @@ function updateSatelliteGraphBase(msg) {
     satellite_graph.update();
 }
 
-function cleanStatus() {
+function cleanStatus(mode, status) {
+
     console.log("Got signal to clean the graph")
+
+    mode = typeof mode !== "undefined" ? mode : "rtklib stopped";
+    status = typeof status !== "undefined" ? status : "-";
+
     var empty_string_list = [];
     for (var i = 0; i < 10; i++) {
         empty_string_list[i] = "";
@@ -255,8 +260,8 @@ function cleanStatus() {
         "lat" : "0",
         "lon" : "0",
         "height": "0",
-        "solution_status": "-",
-        "positioning_mode": "rtklib stopped"
+        "solution_status": status,
+        "positioning_mode": mode
     };
 
     updateCoordinateGrid(msg);
@@ -284,16 +289,21 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
         console.log("Starting " + mode);
         socket.emit("start " + mode);
+
+        if (mode == "base") {
+            cleanStatus(mode, "started");
+        }
     });
 
     $(document).on("click", "#stop_button", function(e) {
         var mode = $("input[name=radio_base_rover]:checked").val();
         console.log("Stopping " + mode);
         socket.emit("stop " + mode);
+
         // after sending the stop command, we should clean the sat graph
         // and change status in the coordinate grid
 
-        cleanStatus();
+        cleanStatus(mode, "stopped");
     });
 
     $(document).on("click", "#get_current_state_button", function(e) {
@@ -341,18 +351,29 @@ $(document).on("pageinit", "#logs_page", function() {
 // handle base/rover switching
 
 $(document).on("change", "input[name='radio_base_rover']", function() {
+
+    var mode = "";
+    var status = "stopped";
+
     switch($(this).val()) {
         case "rover":
+            mode = "rover";
             console.log("Launching rover mode");
             socket.emit("shutdown base")
             socket.emit("launch rover");
             break;
         case "base":
+            mode = "base";
             console.log("Launching base mode");
             socket.emit("shutdown rover");
             socket.emit("launch base");
-            break;
+        break;
     }
+
+    cleanStatus(mode, status);
+
+    console.log("Request for " + mode + " config");
+    socket.emit("read config " + mode, {});
 });
 
 // ############################### MAIN ###############################
@@ -518,6 +539,18 @@ $(document).ready(function () {
     // ####################### HANDLE REACH MODES, START AND STOP MESSAGES #######################
 
     // handle data broadcast
+
+    socket.on("current state", function(msg) {
+        // check if the browser tab and app tab are active
+
+        console.log("Got message containing Reach state. Currently in " + msg.state + " mode");
+
+        if (msg.state == "rover") {
+            $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click()
+        } else if (msg.state == "base") {
+            $('input:radio[name="radio_base_rover"]').filter('[value="base"]').next().click()
+        }
+    });
 
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 

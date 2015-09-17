@@ -59,6 +59,7 @@ class Str2StrController:
         self.output_stream = parameters_received["Output stream"]
 
         # llh
+        self.base_position = []
         self.base_position.append(parameters_received["Base lat"])
         self.base_position.append(parameters_received["Base lon"])
         self.base_position.append(parameters_received["Base height"])

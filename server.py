@@ -34,11 +34,12 @@ perform_update = False
 
 @app.route("/")
 def index():
-    return render_template("index.html", current_status = "Cool!!!")
+    return render_template("index.html")
 
 @socketio.on("connect", namespace="/test")
 def testConnect():
     print("Browser client connected")
+    rtk.sendState()
 
 @socketio.on("disconnect", namespace="/test")
 def testDisconnect():
@@ -116,10 +117,19 @@ if __name__ == "__main__":
         socketio.run(app, host = "0.0.0.0", port = 80)
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
-        rtk.rtkc.server_not_interrupted = False
+
+        # clean up broadcast and blink threads
+        rtk.server_not_interrupted = False
         rtk.led.blinker_not_interrupted = False
 
+        if rtk.coordinate_thread is not None:
+            rtk.coordinate_thread.join()
 
+        if rtk.satellite_thread is not None:
+            rtk.satellite_thread.join()
+
+        if rtk.led.blinker_thread is not None:
+            rtk.led.blinker_thread.join()
 
 
 
