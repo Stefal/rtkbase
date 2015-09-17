@@ -16,7 +16,7 @@ class RTKLIB:
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
 
-    def __init__(self, socketio, path_to_rtkrcv = None, path_to_configs = None, path_to_str2str = None, path_to_gps_cmd_file = None):
+    def __init__(self, socketio, enable_led = True, path_to_rtkrcv = None, path_to_configs = None, path_to_str2str = None, path_to_gps_cmd_file = None):
         # default state for RTKLIB is "inactive"
         self.state = "inactive"
 
@@ -31,10 +31,14 @@ class RTKLIB:
         self.s2sc = Str2StrController(path_to_str2str, path_to_gps_cmd_file)
 
         # basic synchronisation to prevent errors
+        self.saveState()
         self.semaphore = Semaphore()
 
         # we need this to send led signals
-        self.led = ReachLED()
+        self.enable_led = enable_led
+
+        if self.enable_led:
+            self.led = ReachLED()
 
         # broadcast satellite levels and status with these
         self.server_not_interrupted = True
@@ -43,6 +47,7 @@ class RTKLIB:
 
         # we try to restore previous state
         self.loadState()
+
 
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
@@ -64,9 +69,12 @@ class RTKLIB:
             self.state = "rover"
         elif res == 2:
             print("rtkrcv already launched")
+            self.state = "rover"
 
         self.saveState()
-        self.updateLED()
+
+        if self.enable_led:
+            self.updateLED()
 
         print("Rover mode launched")
 
@@ -90,9 +98,12 @@ class RTKLIB:
             self.state = "inactive"
         elif res == 2:
             print("rtkrcv already shutdown")
+            self.state = "inactive"
 
         self.saveState()
-        self.updateLED()
+
+        if self.enable_led:
+            self.updateLED()
 
         print("Rover mode shutdown")
 
@@ -128,7 +139,10 @@ class RTKLIB:
             self.coordinate_thread.start()
 
         self.saveState()
-        self.updateLED()
+
+        if self.enable_led:
+            self.updateLED()
+
         self.semaphore.release()
 
         return res
@@ -158,7 +172,9 @@ class RTKLIB:
             self.coordinate_thread = None
 
         self.saveState()
-        self.updateLED()
+
+        if self.enable_led:
+            self.updateLED()
 
         self.semaphore.release()
 
@@ -175,7 +191,9 @@ class RTKLIB:
         self.state = "base"
 
         self.saveState()
-        self.updateLED()
+
+        if self.enable_led:
+            self.updateLED()
 
         print("Base mode launched")
 
@@ -194,7 +212,9 @@ class RTKLIB:
         self.state = "inactive"
 
         self.saveState()
-        self.updateLED()
+
+        if self.enable_led:
+            self.updateLED()
 
         print("Base mode shutdown")
 
@@ -219,7 +239,10 @@ class RTKLIB:
             print("Can't start str2str with rtkrcv still running!!!!")
 
         self.saveState()
-        self.updateLED()
+
+        if self.enable_led:
+            self.updateLED()
+
         self.semaphore.release()
 
         return res
@@ -240,7 +263,10 @@ class RTKLIB:
             print("str2str already stopped")
 
         self.saveState()
-        self.updateLED()
+
+        if self.enable_led:
+            self.updateLED()
+
         self.semaphore.release()
 
         return res
@@ -375,9 +401,10 @@ class RTKLIB:
             "gps_cmd_file": self.s2sc.gps_cmd_file
         }
 
-
         with open(self.state_file, "w") as f:
-            json_state = json.dump(state, f, sort_keys = True, indent = 4)
+            json.dump(state, f, sort_keys = True, indent = 4)
+
+        return state
 
     def byteify(self, input):
         # thanks to Mark Amery from StackOverFlow for this awesome function
@@ -390,24 +417,50 @@ class RTKLIB:
         else:
             return input
 
-    def loadState(self):
+    def readState(self):
         # load previously saved state
         # we assume this function is not to be run until the very end of __init__ of RTKLIB
+
+        print("Trying to load previously saved state...")
 
         try:
             f = open(self.state_file, "r")
         except IOError:
             # can't find the file, let's create a new one with default state
+            print("Could not find existing state, saving default...")
             self.saveState()
+            return -1
         else:
 
+            print("Found existing state...")
             json_state = json.load(f)
             f.close()
 
             # convert unicode strings to normal
             json_state = self.byteify(json_state)
 
-            print("DEBUG" + str(json_state))
+            return json_state
+
+    def loadState(self):
+        # load previously saved state
+        # we assume this function is not to be run until the very end of __init__ of RTKLIB
+
+        print("Trying to load previously saved state...")
+
+        try:
+            f = open(self.state_file, "r")
+        except IOError:
+            # can't find the file, let's create a new one with default state
+            print("Could not find existing state, saving default...")
+            return self.saveState()
+        else:
+
+            print("Found existing state...")
+            json_state = json.load(f)
+            f.close()
+
+            # convert unicode strings to normal
+            json_state = self.byteify(json_state)
 
             # first, we restore the base state, because no matter what we end up doing,
             # we need to restore base state
@@ -435,7 +488,17 @@ class RTKLIB:
                 if json_state["started"] == "yes":
                     self.startBase()
 
-            # if we are "inactive", don't do anything as this the default state
+            print("State loaded")
+
+            return json_state
+
+        # if we are "inactive", don't do anything as this the default state
+
+    def sendState(self):
+        # send current state to every connecting browser
+
+        state = self.loadState()
+        self.socketio.emit("current state", state, namespace = "/test")
 
     def updateLED(self):
 
@@ -514,6 +577,9 @@ class RTKLIB:
                 print(self.rtkc.info)
 
             self.socketio.emit("coordinate broadcast", self.rtkc.info, namespace = "/test")
-            self.updateLED()
+
+            if self.enable_led:
+                self.updateLED()
+
             count += 1
             time.sleep(1)
