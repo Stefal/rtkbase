@@ -237,8 +237,13 @@ function updateSatelliteGraphBase(msg) {
     satellite_graph.update();
 }
 
-function cleanStatus() {
+function cleanStatus(mode, status) {
+
     console.log("Got signal to clean the graph")
+
+    mode = typeof mode !== "undefined" ? mode : "rtklib stopped";
+    status = typeof status !== "undefined" ? status : "-";
+
     var empty_string_list = [];
     for (var i = 0; i < 10; i++) {
         empty_string_list[i] = "";
@@ -255,8 +260,8 @@ function cleanStatus() {
         "lat" : "0",
         "lon" : "0",
         "height": "0",
-        "solution_status": "-",
-        "positioning_mode": "rover inactive"
+        "solution_status": status,
+        "positioning_mode": mode
     };
 
     updateCoordinateGrid(msg);
@@ -284,6 +289,10 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
         console.log("Starting " + mode);
         socket.emit("start " + mode);
+
+        if (mode == "base") {
+            cleanStatus(mode, "started");
+        }
     });
 
     $(document).on("click", "#stop_button", function(e) {
@@ -294,7 +303,7 @@ $(document).on("pageinit", "#config_page", function() {
         // after sending the stop command, we should clean the sat graph
         // and change status in the coordinate grid
 
-        cleanStatus();
+        cleanStatus(mode, "stopped");
     });
 
     $(document).on("click", "#get_current_state_button", function(e) {
@@ -343,22 +352,25 @@ $(document).on("pageinit", "#logs_page", function() {
 
 $(document).on("change", "input[name='radio_base_rover']", function() {
 
-    cleanStatus();
+    var mode = "";
+    var status = "stopped";
 
     switch($(this).val()) {
         case "rover":
-            var mode = "rover";
+            mode = "rover";
             console.log("Launching rover mode");
             socket.emit("shutdown base")
             socket.emit("launch rover");
             break;
         case "base":
-            var mode = "base";
+            mode = "base";
             console.log("Launching base mode");
             socket.emit("shutdown rover");
             socket.emit("launch base");
         break;
     }
+
+    cleanStatus(mode, status);
 
     console.log("Request for " + mode + " config");
     socket.emit("read config " + mode, {});
