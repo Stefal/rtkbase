@@ -16,7 +16,7 @@ class RTKLIB:
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
 
-    def __init__(self, socketio, enable_led = True, path_to_rtkrcv = None, path_to_configs = None, path_to_str2str = None, path_to_gps_cmd_file = None):
+    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None):
         # default state for RTKLIB is "inactive"
         self.state = "inactive"
 
@@ -24,11 +24,11 @@ class RTKLIB:
         self.socketio = socketio
 
         # these are necessary to handle base mode
-        self.rtkc = RtkController(path_to_rtkrcv)
-        self.conm = ConfigManager(path_to_configs)
+        self.rtkc = RtkController(rtkrcv_path)
+        self.conm = ConfigManager(config_path)
 
         # this one handles base settings
-        self.s2sc = Str2StrController(path_to_str2str, path_to_gps_cmd_file)
+        self.s2sc = Str2StrController(str2str_path, gps_cmd_file_path)
 
         # basic synchronisation to prevent errors
         self.saveState()
@@ -417,30 +417,6 @@ class RTKLIB:
         else:
             return input
 
-    def readState(self):
-        # load previously saved state
-        # we assume this function is not to be run until the very end of __init__ of RTKLIB
-
-        print("Trying to load previously saved state...")
-
-        try:
-            f = open(self.state_file, "r")
-        except IOError:
-            # can't find the file, let's create a new one with default state
-            print("Could not find existing state, saving default...")
-            self.saveState()
-            return -1
-        else:
-
-            print("Found existing state...")
-            json_state = json.load(f)
-            f.close()
-
-            # convert unicode strings to normal
-            json_state = self.byteify(json_state)
-
-            return json_state
-
     def loadState(self):
         # load previously saved state
         # we assume this function is not to be run until the very end of __init__ of RTKLIB
@@ -498,6 +474,8 @@ class RTKLIB:
         # send current state to every connecting browser
 
         state = self.loadState()
+
+        state["available_configs"] = self.conm.available_configs
         self.socketio.emit("current state", state, namespace = "/test")
 
     def updateLED(self):

@@ -308,8 +308,22 @@ $(document).on("pageinit", "#config_page", function() {
 
     $(document).on("click", "#get_current_state_button", function(e) {
         var mode = $("input[name=radio_base_rover]:checked").val();
-        console.log("Request for " + mode + " config");
-        socket.emit("read config " + mode, {});
+        var config_name = $("#config_select").val();
+        var to_send = {};
+
+        if (mode == "base") {
+            console.log("Request for " + mode + " config");
+        } else {
+            // if we are in rover mode, we need to pay attention which config is currently chosen
+            var config_name = $("#config_select").val();
+            console.log("Request for " + mode + "config, name is " + config_name);
+
+            if (config_name != "") {
+                to_send["config_file_name"] = config_name;
+            }
+        }
+
+        socket.emit("read config " + mode, to_send);
     });
 
     $(document).on("click", "#load_and_restart_button", function(e) {
@@ -318,14 +332,12 @@ $(document).on("pageinit", "#config_page", function() {
         var current_value = "";
 
         var mode = $("input[name=radio_base_rover]:checked").val();
-
-        console.log("Request to load new " + mode + "config and restart");
+        var config_name = $("#config_select").val();
 
         // first, we need to read all the needed info from config form elements
         // we create a js object with this info and send to our server
 
         // find all the needed fields
-        console.log("Getting current form values!");
 
         $('input[type="text"][id*="_entry"]').each(function(i, obj){
             current_id = obj.id.substring(0, obj.id.length - 6);
@@ -335,6 +347,16 @@ $(document).on("pageinit", "#config_page", function() {
 
             config_to_send[current_id] = current_value;
         });
+
+        if (mode == "base") {
+            console.log("Request to load new " + mode + " config and restart");
+        } else {
+            // if we are in rover mode, we need to pay attention
+            // to the chosen config
+            console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+
+            config_to_send["config_file_name"] = config_name;
+        }
 
         socket.emit("write config " + mode, config_to_send);
     });
@@ -355,25 +377,30 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
     var mode = "";
     var status = "stopped";
 
+    var to_send = {};
+
     switch($(this).val()) {
         case "rover":
             mode = "rover";
             console.log("Launching rover mode");
+            // $("#config_select").selectmenu("enable");
             socket.emit("shutdown base")
             socket.emit("launch rover");
+            to_send["config_file_name"] = $("#config_select").val();
             break;
         case "base":
             mode = "base";
             console.log("Launching base mode");
             socket.emit("shutdown rover");
             socket.emit("launch base");
+            // $("#config_select").selectmenu("disable");
         break;
     }
 
     cleanStatus(mode, status);
 
     console.log("Request for " + mode + " config");
-    socket.emit("read config " + mode, {});
+    socket.emit("read config " + mode, to_send);
 });
 
 // ############################### MAIN ###############################
@@ -544,11 +571,25 @@ $(document).ready(function () {
         // check if the browser tab and app tab are active
 
         console.log("Got message containing Reach state. Currently in " + msg.state + " mode");
+        console.log("Current rover config is " + msg.rover.current_config);
+
+        // add current configs to the dropdown menu
+
+        var select_options = $("#config_select");
+        var to_append = "";
+
+        for (var i = 0; i < msg.available_configs.length; i++) {
+            to_append += "<option value='" + msg.available_configs[i] + "'>" + msg.available_configs[i] + "</option>";
+        }
+
+        select_options.html(to_append).trigger("create");
+
+        select_options.val(msg.rover.current_config);
 
         if (msg.state == "rover") {
-            $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click()
+            $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
         } else if (msg.state == "base") {
-            $('input:radio[name="radio_base_rover"]').filter('[value="base"]').next().click()
+            $('input:radio[name="radio_base_rover"]').filter('[value="base"]').next().click();
         }
     });
 
