@@ -7,12 +7,17 @@ import time
 
 class RtkController:
 
-    def __init__(self, path_to_rtkrcv = None):
+    def __init__(self, rtkrcv_path = None, config_path = None):
 
-        if path_to_rtkrcv is None:
+        if rtkrcv_path is None:
             self.bin_path = "/home/reach/RTKLIB/app/rtkrcv/gcc"
         else:
-            self.bin_path = path_to_rtkrcv
+            self.bin_path = rtkrcv_path
+
+        if config_path is None:
+            self.config_path = "/home/reach/RTKLIB/app/rtkrcv/"
+        else:
+            self.config_path = config_path
 
         self.child = 0
         self.status = {}
@@ -56,7 +61,7 @@ class RtkController:
             if "/" in config_name:
                 spawn_command = self.bin_path + "/rtkrcv -o " + config_name
             else:
-                spawn_command = self.bin_path + "/rtkrcv -o " + self.bin_path[0:-3] + config_name
+                spawn_command = self.bin_path + "/rtkrcv -o " + self.config_path + config_name
 
             self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
 

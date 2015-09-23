@@ -1,4 +1,5 @@
 from os import walk
+from subprocess import Popen, PIPE
 
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
@@ -14,7 +15,10 @@ class ConfigManager:
         else:
             self.config_path = config_path
 
-        self.default_rover_config = "reach_rover_default.conf"
+        self.default_rover_config = "reach_single_default.conf"
+
+        self.available_configs = []
+        self.updateAvailableConfigs()
 
         self.buff_dict_comments = {}
         self.buff_dict = {}
@@ -22,6 +26,22 @@ class ConfigManager:
         self.readConfig(self.default_rover_config) # we do this to load config order from default reach base config
 
         self.buff_dict = {}
+
+    def updateAvailableConfigs(self):
+
+        cmd = "ls " + self.config_path + "*.conf"
+
+        proc = Popen(cmd, stdout = PIPE, shell = True, bufsize = 2048)
+        out = proc.communicate()
+
+        out = out[0].split("\n")
+
+        self.available_configs = []
+        path_length = len(self.config_path)
+
+        for conf in out:
+            if conf:
+                self.available_configs.append(conf[path_length:])
 
     def readConfig(self, from_file):
         i = 0 # for counting parameter order

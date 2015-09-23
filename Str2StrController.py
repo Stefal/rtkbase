@@ -4,17 +4,17 @@ import pexpect
 
 class Str2StrController:
 
-    def __init__(self, path_to_str2str = None, path_to_gps_cmd_file = None):
+    def __init__(self, str2str_path = None, gps_cmd_file_path = None):
 
-        if path_to_str2str is None:
+        if str2str_path is None:
             self.bin_path = "/home/reach/RTKLIB/app/str2str/gcc"
         else:
-            self.bin_path = path_to_str2str
+            self.bin_path = str2str_path
 
-        if path_to_gps_cmd_file is None:
+        if gps_cmd_file_path is None:
             self.gps_cmd_file = "/home/reach/RTKLIB/app/rtkrcv/reach_raw.cmd"
         else:
-            self.gps_cmd_file = path_to_gps_cmd_file
+            self.gps_cmd_file = gps_cmd_file_path
 
         self.child = 0
         self.started = False
