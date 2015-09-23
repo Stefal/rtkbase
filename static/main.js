@@ -658,6 +658,7 @@ $(document).ready(function () {
                 if (rover_config_order[k] in msg) {
                     config_value = msg[rover_config_order[k]];
                     config_comment = rover_config_comments[config_key] || "";
+
                     if (config_comment)
                         config_comment = " # " + config_comment;
 
@@ -665,7 +666,27 @@ $(document).ready(function () {
 
                     to_append += '<div class="ui-field-contain>"';
                     to_append += '<label for="' + config_key + '_entry">' + config_key  + config_comment + '</label>';
-                    to_append += '<input type="text" id="' + config_key + '_entry" value="' + config_value + '">';
+
+                    if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
+                        var splitArr = '';
+                        var splitArr = config_comment.split(',');
+
+                        to_append +=  '<select name="select-native-1" id="' + config_key + '_entry">';
+                        
+                        $.each(splitArr, function(index, value){
+                            value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
+                            var innerSplit = '';
+                            var innerSplit = value.split(':');
+
+                            to_append += '<option value="' + innerSplit['0'] +'">' + innerSplit['1'] + '</option>';
+                        })
+
+                        to_append += '</select>';
+                    }
+                    else
+                        to_append += '<input type="text" id="' + config_key + '_entry" value="' + config_value + '">';
+                    
+
                     to_append += '</div>';
                 }
             }
