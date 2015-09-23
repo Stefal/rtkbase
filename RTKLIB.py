@@ -31,7 +31,6 @@ class RTKLIB:
         self.s2sc = Str2StrController(str2str_path, gps_cmd_file_path)
 
         # basic synchronisation to prevent errors
-        self.saveState()
         self.semaphore = Semaphore()
 
         # we need this to send led signals
@@ -275,7 +274,7 @@ class RTKLIB:
 
         self.semaphore.acquire()
 
-        print("Got signal to read current base config")
+        print("Got signal to read base config")
 
         self.socketio.emit("current config base", self.s2sc.readConfig(), namespace = "/test")
 
@@ -285,7 +284,7 @@ class RTKLIB:
 
         self.semaphore.acquire()
 
-        print("Got signal to write current base config")
+        print("Got signal to write base config")
 
         self.s2sc.writeConfig(config)
 
@@ -308,7 +307,7 @@ class RTKLIB:
         # config dict must include config_name field
 
         self.semaphore.acquire()
-        print("Got signal to write current rover config")
+        print("Got signal to write rover config")
 
         if "config_file_name" not in config:
             config_file = None
@@ -343,7 +342,7 @@ class RTKLIB:
         else:
             config_file = config["config_file_name"]
 
-        print("Got signal to read the current rover config")
+        print("Got signal to read the rover config")
 
         self.conm.readConfig(config_file)
 
@@ -401,6 +400,9 @@ class RTKLIB:
             "gps_cmd_file": self.s2sc.gps_cmd_file
         }
 
+        print("DEBUG saving state")
+        print(str(state))
+
         with open(self.state_file, "w") as f:
             json.dump(state, f, sort_keys = True, indent = 4)
 
@@ -417,11 +419,9 @@ class RTKLIB:
         else:
             return input
 
-    def loadState(self):
-        # load previously saved state
-        # we assume this function is not to be run until the very end of __init__ of RTKLIB
-
-        print("Trying to load previously saved state...")
+    def getState(self):
+        # get the state, currently saved in the state file
+        print("Trying to read previously saved state...")
 
         try:
             f = open(self.state_file, "r")
@@ -438,42 +438,52 @@ class RTKLIB:
             # convert unicode strings to normal
             json_state = self.byteify(json_state)
 
-            # first, we restore the base state, because no matter what we end up doing,
-            # we need to restore base state
-
-            self.s2sc.input_stream = json_state["base"]["input_stream"]
-            self.s2sc.output_stream = json_state["base"]["output_stream"]
-            self.s2sc.rtcm3_messages = json_state["base"]["rtcm3_messages"]
-            self.s2sc.base_position = json_state["base"]["base_position"]
-            self.s2sc.gps_cmd_file = json_state["base"]["gps_cmd_file"]
-
-            if json_state["state"] == "rover":
-                saved_config = json_state["rover"]["current_config"]
-
-                if saved_config == "":
-                    saved_config = None
-
-                self.launchRover(saved_config)
-
-                if json_state["started"] == "yes":
-                    self.startRover()
-
-            elif json_state["state"] == "base":
-                self.launchBase()
-
-                if json_state["started"] == "yes":
-                    self.startBase()
-
-            print("State loaded")
+            print("That's what we found:")
+            print(str(json_state))
 
             return json_state
+
+    def loadState(self):
+
+        # get current state
+        json_state = self.getState()
+
+        print("Now loading the state printed above... ")
+
+        # first, we restore the base state, because no matter what we end up doing,
+        # we need to restore base state
+
+        self.s2sc.input_stream = json_state["base"]["input_stream"]
+        self.s2sc.output_stream = json_state["base"]["output_stream"]
+        self.s2sc.rtcm3_messages = json_state["base"]["rtcm3_messages"]
+        self.s2sc.base_position = json_state["base"]["base_position"]
+        self.s2sc.gps_cmd_file = json_state["base"]["gps_cmd_file"]
+
+        if json_state["state"] == "rover":
+            saved_config = json_state["rover"]["current_config"]
+
+            if saved_config == "":
+                saved_config = None
+
+            self.launchRover(saved_config)
+
+            if json_state["started"] == "yes":
+                self.startRover()
+
+        elif json_state["state"] == "base":
+            self.launchBase()
+
+            if json_state["started"] == "yes":
+                self.startBase()
+
+        print(str(json_state["state"]) + " state loaded")
 
         # if we are "inactive", don't do anything as this the default state
 
     def sendState(self):
         # send current state to every connecting browser
 
-        state = self.loadState()
+        state = self.getState()
 
         state["available_configs"] = self.conm.available_configs
         self.socketio.emit("current state", state, namespace = "/test")
