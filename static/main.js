@@ -101,8 +101,10 @@ function updateCoordinateGrid(msg) {
 
         // coordinates
         // fix length of the strings
+
         var lon_value = msg.lon.substring(0, 9) + Array(9 - msg.lon.substring(0, 9).length + 1).join(" ");
         var lat_value = msg.lat.substring(0, 9) + Array(9 - msg.lat.substring(0, 9).length + 1).join(" ");
+
         var height_value = msg.height.substring(0, 9) + Array(9 - msg.height.substring(0, 9).length + 1 + 2).join(" ");
 
         $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
@@ -340,6 +342,15 @@ $(document).on("pageinit", "#config_page", function() {
         // find all the needed fields
 
         $('input[type="text"][id*="_entry"]').each(function(i, obj){
+            current_id = obj.id.substring(0, obj.id.length - 6);
+            current_value = obj.value;
+
+            console.log("id == " + current_id + " value == " + current_value);
+
+            config_to_send[current_id] = current_value;
+        });
+
+        $('select[id*="_entry"]').each(function(i, obj){
             current_id = obj.id.substring(0, obj.id.length - 6);
             current_value = obj.value;
 
@@ -671,20 +682,20 @@ $(document).ready(function () {
                         var splitArr = '';
                         var splitArr = config_comment.split(',');
 
-                        to_append +=  '<select name="select-native-1" id="' + config_key + '_entry">';
+                        to_append +=  '<select name="select-native-1" id="' + config_key + '_entry" class="config_form_field">';
                         
                         $.each(splitArr, function(index, value){
                             value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
                             var innerSplit = '';
                             var innerSplit = value.split(':');
 
-                            to_append += '<option value="' + innerSplit['0'] +'">' + innerSplit['1'] + '</option>';
+                            to_append += '<option value="' + innerSplit['1'] + '">' + innerSplit['1'] + '</option>';
                         })
 
                         to_append += '</select>';
                     }
                     else
-                        to_append += '<input type="text" id="' + config_key + '_entry" value="' + config_value + '">';
+                        to_append += '<input type="text" id="' + config_key + '_entry" value="' + config_value + '" class="config_form_field">';
                     
 
                     to_append += '</div>';
