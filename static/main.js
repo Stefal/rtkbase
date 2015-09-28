@@ -94,6 +94,143 @@ function createIOTypeForm(select_id, container_id) {
     $(container_id).html(new_form).trigger("create");
 }
 
+function checkSelects(){
+	switch ($("#inpstr1-type_entry").val()){
+		case "off":
+			$("#inpstr1-path_entry").val('');
+			$("div.additional1").remove();
+			// $("#inpstr1-path_entry").prop('readonly');
+			break;
+		case "serial":
+			$("#inpstr1-path_entry").val();
+			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="device1" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate1" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
+			break;
+		case "file":
+			$("#inpstr1-path_entry").val('');
+			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="path1" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpcli":
+			$("#inpstr1-path_entry").val('');
+			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpsvr":
+			$("#inpstr1-path_entry").val('');
+			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ntripcli":
+			$("#inpstr1-path_entry").val('');
+			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount1" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username1" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password1" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ftp":
+			$("#inpstr1-path_entry").val('');
+			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+		case "http":
+			$("#inpstr1-path_entry").val('');
+			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+	}
+
+	switch ($("#inpstr2-type_entry").val()){
+		case "off":
+			$("#inpstr2-path_entry").val('');
+			$("div.additional2").remove();
+			// $("#inpstr1-path_entry").prop('readonly');
+			break;
+		case "serial":
+			$("#inpstr2-path_entry").val();
+			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="device2" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate2" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
+			break;
+		case "file":
+			$("#inpstr2-path_entry").val('');
+			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="path2" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpcli":
+			$("#inpstr2-path_entry").val('');
+			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpsvr":
+			$("#inpstr2-path_entry").val('');
+			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ntripcli":
+			$("#inpstr2-path_entry").val('');
+			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount2" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username2" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password2" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ftp":
+			$("#inpstr2-path_entry").val('');
+			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+		case "http":
+			$("#inpstr2-path_entry").val('');
+			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+	}
+
+	switch ($("#inpstr3-type_entry").val()){
+		case "off":
+			$("#inpstr3-path_entry").val('');
+			$("div.additional3").remove();
+			// $("#inpstr1-path_entry").prop('readonly');
+			break;
+		case "serial":
+			$("#inpstr3-path_entry").val();
+			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="device3" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate3" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
+			break;
+		case "file":
+			$("#inpstr3-path_entry").val('');
+			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="path3" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpcli":
+			$("#inpstr3-path_entry").val('');
+			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpsvr":
+			$("#inpstr3-path_entry").val('');
+			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ntripcli":
+			$("#inpstr3-path_entry").val('');
+			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount3" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username3" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password3" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ftp":
+			$("#inpstr3-path_entry").val('');
+			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+		case "http":
+			$("#inpstr3-path_entry").val('');
+			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+	}
+
+	// if($("#inpstr1-type_entry").val() == 'off')
+	// 	$("#inpstr1-path_entry").val('');
+	
+	// if($("#inpstr2-type_entry").val() == 'off')
+	// 		$("#inpstr2-path_entry").val('');
+}
+
 function updateCoordinateGrid(msg) {
         // status
         $("#status_value").html("<span>" + msg.solution_status + "</span>");
@@ -695,8 +832,7 @@ $(document).ready(function () {
                         to_append += '</select>';
                     }
                     else
-                        to_append += '<input type="text" id="' + config_key + '_entry" value="' + config_value + '" class="config_form_field">';
-                    
+                        to_append += '<input type="text" data-clear-btn="true" id="' + config_key + '_entry" value="' + config_value + '" class="config_form_field" >';                    
 
                     to_append += '</div>';
                 }
@@ -707,6 +843,16 @@ $(document).ready(function () {
         to_append += '</div>';
 
         form_div.html(to_append).trigger("create");
+
+        $(document).on("change", "select", function() {
+			checkSelects();
+		});
+
+	    $(document).on("change", '.additional1 input', function() {
+			$("#inpstr1-path_entry").val($('.additional1 #device1').val() + ':' + $('.additional1 #bandrate1').val());
+		});
+
+		checkSelects();
     });
 
     socket.on("current config base", function(msg) {
@@ -733,7 +879,6 @@ $(document).ready(function () {
 
         form_div.html(to_append).trigger("create");
     });
-
 // end of document.ready
 
 });
