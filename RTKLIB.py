@@ -318,10 +318,12 @@ class RTKLIB:
 
         print("Reloading with new config...")
 
-        res = self.rtkc.loadConfig(self.rtkc.current_config) + self.rtkc.restart()
+        res = self.rtkc.loadConfig(config_file) 
+        res += self.rtkc.restart()
 
-        if res == 2:
+        if res >= 2:
             print("Restart successful")
+            print(config_file + " config loaded")
         elif res == 1:
             print("rtkrcv started instead of restart")
         elif res == -1:

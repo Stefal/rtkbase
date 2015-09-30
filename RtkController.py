@@ -177,9 +177,9 @@ class RtkController:
         if "/" not in config_name:
             # we assume this is not the full path
             # so it must be in the upper dir
-            config_name = "../" + config_name
-
-        self.child.send("load " + config_name + "\r\n")
+            self.child.send("load " + "../" + config_name + "\r\n")
+        else:
+            self.child.send("load " + config_name + "\r\n")
 
         if self.expectAnswer("load config") < 0:
             self.semaphore.release()
