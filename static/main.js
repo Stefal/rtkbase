@@ -94,141 +94,121 @@ function createIOTypeForm(select_id, container_id) {
     $(container_id).html(new_form).trigger("create");
 }
 
-function checkSelects(){
+function checkFirstSelects(){
+	$("#inpstr1-path_entry").val('');
+	$("div.additional1").remove();
+
 	switch ($("#inpstr1-type_entry").val()){
 		case "off":
-			$("#inpstr1-path_entry").val('');
-			$("div.additional1").remove();
-			// $("#inpstr1-path_entry").prop('readonly');
+			$("#inpstr1-path_entry").parent().parent().css('display', 'none');
 			break;
 		case "serial":
-			$("#inpstr1-path_entry").val();
-			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="device1" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate1" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
 			break;
 		case "file":
-			$("#inpstr1-path_entry").val('');
-			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="path1" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpcli":
-			$("#inpstr1-path_entry").val('');
-			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpsvr":
-			$("#inpstr1-path_entry").val('');
-			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ntripcli":
-			$("#inpstr1-path_entry").val('');
-			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount1" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username1" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password1" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ftp":
-			$("#inpstr1-path_entry").val('');
-			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 		case "http":
-			$("#inpstr1-path_entry").val('');
-			$("div.additional1").remove();
+			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 	}
+}
+
+function checkSecondSelects(){
+	$("#inpstr2-path_entry").val('');
+	$("div.additional2").remove();
 
 	switch ($("#inpstr2-type_entry").val()){
 		case "off":
-			$("#inpstr2-path_entry").val('');
-			$("div.additional2").remove();
-			// $("#inpstr1-path_entry").prop('readonly');
+			$("#inpstr2-path_entry").parent().parent().css('display', 'none');
 			break;
 		case "serial":
-			$("#inpstr2-path_entry").val();
-			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="device2" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate2" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
 			break;
 		case "file":
-			$("#inpstr2-path_entry").val('');
-			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="path2" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpcli":
-			$("#inpstr2-path_entry").val('');
-			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpsvr":
-			$("#inpstr2-path_entry").val('');
-			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ntripcli":
-			$("#inpstr2-path_entry").val('');
-			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount2" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username2" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password2" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ftp":
-			$("#inpstr2-path_entry").val('');
-			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 		case "http":
-			$("#inpstr2-path_entry").val('');
-			$("div.additional2").remove();
+			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 	}
+}
+
+function checkThirdSelects(){
+	$("#inpstr3-path_entry").val('');
+	$("div.additional3").remove();
 
 	switch ($("#inpstr3-type_entry").val()){
 		case "off":
-			$("#inpstr3-path_entry").val('');
-			$("div.additional3").remove();
-			// $("#inpstr1-path_entry").prop('readonly');
+			$("#inpstr3-path_entry").parent().parent().css('display', 'none');
 			break;
 		case "serial":
-			$("#inpstr3-path_entry").val();
-			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="device3" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate3" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
 			break;
 		case "file":
-			$("#inpstr3-path_entry").val('');
-			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="path3" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpcli":
-			$("#inpstr3-path_entry").val('');
-			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpsvr":
-			$("#inpstr3-path_entry").val('');
-			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ntripcli":
-			$("#inpstr3-path_entry").val('');
-			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount3" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username3" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password3" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ftp":
-			$("#inpstr3-path_entry").val('');
-			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 		case "http":
-			$("#inpstr3-path_entry").val('');
-			$("div.additional3").remove();
+			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 	}
-
-	// if($("#inpstr1-type_entry").val() == 'off')
-	// 	$("#inpstr1-path_entry").val('');
-	
-	// if($("#inpstr2-type_entry").val() == 'off')
-	// 		$("#inpstr2-path_entry").val('');
 }
 
 function updateCoordinateGrid(msg) {
@@ -555,6 +535,9 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
 
 $(document).ready(function () {
 
+	if(window.location.hash != '')
+		window.location.href = "/";
+		
     // We don't want to do extra work like updating the graph in background
     window.onfocus = onFocus;
     window.onblur = onBlur;
@@ -796,7 +779,7 @@ $(document).ready(function () {
 
         form_div.html("");
 
-        to_append += '<div class="ui-field-contain">';
+        to_append += '<div class="ui-field-contain fields-field">';
 
         if (!$.isEmptyObject(rover_config_order)) {
             for (var k in rover_config_order) {
@@ -826,7 +809,10 @@ $(document).ready(function () {
                             var innerSplit = '';
                             var innerSplit = value.split(':');
 
-                            to_append += '<option value="' + innerSplit['1'] + '">' + innerSplit['1'] + '</option>';
+                            if(innerSplit['1'] == config_value)
+	                            to_append += '<option value="' + innerSplit['1'] + '" selected="selected">' + innerSplit['1'] + '</option>';
+	                        else
+	                        	to_append += '<option value="' + innerSplit['1'] + '">' + innerSplit['1'] + '</option>';
                         })
 
                         to_append += '</select>';
@@ -844,15 +830,115 @@ $(document).ready(function () {
 
         form_div.html(to_append).trigger("create");
 
-        $(document).on("change", "select", function() {
-			checkSelects();
+        $(".ui-field-contain.fields-field").prepend($("#inpstr3-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field").prepend($("#inpstr3-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field").prepend($("#inpstr2-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field").prepend($("#inpstr2-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field").prepend($("#inpstr1-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field").prepend($("#inpstr1-type_entry").parent().parent().parent());
+
+        $(document).on("change", '#inpstr1-type_entry', function() {
+			checkFirstSelects();
 		});
 
-	    $(document).on("change", '.additional1 input', function() {
-			$("#inpstr1-path_entry").val($('.additional1 #device1').val() + ':' + $('.additional1 #bandrate1').val());
+        $(document).on("change", '#inpstr2-type_entry', function() {
+			checkSecondSelects();
 		});
 
-		checkSelects();
+        $(document).on("change", '#inpstr3-type_entry', function() {
+			checkThirdSelects();
+		});
+
+		$(document).on("change", '.additional1 input', function() {
+
+			switch ($("#inpstr1-type_entry").val()){
+				case "off":
+					break;
+				case "serial":
+					$("#inpstr1-path_entry").val($('.additional1 #device1').val() + ':' + $('.additional1 #bandrate1').val());
+					break;
+				case "file":
+					$("#inpstr1-path_entry").val($('.additional1 #path1').val());
+					break;
+				case "tcpcli":
+					$("#inpstr1-path_entry").val($('.additional1 #address1').val() + ':' + $('.additional1 #port1').val());
+					break;
+				case "tcpsvr":
+					$("#inpstr1-path_entry").val(':@localhost' + ':' + $('.additional1 #port1').val() + '/:');
+					break;
+				case "ntripcli":
+					$("#inpstr1-path_entry").val( $('.additional1 #username1').val() + ':' + $('.additional1 #password1').val() + '@' + $('.additional1 #address1').val() + ':' + $('.additional1 #port1').val() + '/' + $('.additional1 #mount1').val());
+					break;
+				case "ftp":
+					$("#inpstr1-path_entry").val($('.additional1 #address1').val());
+					break;
+				case "http":
+					$("#inpstr1-path_entry").val($('.additional1 #address1').val());
+					break;
+			}
+		});
+
+		$(document).on("change", '.additional2 input', function() {
+
+			switch ($("#inpstr2-type_entry").val()){
+				case "off":
+					break;
+				case "serial":
+					$("#inpstr2-path_entry").val($('.additional2 #device2').val() + ':' + $('.additional2 #bandrate2').val());
+					break;
+				case "file":
+					$("#inpstr2-path_entry").val($('.additional2 #path2').val());
+					break;
+				case "tcpcli":
+					$("#inpstr2-path_entry").val($('.additional2 #address2').val() + ':' + $('.additional2 #port2').val());
+					break;
+				case "tcpsvr":
+					$("#inpstr2-path_entry").val(':@localhost' + ':' + $('.additional2 #port2').val() + '/:');
+					break;
+				case "ntripcli":
+					$("#inpstr2-path_entry").val( $('.additional2 #username2').val() + ':' + $('.additional2 #password2').val() + '@' + $('.additional2 #address2').val() + ':' + $('.additional2 #port2').val() + '/' + $('.additional2 #mount2').val());
+					break;
+				case "ftp":
+					$("#inpstr2-path_entry").val($('.additional2 #address2').val());
+					break;
+				case "http":
+					$("#inpstr2-path_entry").val($('.additional2 #address2').val());
+					break;
+			}
+		});
+
+		$(document).on("change", '.additional3 input', function() {
+
+			switch ($("#inpstr3-type_entry").val()){
+				case "off":
+					break;
+				case "serial":
+					$("#inpstr3-path_entry").val($('.additional3 #device3').val() + ':' + $('.additional3 #bandrate3').val());
+					break;
+				case "file":
+					$("#inpstr3-path_entry").val($('.additional3 #path3').val());
+					break;
+				case "tcpcli":
+					$("#inpstr3-path_entry").val($('.additional3 #address3').val() + ':' + $('.additional3 #port3').val());
+					break;
+				case "tcpsvr":
+					$("#inpstr3-path_entry").val(':@localhost' + ':' + $('.additional3 #port3').val() + '/:');
+					break;
+				case "ntripcli":
+					$("#inpstr3-path_entry").val( $('.additional3 #username3').val() + ':' + $('.additional3 #password3').val() + '@' + $('.additional3 #address3').val() + ':' + $('.additional3 #port3').val() + '/' + $('.additional3 #mount3').val());
+					break;
+				case "ftp":
+					$("#inpstr3-path_entry").val($('.additional3 #address3').val());
+					break;
+				case "http":
+					$("#inpstr3-path_entry").val($('.additional3 #address3').val());
+					break;
+			}
+		});
+
+		checkFirstSelects();
+		checkSecondSelects();
+		checkThirdSelects();
     });
 
     socket.on("current config base", function(msg) {
