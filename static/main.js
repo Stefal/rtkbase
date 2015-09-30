@@ -94,101 +94,121 @@ function createIOTypeForm(select_id, container_id) {
     $(container_id).html(new_form).trigger("create");
 }
 
-function checkFirstSelects(){
+function checkFirstInputSelects(){
 	$("#inpstr1-path_entry").val('');
 	$("div.additional1").remove();
 
 	switch ($("#inpstr1-type_entry").val()){
 		case "off":
+			$("#inpstr1-format_entry").parent().parent().parent().css('display', 'none');
 			$("#inpstr1-path_entry").parent().parent().css('display', 'none');
 			break;
 		case "serial":
 			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
+			$("#inpstr1-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="device1" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate1" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
 			break;
 		case "file":
 			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
+			$("#inpstr1-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="path1" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpcli":
 			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
+			$("#inpstr1-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpsvr":
 			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
+			$("#inpstr1-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ntripcli":
 			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
+			$("#inpstr1-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount1" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username1" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password1" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ftp":
 			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
+			$("#inpstr1-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 		case "http":
 			$("#inpstr1-path_entry").parent().parent().css('display', 'block');
+			$("#inpstr1-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr1-path_entry").parent().parent().append('<div class="additional1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 	}
 }
 
-function checkSecondSelects(){
+function checkSecondInputSelects(){
 	$("#inpstr2-path_entry").val('');
 	$("div.additional2").remove();
 
 	switch ($("#inpstr2-type_entry").val()){
 		case "off":
+			$("#inpstr2-format_entry").parent().parent().parent().css('display', 'none');
 			$("#inpstr2-path_entry").parent().parent().css('display', 'none');
 			break;
 		case "serial":
+			$("#inpstr2-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="device2" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate2" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
 			break;
 		case "file":
+			$("#inpstr2-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="path2" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpcli":
+			$("#inpstr2-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpsvr":
+			$("#inpstr2-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ntripcli":
+			$("#inpstr2-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port2" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount2" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username2" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password2" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ftp":
+			$("#inpstr2-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 		case "http":
+			$("#inpstr2-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr2-path_entry").parent().parent().append('<div class="additional2"><input type="text" id="address2" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 	}
 }
 
-function checkThirdSelects(){
+function checkThirdInputSelects(){
 	$("#inpstr3-path_entry").val('');
 	$("div.additional3").remove();
 
 	switch ($("#inpstr3-type_entry").val()){
 		case "off":
+			$("#inpstr3-format_entry").parent().parent().parent().css('display', 'none');
 			$("#inpstr3-path_entry").parent().parent().css('display', 'none');
 			break;
 		case "serial":
+			$("#inpstr3-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="device3" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate3" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
 			break;
 		case "file":
+			$("#inpstr3-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="path3" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
 			break;
 		case "tcpcli":
+			$("#inpstr3-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
@@ -197,16 +217,111 @@ function checkThirdSelects(){
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ntripcli":
+			$("#inpstr3-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port3" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount3" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username3" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password3" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ftp":
+			$("#inpstr3-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 		case "http":
+			$("#inpstr3-format_entry").parent().parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().css('display', 'block');
 			$("#inpstr3-path_entry").parent().parent().append('<div class="additional3"><input type="text" id="address3" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+	}
+}
+
+function checkFirstOutputSelects(){
+	$("#outstr1-path_entry").val('');
+	$("div.additionalOutput1").remove();
+
+	switch ($("#outstr1-type_entry").val()){
+		case "off":
+			$("#outstr1-path_entry").parent().parent().css('display', 'none');
+			$("#outstr2-path_entry").parent().parent().css('display', 'none');
+			$("#outstr1-format_entry").parent().parent().parent().css('display', 'none');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'none');
+        	$("#outstr2-type_entry").parent().parent().parent().css('display', 'none');
+			break;
+		case "serial":
+			$("#outstr1-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr1-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+        	$("#outstr2-type_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr1-path_entry").parent().parent().append('<div class="additionalOutput1"><input type="text" id="device1" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate1" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
+			break;
+		case "file":
+			$("#outstr1-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr1-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+        	$("#outstr2-type_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr1-path_entry").parent().parent().append('<div class="additionalOutput1"><input type="text" id="path1" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpcli":
+			$("#outstr1-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr1-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+        	$("#outstr2-type_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr1-path_entry").parent().parent().append('<div class="additionalOutput1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpsvr":
+			$("#outstr1-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr1-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+        	$("#outstr2-type_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr1-path_entry").parent().parent().append('<div class="additionalOutput1"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ntripsvr":
+			$("#outstr1-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr1-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+        	$("#outstr2-type_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr1-path_entry").parent().parent().append('<div class="additionalOutput1"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount1" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username1" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password1" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			break;
+	}
+}
+
+function checkSecondOutputSelects(){
+	$("#outstr2-path_entry").val('');
+	$("div.additionalOutput2").remove();
+
+	switch ($("#outstr2-type_entry").val()){
+		case "off":
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'none');
+			$("#outstr2-path_entry").parent().parent().css('display', 'none');
+			break;
+		case "serial":
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().append('<div class="additionalOutput2"><input type="text" id="device1" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="bandrate1" data-clear-btn="true" placeholder="Bandrate" class="config_form_field"></div>').trigger("create");
+			break;
+		case "file":
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().append('<div class="additionalOutput2"><input type="text" id="path1" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpcli":
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().append('<div class="additionalOutput2"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpsvr":
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().append('<div class="additionalOutput2"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ntripsvr":
+			$("#outstr2-path_entry").parent().parent().css('display', 'block');
+			$("#outstr2-format_entry").parent().parent().parent().css('display', 'block');
+			$("#outstr2-path_entry").parent().parent().append('<div class="additionalOutput2"><input type="text" id="address1" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port1" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount1" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username1" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password1" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 	}
 }
@@ -780,6 +895,9 @@ $(document).ready(function () {
         form_div.html("");
 
         to_append += '<div class="ui-field-contain fields-field">';
+        to_append += '<div class="general-settings"></div>';
+        to_append += '<button class="ui-btn" id="adv-set-btn">Advanced settings</button>';
+        to_append += '<div class="advanced-settings" style="display:none">';
 
         if (!$.isEmptyObject(rover_config_order)) {
             for (var k in rover_config_order) {
@@ -825,28 +943,51 @@ $(document).ready(function () {
             }
 
         }
-
+        to_append += '</div>';
         to_append += '</div>';
 
         form_div.html(to_append).trigger("create");
 
-        $(".ui-field-contain.fields-field").prepend($("#inpstr3-path_entry").parent().parent());
-        $(".ui-field-contain.fields-field").prepend($("#inpstr3-type_entry").parent().parent().parent());
-        $(".ui-field-contain.fields-field").prepend($("#inpstr2-path_entry").parent().parent());
-        $(".ui-field-contain.fields-field").prepend($("#inpstr2-type_entry").parent().parent().parent());
-        $(".ui-field-contain.fields-field").prepend($("#inpstr1-path_entry").parent().parent());
-        $(".ui-field-contain.fields-field").prepend($("#inpstr1-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr3-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr3-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr2-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr2-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr1-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr1-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr2-format_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr2-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr2-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr1-format_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr1-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr1-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr3-format_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr3-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr3-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr2-format_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr2-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr2-type_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr1-format_entry").parent().parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr1-path_entry").parent().parent());
+        $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr1-type_entry").parent().parent().parent());
 
         $(document).on("change", '#inpstr1-type_entry', function() {
-			checkFirstSelects();
+			checkFirstInputSelects();
 		});
 
         $(document).on("change", '#inpstr2-type_entry', function() {
-			checkSecondSelects();
+			checkSecondInputSelects();
 		});
 
         $(document).on("change", '#inpstr3-type_entry', function() {
-			checkThirdSelects();
+			checkThirdInputSelects();
+		});
+
+		$(document).on("change", '#outstr1-type_entry', function() {
+			checkFirstOutputSelects();
+		});
+
+        $(document).on("change", '#outstr2-type_entry', function() {
+			checkSecondOutputSelects();
 		});
 
 		$(document).on("change", '.additional1 input', function() {
@@ -936,9 +1077,62 @@ $(document).ready(function () {
 			}
 		});
 
-		checkFirstSelects();
-		checkSecondSelects();
-		checkThirdSelects();
+		$(document).on("change", '.additionalOutput1 input', function() {
+
+			switch ($("#outstr1-type_entry").val()){
+				case "off":
+					break;
+				case "serial":
+					$("#outstr1-path_entry").val($('.additionalOutput1 #device1').val() + ':' + $('.additionalOutput1 #bandrate1').val());
+					break;
+				case "file":
+					$("#outstr1-path_entry").val($('.additionalOutput1 #path1').val());
+					break;
+				case "tcpcli":
+					$("#outstr1-path_entry").val($('.additionalOutput1 #address1').val() + ':' + $('.additionalOutput1 #port1').val());
+					break;
+				case "tcpsvr":
+					$("#outstr1-path_entry").val(':@localhost' + ':' + $('.additionalOutput1 #port1').val() + '/:');
+					break;
+				case "ntripsvr":
+					$("#outstr1-path_entry").val( $('.additionalOutput1 #username1').val() + ':' + $('.additionalOutput1 #password1').val() + '@' + $('.additionalOutput1 #address1').val() + ':' + $('.additionalOutput1 #port1').val() + '/' + $('.additionalOutput1 #mount1').val());
+					break;
+			}
+		});
+
+		$(document).on("change", '.additionalOutput2 input', function() {
+
+			switch ($("#outstr2-type_entry").val()){
+				case "off":
+					break;
+				case "serial":
+					$("#outstr2-path_entry").val($('.additionalOutput2 #device1').val() + ':' + $('.additionalOutput2 #bandrate1').val());
+					break;
+				case "file":
+					$("#outstr2-path_entry").val($('.additionalOutput2 #path1').val());
+					break;
+				case "tcpcli":
+					$("#outstr2-path_entry").val($('.additionalOutput2 #address1').val() + ':' + $('.additionalOutput2 #port1').val());
+					break;
+				case "tcpsvr":
+					$("#outstr2-path_entry").val(':@localhost' + ':' + $('.additionalOutput2 #port1').val() + '/:');
+					break;
+				case "ntripsvr":
+					$("#outstr2-path_entry").val( $('.additionalOutput2 #username1').val() + ':' + $('.additionalOutput2 #password1').val() + '@' + $('.additionalOutput2 #address1').val() + ':' + $('.additionalOutput2 #port1').val() + '/' + $('.additionalOutput2 #mount1').val());
+					break;
+			}
+		});
+
+		$('#adv-set-btn').click( function(){
+			$( ".advanced-settings" ).slideToggle('slow');
+			return false;
+		})
+
+		checkFirstInputSelects();
+		checkSecondInputSelects();
+		checkThirdInputSelects();
+		checkFirstOutputSelects();
+		checkSecondOutputSelects()
     });
 
     socket.on("current config base", function(msg) {
