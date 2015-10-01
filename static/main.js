@@ -27,7 +27,7 @@ function formGeneralBlock(){
 /// This function adds new inputs for determine selects
 
 function checkInputSelects(i, method){ //inp OR out OR log
-	$('#' + method + 'str' + i + '-path_entry').val('');
+	// $('#' + method + 'str' + i + '-path_entry').val('');
 	$('#' + method + 'str' + i + '-path_entry').parent().parent().css('display', 'block');
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
 	$('div.additional' + method + i).remove();
@@ -751,10 +751,10 @@ $(document).ready(function () {
         formGeneralBlock();
 
         $(document).on("change", '.top_input', function() {
-			
 			var method = $(this).attr('id').substr(0, 3);
 			var numb = $(this).attr('id').substr(6, 1);
 
+			$('#' + method + 'str' + numb + '-path_entry').val('');
 			checkInputSelects(numb, method);
 
 		});
