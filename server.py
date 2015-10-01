@@ -12,13 +12,14 @@ from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
 
 from threading import Thread
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template, session, request, send_file
 from flask.ext.socketio import SocketIO, emit, disconnect
 
 app = Flask(__name__)
 app.template_folder = "."
 app.debug = False
 app.config["SECRET_KEY"] = "secret!"
+app.config["UPLOAD_FOLDER"] = "../logs"
 
 socketio = SocketIO(app)
 
@@ -34,7 +35,16 @@ perform_update = False
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    print("INDEX DEBUG")
+    rtk.logm.updateAvailableLogs()
+    print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
+    return render_template("index.html", logs = rtk.logm.available_logs)
+
+@app.route("/logs/<path:log_name>")
+def downloadLog(log_name):
+    print("Got signal to download a log, name = " + str(log_name))
+    print("Path to log == " + rtk.logm.log_path + str(log_name))
+    return send_file(rtk.logm.log_path + log_name, as_attachment = True)
 
 @socketio.on("connect", namespace="/test")
 def testConnect():

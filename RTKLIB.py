@@ -1,6 +1,7 @@
 from RtkController import RtkController
 from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
+from LogManager import LogManager
 from ReachLED import ReachLED
 
 from threading import Semaphore, Thread
@@ -16,19 +17,22 @@ class RTKLIB:
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
 
-    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None):
+    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None, log_path = None):
         # default state for RTKLIB is "inactive"
         self.state = "inactive"
 
         # we need this to broadcast stuff
         self.socketio = socketio
 
-        # these are necessary to handle base mode
-        self.rtkc = RtkController(rtkrcv_path)
+        # these are necessary to handle rover mode
+        self.rtkc = RtkController(rtkrcv_path, config_path)
         self.conm = ConfigManager(config_path)
 
         # this one handles base settings
         self.s2sc = Str2StrController(str2str_path, gps_cmd_file_path)
+
+        # take care of serving logs
+        self.logm = LogManager(log_path)
 
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()

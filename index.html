@@ -116,7 +116,13 @@
     </div>
 
     <div data-role="main" class="ui-content">
-        <p>Logs</p>
+        <ul data-role="listview" id="logs_list">
+            {% for log in logs %}
+                <li>
+                    <a href="/logs/{{ log.name }}" target="_blank">{{ log.name }}<a>
+                </li>
+            {% endfor %}
+        </ul>
         <div class="ui-field-contain" id="update_buttons">
             <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button">Update</a>
         </div>

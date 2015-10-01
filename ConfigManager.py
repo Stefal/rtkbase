@@ -1,5 +1,4 @@
-from os import walk
-from subprocess import Popen, PIPE
+from glob import glob
 
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
@@ -29,17 +28,13 @@ class ConfigManager:
 
     def updateAvailableConfigs(self):
 
-        cmd = "ls " + self.config_path + "*.conf"
-
-        proc = Popen(cmd, stdout = PIPE, shell = True, bufsize = 2048)
-        out = proc.communicate()
-
-        out = out[0].split("\n")
-
         self.available_configs = []
         path_length = len(self.config_path)
 
-        for conf in out:
+        # get a list of available .conf files in the config directory
+        configs = glob(self.config_path + "*.conf")
+
+        for conf in configs:
             if conf:
                 self.available_configs.append(conf[path_length:])
 
