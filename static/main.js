@@ -83,7 +83,7 @@ function formString(i, method){
 		case "off":
 			break;
 		case "serial":
-			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #device' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val()));
+			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #device' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val()) + ':8:n:1:off');
 			break;
 		case "file":
 			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #path' + method + i).val()));
