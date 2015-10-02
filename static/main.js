@@ -1,26 +1,14 @@
 function formGeneralBlock(){
 
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr3-path_entry").parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr3-type_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr2-path_entry").parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr2-type_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr1-path_entry").parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#logstr1-type_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr2-format_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr2-path_entry").parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr2-type_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr1-format_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr1-path_entry").parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#outstr1-type_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr3-format_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr3-path_entry").parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr3-type_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr2-format_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr2-path_entry").parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr2-type_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr1-format_entry").parent().parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr1-path_entry").parent().parent());
-    $(".ui-field-contain.fields-field .general-settings").prepend($("#inpstr1-type_entry").parent().parent().parent());
+	var prefixArr = { log: '3', out: '2', inp: '3' };
+
+	for (key in prefixArr) {
+		for(var b = prefixArr[key]; b >=1; b--){
+			$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
+		    $(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
+    		$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
+		}
+	}
 }
 
 
@@ -788,7 +776,7 @@ $(document).ready(function () {
 			return false;
 		})
 
-		var prefixArr = { inp: '3', out: '2', log: '3' }
+		var prefixArr = { inp: '3', out: '2', log: '3' };
 		
 		for (key in prefixArr) {
 			for(var b = 1; b <=prefixArr[key]; b++){
