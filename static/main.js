@@ -16,6 +16,8 @@ function formGeneralBlock(){
 
 function checkInputSelects(i, method){ //inp OR out OR log
 	// $('#' + method + 'str' + i + '-path_entry').val('');
+	$('#' + method + 'str' + i + '-path_entry').attr('type', 'hidden');
+	$('#' + method + 'str' + i + '-path_entry').parent().css({'visibility':'hidden', 'border':'none'});
 
 	$('#' + method + 'str' + i + '-path_entry').parent().parent().css('display', 'block');
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
