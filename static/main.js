@@ -392,12 +392,14 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_name = $("#config_select").val();
 
+
+        console.log('got signal to write config' + config_name);
         // first, we need to read all the needed info from config form elements
         // we create a js object with this info and send to our server
 
         // find all the needed fields
 
-        $('input[type="text"][id*="_entry"]').each(function(i, obj){
+        $('input[id*="_entry"]').each(function(i, obj){
             current_id = obj.id.substring(0, obj.id.length - 6);
             current_value = obj.value;
 
@@ -468,6 +470,12 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
 
     console.log("Request for " + mode + " config");
     socket.emit("read config " + mode, to_send);
+
+
+
+        // var mode = $("input[name=radio_base_rover]:checked").val();
+        // console.log("Starting " + mode);
+        // socket.emit("start " + mode);
 });
 
 // ############################### MAIN ###############################
