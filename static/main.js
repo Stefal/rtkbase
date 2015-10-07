@@ -726,7 +726,7 @@ $(document).ready(function () {
                     console.log("config rover item: " + config_key + " = " + config_value);
 
                     to_append += '<div class="ui-field-contain>"';
-                    to_append += '<label for="' + config_key + '_entry">' + config_key  + config_comment + '</label>';
+                    to_append += '<label for="' + config_key + '_entry">' + config_key + '</label>';
 
                     if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
                         var splitArr = '';
@@ -834,7 +834,7 @@ $(document).ready(function () {
             		to_append += '<option>ntripcli</option>';
             	else
             		to_append += '<option>ntripsvr</option>';
-            	
+
             	to_append += '<option>ftp</option>';
             	to_append += '<option>http</option>';
             	to_append += '</select>';
