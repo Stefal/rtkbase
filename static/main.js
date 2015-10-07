@@ -921,7 +921,7 @@ $(document).ready(function () {
                         var splitArr = config_comment.split(',');
 
                         to_append +=  '<select name="select-native-1" id="' + config_key + '_entry" class="config_form_field">';
-                        
+
                         $.each(splitArr, function(index, value){
                             value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
                             var innerSplit = '';
@@ -1159,8 +1159,8 @@ $(document).ready(function () {
 
         form_div.html(to_append).trigger("create");
     });
-// end of document.ready
 
+    // end of document.ready
 });
 
 

@@ -7,6 +7,7 @@ git fetch
 if [[ $? -eq 0 ]];
 then
     echo "Successfully updated remote repo info, resetting to master..."
+    git checkout master
     git reset --hard origin/master
 
     echo "Copying default configs to RTKLIB directory"
