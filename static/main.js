@@ -9,6 +9,8 @@ function formGeneralBlock(){
     		$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
 		}
 	}
+
+	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 }
 
 
@@ -369,7 +371,8 @@ $(document).on("pageinit", "#config_page", function() {
         cleanStatus(mode, "stopped");
     });
 
-    $(document).on("click", "#get_current_state_button", function(e) {
+    // $(document).on("click", "#get_current_state_button", function(e) {
+    $(document).on("change", "#config_select", function(e) {
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_name = $("#config_select").val();
         var to_send = {};
