@@ -30,9 +30,14 @@ function checkInputSelects(i, method){ //inp OR out OR log
 		$('#outstr2-type_entry').parent().parent().parent().css('display', 'none');
 		$('#outstr2-format_entry').parent().parent().parent().css('display', 'none');
 		$('#outstr2-path_entry').parent().parent().css('display', 'none');
+		$('#outstr2-type_entry').val('off');
+		$('#outstr2-path_entry').val('');
 	}
 	else
 		$('#outstr2-type_entry').parent().parent().parent().css('display', 'block');
+
+
+	// if($('#outstr1-path_entry').val() == ''){
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "off":
