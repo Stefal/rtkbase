@@ -822,6 +822,24 @@ $(document).ready(function () {
             to_append += '<div class="ui-field-contain>"';
             to_append += '<label for="' + k + '_entry">' + k + '</label>';
             to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
+            
+            if((k == 'Input stream') || (k == 'Output stream')){
+            	to_append += '<select name="select-native-1" id="' + k + '_entry" class="config_form_field">';
+            	to_append += '<option>serial</option>';
+            	to_append += '<option>file</option>';
+            	to_append += '<option>tcpsvr</option>';
+            	to_append += '<option>tcpcli</option>';
+            	
+            	if(k == 'Input stream')
+            		to_append += '<option>ntripcli</option>';
+            	else
+            		to_append += '<option>ntripsvr</option>';
+            	
+            	to_append += '<option>ftp</option>';
+            	to_append += '<option>http</option>';
+            	to_append += '</select>';
+            }
+            
             to_append += '</div>';
         }
 
