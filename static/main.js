@@ -76,32 +76,38 @@ function checkInputSelects(i, method){ //inp OR out OR log
 /// This function generates correct strings from inputs for upload
 
 function formString(i, method){
+	var mode = $("input[name=radio_base_rover]:checked").val();
+
+	var begin = (mode == 'rover') ? '' : $('#' + method + 'str' + i + '-type_entry').val() + '://';
+	var end = (mode == 'rover') ? '' : '#' + $('#' + method + 'str' + i + '-format_entry').val();
+
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "off":
 			break;
 		case "serial":
-			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #device' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val()) + ':8:n:1:off');
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #device' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val()) + ':8:n:1:off' + end);
 			break;
 		case "file":
-			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #path' + method + i).val()));
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #path' + method + i).val()) + end);
 			break;
 		case "tcpcli":
-			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()));
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + end);
 			break;
 		case "tcpsvr":
-			$('#' + method + 'str' + i + '-path_entry').val(':@localhost' + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + '/:');
+			// $('#' + method + 'str' + i + '-path_entry').val( begin + ':@localhost' + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + '/:' + end);
+			$('#' + method + 'str' + i + '-path_entry').val( begin + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + end);
 			break;
 		case "ntripcli":
-			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #username' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #password' + method + i).val()) + '@' + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + '/' + $.trim($('.additional' + method + i + ' #mount' + method + i).val()));
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #username' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #password' + method + i).val()) + '@' + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + '/' + $.trim($('.additional' + method + i + ' #mount' + method + i).val()) + end);
 			break;
 		case "ntripsvr":
-			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #username' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #password' + method + i).val()) + '@' + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + '/' + $.trim($('.additional' + method + i + ' #mount' + method + i).val()));
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #username' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #password' + method + i).val()) + '@' + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + '/' + $.trim($('.additional' + method + i + ' #mount' + method + i).val()) + end);
 			break;
 		case "ftp":
-			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #address' + method + i).val()));
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
 			break;
 		case "http":
-			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #address' + method + i).val()));
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
 			break;
 	}
 }
@@ -109,7 +115,18 @@ function formString(i, method){
 /// This function parses default string for particular inputs
 
 function defaultStringToInputs(i, method){
-	var splitVal = $('#' + method + 'str' + i + '-path_entry').val().split(':');
+
+	var mode = $("input[name=radio_base_rover]:checked").val();
+
+	if(mode == 'base'){
+		var correctVal = $('#' + method + 'str' + i + '-path_entry').val().split('://');
+		correctVal = correctVal[1].split('#');
+		correctVal = correctVal[0];
+	}
+	else
+		correctVal = $('#' + method + 'str' + i + '-path_entry').val();
+
+	var splitVal = correctVal.split(':');
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "off":
@@ -126,7 +143,8 @@ function defaultStringToInputs(i, method){
 			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
 			break;
 		case "tcpsvr":
-			$('.additional' + method + i + ' #port' + method + i).val(splitVal['2'].substr(0, splitVal['2'].length - 1));
+			// $('.additional' + method + i + ' #port' + method + i).val(splitVal['2'].substr(0, splitVal['2'].length - 1));
+			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
 			break;
 		case "ntripcli": //user : pass @ address : port / mount
 			$('.additional' + method + i + ' #username' + method + i).val(splitVal['0']);
@@ -818,26 +836,55 @@ $(document).ready(function () {
 
         for (var k in msg) {
             console.log("base config item: " + k + " = " + msg[k]);
-
             to_append += '<div class="ui-field-contain>"';
-            to_append += '<label for="' + k + '_entry">' + k + '</label>';
-            to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
             
-            if((k == 'Input stream') || (k == 'Output stream')){
-            	to_append += '<select name="select-native-1" id="' + k + '_entry" class="config_form_field">';
-            	to_append += '<option>serial</option>';
-            	to_append += '<option>file</option>';
-            	to_append += '<option>tcpsvr</option>';
-            	to_append += '<option>tcpcli</option>';
-            	
-            	if(k == 'Input stream')
-            		to_append += '<option>ntripcli</option>';
-            	else
-            		to_append += '<option>ntripsvr</option>';
+            if((k == 'inpstr-path') || (k == 'outstr-path')){
+            	var splitK = k.split('-');
+            	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
+            	var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
 
-            	to_append += '<option>ftp</option>';
-            	to_append += '<option>http</option>';
+            	if(k == 'inpstr-path')
+            		typeArr.splice(5, 1);
+            	else
+            		typeArr.splice(4, 1);
+            	
+            	var checkedOption = msg[k].split('://');
+            	var checkedFormat = msg[k].split('#');
+            	checkedOption = checkedOption[0];
+            	checkedFormat = checkedFormat[1];
+
+            	to_append += '<label for="' + k + '_entry">' + k + '</label>';
+            	to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
+            	to_append += '<select name="select-native-1" id="' + splitK[0] + '-type_entry" class="config_form_field top_input">';
+
+            	$.each(typeArr, function(index, value){
+            		if(checkedOption == value)
+            			to_append += '<option value="' + value + '" selected="selected">' + value + '</option>';
+            		else
+            			to_append += '<option value="' + value + '">' + value + '</option>';
+            	});
+
             	to_append += '</select>';
+            	to_append += 'format';
+            	to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_entry" class="config_form_field top_input">';
+            	
+            	if(k == 'inpstr-path'){
+            		$.each(formatArr, function(index, value){
+	            		if(checkedFormat == value)
+	            			to_append += '<option value="' + value + '" selected="selected">' + value + '</option>';
+	            		else
+	            			to_append += '<option value="' + value + '">' + value + '</option>';
+            		})
+            	}
+            	else{
+            		to_append += '<option selected="selected">rtcm3</option>';
+            	}
+
+            	to_append += '</select>';
+            }
+            else{
+            	to_append += '<label for="' + k + '_entry">' + k + '</label>';
+	            to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
             }
             
             to_append += '</div>';
@@ -846,6 +893,31 @@ $(document).ready(function () {
         to_append += '</div>';
 
         form_div.html(to_append).trigger("create");
+
+        $(document).on("change", '.top_input', function() {
+			var method = $(this).attr('id').substr(0, 3);
+			$('#' + method + 'str-path_entry').val('');
+			checkInputSelects('', method);
+		});
+
+		$(document).on("change", '.additional_general input', function() {
+			
+			$(this).parent().parent().removeClass('additional_general');
+			
+			var method = $(this).parent().parent().attr('class').substr(10, 3);
+			
+			formString('', method);
+
+			$(this).parent().parent().addClass('additional_general');
+		});
+
+  	    var prefixArr = [ 'inp', 'out'];
+		
+		for (key in prefixArr) {
+			checkInputSelects('', prefixArr[key]);
+			defaultStringToInputs('', prefixArr[key]);
+			formString('', prefixArr[key]);
+		}
     });
 
     // end of document.ready

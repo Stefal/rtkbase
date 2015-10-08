@@ -33,8 +33,8 @@ class Str2StrController:
     def readConfig(self):
         parameters_to_send = {}
 
-        parameters_to_send["Input stream"] = self.input_stream
-        parameters_to_send["Output stream"] = self.output_stream
+        parameters_to_send["inpstr-path"] = self.input_stream
+        parameters_to_send["outstr-path"] = self.output_stream
 
         # if we don't have a set base position we want to send empty strings
         if not self.base_position:
@@ -42,11 +42,11 @@ class Str2StrController:
         else:
             base_pos = self.base_position
 
-        parameters_to_send["Base " + "lat"] = base_pos[0]
-        parameters_to_send["Base " + "lon"] = base_pos[1]
-        parameters_to_send["Base " + "height"] = base_pos[2]
+        parameters_to_send["base_pos_lat"] = base_pos[0]
+        parameters_to_send["base_pos_lon"] = base_pos[1]
+        parameters_to_send["base_pos_height"] = base_pos[2]
 
-        parameters_to_send["RTCM3 messages for output"] = ",".join(self.rtcm3_messages)
+        parameters_to_send["rtcm3_out_messages"] = ",".join(self.rtcm3_messages)
 
         return parameters_to_send
 
@@ -55,16 +55,16 @@ class Str2StrController:
         coordinate_filled_flag = 3
         base_pos = []
 
-        self.input_stream = parameters_received["Input stream"]
-        self.output_stream = parameters_received["Output stream"]
+        self.input_stream = parameters_received["inpstr-path"]
+        self.output_stream = parameters_received["outstr-path"]
 
         # llh
         self.base_position = []
-        self.base_position.append(parameters_received["Base lat"])
-        self.base_position.append(parameters_received["Base lon"])
-        self.base_position.append(parameters_received["Base height"])
+        self.base_position.append(parameters_received["base_pos_lat"])
+        self.base_position.append(parameters_received["base_pos_lon"])
+        self.base_position.append(parameters_received["base_pos_height"])
 
-        self.rtcm3_messages = parameters_received["RTCM3 messages for output"].split(",")
+        self.rtcm3_messages = parameters_received["rtcm3_out_messages"].split(",")
 
     def setPort(self, port, input = True, format = "ubx"):
         if input:
