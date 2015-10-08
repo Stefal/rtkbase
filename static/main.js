@@ -32,6 +32,8 @@ function formGeneralBlock(){
     		$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
 		}
 	}
+
+	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 }
 
 
@@ -53,9 +55,14 @@ function checkInputSelects(i, method){ //inp OR out OR log
 		$('#outstr2-type_entry').parent().parent().parent().css('display', 'none');
 		$('#outstr2-format_entry').parent().parent().parent().css('display', 'none');
 		$('#outstr2-path_entry').parent().parent().css('display', 'none');
+		$('#outstr2-type_entry').val('off');
+		$('#outstr2-path_entry').val('');
 	}
 	else
 		$('#outstr2-type_entry').parent().parent().parent().css('display', 'block');
+
+
+	// if($('#outstr1-path_entry').val() == ''){
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "off":
@@ -387,7 +394,8 @@ $(document).on("pageinit", "#config_page", function() {
         cleanStatus(mode, "stopped");
     });
 
-    $(document).on("click", "#get_current_state_button", function(e) {
+    // $(document).on("click", "#get_current_state_button", function(e) {
+    $(document).on("change", "#config_select", function(e) {
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_name = $("#config_select").val();
         var to_send = {};
@@ -415,12 +423,14 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_name = $("#config_select").val();
 
+
+        console.log('got signal to write config' + config_name);
         // first, we need to read all the needed info from config form elements
         // we create a js object with this info and send to our server
 
         // find all the needed fields
 
-        $('input[type="text"][id*="_entry"]').each(function(i, obj){
+        $('input[id*="_entry"]').each(function(i, obj){
             current_id = obj.id.substring(0, obj.id.length - 6);
             current_value = obj.value;
 
@@ -491,6 +501,12 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
 
     console.log("Request for " + mode + " config");
     socket.emit("read config " + mode, to_send);
+
+
+
+        // var mode = $("input[name=radio_base_rover]:checked").val();
+        // console.log("Starting " + mode);
+        // socket.emit("start " + mode);
 });
 
 // ############################### MAIN ###############################
@@ -733,7 +749,7 @@ $(document).ready(function () {
                     console.log("config rover item: " + config_key + " = " + config_value);
 
                     to_append += '<div class="ui-field-contain>"';
-                    to_append += '<label for="' + config_key + '_entry">' + config_key  + config_comment + '</label>';
+                    to_append += '<label for="' + config_key + '_entry">' + config_key + '</label>';
 
                     if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
                         var splitArr = '';
@@ -829,6 +845,24 @@ $(document).ready(function () {
             to_append += '<div class="ui-field-contain>"';
             to_append += '<label for="' + k + '_entry">' + k + '</label>';
             to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
+            
+            if((k == 'Input stream') || (k == 'Output stream')){
+            	to_append += '<select name="select-native-1" id="' + k + '_entry" class="config_form_field">';
+            	to_append += '<option>serial</option>';
+            	to_append += '<option>file</option>';
+            	to_append += '<option>tcpsvr</option>';
+            	to_append += '<option>tcpcli</option>';
+            	
+            	if(k == 'Input stream')
+            		to_append += '<option>ntripcli</option>';
+            	else
+            		to_append += '<option>ntripsvr</option>';
+
+            	to_append += '<option>ftp</option>';
+            	to_append += '<option>http</option>';
+            	to_append += '</select>';
+            }
+            
             to_append += '</div>';
         }
 
