@@ -61,9 +61,6 @@ function checkInputSelects(i, method){ //inp OR out OR log
 	else
 		$('#outstr2-type_entry').parent().parent().parent().css('display', 'block');
 
-
-	// if($('#outstr1-path_entry').val() == ''){
-
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "off":
 			$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'none');
@@ -821,8 +818,11 @@ $(document).ready(function () {
 			var method = $(this).attr('id').substr(0, 3);
 			var numb = $(this).attr('id').substr(6, 1);
 
-			$('#' + method + 'str' + numb + '-path_entry').val('');
-			checkInputSelects(numb, method);
+
+			if($(this).attr('id').substr(8, 6) != 'format'){
+				$('#' + method + 'str' + numb + '-path_entry').val('');
+				checkInputSelects(numb, method);
+			}
 
 		});
 
@@ -949,8 +949,15 @@ $(document).ready(function () {
 
         $(document).on("change", '.top_input', function() {
 			var method = $(this).attr('id').substr(0, 3);
-			$('#' + method + 'str-path_entry').val('');
-			checkInputSelects('', method);
+
+			if($(this).attr('id').substr(7, 6) != 'format'){
+				$('#' + method + 'str-path_entry').val('');
+				checkInputSelects('', method);
+			}
+			else{
+				var hashSplit = $('#' + method + 'str-path_entry').val().split('#');
+				$('#' + method + 'str-path_entry').val(hashSplit['0'] + '#' + $('#' + method + 'str-format_entry').val());
+			}
 		});
 
 	    $(document).on("change", '#select-choice-10', function() {
