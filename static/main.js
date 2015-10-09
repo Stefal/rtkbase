@@ -390,6 +390,12 @@ function onBlur() {
 // config page is opened
 
 $(document).on("pageinit", "#config_page", function() {
+	
+	var mode = $("input[name=radio_base_rover]:checked").val();
+	if(mode == 'base')
+		$('#config_select-button').parent().parent().css('display', 'none');
+	else
+		$('#config_select-button').parent().parent().css('display', 'block');
 
     $(document).on("click", "#start_button", function(e) {
         var mode = $("input[name=radio_base_rover]:checked").val();
@@ -499,6 +505,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
 
     switch($(this).val()) {
         case "rover":
+	       	$('#config_select-button').parent().parent().css('display', 'block');
             mode = "rover";
             console.log("Launching rover mode");
             // $("#config_select").selectmenu("enable");
@@ -507,13 +514,14 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             to_send["config_file_name"] = $("#config_select").val();
             break;
         case "base":
+	        $('#config_select-button').parent().parent().css('display', 'none');
             mode = "base";
             console.log("Launching base mode");
             socket.emit("shutdown rover");
             socket.emit("launch base");
             // $("#config_select").selectmenu("disable");
         break;
-    }
+    }		
 
     cleanStatus(mode, status);
 
@@ -889,25 +897,47 @@ $(document).ready(function () {
 
             	to_append += '</select>';
             	to_append += 'format';
-            	to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_entry" class="config_form_field top_input">';
             	
             	if(k == 'inpstr-path'){
+            		to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_entry" class="config_form_field top_input">';
+            		
             		$.each(formatArr, function(index, value){
 	            		if(checkedFormat == value)
 	            			to_append += '<option value="' + value + '" selected="selected">' + value + '</option>';
 	            		else
 	            			to_append += '<option value="' + value + '">' + value + '</option>';
             		})
+
+            		to_append += '</select>';
             	}
             	else{
-            		to_append += '<option selected="selected">rtcm3</option>';
+            		to_append += '<input type="text" readonly value="rtcm3" id="' + splitK[0] + '-format_entry">';
             	}
+            }
+            else if(k == 'rtcm3_out_messages'){
+            		var optionsArr = ['1002', '1006', '1013', '1019'];
+            		var selectedOptionArr = msg[k].split(',');
 
-            	to_append += '</select>';
+            		to_append += '<label for="' + k + '_entry">' + k + '</label>';
+            		to_append += '<input type="hidden" id="' + k + '_entry" value="' + msg[k] + '" data-clear-btn="true">';
+            		to_append += '<fieldset>';
+            		// to_append += '<label for="select-choice-10">' + k + '</label>';
+		            to_append += '<select name="select-choice-10" id="select-choice-10" multiple="multiple" data-native-menu="false">';
+					to_append += '<option data-placeholder="true">Choose options</option>';
+
+					$.each(optionsArr, function(index, value){
+            			if(jQuery.inArray( value, selectedOptionArr ) >= 0)
+                        	to_append += '<option value="' + value + '" selected>' + value + '</option>';
+                        else
+                        	to_append += '<option value="' + value + '">' + value + '</option>';
+                    })
+
+					to_append += '</select>'
+    				to_append += '</fieldset>';
             }
             else{
             	to_append += '<label for="' + k + '_entry">' + k + '</label>';
-	            to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
+	            to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '" data-clear-btn="true">';
             }
             
             to_append += '</div>';
@@ -921,6 +951,10 @@ $(document).ready(function () {
 			var method = $(this).attr('id').substr(0, 3);
 			$('#' + method + 'str-path_entry').val('');
 			checkInputSelects('', method);
+		});
+
+	    $(document).on("change", '#select-choice-10', function() {
+			$('#rtcm3_out_messages_entry').val($(this).val());
 		});
 
 		$(document).on("change", '.additional_general input', function() {
@@ -945,17 +979,3 @@ $(document).ready(function () {
 
     // end of document.ready
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
