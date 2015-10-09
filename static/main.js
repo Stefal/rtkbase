@@ -924,7 +924,15 @@ $(document).ready(function () {
             	to_append += '<div>';
             }
             else if(k == 'rtcm3_out_messages'){
-            		var optionsArr = ['1002', '1006', '1013', '1019'];
+	            	var optionsArr = ['1002', '1010', '1019', '1020', '1005', '1006', '1007', '1008'];
+	            	// var optionsArr = new Array();
+            		
+            		// for (var z = 1001; z <=1012; z++)
+            		// 	optionsArr.push(z);
+
+            		// optionsArr.push('1019');
+            		// optionsArr.push('1020');
+
             		var selectedOptionArr = msg[k].split(',');
 
             		to_append += '<label for="' + k + '_entry">' + k + '</label>';
