@@ -921,7 +921,7 @@ $(document).ready(function () {
             		to_append += '<label for="' + k + '_entry">' + k + '</label>';
             		to_append += '<input type="hidden" id="' + k + '_entry" value="' + msg[k] + '" data-clear-btn="true">';
             		to_append += '<fieldset>';
-            		// to_append += '<label for="select-choice-10">' + k + '</label>';
+            		to_append += '<label for="select-choice-10"> </label>';
 		            to_append += '<select name="select-choice-10" id="select-choice-10" multiple="multiple" data-native-menu="false">';
 					to_append += '<option data-placeholder="true">Choose options</option>';
 
