@@ -91,6 +91,11 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 	}
+
+		// $('#inpstr-path_entry').parent().parent().append('format');
+		$('#inpstr-path_entry').parent().parent().append($('#inpstr-format_entry').parent().parent().parent());
+		// $('#outstr-path_entry').parent().parent().append('format');
+		$('#outstr-path_entry').parent().parent().append($('#outstr-format_entry').parent().parent());
 }
 
 /// This function generates correct strings from inputs for upload
@@ -896,8 +901,10 @@ $(document).ready(function () {
             	});
 
             	to_append += '</select>';
-            	to_append += 'format';
             	
+            	to_append += '<div>';
+            	to_append += '<label for="' + splitK[0] + '-format_entry">format</label>';
+
             	if(k == 'inpstr-path'){
             		to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_entry" class="config_form_field top_input">';
             		
@@ -913,6 +920,8 @@ $(document).ready(function () {
             	else{
             		to_append += '<input type="text" readonly value="rtcm3" id="' + splitK[0] + '-format_entry">';
             	}
+
+            	to_append += '<div>';
             }
             else if(k == 'rtcm3_out_messages'){
             		var optionsArr = ['1002', '1006', '1013', '1019'];
@@ -982,6 +991,11 @@ $(document).ready(function () {
 			defaultStringToInputs('', prefixArr[key]);
 			formString('', prefixArr[key]);
 		}
+
+		// $('#inpstr-path_entry').parent().parent().append('format');
+		// $('#inpstr-path_entry').parent().parent().append($('#inpstr-format_entry').parent().parent());
+		// $('#outstr-path_entry').parent().parent().append('format');
+		// $('#outstr-path_entry').parent().parent().append($('#outstr-format_entry').parent());
     });
 
     // end of document.ready
