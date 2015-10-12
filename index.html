@@ -31,6 +31,9 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <script type="text/javascript" src="{{ url_for('static', filename='jquery.mobile-1.4.5.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='Chart.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='configs.js') }}" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='graph.js') }}" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='handlers.js') }}" charset="utf-8"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}" charset="utf-8"></script>
 </head>
 <body>
@@ -87,6 +90,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
 
 <!-- Config page here:-->
 <div data-role="page" id="config_page">
+    <div class="loader" style='text-align:center;position:absolute;height:100%;width:100%;background: rgba(0,0,0,0.3);z-index:1000;'><img src="static/images/ajax-loader.gif" alt="" style="position:relative;top:10%;"></div>
     <div data-role="header">
         <div data-role="navbar" id="navbar2">
             <ul>
