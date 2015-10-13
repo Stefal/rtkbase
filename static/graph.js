@@ -189,11 +189,6 @@ function createGraph(){
     $("#lon_block").css(grid_style);
     $("#height_block").css(grid_style);
 
-    $("a.tab").click(function () {
-        active_tab = $(this).text();
-        console.log("Active tab = " + active_tab);
-    });
-
     // Default values for the info boxes
 
     $("#mode_value").text("no link");
@@ -263,14 +258,15 @@ function createGraph(){
                 },
                 override: {
                     start: 0,
-                    stepWidth: 10,
-                    steps: 6
+                    stepWidth: 5,
+                    steps: 12
                 }
             }]
         },
         tooltips: {
             enabled: false
         },
+        // showTooltips: true,
     };
 
     // draw the satellite_graph

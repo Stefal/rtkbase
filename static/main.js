@@ -58,6 +58,18 @@ $(document).ready(function () {
     // Current active tab
     var active_tab = "Status";
 
+    $("a.tab").click(function () {
+        active_tab = $(this).text();
+
+        if(active_tab == 'Status'){
+            if(!$("#sat_chart_canvas").length) {
+                createGraph();
+            }
+        }
+
+        console.log("Active tab = " + active_tab);
+    });
+
     createGraph();
 
     console.log("SAT GRAPH DEBUG");

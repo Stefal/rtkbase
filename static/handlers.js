@@ -109,7 +109,7 @@ $(document).on("pageinit", "#logs_page", function() {
 
 $(document).on("change", "input[name='radio_base_rover']", function() {
 
-	$('.loader').css('display', 'block');
+    $('.loader').css('display', 'block');
 
     var mode = "";
     var status = "stopped";
@@ -118,7 +118,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
 
     switch($(this).val()) {
         case "rover":
-	       	$('#config_select-button').parent().parent().css('display', 'block');
+            $('#config_select-button').parent().parent().css('display', 'block');
             mode = "rover";
             console.log("Launching rover mode");
             socket.emit("shutdown base")
@@ -126,13 +126,13 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             to_send["config_file_name"] = $("#config_select").val();
             break;
         case "base":
-	        $('#config_select-button').parent().parent().css('display', 'none');
+            $('#config_select-button').parent().parent().css('display', 'none');
             mode = "base";
             console.log("Launching base mode");
             socket.emit("shutdown rover");
             socket.emit("launch base");
         break;
-    }		
+    }       
 
     cleanStatus(mode, status);
 
