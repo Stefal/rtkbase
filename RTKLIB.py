@@ -476,17 +476,17 @@ class RTKLIB:
         # shutdown whatever mode we are in. stop broadcast threads
 
         # clean up broadcast and blink threads
-        self.rtk.server_not_interrupted = False
-        self.rtk.led.blinker_not_interrupted = False
+        self.server_not_interrupted = False
+        self.led.blinker_not_interrupted = False
 
-        if self.rtk.coordinate_thread is not None:
-            self.rtk.coordinate_thread.join()
+        if self.coordinate_thread is not None:
+            self.coordinate_thread.join()
 
-        if self.rtk.satellite_thread is not None:
-            self.rtk.satellite_thread.join()
+        if self.satellite_thread is not None:
+            self.satellite_thread.join()
 
-        if self.rtk.led.blinker_thread is not None:
-            self.rtk.led.blinker_thread.join()
+        if self.led.blinker_thread is not None:
+            self.led.blinker_thread.join()
 
         # shutdown base or rover
         if self.state == "rover":
