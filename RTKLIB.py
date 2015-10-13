@@ -472,6 +472,31 @@ class RTKLIB:
 
             return json_state
 
+    def shutdown(self):
+        # shutdown whatever mode we are in. stop broadcast threads
+
+        # clean up broadcast and blink threads
+        self.rtk.server_not_interrupted = False
+        self.rtk.led.blinker_not_interrupted = False
+
+        if self.rtk.coordinate_thread is not None:
+            self.rtk.coordinate_thread.join()
+
+        if self.rtk.satellite_thread is not None:
+            self.rtk.satellite_thread.join()
+
+        if self.rtk.led.blinker_thread is not None:
+            self.rtk.led.blinker_thread.join()
+
+        # shutdown base or rover
+        if self.state == "rover":
+            return self.shutdownRover()
+        elif self.state == "base":
+            return self.shutdownBase()
+
+        # otherwise, we are inactive
+        return 1
+
     def loadState(self):
 
         # get current state
