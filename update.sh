@@ -18,4 +18,5 @@ then
     cp /home/reach/ReachView/rtklib_configs/str2str /home/reach/RTKLIB/app/str2str/gcc/
 fi
 
+chown -R reach:users /home/reach
 /home/reach/ReachView/server.py
