@@ -253,15 +253,14 @@ function showBase(msg){
 
     to_append += '</div>';
 
-	to_append += '<div data-role="popup" id="popupDialog" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">';
+	to_append += '<div data-role="popup" id="popupDialog" data-overlay-theme="a" data-theme="a" data-dismissible="false" style="max-width:400px;">';
     to_append +='<div data-role="header" data-theme="a">';
         	to_append +='<h1>Change input?</h1>';
         to_append +='</div>';
         to_append +='<div role="main" class="ui-content">';
         	to_append +='<h3 class="ui-title">Are you sure you want to change this input?</h3>';
-//         	to_append +='<p>This action cannot be undone.</p>';
-        	to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>';
-        	to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" id="denyChange">No</a>';
+        	to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>';
+        	to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">No</a>';
         to_append +='</div>';
 	to_append +='</div>';
 
