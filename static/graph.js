@@ -259,7 +259,7 @@ function createGraph(){
                 override: {
                     start: 0,
                     stepWidth: 5,
-                    steps: 12
+                    steps: 11
                 }
             }]
         },

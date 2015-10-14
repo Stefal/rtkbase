@@ -76,7 +76,6 @@ function formString(i, method){
 			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + end);
 			break;
 		case "tcpsvr":
-			// $('#' + method + 'str' + i + '-path_entry').val( begin + ':@localhost' + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + '/:' + end);
 			$('#' + method + 'str' + i + '-path_entry').val( begin + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + end);
 			break;
 		case "ntripcli":
@@ -125,7 +124,6 @@ function defaultStringToInputs(i, method){
 			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
 			break;
 		case "tcpsvr":
-			// $('.additional' + method + i + ' #port' + method + i).val(splitVal['2'].substr(0, splitVal['2'].length - 1));
 			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
 			break;
 		case "ntripcli": //user : pass @ address : port / mount
@@ -159,6 +157,11 @@ function defaultStringToInputs(i, method){
 
 function showBase(msg){
 	var to_append = "";
+	var prefixArr = [ 'inp', 'out'];
+	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
+    var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
+    var optionsArr = ['1002', '1010', '1019', '1020', '1005', '1006', '1007', '1008'];
+    
     console.log("Received current base config:");
 
     // clean prev versions
@@ -177,8 +180,6 @@ function showBase(msg){
         
         if((k == 'inpstr-path') || (k == 'outstr-path')){
         	var splitK = k.split('-');
-        	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
-        	var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
 
         	if(k == 'inpstr-path')
         		typeArr.splice(5, 1);
@@ -187,15 +188,13 @@ function showBase(msg){
         	
         	var checkedOption = msg[k].split('://');
         	var checkedFormat = msg[k].split('#');
-        	checkedOption = checkedOption[0];
-        	checkedFormat = checkedFormat[1];
 
         	to_append += '<label for="' + k + '_entry">' + k + '</label>';
         	to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
         	to_append += '<select name="select-native-1" id="' + splitK[0] + '-type_entry" class="config_form_field top_input">';
 
         	$.each(typeArr, function(index, value){
-        		if(checkedOption == value)
+        		if(checkedOption[0] == value)
         			to_append += '<option value="' + value + '" selected="selected">' + value + '</option>';
         		else
         			to_append += '<option value="' + value + '">' + value + '</option>';
@@ -210,7 +209,7 @@ function showBase(msg){
         		to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_entry" class="config_form_field top_input">';
         		
         		$.each(formatArr, function(index, value){
-            		if(checkedFormat == value)
+            		if(checkedFormat[1] == value)
             			to_append += '<option value="' + value + '" selected="selected">' + value + '</option>';
             		else
             			to_append += '<option value="' + value + '">' + value + '</option>';
@@ -225,8 +224,6 @@ function showBase(msg){
         	to_append += '<div>';
         }
         else if(k == 'rtcm3_out_messages'){
-            	var optionsArr = ['1002', '1010', '1019', '1020', '1005', '1006', '1007', '1008'];
-
         		var selectedOptionArr = msg[k].split(',');
 
         		to_append += '<label for="' + k + '_entry">' + k + '</label>';
@@ -254,8 +251,19 @@ function showBase(msg){
         to_append += '</div>';
     }
 
-
     to_append += '</div>';
+
+	to_append += '<div data-role="popup" id="popupDialog" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">';
+    to_append +='<div data-role="header" data-theme="a">';
+        	to_append +='<h1>Change input?</h1>';
+        to_append +='</div>';
+        to_append +='<div role="main" class="ui-content">';
+        	to_append +='<h3 class="ui-title">Are you sure you want to change this input?</h3>';
+//         	to_append +='<p>This action cannot be undone.</p>';
+        	to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>';
+        	to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" id="denyChange">No</a>';
+        to_append +='</div>';
+	to_append +='</div>';
 
     form_div.html(to_append).trigger("create");
 
@@ -276,6 +284,19 @@ function showBase(msg){
 		$('#rtcm3_out_messages_entry').val($(this).val());
 	});
 
+    var popup = true;
+
+	$('#inpstr-type_entry').click(function() {
+		if(popup){
+			// event.preventDefault();
+			$( "#popupDialog" ).popup( "open");
+			$('#acceptChange').click(function() {popup = false;});
+			$('#denyChange').click(function() {popup = true;});
+		}
+	});
+
+
+
 	$(document).on("change", '.additional_general input', function() {
 		
 		$(this).parent().parent().removeClass('additional_general');
@@ -286,8 +307,6 @@ function showBase(msg){
 
 		$(this).parent().parent().addClass('additional_general');
 	});
-
-	    var prefixArr = [ 'inp', 'out'];
 	
 	for (key in prefixArr) {
 		checkInputSelects('', prefixArr[key]);
@@ -301,6 +320,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
     var config_key = "";
     var config_value = "";
     var config_comment = "";
+    var splitArr = "";
+    var innerSplit = "";
+    var topClassArr = ['inpstr1-type', 'inpstr1-format' ,'inpstr2-type', 'inpstr2-format', 'inpstr3-type', 'inpstr3-format', 'outstr1-type', 'outstr1-format' , 'outstr2-type', 'outstr2-format', 'logstr1-type', 'logstr1-format', 'logstr2-type', 'logstr2-format', 'logstr3-type', 'logstr3-format'];
+    var prefixArr = { log: '3', out: '2', inp: '3' };
 
     console.log("Received current rover config:");
 
@@ -334,10 +357,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
                 to_append += '<label for="' + config_key + '_entry">' + config_key + '</label>';
 
                 if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
-                    var splitArr = '';
-                    var splitArr = config_comment.split(',');
-
-                    var topClassArr = ['inpstr1-type', 'inpstr1-format' ,'inpstr2-type', 'inpstr2-format', 'inpstr3-type', 'inpstr3-format', 'outstr1-type', 'outstr1-format' , 'outstr2-type', 'outstr2-format', 'logstr1-type', 'logstr1-format', 'logstr2-type', 'logstr2-format', 'logstr3-type', 'logstr3-format'];
+                    splitArr = config_comment.split(',');                    
 
                     if(jQuery.inArray(config_key, topClassArr) >= 0)
 						to_append +=  '<select name="select-native-1" id="' + config_key + '_entry" class="config_form_field top_input">';
@@ -346,8 +366,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
                     
                     $.each(splitArr, function(index, value){
                         value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
-                        var innerSplit = '';
-                        var innerSplit = value.split(':');
+                        innerSplit = value.split(':');
 
                         if(innerSplit['1'] == config_value)
                             to_append += '<option value="' + innerSplit['1'] + '" selected="selected">' + innerSplit['1'] + '</option>';
@@ -370,14 +389,19 @@ function showRover(msg, rover_config_order, rover_config_comments){
     to_append += '</div>';
 
     form_div.html(to_append).trigger("create");
-    
-    var prefixArr = { log: '3', out: '2', inp: '3' };
 
 	for (key in prefixArr) {
 		for(var b = prefixArr[key]; b >=1; b--){
-			$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
-		    $(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
-    		$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
+			if(key != 'inp' || b != 1){
+				$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
+			    $(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
+    			$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
+			}
+			else{
+				$(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
+			    $(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
+    			$(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
+			}
 		}
 	}
 
@@ -387,12 +411,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		var method = $(this).attr('id').substr(0, 3);
 		var numb = $(this).attr('id').substr(6, 1);
 
-
 		if($(this).attr('id').substr(8, 6) != 'format'){
 			$('#' + method + 'str' + numb + '-path_entry').val('');
 			checkInputSelects(numb, method);
 		}
-
 	});
 
 	$(document).on("change", '.additional_general input', function() {
