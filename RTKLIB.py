@@ -326,6 +326,9 @@ class RTKLIB:
 
         self.saveState()
 
+        if self.enable_led:
+            self.updateLED()
+
         self.semaphore.release()
 
         return res
@@ -343,21 +346,6 @@ class RTKLIB:
             config_file = config["config_file_name"]
 
         self.conm.writeConfig(config_file, config)
-
-        # print("Reloading with new config...")
-
-        # res = self.rtkc.loadConfig(config_file)
-        # res += self.rtkc.restart()
-
-        # if res >= 2:
-        #     print("Restart successful")
-        #     print(config_file + " config loaded")
-        # elif res == 1:
-        #     print("rtkrcv started instead of restart")
-        # elif res < 1:
-        #     print("rtkrcv restart failed")
-
-        # self.saveState()
 
         self.semaphore.release()
 

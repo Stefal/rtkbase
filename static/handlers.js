@@ -2,7 +2,7 @@
 // it is guaranteed the binding will only trigger once, on the first time
 // config page is opened
 $(document).on("pageinit", "#config_page", function() {
-	
+
 	var mode = $("input[name=radio_base_rover]:checked").val();
 	if(mode == 'base')
 		$('#config_select-button').parent().parent().css('display', 'none');
@@ -85,6 +85,7 @@ $(document).on("pageinit", "#config_page", function() {
 
         if (mode == "base") {
             console.log("Request to load new " + mode + " config and restart");
+            cleanStatus(mode, "started");
         } else {
             // if we are in rover mode, we need to pay attention
             // to the chosen config
