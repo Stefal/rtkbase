@@ -41,8 +41,8 @@ class RTKLIB:
     state_file = "/home/reach/.reach/rtk_state"
 
     def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None, log_path = None):
-        # default state for RTKLIB is "inactive"
-        self.state = "inactive"
+        # default state for RTKLIB is "rover single"
+        self.state = "rover"
 
         # we need this to broadcast stuff
         self.socketio = socketio
@@ -72,6 +72,7 @@ class RTKLIB:
         self.coordinate_thread = None
 
         # we try to restore previous state
+        # in case we can't, we start as rover in single mode
         self.loadState()
 
 
@@ -430,6 +431,31 @@ class RTKLIB:
 
         self.semaphore.release()
 
+    def shutdown(self):
+        # shutdown whatever mode we are in. stop broadcast threads
+
+        # clean up broadcast and blink threads
+        self.server_not_interrupted = False
+        self.led.blinker_not_interrupted = False
+
+        if self.coordinate_thread is not None:
+            self.coordinate_thread.join()
+
+        if self.satellite_thread is not None:
+            self.satellite_thread.join()
+
+        if self.led.blinker_thread is not None:
+            self.led.blinker_thread.join()
+
+        # shutdown base or rover
+        if self.state == "rover":
+            return self.shutdownRover()
+        elif self.state == "base":
+            return self.shutdownBase()
+
+        # otherwise, we are inactive
+        return 1
+
     def saveState(self):
         # save current state for future resurrection:
         # state is a list of parameters:
@@ -489,51 +515,52 @@ class RTKLIB:
             f = open(self.state_file, "r")
         except IOError:
             # can't find the file, let's create a new one with default state
-            print("Could not find existing state, saving default...")
-            return self.saveState()
+            print("Could not find existing state, Launching default single rover mode...")
+
+            self.launchRover()
+
+            self.saveState()
+
+            return 1
         else:
 
-            print("Found existing state...")
-            json_state = json.load(f)
-            f.close()
+            print("Found existing state...trying to decode...")
 
-            # convert unicode strings to normal
-            json_state = self.byteify(json_state)
+            try:
+                json_state = json.load(f)
+            except ValueError:
+                # could not properly decode current state
+                print("Could not decode json state. Launching single rover mode as default...")
+                f.close()
 
-            print("That's what we found:")
-            print(str(json_state))
+                self.launchRover()
 
-            return json_state
+                self.saveState()
 
-    def shutdown(self):
-        # shutdown whatever mode we are in. stop broadcast threads
+                return 1
+            else:
+                print("Decoding succesful")
 
-        # clean up broadcast and blink threads
-        self.server_not_interrupted = False
-        self.led.blinker_not_interrupted = False
+                f.close()
 
-        if self.coordinate_thread is not None:
-            self.coordinate_thread.join()
+                # convert unicode strings to normal
+                json_state = self.byteify(json_state)
 
-        if self.satellite_thread is not None:
-            self.satellite_thread.join()
+                print("That's what we found:")
+                print(str(json_state))
 
-        if self.led.blinker_thread is not None:
-            self.led.blinker_thread.join()
-
-        # shutdown base or rover
-        if self.state == "rover":
-            return self.shutdownRover()
-        elif self.state == "base":
-            return self.shutdownBase()
-
-        # otherwise, we are inactive
-        return 1
+                return json_state
 
     def loadState(self):
 
         # get current state
         json_state = self.getState()
+
+        if json_state == 1:
+            # we dont need to load as we were forced to start
+            # as default single rover due to corrupt/missing state file
+
+            return
 
         print("Now loading the state printed above... ")
 
@@ -564,8 +591,6 @@ class RTKLIB:
                 self.startBase()
 
         print(str(json_state["state"]) + " state loaded")
-
-        # if we are "inactive", don't do anything as this the default state
 
     def sendState(self):
         # send current state to every connecting browser
