@@ -190,7 +190,6 @@ class RtkController:
             return 2
         else:
             # if we are not started yet, just start
-
             return self.start()
 
     def loadConfig(self, config_name = "rtk.conf"):

@@ -334,6 +334,7 @@ class RTKLIB:
         # config dict must include config_name field
 
         self.semaphore.acquire()
+
         print("Got signal to write rover config")
 
         if "config_file_name" not in config:
@@ -345,7 +346,7 @@ class RTKLIB:
 
         print("Reloading with new config...")
 
-        res = self.rtkc.loadConfig(config_file) 
+        res = self.rtkc.loadConfig(config_file)
         res += self.rtkc.restart()
 
         if res >= 2:
@@ -353,7 +354,36 @@ class RTKLIB:
             print(config_file + " config loaded")
         elif res == 1:
             print("rtkrcv started instead of restart")
-        elif res == -1:
+        elif res < 1:
+            print("rtkrcv restart failed")
+
+        self.saveState()
+
+        self.semaphore.release()
+
+        return res
+
+    def loadConfigRover(self, config):
+        # we might want to write the config, but dont need to load it every time
+
+        self.semaphore.acquire()
+
+        if "config_file_name" not in config:
+            config_file = self.conm.default_rover_config
+        else:
+            config_file = config["config_file_name"]
+
+        print("Loading config " + config_file)
+
+        res = self.rtkc.loadConfig(config_file)
+        res += self.rtkc.restart()
+
+        if res >= 2:
+            print("Restart successful")
+            print(config_file + " config loaded")
+        elif res == 1:
+            print("rtkrcv started instead of restart")
+        elif res < 1:
             print("rtkrcv restart failed")
 
         self.saveState()

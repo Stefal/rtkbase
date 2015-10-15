@@ -127,6 +127,8 @@ def readConfigRover(json):
 @socketio.on("write config rover", namespace="/test")
 def writeConfigRover(json):
     rtk.writeConfigRover(json)
+    # we don't need to do this every time
+    rtk.loadConfigRover(json)
 
 #### str2str config handling ####
 
