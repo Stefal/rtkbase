@@ -1,6 +1,30 @@
+# ReachView code is placed under the GPL license.
+# Written by Egor Fedorov (egor.fedorov@emlid.com)
+# Copyright (c) 2015, Emlid Limited
+# All rights reserved.
+
+# If you are interested in using ReachView code as a part of a
+# closed source project, please contact Emlid Limited (info@emlid.com).
+
+# This file is part of ReachView.
+
+# ReachView is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# ReachView is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
+
 from RtkController import RtkController
 from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
+from LogManager import LogManager
 from ReachLED import ReachLED
 
 from threading import Semaphore, Thread
@@ -16,19 +40,22 @@ class RTKLIB:
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
 
-    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None):
+    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None, log_path = None):
         # default state for RTKLIB is "inactive"
         self.state = "inactive"
 
         # we need this to broadcast stuff
         self.socketio = socketio
 
-        # these are necessary to handle base mode
-        self.rtkc = RtkController(rtkrcv_path)
+        # these are necessary to handle rover mode
+        self.rtkc = RtkController(rtkrcv_path, config_path)
         self.conm = ConfigManager(config_path)
 
         # this one handles base settings
         self.s2sc = Str2StrController(str2str_path, gps_cmd_file_path)
+
+        # take care of serving logs
+        self.logm = LogManager(log_path)
 
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()
@@ -444,6 +471,31 @@ class RTKLIB:
             print(str(json_state))
 
             return json_state
+
+    def shutdown(self):
+        # shutdown whatever mode we are in. stop broadcast threads
+
+        # clean up broadcast and blink threads
+        self.server_not_interrupted = False
+        self.led.blinker_not_interrupted = False
+
+        if self.coordinate_thread is not None:
+            self.coordinate_thread.join()
+
+        if self.satellite_thread is not None:
+            self.satellite_thread.join()
+
+        if self.led.blinker_thread is not None:
+            self.led.blinker_thread.join()
+
+        # shutdown base or rover
+        if self.state == "rover":
+            return self.shutdownRover()
+        elif self.state == "base":
+            return self.shutdownBase()
+
+        # otherwise, we are inactive
+        return 1
 
     def loadState(self):
 
