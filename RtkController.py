@@ -187,10 +187,9 @@ class RtkController:
 
             self.semaphore.release()
 
-            return 2
+            return 3
         else:
             # if we are not started yet, just start
-
             return self.start()
 
     def loadConfig(self, config_name = "rtk.conf"):
@@ -209,10 +208,6 @@ class RtkController:
             return -1
 
         self.semaphore.release()
-
-        if self.restart() < 0:
-            self.semaphore.release()
-            return -1
 
         self.current_config = config_name
 
