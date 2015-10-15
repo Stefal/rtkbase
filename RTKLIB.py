@@ -344,53 +344,68 @@ class RTKLIB:
 
         self.conm.writeConfig(config_file, config)
 
-        print("Reloading with new config...")
+        # print("Reloading with new config...")
 
-        res = self.rtkc.loadConfig(config_file)
-        res += self.rtkc.restart()
+        # res = self.rtkc.loadConfig(config_file)
+        # res += self.rtkc.restart()
 
-        if res >= 2:
-            print("Restart successful")
-            print(config_file + " config loaded")
-        elif res == 1:
-            print("rtkrcv started instead of restart")
-        elif res < 1:
-            print("rtkrcv restart failed")
+        # if res >= 2:
+        #     print("Restart successful")
+        #     print(config_file + " config loaded")
+        # elif res == 1:
+        #     print("rtkrcv started instead of restart")
+        # elif res < 1:
+        #     print("rtkrcv restart failed")
 
-        self.saveState()
+        # self.saveState()
 
         self.semaphore.release()
 
-        return res
-
-    def loadConfigRover(self, config):
+    def loadConfigRover(self, config_file = None):
         # we might want to write the config, but dont need to load it every time
 
         self.semaphore.acquire()
 
-        if "config_file_name" not in config:
-            config_file = self.conm.default_rover_config
-        else:
-            config_file = config["config_file_name"]
+        if config_file == None:
+            config_file == self.conm.default_rover_config
 
         print("Loading config " + config_file)
 
-        res = self.rtkc.loadConfig(config_file)
-        res += self.rtkc.restart()
+        # loading config to rtkrcv
+        if self.rtkc.loadConfig(config_file) < 0:
+            print("ERROR: failed to load config!!!")
+            print("abort load")
+            self.semaphore.release()
 
-        if res >= 2:
-            print("Restart successful")
-            print(config_file + " config loaded")
-        elif res == 1:
-            print("rtkrcv started instead of restart")
-        elif res < 1:
-            print("rtkrcv restart failed")
+            return -1
 
-        self.saveState()
+        print("load successful!")
+        print("Now we need to restart rtkrcv for the changes to take effect")
 
-        self.semaphore.release()
+        if self.rtkc.started:
+            print("rtkrcv is already started, we need to do a simple restart!")
 
-        return res
+            res = self.rtkc.restart()
+
+            if res == 3:
+                print("Restart successful")
+                print(config_file + " config loaded")
+            elif res == 1:
+                print("rtkrcv started instead of restart")
+            elif res < 1:
+                print("ERROR: rtkrcv restart failed")
+
+            self.semaphore.release()
+
+            self.saveState()
+
+            return res
+        else:
+            print("We were not started before, so we need to perform a full start")
+
+            self.semaphore.release()
+
+            return self.startRover()
 
     def readConfigRover(self, config):
 
