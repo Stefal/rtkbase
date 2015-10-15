@@ -1,6 +1,30 @@
+# ReachView code is placed under the GPL license.
+# Written by Egor Fedorov (egor.fedorov@emlid.com)
+# Copyright (c) 2015, Emlid Limited
+# All rights reserved.
+
+# If you are interested in using ReachView code as a part of a
+# closed source project, please contact Emlid Limited (info@emlid.com).
+
+# This file is part of ReachView.
+
+# ReachView is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# ReachView is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
+
 from RtkController import RtkController
 from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
+from LogManager import LogManager
 from ReachLED import ReachLED
 
 from threading import Semaphore, Thread
@@ -16,19 +40,22 @@ class RTKLIB:
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
 
-    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None):
-        # default state for RTKLIB is "inactive"
-        self.state = "inactive"
+    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None, log_path = None):
+        # default state for RTKLIB is "rover single"
+        self.state = "rover"
 
         # we need this to broadcast stuff
         self.socketio = socketio
 
-        # these are necessary to handle base mode
-        self.rtkc = RtkController(rtkrcv_path)
+        # these are necessary to handle rover mode
+        self.rtkc = RtkController(rtkrcv_path, config_path)
         self.conm = ConfigManager(config_path)
 
         # this one handles base settings
         self.s2sc = Str2StrController(str2str_path, gps_cmd_file_path)
+
+        # take care of serving logs
+        self.logm = LogManager(log_path)
 
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()
@@ -45,6 +72,7 @@ class RTKLIB:
         self.coordinate_thread = None
 
         # we try to restore previous state
+        # in case we can't, we start as rover in single mode
         self.loadState()
 
 
@@ -299,6 +327,9 @@ class RTKLIB:
 
         self.saveState()
 
+        if self.enable_led:
+            self.updateLED()
+
         self.semaphore.release()
 
         return res
@@ -307,6 +338,7 @@ class RTKLIB:
         # config dict must include config_name field
 
         self.semaphore.acquire()
+
         print("Got signal to write rover config")
 
         if "config_file_name" not in config:
@@ -316,24 +348,53 @@ class RTKLIB:
 
         self.conm.writeConfig(config_file, config)
 
-        print("Reloading with new config...")
-
-        res = self.rtkc.loadConfig(config_file) 
-        res += self.rtkc.restart()
-
-        if res >= 2:
-            print("Restart successful")
-            print(config_file + " config loaded")
-        elif res == 1:
-            print("rtkrcv started instead of restart")
-        elif res == -1:
-            print("rtkrcv restart failed")
-
-        self.saveState()
-
         self.semaphore.release()
 
-        return res
+    def loadConfigRover(self, config_file = None):
+        # we might want to write the config, but dont need to load it every time
+
+        self.semaphore.acquire()
+
+        if config_file == None:
+            config_file == self.conm.default_rover_config
+
+        print("Loading config " + config_file)
+
+        # loading config to rtkrcv
+        if self.rtkc.loadConfig(config_file) < 0:
+            print("ERROR: failed to load config!!!")
+            print("abort load")
+            self.semaphore.release()
+
+            return -1
+
+        print("load successful!")
+        print("Now we need to restart rtkrcv for the changes to take effect")
+
+        if self.rtkc.started:
+            print("rtkrcv is already started, we need to do a simple restart!")
+
+            res = self.rtkc.restart()
+
+            if res == 3:
+                print("Restart successful")
+                print(config_file + " config loaded")
+            elif res == 1:
+                print("rtkrcv started instead of restart")
+            elif res < 1:
+                print("ERROR: rtkrcv restart failed")
+
+            self.semaphore.release()
+
+            self.saveState()
+
+            return res
+        else:
+            print("We were not started before, so we need to perform a full start")
+
+            self.semaphore.release()
+
+            return self.startRover()
 
     def readConfigRover(self, config):
 
@@ -369,6 +430,31 @@ class RTKLIB:
         self.socketio.emit("current config rover", self.conm.buff_dict, namespace="/test")
 
         self.semaphore.release()
+
+    def shutdown(self):
+        # shutdown whatever mode we are in. stop broadcast threads
+
+        # clean up broadcast and blink threads
+        self.server_not_interrupted = False
+        self.led.blinker_not_interrupted = False
+
+        if self.coordinate_thread is not None:
+            self.coordinate_thread.join()
+
+        if self.satellite_thread is not None:
+            self.satellite_thread.join()
+
+        if self.led.blinker_thread is not None:
+            self.led.blinker_thread.join()
+
+        # shutdown base or rover
+        if self.state == "rover":
+            return self.shutdownRover()
+        elif self.state == "base":
+            return self.shutdownBase()
+
+        # otherwise, we are inactive
+        return 1
 
     def saveState(self):
         # save current state for future resurrection:
@@ -429,26 +515,52 @@ class RTKLIB:
             f = open(self.state_file, "r")
         except IOError:
             # can't find the file, let's create a new one with default state
-            print("Could not find existing state, saving default...")
-            return self.saveState()
+            print("Could not find existing state, Launching default single rover mode...")
+
+            self.launchRover()
+
+            self.saveState()
+
+            return 1
         else:
 
-            print("Found existing state...")
-            json_state = json.load(f)
-            f.close()
+            print("Found existing state...trying to decode...")
 
-            # convert unicode strings to normal
-            json_state = self.byteify(json_state)
+            try:
+                json_state = json.load(f)
+            except ValueError:
+                # could not properly decode current state
+                print("Could not decode json state. Launching single rover mode as default...")
+                f.close()
 
-            print("That's what we found:")
-            print(str(json_state))
+                self.launchRover()
 
-            return json_state
+                self.saveState()
+
+                return 1
+            else:
+                print("Decoding succesful")
+
+                f.close()
+
+                # convert unicode strings to normal
+                json_state = self.byteify(json_state)
+
+                print("That's what we found:")
+                print(str(json_state))
+
+                return json_state
 
     def loadState(self):
 
         # get current state
         json_state = self.getState()
+
+        if json_state == 1:
+            # we dont need to load as we were forced to start
+            # as default single rover due to corrupt/missing state file
+
+            return
 
         print("Now loading the state printed above... ")
 
@@ -479,8 +591,6 @@ class RTKLIB:
                 self.startBase()
 
         print(str(json_state["state"]) + " state loaded")
-
-        # if we are "inactive", don't do anything as this the default state
 
     def sendState(self):
         # send current state to every connecting browser

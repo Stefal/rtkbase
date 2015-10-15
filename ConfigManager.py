@@ -1,5 +1,27 @@
-from os import walk
-from subprocess import Popen, PIPE
+# ReachView code is placed under the GPL license.
+# Written by Egor Fedorov (egor.fedorov@emlid.com)
+# Copyright (c) 2015, Emlid Limited
+# All rights reserved.
+
+# If you are interested in using ReachView code as a part of a
+# closed source project, please contact Emlid Limited (info@emlid.com).
+
+# This file is part of ReachView.
+
+# ReachView is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# ReachView is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
+
+from glob import glob
 
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
@@ -25,26 +47,19 @@ class ConfigManager:
         self.buff_dict_order = []
         self.readConfig(self.default_rover_config) # we do this to load config order from default reach base config
 
-        self.buff_dict = {}
-
     def updateAvailableConfigs(self):
-
-        cmd = "ls " + self.config_path + "*.conf"
-
-        proc = Popen(cmd, stdout = PIPE, shell = True, bufsize = 2048)
-        out = proc.communicate()
-
-        out = out[0].split("\n")
 
         self.available_configs = []
         path_length = len(self.config_path)
 
-        for conf in out:
+        # get a list of available .conf files in the config directory
+        configs = glob(self.config_path + "*.conf")
+
+        for conf in configs:
             if conf:
                 self.available_configs.append(conf[path_length:])
 
     def readConfig(self, from_file):
-        i = 0 # for counting parameter order
 
         if from_file is None:
             from_file = self.default_rover_config
@@ -82,8 +97,6 @@ class ConfigManager:
                         self.buff_dict[param] = val
                         self.buff_dict_order.append(param) # this is needed to conserve the order of the parameters in the config file
 
-                        i += 1
-
             self.buff_dict["config_file_name"] = from_file
 
     def writeConfig(self, to_file, dict_values = None):
@@ -106,16 +119,19 @@ class ConfigManager:
         with open(config_file_path, "w") as f:
             line = "# rtkrcv options for rtk (v.2.4.2)"
             f.write(line + "\n\n")
+
             for key in self.buff_dict_order:
+
                 k = str(key)
-                v = str(dict_values[key])
+                if k in dict_values:
+                    v = str(dict_values[key])
 
-                line = k + " " * (19 - len(k)) + "=" + v
+                    line = k + " " * (19 - len(k)) + "=" + v
 
-                print("line = " + line)
-                # check if comments are available
-                if key in self.buff_dict_comments:
-                    line += " # " + self.buff_dict_comments[key]
+                    print("line = " + line)
+                    # check if comments are available
+                    if key in self.buff_dict_comments:
+                        line += " # " + self.buff_dict_comments[key]
 
-                f.write(line + "\n")
+                    f.write(line + "\n")
 

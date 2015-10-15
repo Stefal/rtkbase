@@ -1,3 +1,26 @@
+<!-- ReachView code is placed under the GPL license.
+Written by Egor Fedorov (egor.fedorov@emlid.com)
+Copyright (c) 2015, Emlid Limited
+All rights reserved.
+
+If you are interested in using ReachView code as a part of a
+closed source project, please contact Emlid Limited (info@emlid.com).
+
+This file is part of ReachView.
+
+ReachView is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ReachView is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html">
 <head>
@@ -8,11 +31,14 @@
     <script type="text/javascript" src="{{ url_for('static', filename='jquery.mobile-1.4.5.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='Chart.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='configs.js') }}" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='graph.js') }}" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='handlers.js') }}" charset="utf-8"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}" charset="utf-8"></script>
 </head>
 <body>
 
-<! Status page here:>
+<!-- Status page here:-->
 <div data-role="page" id="status_page">
     <div data-role="header">
         <div data-role="navbar" id="navbar1">
@@ -57,11 +83,14 @@
 
     <!-- Canvases for the graphs!!!!!!!!!!!!!!!!!! -->
     <canvas id="sat_chart_canvas"></canvas>
-
+<!--     <div data-role="footer" data-position="fixed">
+        <h1>Status Footer, more information later</h1>
+    </div> -->
 </div>
 
-<! Config page here:>
+<!-- Config page here:-->
 <div data-role="page" id="config_page">
+    <div class="loader" style='text-align:center;position:absolute;height:100%;width:100%;background: rgba(0,0,0,0.3);z-index:1000;'><img src="static/images/ajax-loader.gif" alt="" style="position:relative;top:10%;"></div>
     <div data-role="header">
         <div data-role="navbar" id="navbar2">
             <ul>
@@ -76,7 +105,7 @@
         <form id="config_form">
             <div class="ui-field-contain">
                 <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
-                    <legend>This Reach will act as:</legend>
+                    <!-- <legend>This Reach will act as:</legend> -->
                     <input type="radio" name="radio_base_rover" id="radio_base" value="base">
                     <label for="radio_base">Base</label>
                     <input type="radio" name="radio_base_rover" id="radio_rover" value="rover">
@@ -85,16 +114,20 @@
                 <div class="ui-field-contain" id="control_buttons">
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="start_button">Start</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="stop_button">Stop</a>
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="load_and_restart_button">Load & Restart</a>
                 </div>
                 <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
-                    <legend>Rover config:</legend>
+                    <!-- <legend>Rover config:</legend> -->
+<!--                        <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="start_button">Start</a>
+                        <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="stop_button">Stop</a>
+                        <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="load_and_restart_button">Load & Restart</a> -->
                         <select name="config_select" id="config_select">
                             <option value="">...</option>
                         </select>
                 </div>
                 <div class="ui-field-contain" id="config_buttons">
-                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="load_and_restart_button">Load & Restart</a>
-                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="get_current_state_button">Get current state</a>
+                    <!-- <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="load_and_restart_button">Load & Restart</a> -->
+                    <!-- <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="get_current_state_button">Get current state</a> -->
                 </div>
                 <div id="config_form_column_space"></div>
             </div>
@@ -103,7 +136,7 @@
 
 </div>
 
-<! Logs page here:>
+<!-- Logs page here:-->
 <div data-role="page" id="logs_page">
     <div data-role="header">
         <div data-role="navbar" id="navbar3">
@@ -116,7 +149,11 @@
     </div>
 
     <div data-role="main" class="ui-content">
-        <p>Logs</p>
+        <ol data-role="listview" data-inset="true" id="logs_list">
+            {% for log in logs %}
+                <li><a href="/logs/{{ log.name }}" target="_blank">{{ log.name }}</a></li>
+            {% endfor %}
+        </ol>
         <div class="ui-field-contain" id="update_buttons">
             <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button">Update</a>
         </div>
