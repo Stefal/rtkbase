@@ -52,50 +52,65 @@ $(document).on("pageinit", "#config_page", function() {
         socket.emit("read config " + mode, to_send);
     });
 
-    $(document).on("click", "#load_and_restart_button", function(e) {
+    $(document).on("click", ".save_configs_button", function(e) {
+    // $(document).on("click", "#load_and_restart_button", function(e) {
         var config_to_send = {};
         var current_id = "";
         var current_value = "";
 
-        var mode = $("input[name=radio_base_rover]:checked").val();
-        var config_name = $("#config_select").val();
+        function pickUpInputs(){
+            $('input[id*="_entry"]').each(function(i, obj){
+                current_id = obj.id.substring(0, obj.id.length - 6);
+                current_value = obj.value;
 
+                console.log("id == " + current_id + " value == " + current_value);
 
-        console.log('got signal to write config' + config_name);
-        // first, we need to read all the needed info from config form elements
-        // we create a js object with this info and send to our server
+                config_to_send[current_id] = current_value;
+            });
 
-        // find all the needed fields
+            $('select[id*="_entry"]').each(function(i, obj){
+                current_id = obj.id.substring(0, obj.id.length - 6);
+                current_value = obj.value;
 
-        $('input[id*="_entry"]').each(function(i, obj){
-            current_id = obj.id.substring(0, obj.id.length - 6);
-            current_value = obj.value;
+                console.log("id == " + current_id + " value == " + current_value);
 
-            console.log("id == " + current_id + " value == " + current_value);
-
-            config_to_send[current_id] = current_value;
-        });
-
-        $('select[id*="_entry"]').each(function(i, obj){
-            current_id = obj.id.substring(0, obj.id.length - 6);
-            current_value = obj.value;
-
-            console.log("id == " + current_id + " value == " + current_value);
-
-            config_to_send[current_id] = current_value;
-        });
-
-        if (mode == "base") {
-            console.log("Request to load new " + mode + " config and restart");
-        } else {
-            // if we are in rover mode, we need to pay attention
-            // to the chosen config
-            console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
-
-            config_to_send["config_file_name"] = config_name;
+                config_to_send[current_id] = current_value;
+            });
         }
 
-        socket.emit("write config " + mode, config_to_send);
+        var mode = $("input[name=radio_base_rover]:checked").val();
+
+        if($(this).attr('id') == 'save_as_button'){
+            $( "#popupLogin" ).popup( "open");
+            $('#config-title-submit').click(function(){
+                var config_name = $('input[name=config-title]').val() + '.conf';
+                $( "#popupLogin" ).popup( "close");
+                console.log('got signal to write config ' + config_name);
+                pickUpInputs();
+                socket.emit("write config " + mode, config_to_send);
+            });
+        }
+        else if($(this).attr('id') == 'save_button'){
+                var config_name = $("#config_select").val();
+                console.log('got signal to write config ' + config_name);
+                pickUpInputs();
+                socket.emit("write config " + mode, config_to_send);
+        }
+         else{
+            var config_name = $("#config_select").val();
+            console.log('got signal to write config ' + config_name);
+            pickUpInputs();
+
+            if (mode == "base") {
+                console.log("Request to load new " + mode + " config and restart");
+            } else {
+                console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+
+                config_to_send["config_file_name"] = config_name;
+            }
+
+            socket.emit("write config " + mode, config_to_send);
+        }
     });
 
 });

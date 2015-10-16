@@ -114,7 +114,18 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                 <div class="ui-field-contain" id="control_buttons">
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="start_button">Start</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="stop_button">Stop</a>
-                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="load_and_restart_button">Load & Restart</a>
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="load_and_restart_button">Save & Load</a>
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_button">Save</a>
+                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_as_button">Save As</a>
+                    <div data-role="popup" id="popupLogin" data-theme="a" class="ui-corner-all">
+                        <form>
+                            <div style="padding:0px 10px;">
+                                <label for="un" class="ui-hidden-accessible">Config title:</label>
+                                <input type="text" name="config-title" id="un" value="" placeholder="Config title" data-theme="a">
+                                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" id="config-title-submit">Save</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
                     <!-- <legend>Rover config:</legend> -->
