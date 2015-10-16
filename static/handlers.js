@@ -121,7 +121,6 @@ $(document).on("pageinit", "#logs_page", function() {
 
     $('.delete-log-button').click(function(){
         console.log("Sending delete message");
-        return false;
     });
 
     $(document).on("click", "#update_button", function(e) {
