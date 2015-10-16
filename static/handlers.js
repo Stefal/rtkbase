@@ -87,6 +87,7 @@ $(document).on("pageinit", "#config_page", function() {
 
         if (mode == "base") {
             console.log("Request to load new " + mode + " config and restart");
+            cleanStatus(mode, "started");
         } else {
             // if we are in rover mode, we need to pay attention
             // to the chosen config
