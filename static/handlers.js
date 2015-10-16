@@ -105,22 +105,14 @@ $(document).on("pageinit", "#logs_page", function() {
         $('.log_string').each(function(){
 
             var splitLogString = $(this).text().split(',');
-
-            var log_state = splitLogString[0].slice(0, 3);
-            var log_year = splitLogString[0].slice(4, 8);
-            var log_month = splitLogString[0].slice(8, 10);
-            var log_day = splitLogString[0].slice(10, 12);
-            var log_hour = splitLogString[0].slice(12, 14);
-            var log_min = splitLogString[0].slice(14, 16);
+            var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
             
-            if((log_state) == 'rov')
-                $(this).text('Rover: ' + log_hour + ':' + log_min + ' ' + log_day + '.' + log_month + '.' + log_year + ' (' + splitLogString[1] + 'MB)');
-            else
-                $(this).text('Base: ' + log_hour + ':' + log_min + ' ' + log_day + '.' + log_month + '.' + log_year + ' (' + splitLogString[1] + 'MB)');
+            $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
         });
 
     $('.delete-log-button').click(function(){
-        console.log("Sending delete message");
+        var log_for_delete = $(this).parent().children('.log_string').attr('href').slice(6);
+        console.log("Delete log: " + log_for_delete);
     });
 
     $(document).on("click", "#update_button", function(e) {
