@@ -94,7 +94,7 @@ $(document).on("pageinit", "#config_page", function() {
                 var config_name = $("#config_select").val();
                 console.log('got signal to write config ' + config_name);
                 pickUpInputs();
-                socket.emit("write config " + mode, config_to_send);
+                // socket.emit("write config " + mode, config_to_send);
         }
          else{
             var config_name = $("#config_select").val();
@@ -109,7 +109,7 @@ $(document).on("pageinit", "#config_page", function() {
                 config_to_send["config_file_name"] = config_name;
             }
 
-            socket.emit("write config " + mode, config_to_send);
+            // socket.emit("write config " + mode, config_to_send);
         }
     });
 
