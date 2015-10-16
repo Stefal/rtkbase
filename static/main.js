@@ -82,6 +82,9 @@ $(document).ready(function () {
     socket.on("current state", function(msg) {
         // check if the browser tab and app tab are active
 
+        if(typeof msg.state == "undefined")
+            msg.state = 'base';
+
         console.log("Got message containing Reach state. Currently in " + msg.state + " mode");
         console.log("Current rover config is " + msg.rover.current_config);
 
