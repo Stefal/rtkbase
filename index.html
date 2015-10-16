@@ -151,7 +151,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="main" class="ui-content">
         <ol data-role="listview" data-inset="true" id="logs_list">
             {% for log in logs %}
-                <li><a href="/logs/{{ log.name }}" target="_blank">{{ log.name }}</a></li>
+                <li><a href="/logs/{{ log.name }}" target="_blank" class="log_string">{{ log.name }},{{ log.size }}</a><a href="#" data-role="button" data-icon="delete" data-iconpos="notext" class='delete-log-button'>Delete</a></li>
             {% endfor %}
         </ol>
         <div class="ui-field-contain" id="update_buttons">
