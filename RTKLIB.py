@@ -30,6 +30,7 @@ from ReachLED import ReachLED
 from threading import Semaphore, Thread
 import json
 import time
+from subprocess import check_output, Popen, PIPE
 
 # master class for working with all RTKLIB programmes
 # prevents them from stacking up and handles errors
@@ -601,24 +602,55 @@ class RTKLIB:
         self.socketio.emit("current state", state, namespace = "/test")
 
     def updateLED(self):
+        # this forms a distinctive and informative blink pattern showing following info:
+        # network_status/rtk_mode/started?/solution_status
+        # network: self-hosted AP or connected? green/blue
+        # rtk mode: rover or base? blue/magenta
+        # started: yes or no? green/red
+        # solution status: -, single, float, fix? red/cyan/yellow/green
 
-        blink_pattern = ""
+        blink_pattern = []
         delay = 0.5
 
+        # get wi-fi connection status for the first signal
+
+        cmd = ["configure_edison", "--showWiFiMode"]
+        cmd = " ".join(cmd)
+
+        proc = Popen(cmd, stdout = PIPE, shell = True, bufsize = 2048)
+        out = proc.communicate()
+
+        out = out[0].split("\n")[0]
+
+        if out == "Master":
+            blink_pattern.append("green")
+        elif out == "Managed":
+            blink_pattern.append("blue")
+
         if self.state == "base":
+
+            blink_pattern.append("magenta")
+
             if self.s2sc.started:
                 # we have a started base
-                blink_pattern = "green,off,magenta,off"
+                blink_pattern.append("green")
             else:
                 # we have a stopped base
-                blink_pattern = "red,off,magenta,off"
+                blink_pattern.append("red")
         elif self.state == "rover":
+
+            blink_pattern.append("blue")
+
             if self.rtkc.started:
                 # we have a started rover
+
+                blink_pattern.append("green")
+
                 status_pattern_dict = {
-                    "fix": "blue,off,green,off",
-                    "float": "blue,off,green,off,yellow,off",
-                    "single": "blue,off,yellow,off"
+                    "fix": "green,off",
+                    "float": "yellow,off",
+                    "single": "cyan,off",
+                    "-": "read,off"
                 }
 
                 # we need to acquire RtkController in case it's currently updating info dict
@@ -626,14 +658,22 @@ class RTKLIB:
                 current_rover_solutuon_status = self.rtkc.info.get("solution_status", "")
                 self.rtkc.semaphore.release()
 
-                blink_pattern = status_pattern_dict.get(current_rover_solutuon_status, "blue,off")
+                # if we don't know this status, we just pass
+                blink_pattern.append(status_pattern_dict.get(current_rover_solutuon_status, "off"))
             else:
                 # we have a stopped rover
-                blink_pattern = "blue,off,red,off"
+                blink_pattern.append("red")
+                # we are not started, meaning no status just yet
+                blink_pattern.append("off")
 
-        elif self.state == "inactive":
-            blink_pattern = "yellow, off"
-            delay = 1
+        # sync color for better comprehension
+        blink_pattern.append("white")
+
+        # concatenate all that into one big string
+        blink_pattern = ",off,".join(blink_pattern) + ",off"
+
+        print("DEBUG CURRENT BLINK PATTERN")
+        print(blink_pattern)
 
         if blink_pattern:
             # check blink_pattern contains something new
