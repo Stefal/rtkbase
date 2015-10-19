@@ -28,6 +28,89 @@ from glob import glob
 # Note that on startup it reads on of the default configs
 # and keeps the order of settings, stored there
 
+class ConfigItem:
+
+    def __init__(self, parameter = "", value = "", comment = "", description = ""):
+
+        self.parameter = parameter
+        self.value = value
+        self.comment = comment
+        self.description = description
+
+    def extractFromString(self, string):
+        # extract information from a config file line
+
+        # clear previously saved info
+        self.parameter, self.value, self.comment, self.description = ""
+
+        # cut the line into pieces by spaces
+        separated_lines = string.split()
+        length = len(separated_lines)
+
+        # first, check if this line is empty
+        if length > 0:
+
+            # second, check if it's fully commented
+            if separated_lines[0][0] != "#":
+
+                # extract the parameter and value
+                self.parameter = separated_lines[0]
+                self.value = separated_lines[0][1:]
+
+                # check if we have more info, possibly useful comment
+                if length > 3 and separated_lines[2] == "#":
+
+                    self.comment = separated_lines[3]
+
+                    # check if we have more info, possibly description
+                    if length > 5 and separated_lines[4] == "##":
+
+                        self.description = separated_lines[5]
+
+    def formString(self):
+        # form a line to put into a RTKLIB config file:
+
+        # we want to write values aligned for easier reading
+        parameter_with_trailing_spaces = self.parameter + " " * (18 - len(self.parameter))
+
+        item = [parameter_with_trailing_spaces, "=" + self.value, "#", self.comment, "##", self.description]
+
+        return " ".join(item)
+
+class Config:
+
+    def __init__(self, file_name = None, items_list = None):
+        # we keep all the options for current config file and their order here
+
+        # config file name
+        self.file_name = ""
+
+        # items in the correct order
+        self.items_list = []
+
+    def readFromFile(self, from_file):
+
+        # clear previous data
+        self.items_list = []
+
+        # item placeholder
+        item = ConfigItem()
+
+        with open(from_file, "r") as f:
+            for line in f:
+                # we mine for info in every line of the file
+                item.extractFromString(line)
+                self.items_list.append(item)
+
+    def writeToFile(self, to_file):
+
+        with open(to_file, "w") as f:
+            line = "# rtkrcv options for rtk (v.2.4.2)"
+            f.write(line + "\n\n")
+
+            for item in self.items_list:
+                f.writeline(item.formString() + "\n")
+
 class ConfigManager:
 
     def __init__(self, config_path = None):
@@ -43,6 +126,7 @@ class ConfigManager:
         self.updateAvailableConfigs()
 
         self.buff_dict_comments = {}
+        self.buff_dict_human_comments = {}
         self.buff_dict = {}
         self.buff_dict_order = []
         self.readConfig(self.default_rover_config) # we do this to load config order from default reach base config
@@ -71,8 +155,11 @@ class ConfigManager:
         else:
             config_file_path = self.config_path + from_file
 
-        self.buff_dict = {}
         self.buff_dict_order = []
+
+        self.buff_dict = {}
+        self.buff_dict_comments = {}
+        self.buff_dict_human_comments = {}
 
         with open(config_file_path, "r") as f:
             for line in f:
@@ -93,6 +180,13 @@ class ConfigManager:
                             # if ":" in options:
 
                             self.buff_dict_comments[param] = comments
+
+                            if length > 5:
+                                # some lines will have a ## comment after the first one
+                                # to add more information and be more informative for ReachView
+                                human_comment = separated_lines[5]
+
+                                self.buff_dict_human_comments[param] = human_comment
 
                         self.buff_dict[param] = val
                         self.buff_dict_order.append(param) # this is needed to conserve the order of the parameters in the config file
