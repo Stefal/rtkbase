@@ -4,7 +4,7 @@
 $(document).on("pageinit", "#config_page", function() {
 
     // $('.loader').css('display', 'none');
-	
+
 	var mode = $("input[name=radio_base_rover]:checked").val();
 	if(mode == 'base')
 		$('#config_select-button').parent().parent().css('display', 'none');
@@ -67,7 +67,7 @@ $(document).on("pageinit", "#config_page", function() {
                 var config_name = $('input[name=config-title]').val() + '.conf';
                 $( "#popupLogin" ).popup( "close");
                 console.log('got signal to write config ' + config_name);
-                
+
             $('input[id*="_entry"]').each(function(i, obj){
                 current_id = obj.id.substring(0, obj.id.length - 6);
                 current_value = obj.value;
@@ -88,7 +88,7 @@ $(document).on("pageinit", "#config_page", function() {
 
             if (mode != "base")
                 config_to_send["config_file_name"] = config_name;
-            
+
             socket.emit("write config " + mode, config_to_send);
             });
         }
@@ -114,12 +114,12 @@ $(document).on("pageinit", "#config_page", function() {
                 config_to_send[current_id] = current_value;
             });
 
-            if (mode != "base") 
+            if (mode != "base")
                 config_to_send["config_file_name"] = config_name;
-            
+
             socket.emit("write config " + mode, config_to_send);
         }
-         else{
+        else{
             var config_name = $("#config_select").val();
             console.log('got signal to write config ' + config_name);
             $('input[id*="_entry"]').each(function(i, obj){
@@ -168,7 +168,7 @@ $(document).on("pageinit", "#logs_page", function() {
 
             var splitLogString = $(this).text().split(',');
             var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
-            
+
             $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
         });
 
