@@ -672,9 +672,6 @@ class RTKLIB:
         # concatenate all that into one big string
         blink_pattern = ",off,".join(blink_pattern) + ",off"
 
-        print("DEBUG CURRENT BLINK PATTERN")
-        print(blink_pattern)
-
         if blink_pattern:
             # check blink_pattern contains something new
             if blink_pattern != self.led.current_blink_pattern:

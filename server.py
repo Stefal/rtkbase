@@ -146,6 +146,11 @@ def readConfigBase(json):
 def writeConfigBase(json):
     rtk.writeConfigBase(json)
 
+#### Delete log button handler ####
+@socketio.on("delete log", namespace="/test")
+def deleteLog(json):
+    rtk.logm.deleteLog(json.get("name"))
+
 @socketio.on("update reachview", namespace="/test")
 def updateReachView():
     print("Got signal to update!!!")
@@ -172,10 +177,5 @@ if __name__ == "__main__":
 
         if rtk.led.blinker_thread is not None:
             rtk.led.blinker_thread.join()
-
-
-
-
-
 
 

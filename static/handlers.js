@@ -106,13 +106,14 @@ $(document).on("pageinit", "#logs_page", function() {
 
             var splitLogString = $(this).text().split(',');
             var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
-            
+
             $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
         });
 
     $('.delete-log-button').click(function(){
-        var log_for_delete = $(this).parent().children('.log_string').attr('href').slice(6);
-        console.log("Delete log: " + log_for_delete);
+        var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
+        console.log("Delete log: " + log_to_delete);
+        socket.emit("delete log", {"name": log_to_delete});
     });
 
     $(document).on("click", "#update_button", function(e) {
