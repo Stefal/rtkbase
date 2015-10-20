@@ -121,7 +121,10 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                         <form>
                             <div style="padding:0px 10px;">
                                 <label for="un" class="ui-hidden-accessible">Config title:</label>
-                                <input type="text" name="config-title" id="un" value="" placeholder="Config title" data-theme="a">
+                                <input type="text" name="config-title" id="un" value="" placeholder="Config title" data-theme="a" readonly='true'>
+                                <select name="config_select" id="config_select_hidden">
+                                    <option value="">...</option>
+                                </select>
                                 <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" id="config-title-submit">Save</button>
                             </div>
                         </form>

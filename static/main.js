@@ -91,6 +91,7 @@ $(document).ready(function () {
         // add current configs to the dropdown menu
 
         var select_options = $("#config_select");
+        var select_options_hidden = $('#config_select_hidden');
         var to_append = "";
 
         for (var i = 0; i < msg.available_configs.length; i++) {
@@ -98,8 +99,10 @@ $(document).ready(function () {
         }
 
         select_options.html(to_append).trigger("create");
+        select_options_hidden.html('<option value="custom">New title</option>' + to_append).trigger("create");
 
         select_options.val(msg.rover.current_config);
+        select_options_hidden.val(msg.rover.current_config);
 
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
