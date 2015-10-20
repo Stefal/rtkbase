@@ -99,7 +99,7 @@ $(document).ready(function () {
         }
 
         select_options.html(to_append).trigger("create");
-        select_options_hidden.html('<option value="custom">New title</option>' + to_append).trigger("create");
+        select_options_hidden.html('<option value="custom">New config title</option>' + to_append).trigger("create");
 
         select_options.val(msg.rover.current_config);
         select_options_hidden.val(msg.rover.current_config);

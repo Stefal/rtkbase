@@ -83,11 +83,15 @@ $(document).on("pageinit", "#config_page", function() {
 
     		if($('#config_select_hidden').val() == 'custom'){
 				$('input[name=config-title]').val('');
-				$('input[name=config-title]').removeAttr('readonly');
+				$('input[name=config-title]').prop('type', 'text');
+				$('input[name=config-title]').parent().css({'visibility':'visible', 'border':'1px solid #ddd', 'width':'125px', 'float':'left' ,'margin-right':'10px'});
+				$('input[name=config-title]').parent().after('<span class="conf_tail" style="position:relative;top:15px;font-weight: bold;">.conf</span>');
 			}
 			else{
          		$('input[name=config-title]').val(conf.substr(0, conf.length - 5));
-         		$('input[name=config-title]').attr('readonly', 'readonly');
+         		$('input[name=config-title]').prop('type', 'hidden');
+         		$('input[name=config-title]').parent().css({'visibility':'hidden', 'border':'none'});
+         		$('.conf_tail').remove();
 			}
         }
 
@@ -101,14 +105,16 @@ $(document).on("pageinit", "#config_page", function() {
             });
 
             $('#config-title-submit').click(function(){
-                var config_name = $('input[name=config-title]').val() + '.conf';
+            	var confTitle = $('input[name=config-title]').val();
+            	var config_name = (confTitle.substr(confTitle.length - 5) == '.conf') ? confTitle.substr(0, confTitle.length - 5) : confTitle;
+
                 $( "#popupLogin" ).popup( "close");
                 console.log('got signal to write config ' + config_name);
 
 	            if (mode != "base")
 	                config_to_send["config_file_name"] = config_name;
 
-            socket.emit("write config " + mode, config_to_send);
+            	socket.emit("write config " + mode, config_to_send);
             });
         }
         else if($(this).attr('id') == 'save_button'){
