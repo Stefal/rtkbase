@@ -39,60 +39,6 @@ class ConfigItem:
             "description": description
         }
 
-        #self.parameter = parameter
-        #self.value = value
-        #self.comment = comment
-        #self.description = description
-
-    def extractFromString(self, string):
-        # extract information from a config file line
-        # return true, if the line
-
-        # clear previously saved info
-        #self.parameter, self.value, self.comment, self.description = "", "", "", ""
-
-        self.value = {}
-
-        # cut the line into pieces by spaces
-        separated_lines = string.split()
-        length = len(separated_lines)
-
-        # first, check if this line is empty
-        if length > 0:
-
-            # second, check if it's fully commented
-            if separated_lines[0][0] != "#":
-
-                # extract the parameter and value
-                self.value["parameter"] = separated_lines[0]
-                self.value["value"] = separated_lines[0][1:]
-
-                # check if we have more info, possibly useful comment
-                if length > 3 and separated_lines[2] == "#":
-                    self.value["comment"] = separated_lines[3]
-
-                    # check if we have more info, possibly description
-                    if length > 5 and separated_lines[4] == "##":
-                        self.value["description"] = separated_lines[5]
-
-                return True
-            else:
-                # if the first symbol is "#", the line is commented
-                return False
-        else:
-            # if length is 0, the line is empty
-            return False
-
-    def formString(self):
-        # form a line to put into a RTKLIB config file:
-
-        # we want to write values aligned for easier reading
-        # hence need to add a number of spaces after the parameter
-        parameter_with_trailing_spaces = self.value["parameter"] + " " * (18 - len(self.value["parameter"]))
-
-        item = [parameter_with_trailing_spaces, "=" + self.value["value"], "#", self.value["comment"] , "##", self.value["description"]]
-
-        return " ".join(item)
 
 class Config:
 
@@ -109,12 +55,76 @@ class Config:
         #     "0": item0,
         #     "1": item1
         # }
+        # where item is also a dictionary:
+        # item0 = {
+        #     "parameter": "p",
+        #     "value": "v",
+        #     "comment": "c",
+        #     "description": "d"
+        # }
 
         self.items = {}
 
         # if we pass the file to the constructor, then read the values
         if file_name is not None:
             self.readFromFile(file_name)
+
+    def formStringFromItem(self, item):
+        # form a line to put into a RTKLIB config file:
+
+        # item must be a dict, described in the __init__ method comments!
+
+        # we want to write values aligned for easier reading
+        # hence need to add a number of spaces after the parameter
+        parameter_with_trailing_spaces = item["parameter"] + " " * (18 - len(item["parameter"]))
+
+        s = [parameter_with_trailing_spaces, "=" + item["value"]]
+
+        if "comment" in item:
+            s.append("#")
+            s.append(item["comment"])
+
+        if "description" in item:
+            s.append("##")
+            s.append(item["description"])
+
+        return " ".join(s)
+
+    def extractItemFromString(self, string):
+        # extract information from a config file line
+        # return true, if the line
+
+        # create an empty item
+        item = {}
+
+        # cut the line into pieces by spaces
+        separated_lines = string.split()
+        length = len(separated_lines)
+
+        print("DEBUG SEPARATED LINES")
+        print(separated_lines)
+
+        # first, check if this line is empty
+        if length > 0:
+
+            # second, check if it's fully commented
+            if separated_lines[0][0] != "#":
+
+                # extract the parameter and value
+                item["parameter"] = separated_lines[0]
+                item["value"] = separated_lines[1][1:]
+
+                # check if we have more info, possibly useful comment
+                if length > 3 and separated_lines[2] == "#":
+                    item["comment"] = separated_lines[3]
+
+                    # check if we have more info, possibly description
+                    if length > 5 and separated_lines[4] == "##":
+                        item["description"] = separated_lines[5]
+
+        # we return the item we managed to extract form from string. if it's empty,
+        # then we could not parse the string, hence it's empty, commented, or invalid
+        return item
 
     def readFromFile(self, from_file):
 
@@ -125,20 +135,21 @@ class Config:
         self.items = {}
 
         # current item container
-        item = ConfigItem()
+        item = {}
 
         with open(from_file, "r") as f:
             i = 0
             for line in f:
                 # we mine for info in every line of the file
                 # if the info is valid, we add this item to the items dict
-                if item.extractFromString(line):
+                item = self.extractItemFromString(line)
 
+                if item:
                     # save the info as {"0": item0, ...}
-                    self.items[str(i)] = item.value
+                    self.items[str(i)] = item
 
                     print("DEBUG READ FROM FILE")
-                    print("i == " + str(i) + " item == " + str(item.value))
+                    print("i == " + str(i) + " item == " + str(item))
 
                     i += 1
 
@@ -164,7 +175,7 @@ class Config:
             f.write(line + "\n\n")
 
             for item in items_list:
-                f.write(item.formString() + "\n")
+                f.write(self.formStringFromItem(item) + "\n")
 
 class ConfigManager:
 
@@ -212,10 +223,7 @@ class ConfigManager:
         print("DEBUG READING ROVER CONFIG FROM FILE: " + config_file_path)
         self.buffered_config.readFromFile(config_file_path)
 
-    def writeConfig(self, to_file, config_value = None):
-
-        if config_value is None:
-            config_value = self.buffered_config
+    def writeConfig(self, to_file, config_values = None):
 
         if to_file is None:
             to_file = self.default_rover_config
@@ -228,10 +236,10 @@ class ConfigManager:
             config_file_path = self.config_path + to_file
 
         # do the actual writing
-        if config_value is None:
+        if config_values is None:
             self.buffered_config.writeToFile(to_file)
         else:
-            self.config_value.writeToFile(to_file)
+            config_values.writeToFile(to_file)
 
 
 
