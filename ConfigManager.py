@@ -28,21 +28,9 @@ from glob import glob
 # Note that on startup it reads on of the default configs
 # and keeps the order of settings, stored there
 
-class ConfigItem:
-
-    def __init__(self, parameter = "", value = "", comment = "", description = ""):
-
-        self.value = {
-            "parameter": parameter,
-            "value": value,
-            "comment": comment,
-            "description": description
-        }
-
-
 class Config:
 
-    def __init__(self, file_name = None):
+    def __init__(self, file_name = None, items = None):
         # we keep all the options for current config file and their order here
 
         # config file name
@@ -63,7 +51,8 @@ class Config:
         #     "description": "d"
         # }
 
-        self.items = {}
+        if items is not None:
+            self.items = {}
 
         # if we pass the file to the constructor, then read the values
         if file_name is not None:
@@ -223,7 +212,7 @@ class ConfigManager:
         print("DEBUG READING ROVER CONFIG FROM FILE: " + config_file_path)
         self.buffered_config.readFromFile(config_file_path)
 
-    def writeConfig(self, to_file, config_values = None):
+    def writeConfig(self, to_file = None, config_values = None):
 
         if to_file is None:
             to_file = self.default_rover_config
@@ -236,9 +225,13 @@ class ConfigManager:
             config_file_path = self.config_path + to_file
 
         # do the actual writing
+
+        # if we receive config_values to write, then we create another config instance
+        # and use write on it
         if config_values is None:
             self.buffered_config.writeToFile(to_file)
         else:
+            conf = Config(items = config_values)
             config_values.writeToFile(to_file)
 
 
