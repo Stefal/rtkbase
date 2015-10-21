@@ -414,10 +414,10 @@ class RTKLIB:
         self.conm.readConfig(config_file)
 
         print("DEBUG CONFIG WE JUST READ IS HERE:")
-        print(self.conm.buffered_config)
+        print(self.conm.buffered_config.items)
 
         # send to the browser
-        self.socketio.emit("current config rover", self.conm.buffered_config, namespace="/test")
+        self.socketio.emit("current config rover", self.conm.buffered_config.items, namespace="/test")
 
         self.semaphore.release()
 

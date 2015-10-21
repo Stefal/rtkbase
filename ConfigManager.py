@@ -32,17 +32,26 @@ class ConfigItem:
 
     def __init__(self, parameter = "", value = "", comment = "", description = ""):
 
-        self.parameter = parameter
-        self.value = value
-        self.comment = comment
-        self.description = description
+        self.value = {
+            "parameter": parameter,
+            "value": value,
+            "comment": comment,
+            "description": description
+        }
+
+        #self.parameter = parameter
+        #self.value = value
+        #self.comment = comment
+        #self.description = description
 
     def extractFromString(self, string):
         # extract information from a config file line
         # return true, if the line
 
         # clear previously saved info
-        self.parameter, self.value, self.comment, self.description = "", "", "", ""
+        #self.parameter, self.value, self.comment, self.description = "", "", "", ""
+
+        self.value = {}
 
         # cut the line into pieces by spaces
         separated_lines = string.split()
@@ -55,16 +64,16 @@ class ConfigItem:
             if separated_lines[0][0] != "#":
 
                 # extract the parameter and value
-                self.parameter = separated_lines[0]
-                self.value = separated_lines[0][1:]
+                self.value["parameter"] = separated_lines[0]
+                self.value["value"] = separated_lines[0][1:]
 
                 # check if we have more info, possibly useful comment
                 if length > 3 and separated_lines[2] == "#":
-                    self.comment = separated_lines[3]
+                    self.value["comment"] = separated_lines[3]
 
                     # check if we have more info, possibly description
                     if length > 5 and separated_lines[4] == "##":
-                        self.description = separated_lines[5]
+                        self.value["description"] = separated_lines[5]
 
                 return True
             else:
@@ -79,9 +88,9 @@ class ConfigItem:
 
         # we want to write values aligned for easier reading
         # hence need to add a number of spaces after the parameter
-        parameter_with_trailing_spaces = self.parameter + " " * (18 - len(self.parameter))
+        parameter_with_trailing_spaces = self.value["parameter"] + " " * (18 - len(self.value["parameter"]))
 
-        item = [parameter_with_trailing_spaces, "=" + self.value, "#", self.comment, "##", self.description]
+        item = [parameter_with_trailing_spaces, "=" + self.value["value"], "#", self.value["comment"] , "##", self.value["description"]]
 
         return " ".join(item)
 
@@ -126,10 +135,10 @@ class Config:
                 if item.extractFromString(line):
 
                     # save the info as {"0": item0, ...}
-                    self.items[str(i)] = item
+                    self.items[str(i)] = item.value
 
                     print("DEBUG READ FROM FILE")
-                    print("i == " + str(i) + " item == " + str(item))
+                    print("i == " + str(i) + " item == " + str(item.value))
 
                     i += 1
 
