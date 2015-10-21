@@ -39,9 +39,10 @@ class ConfigItem:
 
     def extractFromString(self, string):
         # extract information from a config file line
+        # return true, if the line
 
         # clear previously saved info
-        self.parameter, self.value, self.comment, self.description = ""
+        self.parameter, self.value, self.comment, self.description = "", "", "", ""
 
         # cut the line into pieces by spaces
         separated_lines = string.split()
@@ -59,13 +60,19 @@ class ConfigItem:
 
                 # check if we have more info, possibly useful comment
                 if length > 3 and separated_lines[2] == "#":
-
                     self.comment = separated_lines[3]
 
                     # check if we have more info, possibly description
                     if length > 5 and separated_lines[4] == "##":
-
                         self.description = separated_lines[5]
+
+                return True
+            else:
+                # if the first symbol is "#", the line is commented
+                return False
+        else:
+            # if length is 0, the line is empty
+            return False
 
     def formString(self):
         # form a line to put into a RTKLIB config file:
@@ -80,13 +87,25 @@ class ConfigItem:
 
 class Config:
 
-    def __init__(self, file_name = None, items_list = None):
+    def __init__(self, file_name = None):
         # we keep all the options for current config file and their order here
 
         # config file name
-        self.current_file_name = file_name
+        self.current_file_name = None
 
-        self.items_list = []
+        # due to how sending stuff over socket.io works, we need to keep config data
+        # as a dictionary. to maintain order later in the browser we keep it in the
+        # following form:
+        # items = {
+        #     "0": item0,
+        #     "1": item1
+        # }
+
+        self.items = {}
+
+        # if we pass the file to the constructor, then read the values
+        if file_name is not None:
+            self.readFromFile(file_name)
 
     def readFromFile(self, from_file):
 
@@ -94,16 +113,25 @@ class Config:
         self.current_file_name = from_file
 
         # clear previous data
-        self.items_list = []
+        self.items = {}
 
         # current item container
         item = ConfigItem()
 
         with open(from_file, "r") as f:
+            i = 0
             for line in f:
                 # we mine for info in every line of the file
-                item.extractFromString(line)
-                self.items_list.append(item)
+                # if the info is valid, we add this item to the items dict
+                if item.extractFromString(line):
+
+                    # save the info as {"0": item0, ...}
+                    self.items[str(i)] = item
+
+                    print("DEBUG READ FROM FILE")
+                    print("i == " + str(i) + " item == " + str(item))
+
+                    i += 1
 
     def writeToFile(self, to_file = None):
 
@@ -111,11 +139,22 @@ class Config:
         if to_file == None:
             to_file = self.current_file_name
 
+        # we keep the config as a dict, which is unordered
+        # now is a time to convert it to a list, so that we could
+        # write it to a file maintaining the order
+
+        # create an empty list of the same length as we have items
+        items_list = [""] * len(self.items)
+
+        # turn our dict with current items into a list in the correct order:
+        for item_number in self.items:
+            items_list[int(item_number)] = self.items[item_number]
+
         with open(to_file, "w") as f:
             line = "# rtkrcv options for rtk (v.2.4.2)"
             f.write(line + "\n\n")
 
-            for item in self.items_list:
+            for item in items_list:
                 f.write(item.formString() + "\n")
 
 class ConfigManager:
@@ -134,8 +173,8 @@ class ConfigManager:
 
         # create a buffer for keeping config data
         # read default one into buffer
-        self.buffered_config = Config()
-        self.buffered_config.readFromFile(self.default_rover_config)
+
+        self.buffered_config = Config(self.config_path + self.default_rover_config)
 
     def updateAvailableConfigs(self):
 
@@ -161,7 +200,8 @@ class ConfigManager:
         else:
             config_file_path = self.config_path + from_file
 
-        self.buffered_config.readFromFile(from_file)
+        print("DEBUG READING ROVER CONFIG FROM FILE: " + config_file_path)
+        self.buffered_config.readFromFile(config_file_path)
 
     def writeConfig(self, to_file, config_value = None):
 

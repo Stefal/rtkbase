@@ -408,27 +408,16 @@ class RTKLIB:
 
         print("Got signal to read the rover config")
 
+        print("Sending rover config " + config_file)
+
+        # read from file
         self.conm.readConfig(config_file)
 
-        # after this, to preserve the order of the options in the frontend we send a special order message
-        print("Sending rover config order")
+        print("DEBUG CONFIG WE JUST READ IS HERE:")
+        print(self.conm.buffered_config)
 
-        options_order = {}
-
-        # create a structure the corresponds to the options order
-        for index, value in enumerate(self.conm.buff_dict_order):
-            options_order[str(index)] = value
-
-        # send the options order
-        self.socketio.emit("current config rover order", options_order, namespace="/test")
-
-        # send the options comments
-        print("Sending rover config comments")
-        self.socketio.emit("current config rover comments", self.conm.buff_dict_comments, namespace="/test")
-
-        # now we send the whole config with values
-        print("Sending rover config values")
-        self.socketio.emit("current config rover", self.conm.buff_dict, namespace="/test")
+        # send to the browser
+        self.socketio.emit("current config rover", self.conm.buffered_config, namespace="/test")
 
         self.semaphore.release()
 
