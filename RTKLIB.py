@@ -517,10 +517,6 @@ class RTKLIB:
             # can't find the file, let's create a new one with default state
             print("Could not find existing state, Launching default single rover mode...")
 
-            self.launchRover()
-
-            self.saveState()
-
             return 1
         else:
 
@@ -532,10 +528,6 @@ class RTKLIB:
                 # could not properly decode current state
                 print("Could not decode json state. Launching single rover mode as default...")
                 f.close()
-
-                self.launchRover()
-
-                self.saveState()
 
                 return 1
             else:
@@ -559,6 +551,8 @@ class RTKLIB:
         if json_state == 1:
             # we dont need to load as we were forced to start
             # as default single rover due to corrupt/missing state file
+
+            self.launchRover()
 
             return
 
@@ -589,6 +583,10 @@ class RTKLIB:
 
             if json_state["started"] == "yes":
                 self.startBase()
+
+        else:
+            # in case we are inactive
+            self.launchRover()
 
         print(str(json_state["state"]) + " state loaded")
 
