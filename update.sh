@@ -25,6 +25,7 @@
 
 sleep 1
 
+cd /home/reach/ReachView
 git fetch
 
 if [[ $? -eq 0 ]];
