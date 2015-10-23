@@ -53,29 +53,41 @@ $(document).on("pageinit", "#config_page", function() {
     });
 
     $(document).on("click", ".save_configs_button", function(e) {
-    // $(document).on("click", "#load_and_restart_button", function(e) {
         var config_to_send = {};
         var current_id = "";
+        var current_parameter = "";
         var current_value = "";
+        var current_description = "";
+        var current_comment = "";
 
         var mode = $("input[name=radio_base_rover]:checked").val();
 
         $('input[id*="_entry"]').each(function(i, obj){
-            current_id = obj.id.substring(0, obj.id.length - 6);
+            current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
+            current_parameter = obj.id.substring(0, obj.id.length - 6);
             current_value = obj.value;
+            current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
+            current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
 
-            console.log("id == " + current_id + " value == " + current_value);
+            console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-            config_to_send[current_id] = current_value;
+            var payload = {"parameter": current_parameter, "description": current_description, "comment": current_comment, "value": current_value}
+
+            config_to_send[current_id] = payload;
         });
 
         $('select[id*="_entry"]').each(function(i, obj){
-            current_id = obj.id.substring(0, obj.id.length - 6);
+            current_id = $('input[id="' + current_parameter +'_order"]').val();
+            current_parameter = obj.id.substring(0, obj.id.length - 6);
             current_value = obj.value;
+            current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
+            current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
 
-            console.log("id == " + current_id + " value == " + current_value);
+            console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-            config_to_send[current_id] = current_value;
+            var payload = {"parameter": current_parameter, "description": current_description, "comment": current_comment, "value": current_value}
+
+            config_to_send[current_id] = payload;
         });
 
         function checkConfTitle() {
@@ -116,6 +128,8 @@ $(document).on("pageinit", "#config_page", function() {
 	                config_to_send["config_file_name"] = config_name;
 
             	socket.emit("write config " + mode, config_to_send);
+                console.log('NEW CONFIG VALUES');
+                console.log(config_to_send);
             });
         }
         else if($(this).attr('id') == 'save_button'){

@@ -322,6 +322,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
     var config_parameter = "";
     var config_comment = "";
     var input_title = "";
+    var issetInput = "";
     var splitArr = "";
     var innerSplit = "";
     var topClassArr = ['inpstr1-type', 'inpstr1-format' ,'inpstr2-type', 'inpstr2-format', 'inpstr3-type', 'inpstr3-format', 'outstr1-type', 'outstr1-format' , 'outstr2-type', 'outstr2-format', 'logstr1-type', 'logstr1-format', 'logstr2-type', 'logstr2-format', 'logstr3-type', 'logstr3-format'];
@@ -346,8 +347,6 @@ function showRover(msg, rover_config_order, rover_config_comments){
     if (!$.isEmptyObject(msg)) {
         for (var k in msg) {
 
-
-
             config_key = msg[k];
 		    config_value = config_key['value'];
 		    config_parameter = config_key['parameter'];
@@ -356,9 +355,14 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		    config_comment = (typeof config_key['comment'] == "undefined") ? '' : config_key['comment'];
 		    input_title = (config_description == '') ? config_parameter : config_description;
 
+	    	issetInput = (typeof config_key['description'] == "undefined") ? '0' : '1';
+
             console.log("config rover item: " + config_parameter + " = " + config_value + ' ' + config_description);
 
-            to_append += '<div class="ui-field-contain>"';
+            to_append += '<div class="ui-field-contain>">';
+            to_append += '<input type="hidden" id="' + config_parameter + '_check" value="' + issetInput +'">';
+            to_append += '<input type="hidden" id="' + config_parameter + '_comment" value="' + config_comment +'">';
+            to_append += '<input type="hidden" id="' + config_parameter + '_order" value="' + k +'">';
             to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
 
             if( (config_comment) && (config_comment.indexOf(',') >= 0) ){

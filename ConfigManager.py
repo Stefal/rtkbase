@@ -51,8 +51,10 @@ class Config:
         #     "description": "d"
         # }
 
-        if items is not None:
+        if items is None:
             self.items = {}
+        else:
+            self.items = items
 
         # if we pass the file to the constructor, then read the values
         if file_name is not None:
@@ -65,19 +67,22 @@ class Config:
 
         # we want to write values aligned for easier reading
         # hence need to add a number of spaces after the parameter
-        parameter_with_trailing_spaces = item["parameter"] + " " * (18 - len(item["parameter"]))
+        if item:
+            parameter_with_trailing_spaces = item["parameter"] + " " * (18 - len(item["parameter"]))
 
-        s = [parameter_with_trailing_spaces, "=" + item["value"]]
+            s = [parameter_with_trailing_spaces, "=" + item["value"]]
 
-        if "comment" in item:
-            s.append("#")
-            s.append(item["comment"])
+            if "comment" in item:
+                s.append("#")
+                s.append(item["comment"])
 
-        if "description" in item:
-            s.append("##")
-            s.append(item["description"])
+            if "description" in item:
+                s.append("##")
+                s.append(item["description"])
 
-        return " ".join(s)
+            return " ".join(s)
+        else:
+            return ""
 
     def extractItemFromString(self, string):
         # extract information from a config file line
@@ -158,6 +163,8 @@ class Config:
         if to_file == None:
             to_file = self.current_file_name
 
+        print("DEBUG WRITING CONFIG TO FILE " + to_file)
+
         # we keep the config as a dict, which is unordered
         # now is a time to convert it to a list, so that we could
         # write it to a file maintaining the order
@@ -167,13 +174,22 @@ class Config:
 
         # turn our dict with current items into a list in the correct order:
         for item_number in self.items:
-            items_list[int(item_number)] = self.items[item_number]
+            # some of the fields are not numbers and need to be treated separately
+            print("DEBUG PRINTING BEFORE ID " + str(item_number) + " " + str(self.items[item_number]))
+
+            try:
+                item_n = int(item_number)
+            except ValueError:
+                pass
+            else:
+                items_list[item_n] = self.items[item_number]
 
         with open(to_file, "w") as f:
             line = "# rtkrcv options for rtk (v.2.4.2)"
             f.write(line + "\n\n")
 
             for item in items_list:
+                print("DEBUG writing line " + self.formStringFromItem(item))
                 f.write(self.formStringFromItem(item) + "\n")
 
 class ConfigManager:
@@ -229,9 +245,7 @@ class ConfigManager:
 
         # check if this is a full path or just a name
         # if it's a name, then we use the default location
-        if "/" in to_file:
-            config_file_path = to_file
-        else:
+        if "/" not in to_file:
             config_file_path = self.config_path + to_file
 
         # do the actual writing
