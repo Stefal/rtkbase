@@ -4,7 +4,7 @@
 $(document).on("pageinit", "#config_page", function() {
 
     // $('.loader').css('display', 'none');
-	
+
 	var mode = $("input[name=radio_base_rover]:checked").val();
 	if(mode == 'base')
 		$('#config_select-button').parent().parent().css('display', 'none');
@@ -87,6 +87,7 @@ $(document).on("pageinit", "#config_page", function() {
 
         if (mode == "base") {
             console.log("Request to load new " + mode + " config and restart");
+            cleanStatus(mode, "started");
         } else {
             // if we are in rover mode, we need to pay attention
             // to the chosen config
@@ -106,7 +107,7 @@ $(document).on("pageinit", "#logs_page", function() {
 
             var splitLogString = $(this).text().split(',');
             var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
-            
+
             $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
         });
 
@@ -148,7 +149,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             socket.emit("shutdown rover");
             socket.emit("launch base");
         break;
-    }       
+    }
 
     cleanStatus(mode, status);
 
