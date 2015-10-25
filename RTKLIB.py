@@ -76,7 +76,6 @@ class RTKLIB:
         # in case we can't, we start as rover in single mode
         self.loadState()
 
-
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
         # if the parameter contains "/", then we consider it a full path
@@ -555,6 +554,9 @@ class RTKLIB:
 
             self.launchRover()
 
+            # for the first start, just let it be green
+            self.updateLED("green")
+
             return
 
         print("Now loading the state printed above... ")
@@ -599,7 +601,7 @@ class RTKLIB:
         state["available_configs"] = self.conm.available_configs
         self.socketio.emit("current state", state, namespace = "/test")
 
-    def updateLED(self):
+    def updateLED(self, pattern = None):
         # this forms a distinctive and informative blink pattern showing following info:
         # network_status/rtk_mode/started?/solution_status
         # network: self-hosted AP or connected? green/blue
@@ -673,6 +675,9 @@ class RTKLIB:
 
         # concatenate all that into one big string
         blink_pattern = ",off,".join(blink_pattern) + ",off"
+
+        if pattern is not None:
+            blink_pattern = pattern
 
         if blink_pattern:
             # check blink_pattern contains something new
