@@ -127,10 +127,14 @@ function defaultStringToInputs(i, method){
 			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
 			break;
 		case "ntripcli": //user : pass @ address : port / mount
+            splitVal[1] = splitVal[1] + ':' + splitVal[2];
+            splitVal.splice(2);
+            console.log("FIRST DEBUG HERE: " + splitVal);
 			$('.additional' + method + i + ' #username' + method + i).val(splitVal['0']);
 			var splitPass = splitVal['1'].split('@');
 			$('.additional' + method + i + ' #password' + method + i).val(splitPass['0']);
 			var splitAdress = splitPass['1'].split(':');
+            console.log("HEY DEBUG HERE: " + splitPass);
 			$('.additional' + method + i + ' #address' + method + i).val(splitAdress['0']); 
 			var splitPort = splitAdress['1'].split('/');
 			$('.additional' + method + i + ' #port' + method + i).val(splitPort['0']); 
