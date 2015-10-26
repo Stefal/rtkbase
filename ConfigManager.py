@@ -119,7 +119,7 @@ class Config:
                         description = separated_lines[5:]
                         description = " ".join(description)
                         item["description"] = description
-                
+
                 # check if we have only a description, rather than a comment and description
                 if length >3 and separated_lines[2] == "##":
                     description = separated_lines[3:]
@@ -175,14 +175,16 @@ class Config:
         # turn our dict with current items into a list in the correct order:
         for item_number in self.items:
             # some of the fields are not numbers and need to be treated separately
-            print("DEBUG PRINTING BEFORE ID " + str(item_number) + " " + str(self.items[item_number]))
-
             try:
+                print("Trying to decode " + str(item_number) + " with value " + str(self.items[item_number]))
                 item_n = int(item_number)
             except ValueError:
+                print("!!!!!!!!!!!!!!!!!!!!!!!")
+                print("Failed to decode " + str(item_number) + " with value " + str(self.items[item_number]))
                 pass
             else:
                 items_list[item_n] = self.items[item_number]
+                print("Success: now items list has: " + str(item_n) + " " + str(items_list[item_n]))
 
         with open(to_file, "w") as f:
             line = "# rtkrcv options for rtk (v.2.4.2)"
@@ -246,7 +248,7 @@ class ConfigManager:
         # check if this is a full path or just a name
         # if it's a name, then we use the default location
         if "/" not in to_file:
-            config_file_path = self.config_path + to_file
+            to_file = self.config_path + to_file
 
         # do the actual writing
 
