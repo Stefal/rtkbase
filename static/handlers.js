@@ -63,8 +63,8 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
 
         $('input[id*="_entry"]').each(function(i, obj){
-            current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
             current_parameter = obj.id.substring(0, obj.id.length - 6);
+            current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
             current_value = obj.value;
             current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
             current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
@@ -77,8 +77,8 @@ $(document).on("pageinit", "#config_page", function() {
         });
 
         $('select[id*="_entry"]').each(function(i, obj){
-            current_id = $('input[id="' + current_parameter +'_order"]').val();
             current_parameter = obj.id.substring(0, obj.id.length - 6);
+            current_id = $('input[id="' + current_parameter +'_order"]').val();
             current_value = obj.value;
             current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
             current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
