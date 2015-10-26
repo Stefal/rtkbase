@@ -340,12 +340,12 @@ class RTKLIB:
 
         self.semaphore.acquire()
 
-        print("Got signal to write rover config")
-
         if "config_file_name" not in config:
             config_file = None
         else:
             config_file = config["config_file_name"]
+
+        print("Got signal to write rover config to file " + config_file)
 
         self.conm.writeConfig(config_file, config)
 

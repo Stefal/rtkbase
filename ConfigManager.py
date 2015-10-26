@@ -22,6 +22,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 from glob import glob
+from os import remove, path
 
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
@@ -95,9 +96,6 @@ class Config:
         separated_lines = string.split()
         length = len(separated_lines)
 
-        print("DEBUG SEPARATED LINES")
-        print(separated_lines)
-
         # first, check if this line is empty
         if length > 0:
 
@@ -163,8 +161,6 @@ class Config:
         if to_file == None:
             to_file = self.current_file_name
 
-        print("DEBUG WRITING CONFIG TO FILE " + to_file)
-
         # we keep the config as a dict, which is unordered
         # now is a time to convert it to a list, so that we could
         # write it to a file maintaining the order
@@ -176,15 +172,12 @@ class Config:
         for item_number in self.items:
             # some of the fields are not numbers and need to be treated separately
             try:
-                print("Trying to decode " + str(item_number) + " with value " + str(self.items[item_number]))
                 item_n = int(item_number)
+                int_item_number = int(item_number)
             except ValueError:
-                print("!!!!!!!!!!!!!!!!!!!!!!!")
-                print("Failed to decode " + str(item_number) + " with value " + str(self.items[item_number]))
                 pass
             else:
-                items_list[item_n] = self.items[item_number]
-                print("Success: now items list has: " + str(item_n) + " " + str(items_list[item_n]))
+                items_list[int_item_number] = self.items[item_number]
 
         with open(to_file, "w") as f:
             line = "# rtkrcv options for rtk (v.2.4.2)"
@@ -260,6 +253,15 @@ class ConfigManager:
             conf = Config(items = config_values)
             conf.writeToFile(to_file)
 
+    def deleteConfig(self, config_name):
+        # try to delete config if it exists
+        if "/" not in config_name:
+            config_name = self.config_path + config_name
+
+        try:
+            remove(config_name)
+        except OSError, e:
+            print ("Error: " + e.filename + " - " + e.strerror)
 
 
 
