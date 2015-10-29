@@ -3,7 +3,10 @@
 // config page is opened
 $(document).on("pageinit", "#config_page", function() {
 
-    // $('.loader').css('display', 'none');
+    // if($('.hidden_buttons').is(':visible'))
+    //     alert('есть');
+    // else
+    //     alert('нет');
 
 	var mode = $("input[name=radio_base_rover]:checked").val();
 	if(mode == 'base')
@@ -49,14 +52,40 @@ $(document).on("pageinit", "#config_page", function() {
             }
         }
 
+        if(jQuery.inArray( config_name, defaultConfigs ) >= 0)
+            $('#reset_config_button').css('display', 'inline-block');
+        else
+            $('#reset_config_button').css('display', 'none');
+
         socket.emit("read config " + mode, to_send);
     });
 
-    $('#delete_config_button').click(function(){
-        var denyToDelete = ['reach_single_default.conf', 'reach_kinematic_default.conf', 'reach_base_default.conf'];
-        var conf_to_delete = $(this).parent().find('select').val();
+    $('#hide_buttons_button').click(function() {
+        $(this).parent().find('ul').slideToggle('slow');
+        return false;
+    });
 
-        if(jQuery.inArray( conf_to_delete, denyToDelete ) >= 0){
+$(document).click(function(event) {
+    if ($(event.target).closest(".hidden_list").length)
+        return
+    else{
+        $(".hidden_list").slideUp('slow');
+        event.stopPropagation();
+    }
+});
+
+    $('#reset_config_button').click(function(){
+        var conf_to_reset = $('#config_select').val();
+
+        console.log("Reset config with name: " + conf_to_reset);
+        socket.emit("reset config", {"name": conf_to_reset});
+        $(".hidden_list").slideUp('slow');
+    });
+
+    $('#delete_config_button').click(function(){
+        var conf_to_delete = $('#config_select').val();
+
+        if(jQuery.inArray( conf_to_delete, defaultConfigs ) >= 0){
             console.log(conf_to_delete);
             console.log("Don't try to delete default config");
         }
@@ -64,6 +93,8 @@ $(document).on("pageinit", "#config_page", function() {
             console.log("Delete conf: " + conf_to_delete);
             socket.emit("delete config", {"name": conf_to_delete});
         }
+
+        $(".hidden_list").slideUp('slow');
     });
 
     $(document).on("click", ".save_configs_button", function(e) {
@@ -107,7 +138,6 @@ $(document).on("pageinit", "#config_page", function() {
 
             console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-            // var payload = {"parameter": current_parameter, "description": current_description, "comment": current_comment, "value": current_value}
             var payload = {};
             payload['parameter'] = current_parameter;
             payload['value'] = current_value;

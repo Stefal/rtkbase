@@ -116,6 +116,17 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="load_and_restart_button">Save & Load</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_button">Save</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_as_button">Save As</a>
+                    <div class="hidden_buttons" style="display:inline-block">
+                        <ul style="padding-left: 0;">
+                            <li style="list-style:none;position:relative">
+                                <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="hide_buttons_button">⋮</a>
+                                <ul style="list-style:none;position:absolute;z-index:2;display:none;background:#F9F9F9;border: 1px solid #ddd;padding-left: 5px;" class="hidden_list">
+                                    <li><a href="#" class="ui-btn ui-btn-inline" id="delete_config_button">Delete</a></li>
+                                    <li><a href="#" class="ui-btn ui-btn-inline" id="reset_config_button">Reset</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                     <div data-role="popup" id="popupLogin" data-theme="a" class="ui-corner-all">
                         <form>
                             <div style="padding:0px 10px;width:200px;">
@@ -134,7 +145,6 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                         <select name="config_select" id="config_select">
                             <option value="">...</option>
                         </select>
-						<a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="delete_config_button">Delete current config</a>
                 </div>
                 <div class="ui-field-contain" id="config_buttons"></div>
                 <div id="config_form_column_space"></div>

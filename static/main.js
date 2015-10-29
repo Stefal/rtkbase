@@ -23,6 +23,8 @@
 
 // ####################### HANDLE WINDOW FOCUS/UNFOCUS #######################
 
+var defaultConfigs = ['reach_single_default.conf', 'reach_kinematic_default.conf', 'reach_base_default.conf'];
+
 var isActive = true;
 
 function onFocus() {
@@ -104,11 +106,18 @@ $(document).ready(function () {
         select_options.val(msg.rover.current_config);
         select_options_hidden.val(msg.rover.current_config);
 
+
+
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
         } else if (msg.state == "base") {
             $('input:radio[name="radio_base_rover"]').filter('[value="base"]').next().click();
         }
+
+        if(jQuery.inArray( msg.rover.current_config, defaultConfigs ) >= 0)
+            $('#reset_config_button').css('display', 'inline-block');
+        else
+            $('#reset_config_button').css('display', 'none');
     });
 
     socket.on("available configs", function(msg) {
