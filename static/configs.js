@@ -255,13 +255,13 @@ function showBase(msg){
 
 	to_append += '<div data-role="popup" id="popupDialog" data-overlay-theme="a" data-theme="a" data-dismissible="false" style="max-width:400px;">';
     to_append +='<div data-role="header" data-theme="a">';
-        	to_append +='<h1>Change input?</h1>';
-        to_append +='</div>';
-        to_append +='<div role="main" class="ui-content">';
-        	to_append +='<h3 class="ui-title">Are you sure you want to change this input?</h3>';
-        	to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>';
-        	to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">No</a>';
-        to_append +='</div>';
+    to_append +='<h1>Change input?</h1>';
+    to_append +='</div>';
+    to_append +='<div role="main" class="ui-content">';
+    to_append +='<h3 class="ui-title">Are you sure you want to change this input?</h3>';
+    to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>';
+    to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">No</a>';
+    to_append +='</div>';
 	to_append +='</div>';
 
     form_div.html(to_append).trigger("create");
@@ -287,7 +287,6 @@ function showBase(msg){
 
 	$('#inpstr-type_entry').click(function() {
 		if(popup){
-			// event.preventDefault();
 			$( "#popupDialog" ).popup( "open");
 			$('#acceptChange').click(function() {popup = false;});
 			$('#denyChange').click(function() {popup = true;});
@@ -390,7 +389,6 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
             to_append += '</div>';
         }
-
     }
 
     to_append += '</div>';
@@ -413,6 +411,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		}
 	}
 
+	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
 	$(document).on("change", '.top_input', function() {

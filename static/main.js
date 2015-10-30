@@ -90,23 +90,37 @@ $(document).ready(function () {
         console.log("Got message containing Reach state. Currently in " + msg.state + " mode");
         console.log("Current rover config is " + msg.rover.current_config);
 
+        if(msg.started == 'yes'){
+            $('#start_button').css('display', 'none');
+            $('#stop_button').css('display', 'inline-block');
+        }
+        else{
+            $('#stop_button').css('display', 'none');
+            $('#start_button').css('display', 'inline-block');
+        }
+
         // add current configs to the dropdown menu
 
         var select_options = $("#config_select");
         var select_options_hidden = $('#config_select_hidden');
+        var delete_options_hidden = $('#config_delete_hidden');
+        var available_configs_list = $('.available_configs');
         var to_append = "";
 
         for (var i = 0; i < msg.available_configs.length; i++) {
-            to_append += "<option value='" + msg.available_configs[i] + "'>" + msg.available_configs[i] + "</option>";
+            if(jQuery.inArray( msg.available_configs[i], defaultConfigs ) >= 0)
+                to_append += "<option value='" + msg.available_configs[i] + "' class='default_config'>" + msg.available_configs[i] + "</option>";
+            else
+                to_append += "<option value='" + msg.available_configs[i] + "' class='extra_config'>" + msg.available_configs[i] + "</option>";
         }
 
         select_options.html(to_append).trigger("create");
+        delete_options_hidden.html(to_append).trigger("create");
         select_options_hidden.html('<option value="custom">New config title</option>' + to_append).trigger("create");
 
-        select_options.val(msg.rover.current_config);
-        select_options_hidden.val(msg.rover.current_config);
+        delete_options_hidden.find('.default_config').remove();
 
-
+        available_configs_list.val(msg.rover.current_config);
 
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
@@ -123,34 +137,39 @@ $(document).ready(function () {
     socket.on("available configs", function(msg) {
         var select_options = $("#config_select");
         var select_options_hidden = $('#config_select_hidden');
+        var delete_options_hidden = $('#config_delete_hidden');
+        var available_configs_list = $('.available_configs');
         var oldVal = select_options.val();
         var oldNum = select_options.children('option').length;
         var to_append = "";
 
         for (var i = 0; i < msg.available_configs.length; i++) {
-            to_append += "<option value='" + msg.available_configs[i] + "'>" + msg.available_configs[i] + "</option>";
+            if(jQuery.inArray( msg.available_configs[i], defaultConfigs ) >= 0)
+                to_append += "<option value='" + msg.available_configs[i] + "' class='default_config'>" + msg.available_configs[i] + "</option>";
+            else
+                to_append += "<option value='" + msg.available_configs[i] + "' class='extra_config'>" + msg.available_configs[i] + "</option>";
         }
 
         select_options.html(to_append).trigger("create");
+        delete_options_hidden.html(to_append).trigger("create");
         select_options_hidden.html('<option value="custom">New config title</option>' + to_append).trigger("create");
+        delete_options_hidden.find('.default_config').remove();
 
         var newNum = select_options.children('option').length;
     
         if(newNum<oldNum){
-            select_options.val('reach_single_default.conf');
-            select_options.parent().find('span').html('reach_single_default.conf');
-            select_options_hidden.val('reach_single_default.conf');
-            select_options_hidden.parent().find('span').html('reach_single_default.conf');
+            available_configs_list.val('reach_single_default.conf');
+            available_configs_list.parent().find('span').html('reach_single_default.conf');
         }
         else if(newNum >= oldNum){
-            select_options.val(oldVal);
-            select_options.parent().find('span').html(oldVal);
-            select_options_hidden.val(oldVal);
-            select_options_hidden.parent().find('span').html(oldVal);
+            available_configs_list.val(oldVal);
+            available_configs_list.parent().find('span').html(oldVal);
         }
 
-        select_options.change();
-        select_options_hidden.change();   
+        delete_options_hidden.val(delete_options_hidden.find('option:first-child').val());
+        delete_options_hidden.parent().find('span').html(delete_options_hidden.find('option:first-child').val());
+
+        available_configs_list.change();
     });
 
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################

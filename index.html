@@ -116,35 +116,48 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="load_and_restart_button">Save & Load</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_button">Save</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_as_button">Save As</a>
+                    <!-- Extra buttons are hidden in this div -->
                     <div class="hidden_buttons" style="display:inline-block">
                         <ul style="padding-left: 0;">
                             <li style="list-style:none;position:relative">
                                 <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="hide_buttons_button">⋮</a>
-                                <ul style="list-style:none;position:absolute;z-index:2;display:none;background:#F9F9F9;border: 1px solid #ddd;padding-left: 5px;" class="hidden_list">
-                                    <li><a href="#" class="ui-btn ui-btn-inline" id="delete_config_button">Delete</a></li>
-                                    <li><a href="#" class="ui-btn ui-btn-inline" id="reset_config_button">Reset</a></li>
+                                <ul style="list-style:none;position:absolute;left:-200%;z-index:2;display:none;background:#F9F9F9;border: 1px solid #ddd;padding-left: 5px;" class="hidden_list">
+                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="delete_config_button">Delete сonfig</a></li>
+                                    <div data-role="popup" id="popupDelete" data-theme="a" class="ui-corner-all">
+                                    <!--     Popup for config delete -->
+                                            <div style="padding:0px 10px;width:200px;">
+                                                <label for="un" class="ui-hidden-accessible">Config title:</label>
+                                                <select name="config_delete" id="config_delete_hidden" class='available_configs'>
+                                                    <option value="">...</option>
+                                                </select>
+                                                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" id="config-delete-submit">Delete config</button>
+                                            </div>
+                                    <!--  end of popup -->
+                                    </div>
+                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="reset_config_button">Reset current</a></li>
                                 </ul>
                             </li>
                         </ul>
                     </div>
+                    <!-- end of extra buttons div -->
+                    <!-- Popup for config save as -->
                     <div data-role="popup" id="popupLogin" data-theme="a" class="ui-corner-all">
-                        <form>
-                            <div style="padding:0px 10px;width:200px;">
-                                <label for="un" class="ui-hidden-accessible">Config title:</label>
-                                <select name="config_select" id="config_select_hidden">
-                                    <option value="">...</option>
-                                </select>
-                                <input type="text" name="config-title" id="un" value="" placeholder="Enter new title" data-theme="a">
-                                <span class='conf_tail' style="position:relative;top:15px;font-weight: bold;width:15px;">.conf</span>
-                                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" id="config-title-submit">Save</button>
-                            </div>
-                        </form>
+                        <div style="padding:0px 10px;width:200px;">
+                            <label for="un" class="ui-hidden-accessible">Config title:</label>
+                            <select name="config_select" id="config_select_hidden" class='available_configs'>
+                                <option value="">...</option>
+                            </select>
+                            <input type="text" name="config-title" id="un" value="" placeholder="Enter new title" data-theme="a">
+                            <span class='conf_tail' style="position:relative;top:15px;font-weight: bold;width:15px;">.conf</span>
+                            <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" id="config-title-submit">Save</button>
+                        </div>
                     </div>
+                    <!--  end of popup -->
                 </div>
                 <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
-                        <select name="config_select" id="config_select">
-                            <option value="">...</option>
-                        </select>
+                    <select name="config_select" id="config_select" class='available_configs'>
+                        <option value="">...</option>
+                    </select>
                 </div>
                 <div class="ui-field-contain" id="config_buttons"></div>
                 <div id="config_form_column_space"></div>

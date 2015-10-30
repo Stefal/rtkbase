@@ -3,11 +3,6 @@
 // config page is opened
 $(document).on("pageinit", "#config_page", function() {
 
-    // if($('.hidden_buttons').is(':visible'))
-    //     alert('есть');
-    // else
-    //     alert('нет');
-
 	var mode = $("input[name=radio_base_rover]:checked").val();
 	if(mode == 'base')
 		$('#config_select-button').parent().parent().css('display', 'none');
@@ -22,6 +17,9 @@ $(document).on("pageinit", "#config_page", function() {
         if (mode == "base") {
             cleanStatus(mode, "started");
         }
+
+        $('#start_button').css('display', 'none');
+        $('#stop_button').css('display', 'inline-block');
     });
 
     $(document).on("click", "#stop_button", function(e) {
@@ -33,6 +31,9 @@ $(document).on("pageinit", "#config_page", function() {
         // and change status in the coordinate grid
 
         cleanStatus(mode, "stopped");
+
+        $('#stop_button').css('display', 'none');
+        $('#start_button').css('display', 'inline-block');
     });
 
     $(document).on("change", "#config_select", function(e) {
@@ -52,6 +53,7 @@ $(document).on("pageinit", "#config_page", function() {
             }
         }
 
+        // visibility of reset button only for default configs
         if(jQuery.inArray( config_name, defaultConfigs ) >= 0)
             $('#reset_config_button').css('display', 'inline-block');
         else
@@ -61,40 +63,51 @@ $(document).on("pageinit", "#config_page", function() {
     });
 
     $('#hide_buttons_button').click(function() {
-        $(this).parent().find('ul').slideToggle('slow');
+        $(this).parent().find('ul').slideToggle('fast');
         return false;
     });
 
-$(document).click(function(event) {
-    if ($(event.target).closest(".hidden_list").length)
-        return
-    else{
-        $(".hidden_list").slideUp('slow');
-        event.stopPropagation();
-    }
-});
+    // hide extra buttons with click out of extra buttons div
+    $(document).click(function(event) {
+        if ($(event.target).closest(".hidden_list").length)
+            return
+        else{
+            $(".hidden_list").slideUp('fast');
+            event.stopPropagation();
+        }
+    });
 
     $('#reset_config_button').click(function(){
         var conf_to_reset = $('#config_select').val();
 
         console.log("Reset config with name: " + conf_to_reset);
         socket.emit("reset config", {"name": conf_to_reset});
-        $(".hidden_list").slideUp('slow');
+        $(".hidden_list").slideUp('fast');
     });
 
     $('#delete_config_button').click(function(){
-        var conf_to_delete = $('#config_select').val();
+        $( "#popupDelete" ).popup( "open");
+        $(".hidden_list").slideUp('fast');
 
-        if(jQuery.inArray( conf_to_delete, defaultConfigs ) >= 0){
-            console.log(conf_to_delete);
-            console.log("Don't try to delete default config");
-        }
-        else{
-            console.log("Delete conf: " + conf_to_delete);
-            socket.emit("delete config", {"name": conf_to_delete});
-        }
+        $('#config-delete-submit').click(function(){
 
-        $(".hidden_list").slideUp('slow');
+        var conf_to_delete = $('#config_delete_hidden').val();
+
+        if(conf_to_delete != null){
+            if(jQuery.inArray( conf_to_delete, defaultConfigs ) >= 0){
+                console.log(conf_to_delete);
+                console.log("Don't try to delete default config");
+            }
+            else{
+                console.log("Delete conf: " + conf_to_delete);
+                socket.emit("delete config", {"name": conf_to_delete});
+            }
+        }
+        else
+            console.log("Nothing to delete");
+
+        $( "#popupDelete" ).popup( "close");
+        });
     });
 
     $(document).on("click", ".save_configs_button", function(e) {
@@ -116,7 +129,6 @@ $(document).click(function(event) {
 
             console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-            // var payload = {"parameter": current_parameter, "description": current_description, "comment": current_comment, "value": current_value};
             var payload = {};
             payload['parameter'] = current_parameter;
             payload['value'] = current_value;
@@ -149,7 +161,8 @@ $(document).click(function(event) {
 
             config_to_send[current_id] = payload;
         });
-
+        
+        // this function adds '.conf' to save as form if we want to enter new title
         function checkConfTitle() {
         	var conf = $('#config_select_hidden').val();
 
@@ -221,13 +234,13 @@ $(document).click(function(event) {
 
 $(document).on("pageinit", "#logs_page", function() {
 
-        $('.log_string').each(function(){
+    $('.log_string').each(function(){
 
-            var splitLogString = $(this).text().split(',');
-            var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
+        var splitLogString = $(this).text().split(',');
+        var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
 
-            $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
-        });
+        $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
+    });
 
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
@@ -275,6 +288,9 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
     }       
 
     cleanStatus(mode, status);
+
+    $('#stop_button').css('display', 'none');
+    $('#start_button').css('display', 'inline-block');
 
     console.log("Request for " + mode + " config");
     socket.emit("read config " + mode, to_send);
