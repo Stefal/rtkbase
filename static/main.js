@@ -129,9 +129,15 @@ $(document).ready(function () {
         }
 
         if(jQuery.inArray( msg.rover.current_config, defaultConfigs ) >= 0)
-            $('#reset_config_button').css('display', 'inline-block');
+            $('#reset_config_button').removeClass('ui-disabled');
         else
-            $('#reset_config_button').css('display', 'none');
+            $('#reset_config_button').addClass('ui-disabled');
+
+        if(select_options.find('.extra_config').length != 0)
+            $('#delete_config_button').removeClass('ui-disabled');
+        else
+            $('#delete_config_button').addClass('ui-disabled');
+
     });
 
     socket.on("available configs", function(msg) {

@@ -55,9 +55,14 @@ $(document).on("pageinit", "#config_page", function() {
 
         // visibility of reset button only for default configs
         if(jQuery.inArray( config_name, defaultConfigs ) >= 0)
-            $('#reset_config_button').css('display', 'inline-block');
+            $('#reset_config_button').removeClass('ui-disabled');
         else
-            $('#reset_config_button').css('display', 'none');
+            $('#reset_config_button').addClass('ui-disabled');
+
+        if($("#config_select").find('.extra_config').length != 0)
+            $('#delete_config_button').removeClass('ui-disabled');
+        else
+            $('#delete_config_button').addClass('ui-disabled');
 
         socket.emit("read config " + mode, to_send);
     });
