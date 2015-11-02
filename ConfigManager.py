@@ -23,6 +23,7 @@
 
 from glob import glob
 from os import remove, path
+from shutil import copy
 
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
@@ -150,10 +151,8 @@ class Config:
                     # save the info as {"0": item0, ...}
                     self.items[str(i)] = item
 
-                    print("DEBUG READ FROM FILE")
-                    print("i == " + str(i) + " item == " + str(item))
-
                     i += 1
+
 
     def writeToFile(self, to_file = None):
 
@@ -184,7 +183,6 @@ class Config:
             f.write(line + "\n\n")
 
             for item in items_list:
-                print("DEBUG writing line " + self.formStringFromItem(item))
                 f.write(self.formStringFromItem(item) + "\n")
 
 class ConfigManager:
@@ -197,6 +195,8 @@ class ConfigManager:
             self.config_path = config_path
 
         self.default_rover_config = "reach_single_default.conf"
+
+        self.default_config_path = "/home/reach/ReachView/rtklib_configs/"
 
         self.available_configs = []
         self.updateAvailableConfigs()
@@ -230,7 +230,6 @@ class ConfigManager:
         else:
             config_file_path = self.config_path + from_file
 
-        print("DEBUG READING ROVER CONFIG FROM FILE: " + config_file_path)
         self.buffered_config.readFromFile(config_file_path)
 
     def writeConfig(self, to_file = None, config_values = None):
@@ -252,6 +251,18 @@ class ConfigManager:
         else:
             conf = Config(items = config_values)
             conf.writeToFile(to_file)
+
+    def resetConfigToDefault(self, config_name):
+        # try to copy default config to the working configs directory
+        if "/" not in config_name:
+            default_config_value = self.default_config_path + config_name
+        else:
+            default_config_value = config_name
+
+        try:
+            copy(default_config_value, self.config_path)
+        except IOError, e:
+            print("Error resetting config " + config_name + " to default. Error: " + e.filename + " - " + e.strerror)
 
     def deleteConfig(self, config_name):
         # try to delete config if it exists

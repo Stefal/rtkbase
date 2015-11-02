@@ -148,11 +148,16 @@ def writeConfigBase(json):
 def deleteLog(json):
     rtk.logm.deleteLog(json.get("name"))
 
-#### Delete config
+#### Delete config ####
 @socketio.on("delete config", namespace="/test")
 def deleteLog(json):
     rtk.deleteConfig(json.get("name"))
     # rtk.conm.deleteConfig(json.get("name"))
+
+#### Reset config to default ####
+@socketio.on("reset config", namespace="/test")
+def resetConfig(json):
+    rtk.resetConfigToDefault(json.get("name"))
 
 @socketio.on("update reachview", namespace="/test")
 def updateReachView():

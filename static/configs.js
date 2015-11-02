@@ -3,6 +3,9 @@
 function checkInputSelects(i, method){ //inp OR out OR log
 	$('#' + method + 'str' + i + '-path_entry').attr('type', 'hidden');
 	$('#' + method + 'str' + i + '-path_entry').parent().css({'visibility':'hidden', 'border':'none'});
+	$('#pos1-navsys_entry').attr('type', 'hidden');
+	$('#pos1-navsys_entry').parent().css({'visibility':'hidden', 'border':'none'});
+
 	$('#' + method + 'str' + i + '-path_entry').parent().parent().css('display', 'block');
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
 	$('div.additional' + method + i).remove();
@@ -324,8 +327,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
     var issetInput = "";
     var splitArr = "";
     var innerSplit = "";
+    var originNavsysArr = [];
     var topClassArr = ['inpstr1-type', 'inpstr1-format' ,'inpstr2-type', 'inpstr2-format', 'inpstr3-type', 'inpstr3-format', 'outstr1-type', 'outstr1-format' , 'outstr2-type', 'outstr2-format', 'logstr1-type', 'logstr1-format', 'logstr2-type', 'logstr2-format', 'logstr3-type', 'logstr3-format'];
     var prefixArr = { log: '3', out: '2', inp: '3' };
+    var navsysArr = [ 'gps', 'sbas', 'glo', 'gal', 'qzs', 'comp'];
 
     console.log("Received current rover config:");
 
@@ -384,8 +389,32 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
                 to_append += '</select>';
             }
+            else if(config_parameter == 'pos1-navsys'){
+            	to_append += '<fieldset>';
+        		to_append += '<label for="select-choice-10"> </label>';
+        		to_append += '<input type="text" data-clear-btn="true" id="' + config_parameter + '_entry" value="' + config_value + '" class="config_form_field" >';
+	            to_append += '<select name="select-choice-10" id="navsys_select" multiple="multiple" data-native-menu="false">';
+				to_append += '<option data-placeholder="true">Choose options</option>';
+
+				for(var i = 5; i>=0; i--){
+					if( (config_value - (1 << i)) >= 0 ){
+						originNavsysArr.push(i);
+						config_value -= (1 << i);
+					}
+				}
+
+				$.each(navsysArr, function(index, value){
+        			if(jQuery.inArray( index, originNavsysArr ) >= 0)
+                    	to_append += '<option value="' + index + '" selected>' + value + '</option>';
+                    else
+                    	to_append += '<option value="' + index + '">' + value + '</option>';
+                })
+
+				to_append += '</select>'
+				to_append += '</fieldset>';
+            }
             else
-                to_append += '<input type="text" data-clear-btn="true" id="' + config_parameter + '_entry" value="' + config_value + '" class="config_form_field" >';                    
+                to_append += '<input type="text" data-clear-btn="true" id="' + config_parameter + '_entry" value="' + config_value + '" class="config_form_field" >';                 
 
             to_append += '</div>';
         }
@@ -411,7 +440,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		}
 	}
 
-	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent());
+	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
 	$(document).on("change", '.top_input', function() {
@@ -434,6 +463,15 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		formString(numb, method);
 
 		$(this).parent().parent().addClass('additional_general');
+	});
+
+	$(document).on("change", '#navsys_select', function() {
+		var generalVal = 0;
+		$.each($(this).val(), function(index, value){
+			generalVal += (1 << parseInt(value));
+		})
+
+		$('#pos1-navsys_entry').val(generalVal);
 	});
 
 	$('#adv-set-btn').click( function(){

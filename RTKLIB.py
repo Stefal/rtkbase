@@ -465,6 +465,20 @@ class RTKLIB:
 
         print(self.conm.available_configs)
 
+    def resetConfigToDefault(self, config_name):
+        # pass reset config to conm
+
+        print("Got signal to reset config " + config_name)
+
+        self.conm.resetConfigToDefault(config_name)
+
+        self.conm.updateAvailableConfigs()
+
+        # send available configs to the browser
+        self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
+        
+        print(self.conm.available_configs)
+
     def saveState(self):
         # save current state for future resurrection:
         # state is a list of parameters:
