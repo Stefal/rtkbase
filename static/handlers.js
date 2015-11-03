@@ -230,8 +230,8 @@ $(document).on("pageinit", "#config_page", function() {
 
                 config_to_send["config_file_name"] = config_name;
             }
-
-            socket.emit("write and load config " + mode, config_to_send);
+            console.log(config_to_send);
+            // socket.emit("write and load config " + mode, config_to_send);
         }
     });
 

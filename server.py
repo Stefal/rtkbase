@@ -139,7 +139,7 @@ def writeAndLoadConfig(json):
 def readConfigBase(json):
     rtk.readConfigBase()
 
-@socketio.on("write config base", namespace="/test")
+@socketio.on("write and load config base", namespace="/test")
 def writeConfigBase(json):
     rtk.writeConfigBase(json)
 

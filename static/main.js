@@ -90,15 +90,6 @@ $(document).ready(function () {
         console.log("Got message containing Reach state. Currently in " + msg.state + " mode");
         console.log("Current rover config is " + msg.rover.current_config);
 
-        if(msg.started == 'yes'){
-            $('#start_button').css('display', 'none');
-            $('#stop_button').css('display', 'inline-block');
-        }
-        else{
-            $('#stop_button').css('display', 'none');
-            $('#start_button').css('display', 'inline-block');
-        }
-
         // add current configs to the dropdown menu
 
         var select_options = $("#config_select");
@@ -137,6 +128,15 @@ $(document).ready(function () {
             $('#delete_config_button').removeClass('ui-disabled');
         else
             $('#delete_config_button').addClass('ui-disabled');
+
+        if(msg.started == 'yes'){
+            $('#start_button').css('display', 'none');
+            $('#stop_button').css('display', 'inline-block');
+        }
+        else{
+            $('#stop_button').css('display', 'none');
+            $('#start_button').css('display', 'inline-block');
+        }
 
     });
 

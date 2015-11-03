@@ -54,8 +54,8 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			break;
 	}
 
-	$('#inpstr-path_entry').parent().parent().append($('#inpstr-format_entry').parent().parent().parent());
-	$('#outstr-path_entry').parent().parent().append($('#outstr-format_entry').parent().parent());
+	$('#inpstr-path_entry').parent().parent().append($('#inpstr-format_base').parent().parent().parent());
+	$('#outstr-path_entry').parent().parent().append($('#outstr-format_base').parent().parent());
 }
 
 /// This function generates correct strings from inputs for upload
@@ -64,7 +64,7 @@ function formString(i, method){
 	var mode = $("input[name=radio_base_rover]:checked").val();
 
 	var begin = (mode == 'rover') ? '' : $('#' + method + 'str' + i + '-type_entry').val() + '://';
-	var end = (mode == 'rover') ? '' : '#' + $('#' + method + 'str' + i + '-format_entry').val();
+	var end = (mode == 'rover') ? '' : '#' + $('#' + method + 'str' + i + '-format_base').val();
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "off":
@@ -160,6 +160,13 @@ function defaultStringToInputs(i, method){
 
 function showBase(msg){
 	var to_append = "";
+	var config_key = "";
+    var config_value = "";
+    var config_description = "";
+    var config_parameter = "";
+    var config_comment = "";
+    var input_title = "";
+    var issetInput = "";
 	var prefixArr = [ 'inp', 'out'];
 	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
     var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
@@ -178,22 +185,37 @@ function showBase(msg){
     to_append += '<div class="ui-field-contain">';
 
     for (var k in msg) {
-        console.log("base config item: " + k + " = " + msg[k]);
-        to_append += '<div class="ui-field-contain>"';
-        
-        if((k == 'inpstr-path') || (k == 'outstr-path')){
-        	var splitK = k.split('-');
 
-        	if(k == 'inpstr-path')
+        config_key = msg[k];
+	    config_value = config_key['value'];
+	    config_parameter = config_key['parameter'];
+	    config_description = (typeof config_key['description'] == "undefined") ? '' : config_key['description'];
+
+	    config_comment = (typeof config_key['comment'] == "undefined") ? '' : config_key['comment'];
+	    input_title = (config_description == '') ? config_parameter : config_description;
+
+    	issetInput = (typeof config_key['description'] == "undefined") ? '0' : '1';
+
+        console.log("config base item: " + config_parameter + " = " + config_value + ' description: ' + config_description + ', comment ' + config_comment);
+
+        to_append += '<div class="ui-field-contain>">';
+        to_append += '<input type="hidden" id="' + config_parameter + '_check" value="' + issetInput +'">';
+        to_append += '<input type="hidden" id="' + config_parameter + '_comment" value="' + config_comment +'">';
+        to_append += '<input type="hidden" id="' + config_parameter + '_order" value="' + k +'">';
+        
+        if((config_parameter == 'inpstr-path') || (config_parameter == 'outstr-path')){
+        	var splitK = config_parameter.split('-');
+
+        	if(config_parameter == 'inpstr-path')
         		typeArr.splice(5, 1);
         	else
         		typeArr.splice(4, 1);
         	
-        	var checkedOption = msg[k].split('://');
-        	var checkedFormat = msg[k].split('#');
+        	var checkedOption = config_value.split('://');
+        	var checkedFormat = config_value.split('#');
 
-        	to_append += '<label for="' + k + '_entry">' + k + '</label>';
-        	to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '">';
+        	to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
+        	to_append += '<input type="text" id="' + config_parameter + '_entry" value="' + config_value + '">';
         	to_append += '<select name="select-native-1" id="' + splitK[0] + '-type_entry" class="config_form_field top_input">';
 
         	$.each(typeArr, function(index, value){
@@ -206,10 +228,10 @@ function showBase(msg){
         	to_append += '</select>';
         	
         	to_append += '<div>';
-        	to_append += '<label for="' + splitK[0] + '-format_entry">format</label>';
+        	to_append += '<label for="' + splitK[0] + '-format_base">format</label>';
 
-        	if(k == 'inpstr-path'){
-        		to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_entry" class="config_form_field top_input">';
+        	if(config_parameter == 'inpstr-path'){
+        		to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_base" class="config_form_field top_input">';
         		
         		$.each(formatArr, function(index, value){
             		if(checkedFormat[1] == value)
@@ -221,16 +243,16 @@ function showBase(msg){
         		to_append += '</select>';
         	}
         	else{
-        		to_append += '<input type="text" readonly value="rtcm3" id="' + splitK[0] + '-format_entry">';
+        		to_append += '<input type="text" readonly value="rtcm3" id="' + splitK[0] + '-format_base">';
         	}
 
         	to_append += '<div>';
         }
-        else if(k == 'rtcm3_out_messages'){
-        		var selectedOptionArr = msg[k].split(',');
+        else if(config_parameter == 'rtcm3_out_messages'){
+        		var selectedOptionArr = config_value.split(',');
 
-        		to_append += '<label for="' + k + '_entry">' + k + '</label>';
-        		to_append += '<input type="hidden" id="' + k + '_entry" value="' + msg[k] + '" data-clear-btn="true">';
+        		to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
+        		to_append += '<input type="hidden" id="' + config_parameter + '_entry" value="' + config_value + '" data-clear-btn="true">';
         		to_append += '<fieldset>';
         		to_append += '<label for="select-choice-10"> </label>';
 	            to_append += '<select name="select-choice-10" id="select-choice-10" multiple="multiple" data-native-menu="false">';
@@ -247,8 +269,8 @@ function showBase(msg){
 				to_append += '</fieldset>';
         }
         else{
-        	to_append += '<label for="' + k + '_entry">' + k + '</label>';
-            to_append += '<input type="text" id="' + k + '_entry" value="' + msg[k] + '" data-clear-btn="true">';
+        	to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
+            to_append += '<input type="text" id="' + config_parameter + '_entry" value="' + config_value + '" data-clear-btn="true">';
         }
         
         to_append += '</div>';
@@ -278,7 +300,7 @@ function showBase(msg){
 		}
 		else{
 			var hashSplit = $('#' + method + 'str-path_entry').val().split('#');
-			$('#' + method + 'str-path_entry').val(hashSplit['0'] + '#' + $('#' + method + 'str-format_entry').val());
+			$('#' + method + 'str-path_entry').val(hashSplit['0'] + '#' + $('#' + method + 'str-format_base').val());
 		}
 	});
 
@@ -295,7 +317,6 @@ function showBase(msg){
 			$('#denyChange').click(function() {popup = true;});
 		}
 	});
-
 
 
 	$(document).on("change", '.additional_general input', function() {
@@ -428,12 +449,12 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	for (key in prefixArr) {
 		for(var b = prefixArr[key]; b >=1; b--){
 			if(key != 'inp' || b != 1){
-				$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
+				$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_base').parent().parent().parent());
 			    $(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
     			$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
 			}
 			else{
-				$(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
+				$(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-format_base').parent().parent().parent());
 			    $(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
     			$(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
 			}
