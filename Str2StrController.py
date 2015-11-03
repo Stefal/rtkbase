@@ -70,7 +70,7 @@ class Str2StrController:
 
         parameters_to_send["3"] = {"parameter": "base_pos_lat", "value": base_pos[0], "description": "Base latitude"}
         parameters_to_send["4"] = {"parameter": "base_pos_lon", "value": base_pos[1], "description": "Base longitude"}
-        parameters_to_send["5"] = {"parameter": "base_pos_lat", "value": base_pos[0], "description": "Base height"}
+        parameters_to_send["5"] = {"parameter": "base_pos_height", "value": base_pos[0], "description": "Base height"}
 
         print("DEBUG read")
 

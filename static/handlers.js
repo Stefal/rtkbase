@@ -147,24 +147,26 @@ $(document).on("pageinit", "#config_page", function() {
         });
     
         $('select[id*="_entry"]').each(function(i, obj){
-            current_parameter = obj.id.substring(0, obj.id.length - 6);
-            current_id = $('input[id="' + current_parameter +'_order"]').val();
-            current_value = obj.value;
-            current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
-            current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
+        	if((obj.id != 'inpstr-type_entry') && (obj.id != 'outstr-type_entry')){
+	            current_parameter = obj.id.substring(0, obj.id.length - 6);
+	            current_id = $('input[id="' + current_parameter +'_order"]').val();
+	            current_value = obj.value;
+	            current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
+	            current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
 
-            console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
+	            console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-            var payload = {};
-            payload['parameter'] = current_parameter;
-            payload['value'] = current_value;
+	            var payload = {};
+	            payload['parameter'] = current_parameter;
+	            payload['value'] = current_value;
 
-            if(current_description != '')
-                payload['description'] = current_description;
-            if(current_comment != '')
-            payload['comment'] = current_comment;
+	            if(current_description != '')
+	                payload['description'] = current_description;
+	            if(current_comment != '')
+	            	payload['comment'] = current_comment;
 
-            config_to_send[current_id] = payload;
+	            config_to_send[current_id] = payload;
+	        }
         });
         
         // this function adds '.conf' to save as form if we want to enter new title
@@ -221,17 +223,17 @@ $(document).on("pageinit", "#config_page", function() {
         }
         else{
             var config_name = $("#config_select").val();
-            console.log('got signal to write config ' + config_name);
 
             if (mode == "base") {
                 console.log("Request to load new " + mode + " config and restart");
             } else {
+            	console.log('got signal to write config ' + config_name);
                 console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
 
                 config_to_send["config_file_name"] = config_name;
             }
-            console.log(config_to_send);
-            // socket.emit("write and load config " + mode, config_to_send);
+
+            socket.emit("write and load config " + mode, config_to_send);
         }
     });
 

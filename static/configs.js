@@ -53,7 +53,7 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
 	}
-
+	
 	$('#inpstr-path_entry').parent().parent().append($('#inpstr-format_base').parent().parent().parent());
 	$('#outstr-path_entry').parent().parent().append($('#outstr-format_base').parent().parent());
 }
