@@ -214,26 +214,32 @@ $(document).on("pageinit", "#config_page", function() {
         }
         else if($(this).attr('id') == 'save_button'){
             var config_name = $("#config_select").val();
-            console.log('got signal to write config ' + config_name);
 
-            if (mode != "base")
-                config_to_send["config_file_name"] = config_name;
+            $( "#popupSave" ).popup( "open");
 
-            socket.emit("write config " + mode, config_to_send);
-        }
-        else{
-            var config_name = $("#config_select").val();
+            $('#config-save-submit').click(function(){
+                console.log('got signal to write config ' + config_name);
 
-            if (mode == "base") {
-                console.log("Request to load new " + mode + " config and restart");
-            } else {
-            	console.log('got signal to write config ' + config_name);
-                console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+                if (mode != "base")
+                    config_to_send["config_file_name"] = config_name;
 
-                config_to_send["config_file_name"] = config_name;
-            }
+                socket.emit("write config " + mode, config_to_send);
+            });
 
-            socket.emit("write and load config " + mode, config_to_send);
+            $('#config-save-load-submit').click(function(){
+
+
+                if (mode == "base") {
+                    console.log("Request to load new " + mode + " config and restart");
+                }
+                else {
+                    console.log('got signal to write config ' + config_name);
+                    console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+
+                    config_to_send["config_file_name"] = config_name;
+                }
+                socket.emit("write and load config " + mode, config_to_send);
+            });
         }
     });
 
@@ -276,7 +282,6 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         case "rover":
             $('#config_select-button').parent().parent().css('display', 'block');
             $('#save_as_button').css('display', 'inline-block');
-            $('#save_button').css('display', 'inline-block');
             $('#hide_buttons_button').css('display', 'inline-block');
             mode = "rover";
             console.log("Launching rover mode");
@@ -287,7 +292,6 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         case "base":
             $('#config_select-button').parent().parent().css('display', 'none');
             $('#save_as_button').css('display', 'none');
-            $('#save_button').css('display', 'none');
             $('#hide_buttons_button').css('display', 'none');
             mode = "base";
             console.log("Launching base mode");
