@@ -418,9 +418,6 @@ class RTKLIB:
         # read from file
         self.conm.readConfig(config_file)
 
-        print("DEBUG CONFIG WE JUST READ IS HERE:")
-        print(self.conm.buffered_config.items)
-
         # send to the browser
         self.socketio.emit("current config rover", self.conm.buffered_config.items, namespace="/test")
 
@@ -620,7 +617,12 @@ class RTKLIB:
 
         state = self.getState()
 
+        self.conm.updateAvailableConfigs()
         state["available_configs"] = self.conm.available_configs
+
+        print("Available configs to send: ")
+        print(str(state["available_configs"]))
+
         self.socketio.emit("current state", state, namespace = "/test")
 
     def updateLED(self):

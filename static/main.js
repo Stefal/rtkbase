@@ -132,6 +132,7 @@ $(document).ready(function () {
         if(msg.started == 'yes'){
             $('#start_button').css('display', 'none');
             $('#stop_button').css('display', 'inline-block');
+            cleanStatus(msg.state, "started");
         }
         else{
             $('#stop_button').css('display', 'none');

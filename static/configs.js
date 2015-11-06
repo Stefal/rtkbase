@@ -12,6 +12,7 @@ function checkInputSelects(i, method){ //inp OR out OR log
 
 	$('#' + method + 'str' + i + '-type_entry').parent().parent().parent().css('margin-top', '50px');
 	$('#inpstr1-type_entry').parent().parent().parent().css('margin-top', '0px');
+	$('#inpstr-type_entry').parent().parent().parent().css('margin-top', '0px');
 
 	if($('#outstr1-type_entry').val() == 'off'){
 		$('#outstr2-type_entry').parent().parent().parent().css('display', 'none');
@@ -33,6 +34,16 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			break;
 		case "file":
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
+			if(method == 'log'){
+				if(i == 1){
+					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.log');
+					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.log');
+				}
+				else if(i == 2){
+					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
+					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
+				}
+			}
 			break;
 		case "tcpcli":
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' +method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
@@ -228,9 +239,9 @@ function showBase(msg){
         	to_append += '</select>';
         	
         	to_append += '<div>';
-        	to_append += '<label for="' + splitK[0] + '-format_base">format</label>';
 
         	if(config_parameter == 'inpstr-path'){
+        		to_append += '<label for="' + splitK[0] + '-format_base">Input format</label>';
         		to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_base" class="config_form_field top_input">';
         		
         		$.each(formatArr, function(index, value){
@@ -243,6 +254,7 @@ function showBase(msg){
         		to_append += '</select>';
         	}
         	else{
+        		to_append += '<label for="' + splitK[0] + '-format_base">Output format</label>';
         		to_append += '<input type="text" readonly value="rtcm3" id="' + splitK[0] + '-format_base">';
         	}
 
@@ -308,17 +320,6 @@ function showBase(msg){
 		$('#rtcm3_out_messages_entry').val($(this).val());
 	});
 
-    var popup = true;
-
-	$('#inpstr-type_entry').click(function() {
-		if(popup){
-			$( "#popupDialog" ).popup( "open");
-			$('#acceptChange').click(function() {popup = false;});
-			$('#denyChange').click(function() {popup = true;});
-		}
-	});
-
-
 	$(document).on("change", '.additional_general input', function() {
 		
 		$(this).parent().parent().removeClass('additional_general');
@@ -335,6 +336,32 @@ function showBase(msg){
 		defaultStringToInputs('', prefixArr[key]);
 		formString('', prefixArr[key]);
 	}
+
+	var popup = true;
+
+	$('#inpstr-type_entry').click(function() {
+		if(popup){
+			$( "#popupDialog" ).popup( "open");
+			$('#acceptChange').click(function() {popup = false;});
+			$('#denyChange').click(function() {popup = true;});
+		}
+	});
+
+	$('#baudrateinp').click(function(){
+		if(popup){
+			$( "#popupDialog" ).popup( "open");
+			$('#acceptChange').click(function() {popup = false;});
+			$('#denyChange').click(function() {popup = true;});
+		}
+	});
+
+	$('#deviceinp').click(function(){
+		if(popup){
+			$( "#popupDialog" ).popup( "open");
+			$('#acceptChange').click(function() {popup = false;});
+			$('#denyChange').click(function() {popup = true;});
+		}
+	});
 }
 
 function showRover(msg, rover_config_order, rover_config_comments){
@@ -448,7 +475,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 	for (key in prefixArr) {
 		for(var b = prefixArr[key]; b >=1; b--){
-			if(key != 'inp' || b != 1){
+			if((key != 'inp' || b != 1) && (b != 3)){
 				$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_base').parent().parent().parent());
 			    $(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
     			$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
@@ -461,6 +488,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		}
 	}
 
+	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-postype_entry').parent().parent().parent());
+	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos1_entry').parent().parent());
+	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos2_entry').parent().parent());
+	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos3_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
