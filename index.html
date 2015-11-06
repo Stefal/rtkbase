@@ -115,14 +115,14 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="stop_button">Stop</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="load_and_restart_button">Save & Load</a>
                     <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_button">Save</a>
-                    <a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_as_button">Save As...</a>
                     <!-- Extra buttons are hidden in this div -->
                     <div class="hidden_buttons" style="display:inline-block">
                         <ul style="padding-left: 0;">
                             <li style="list-style:none;position:relative">
                                 <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="hide_buttons_button">⋮</a>
-                                <ul style="list-style:none;position:absolute;left:-200%;z-index:2;display:none;background:#F9F9F9;border: 1px solid #ddd;padding-left: 5px;" class="hidden_list">
-                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="delete_config_button">Delete сonfig...</a></li>
+                                <ul style="list-style:none;position:absolute;left:-200%;z-index:2;display:none;background:#F9F9F9;border: 1px solid #ddd;padding-left:5px;" class="hidden_list">
+                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_as_button" style="width:calc( 100% - 39px);">Save As...</a></li>
+                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="delete_config_button" style="width:calc( 100% - 39px);">Delete сonfig...</a></li>
                                     <div data-role="popup" id="popupDelete" data-theme="a" class="ui-corner-all">
                                     <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                                     <!--     Popup for config delete -->
@@ -135,7 +135,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                                             </div>
                                     <!--  end of popup -->
                                     </div>
-                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="reset_config_button">Reset to default</a></li>
+                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="reset_config_button" style="width:calc( 100% - 39px);">Reset to default</a></li>
                                 </ul>
                             </li>
                         </ul>
