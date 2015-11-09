@@ -52,10 +52,10 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
 			break;
 		case "7":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username' + method + i + '" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username' + method + i + '" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="password" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "6":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username' + method + i + '" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="text" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username' + method + i + '" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="password" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "8":
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
@@ -426,7 +426,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
                     value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
                     innerSplit = value.split(':');
 
-                    if(innerSplit['1'] == config_value)
+                    if(innerSplit['0'] == config_value)
                         to_append += '<option value="' + innerSplit['0'] + '" selected="selected">' + innerSplit['1'] + '</option>';
                     else
                     	to_append += '<option value="' + innerSplit['0'] + '">' + innerSplit['1'] + '</option>';
@@ -473,12 +473,12 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	for (key in prefixArr) {
 		for(var b = prefixArr[key]; b >=1; b--){
 			if((key != 'inp' || b != 1) && (b != 3)){
-				$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_base').parent().parent().parent());
+				$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
 			    $(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
     			$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
 			}
 			else{
-				$(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-format_base').parent().parent().parent());
+				$(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
 			    $(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
     			$(".ui-field-contain.fields-field .advanced-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
 			}

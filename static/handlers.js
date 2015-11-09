@@ -1,6 +1,25 @@
 // here we will register events for all buttons/switches and so on...
 // it is guaranteed the binding will only trigger once, on the first time
 // config page is opened
+
+// this function adds '.conf' to save as form if we want to enter new title
+function checkConfTitle() {
+    var conf = $('#config_select_hidden').val();
+
+    if($('#config_select_hidden').val() == 'custom'){
+        $('input[name=config-title]').val('');
+        $('input[name=config-title]').prop('type', 'text');
+        $('input[name=config-title]').parent().css({'visibility':'visible', 'border':'1px solid #ddd', 'width':'125px', 'float':'left' ,'margin-right':'10px'});
+        $('.conf_tail').css('display', 'inline');
+    }
+    else{
+        $('input[name=config-title]').val(conf.substr(0, conf.length - 5));
+        $('input[name=config-title]').prop('type', 'hidden');
+        $('input[name=config-title]').parent().css({'visibility':'hidden', 'border':'none'});
+        $('.conf_tail').css('display', 'none');
+    }
+}
+
 $(document).on("pageinit", "#config_page", function() {
 
 	var mode = $("input[name=radio_base_rover]:checked").val();
@@ -125,7 +144,7 @@ $(document).on("pageinit", "#config_page", function() {
 
         var mode = $("input[name=radio_base_rover]:checked").val();
 
-        $('input[id*="_entry"]').each(function(i, obj){
+        $('input[id*="_entry"], select[id*="_entry"]').each(function(i, obj){
             current_parameter = obj.id.substring(0, obj.id.length - 6);
             current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
             current_value = obj.value;
@@ -145,47 +164,6 @@ $(document).on("pageinit", "#config_page", function() {
 
             config_to_send[current_id] = payload;
         });
-    
-        $('select[id*="_entry"]').each(function(i, obj){
-        	if((obj.id != 'inpstr-type_entry') && (obj.id != 'outstr-type_entry')){
-	            current_parameter = obj.id.substring(0, obj.id.length - 6);
-	            current_id = $('input[id="' + current_parameter +'_order"]').val();
-	            current_value = obj.value;
-	            current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
-	            current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
-
-	            console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
-
-	            var payload = {};
-	            payload['parameter'] = current_parameter;
-	            payload['value'] = current_value;
-
-	            if(current_description != '')
-	                payload['description'] = current_description;
-	            if(current_comment != '')
-	            	payload['comment'] = current_comment;
-
-	            config_to_send[current_id] = payload;
-	        }
-        });
-        
-        // this function adds '.conf' to save as form if we want to enter new title
-        function checkConfTitle() {
-        	var conf = $('#config_select_hidden').val();
-
-    		if($('#config_select_hidden').val() == 'custom'){
-				$('input[name=config-title]').val('');
-				$('input[name=config-title]').prop('type', 'text');
-				$('input[name=config-title]').parent().css({'visibility':'visible', 'border':'1px solid #ddd', 'width':'125px', 'float':'left' ,'margin-right':'10px'});
-				$('.conf_tail').css('display', 'inline');
-			}
-			else{
-         		$('input[name=config-title]').val(conf.substr(0, conf.length - 5));
-         		$('input[name=config-title]').prop('type', 'hidden');
-         		$('input[name=config-title]').parent().css({'visibility':'hidden', 'border':'none'});
-         		$('.conf_tail').css('display', 'none');
-			}
-        }
 
         if($(this).attr('id') == 'save_as_button'){
             $( "#popupLogin" ).popup( "open");
