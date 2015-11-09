@@ -120,10 +120,10 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                         <ul style="padding-left: 0;">
                             <li style="list-style:none;position:relative">
                                 <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="hide_buttons_button">⋮</a>
-                                <ul style="list-style:none;position:absolute;left:-200%;z-index:2;display:none;background:#F9F9F9;border: 1px solid #ddd;padding-left:5px;" class="hidden_list">
+                                <ul style="list-style:none;position:absolute;left:-200%;z-index:2000;display:none;background:#F9F9F9;border: 1px solid #ddd;padding-left:5px;" class="hidden_list">
                                     <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline save_configs_button" id="save_as_button" style="width:calc( 100% - 39px);">Save As...</a></li>
                                     <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="delete_config_button" style="width:calc( 100% - 39px);">Delete сonfig...</a></li>
-                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="reset_config_button" style="width:calc( 100% - 39px);">Reset to default</a></li>
+                                    <li><a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="reset_config_button" style="width:calc( 100% - 39px);z-index:999;">Reset to default</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -170,6 +170,18 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                 			</div>
                         </div>
                     </div>
+                    <!-- Popup for input change-->
+                    <div data-role="popup" id="popupDialog" data-overlay-theme="a" data-theme="a" data-dismissible="false" style="max-width:400px;">
+                        <div data-role="header" data-theme="a">
+                            <h1>Change input?</h1>
+                        </div>
+                        <div role="main" class="ui-content">
+                            <h3 class="ui-title">Are you sure you want to change this input?</h3>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">No</a>
+                        </div>
+                    </div>
+                    <!-- end of popup-->
                 </div>
                 <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
                     <select name="config_select" id="config_select" class='available_configs'>

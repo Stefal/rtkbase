@@ -63,6 +63,32 @@ function checkInputSelects(i, method){ //inp OR out OR log
 		case "9":
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
 			break;
+
+		case "serial":
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="device' + method + i + '" data-clear-btn="true" placeholder="Device" class="config_form_field"><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="baudrate" class="config_form_field"></div>').trigger("create");
+			break;
+		case "file":
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpcli":
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' +method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "tcpsvr":
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ntripcli":
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username' + method + i + '" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="password" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ntripsvr":
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username' + method + i + '" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="password" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			break;
+		case "ftp":
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+		case "http":
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"></div>').trigger("create");
+			break;
+
 	}
 	
 	$('#inpstr-path_entry').parent().parent().append($('#inpstr-format_base').parent().parent().parent());
@@ -98,7 +124,35 @@ function formString(i, method){
 		case "6":
 			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
 			break;
+		case "8":
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
+			break;
 		case "9":
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
+			break;
+
+		case "serial":
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #device' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val()) + ':8:n:1:off' + end);
+			break;
+		case "file":
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #path' + method + i).val()) + end);
+			break;
+		case "tcpcli":
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + end);
+			break;
+		case "tcpsvr":
+			$('#' + method + 'str' + i + '-path_entry').val( begin + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + end);
+			break;
+		case "ntripcli":
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #username' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #password' + method + i).val()) + '@' + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val()) + '/' + $.trim($('.additional' + method + i + ' #mount' + method + i).val()) + end);
+			break;
+		case "ntripsvr":
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
+			break;
+		case "ftp":
+			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
+			break;
+		case "http":
 			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
 			break;
 	}
@@ -161,6 +215,47 @@ function defaultStringToInputs(i, method){
 			$('.additional' + method + i + ' #address' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
 			break;
 		case "9":
+			$('.additional' + method + i + ' #address' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
+			break;
+
+		case "serial":
+			$('.additional' + method + i + ' #device' + method + i).val(splitVal['0']);
+			$('.additional' + method + i + ' #baudrate' + method + i).val(splitVal['1']);
+			break;
+		case "file":
+			$('.additional' + method + i + ' #path' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
+			break;
+		case "tcpcli":
+			$('.additional' + method + i + ' #address' + method + i).val(splitVal['0']);
+			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
+			break;
+		case "tcpsvr":
+			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
+			break;
+		case "ntripcli": //user : pass @ address : port / mount
+			$('.additional' + method + i + ' #username' + method + i).val(splitVal['0']);
+			var splitPass = splitVal['1'].split('@');
+			$('.additional' + method + i + ' #password' + method + i).val(splitPass['0']);
+			var splitAdress = splitPass['1'].split(':');
+			$('.additional' + method + i + ' #address' + method + i).val(splitAdress['0']); 
+			var splitPort = splitAdress['1'].split('/');
+			$('.additional' + method + i + ' #port' + method + i).val(splitPort['0']); 
+			$('.additional' + method + i + ' #mount' + method + i).val(splitPort['1']);
+			break;
+		case "ntripsvr":
+			$('.additional' + method + i + ' #username' + method + i).val(splitVal['0']);
+			var splitPass = splitVal['1'].split('@');
+			$('.additional' + method + i + ' #password' + method + i).val(splitPass['0']);
+			var splitAdress = splitPass['1'].split(':');
+			$('.additional' + method + i + ' #address' + method + i).val(splitAdress['0']); 
+			var splitPort = splitAdress['1'].split('/');
+			$('.additional' + method + i + ' #port' + method + i).val(splitPort['0']); 
+			$('.additional' + method + i + ' #mount' + method + i).val(splitPort['1']);
+			break;
+		case "ftp":
+			$('.additional' + method + i + ' #address' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
+			break;
+		case "http":
 			$('.additional' + method + i + ' #address' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
 			break;
 	}
@@ -287,17 +382,6 @@ function showBase(msg){
 
     to_append += '</div>';
 
-	to_append += '<div data-role="popup" id="popupDialog" data-overlay-theme="a" data-theme="a" data-dismissible="false" style="max-width:400px;">';
-    to_append +='<div data-role="header" data-theme="a">';
-    to_append +='<h1>Change input?</h1>';
-    to_append +='</div>';
-    to_append +='<div role="main" class="ui-content">';
-    to_append +='<h3 class="ui-title">Are you sure you want to change this input?</h3>';
-    to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>';
-    to_append +='<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">No</a>';
-    to_append +='</div>';
-	to_append +='</div>';
-
     form_div.html(to_append).trigger("create");
 
     $(document).on("change", '.top_input', function() {
@@ -336,26 +420,13 @@ function showBase(msg){
 
 	var popup = true;
 
-	$('#inpstr-type_entry').click(function() {
-		if(popup){
-			$( "#popupDialog" ).popup( "open");
-			$('#acceptChange').click(function() {popup = false;});
-			$('#denyChange').click(function() {popup = true;});
-		}
-	});
+	$('#inpstr-type_entry').parent().css({'position':'relative'});
+	$('#inpstr-type_entry').parent().append('<div class="select_hidder" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;"></div>');
 
-	$('#baudrateinp').click(function(){
+	$('.select_hidder, #baudrateinp, #deviceinp').click(function() {
 		if(popup){
 			$( "#popupDialog" ).popup( "open");
-			$('#acceptChange').click(function() {popup = false;});
-			$('#denyChange').click(function() {popup = true;});
-		}
-	});
-
-	$('#deviceinp').click(function(){
-		if(popup){
-			$( "#popupDialog" ).popup( "open");
-			$('#acceptChange').click(function() {popup = false;});
+			$('#acceptChange').click(function() {popup = false;$('.select_hidder').css({'z-index':'-50'});});
 			$('#denyChange').click(function() {popup = true;});
 		}
 	});
@@ -535,4 +606,17 @@ function showRover(msg, rover_config_order, rover_config_comments){
 			formString(b, key);
 		}
 	}
+
+	var popup = true;
+
+	$('#inpstr1-type_entry').parent().css({'position':'relative'});
+	$('#inpstr1-type_entry').parent().append('<div class="select_hidder" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;"></div>');
+
+	$('#deviceinp1, #baudrateinp1, .select_hidder').click(function() {
+		if(popup){
+			$( "#popupDialog" ).popup( "open");
+			$('#acceptChange').click(function() {popup = false;$('.select_hidder').css({'z-index':'-50'});});
+			$('#denyChange').click(function() {popup = true;});
+		}
+	});
 }
