@@ -177,17 +177,25 @@ $(document).on("pageinit", "#config_page", function() {
             $('#config-title-submit').click(function(){
             	var confTitle = $('input[name=config-title]').val();
             	var config_name = (confTitle.substr(confTitle.length - 5) == '.conf') ? confTitle.substr(0, confTitle.length - 5) : confTitle;
-                config_name += '.conf';
 
-                $( "#popupLogin" ).popup( "close");
-                console.log('got signal to write config ' + config_name);
+                var validSymbols = /^[a-zA-Z0-9_\-]+$/;
 
-	            if (mode != "base")
-	                config_to_send["config_file_name"] = config_name;
+                if (!validSymbols.test(config_name)) {
+                    $('.space_alert').css('display', 'inline-block');
+                } 
+                else{
+                    config_name += '.conf';
+                    $('.space_alert').css('display', 'none');
+                    $( "#popupLogin" ).popup( "close");
+                    console.log('got signal to write config ' + config_name);
 
-            	socket.emit("write config " + mode, config_to_send);
-                console.log('NEW CONFIG VALUES');
-                console.log(config_to_send);
+                    if (mode != "base")
+                        config_to_send["config_file_name"] = config_name;
+
+                 socket.emit("write config " + mode, config_to_send);
+                    console.log('NEW CONFIG VALUES');
+                    console.log(config_to_send);
+                }
             });
         }
         else if($(this).attr('id') == 'save_button'){
