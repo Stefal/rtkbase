@@ -157,29 +157,34 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                     </div>
                     <!--  end of popup -->
 					<!-- Popup for config save -->
-                    <div data-role="popup" id="popupSave" data-theme="a" class="ui-corner-all">
-                    	<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-                        <div style="padding:0px 10px;width:400px;">
-                			<div data-role="header" data-theme="a">
-                				<h1>Load config?</h1>
-                			</div>
-                			<div role="main" class="ui-content">
-    							<h3 class="ui-title">Do you want to load current config after save?</h3>
-                				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-transition="flow" id="config-save-load-submit">Yes</a>
-                				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" id="config-save-submit">No</a>
-                			</div>
+                    <div data-role="popup" id="popupSave">
+                        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                        <div data-role="header">
+                            <h1>Save config</h1>
                         </div>
+                        <div data-role="main" class="ui-content">
+                            <p>Do you want to load current config after save?</p>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-transition="flow" id="config-save-load-submit">Yes</a>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" id="config-save-submit">No</a>
+                      </div>
+                      <div data-role="footer">
+                        <h1> </h1>
+                      </div>
                     </div>
                     <!-- Popup for input change-->
-                    <div data-role="popup" id="popupDialog" data-overlay-theme="a" data-theme="a" data-dismissible="false" style="max-width:400px;">
-                        <div data-role="header" data-theme="a">
-                            <h1>Change input?</h1>
-                        </div>
-                        <div role="main" class="ui-content">
-                            <h3 class="ui-title">Are you sure you want to change this input?</h3>
+                    <div data-role="popup" id="popupDialog">
+                        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                        <div data-role="header">
+                            <h1>Change input?</h1>
+                        </div>
+                        <div data-role="main" class="ui-content">
+                            <p>Are you sure you want to change this input?</p>
                             <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>
                             <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">No</a>
-                        </div>
+                      </div>
+                      <div data-role="footer">
+                        <h1> </h1>
+                      </div>
                     </div>
                     <!-- end of popup-->
                 </div>

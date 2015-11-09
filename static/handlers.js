@@ -195,15 +195,11 @@ $(document).on("pageinit", "#config_page", function() {
                         config_to_send["config_file_name"] = config_name;
 
                  socket.emit("write config " + mode, config_to_send);
-                    console.log('NEW CONFIG VALUES');
-                    console.log(config_to_send);
                 }
             });
         }
         else if($(this).attr('id') == 'save_button'){
             var config_name = $("#config_select").val();
-
-            // $( "#popupSave" ).popup( "open");
 
             $('#config-save-submit').click(function(){
                 console.log('got signal to write config ' + config_name);
@@ -229,7 +225,6 @@ $(document).on("pageinit", "#config_page", function() {
                     config_to_send["config_file_name"] = config_name;
                 }
 
-                console.log(config_to_send);
                 socket.emit("write and load config " + mode, config_to_send);
 
                 $( "#popupSave" ).popup( "close");
