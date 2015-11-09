@@ -145,24 +145,26 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
 
         $('input[id*="_entry"], select[id*="_entry"]').each(function(i, obj){
-            current_parameter = obj.id.substring(0, obj.id.length - 6);
-            current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
-            current_value = obj.value;
-            current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
-            current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
+            if(($(this).attr('id') != 'outstr-type_entry') && ($(this).attr('id') != 'inpstr-type_entry')){
+                current_parameter = obj.id.substring(0, obj.id.length - 6);
+                current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
+                current_value = obj.value;
+                current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
+                current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
 
-            console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
+                console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-            var payload = {};
-            payload['parameter'] = current_parameter;
-            payload['value'] = current_value;
+                var payload = {};
+                payload['parameter'] = current_parameter;
+                payload['value'] = current_value;
 
-            if(current_description != '')
-                payload['description'] = current_description;
-            if(current_comment != '')
-            payload['comment'] = current_comment;
+                if(current_description != '')
+                    payload['description'] = current_description;
+                if(current_comment != '')
+                payload['comment'] = current_comment;
 
-            config_to_send[current_id] = payload;
+                config_to_send[current_id] = payload;
+            }
         });
 
         if($(this).attr('id') == 'save_as_button'){
@@ -201,7 +203,7 @@ $(document).on("pageinit", "#config_page", function() {
         else if($(this).attr('id') == 'save_button'){
             var config_name = $("#config_select").val();
 
-            $( "#popupSave" ).popup( "open");
+            // $( "#popupSave" ).popup( "open");
 
             $('#config-save-submit').click(function(){
                 console.log('got signal to write config ' + config_name);
@@ -210,6 +212,8 @@ $(document).on("pageinit", "#config_page", function() {
                     config_to_send["config_file_name"] = config_name;
 
                 socket.emit("write config " + mode, config_to_send);
+
+                $( "#popupSave" ).popup( "close");
             });
 
             $('#config-save-load-submit').click(function(){
@@ -224,8 +228,18 @@ $(document).on("pageinit", "#config_page", function() {
 
                     config_to_send["config_file_name"] = config_name;
                 }
+
+                console.log(config_to_send);
                 socket.emit("write and load config " + mode, config_to_send);
+
+                $( "#popupSave" ).popup( "close");
             });
+
+            if (mode == "base") {
+                $('#config-save-load-submit').click();
+            }
+            else
+                $( "#popupSave" ).popup( "open");
         }
     });
 
