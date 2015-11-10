@@ -27,14 +27,6 @@ var defaultConfigs = ['reach_single_default.conf', 'reach_kinematic_default.conf
 
 var isActive = true;
 
-function onFocus() {
-    isActive = true;
-}
-
-function onBlur() {
-    isActive = false;
-}
-
 // ############################### MAIN ###############################
 
 $(document).ready(function () {
@@ -43,8 +35,8 @@ $(document).ready(function () {
 		window.location.href = "/";
 
     // We don't want to do extra work like updating the graph in background
-    window.onfocus = onFocus;
-    window.onblur = onBlur;
+    window.onfocus = true;
+    window.onblur = false;
 
     // SocketIO namespace:
     namespace = "/test";
