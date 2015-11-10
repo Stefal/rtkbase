@@ -168,6 +168,7 @@ $(document).on("pageinit", "#config_page", function() {
         });
 
         if($(this).attr('id') == 'save_as_button'){
+            $(".hidden_list").slideUp('fast');
             $( "#popupLogin" ).popup( "open");
             
             checkConfTitle();

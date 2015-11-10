@@ -10,9 +10,9 @@ function checkInputSelects(i, method){ //inp OR out OR log
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
 	$('div.additional' + method + i).remove();
 
-	$('#' + method + 'str' + i + '-type_entry').parent().parent().parent().css('margin-top', '50px');
-	$('#inpstr1-type_entry').parent().parent().parent().css('margin-top', '0px');
-	$('#inpstr-type_entry').parent().parent().parent().css('margin-top', '0px');
+	// $('#' + method + 'str' + i + '-type_entry').parent().parent().parent().css('margin-top', '50px');
+	// $('#inpstr1-type_entry').parent().parent().parent().css('margin-top', '0px');
+	// $('#inpstr-type_entry').parent().parent().parent().css('margin-top', '0px');
 
 	if($('#outstr1-type_entry').val() == '0'){
 		$('#outstr2-type_entry').parent().parent().parent().css('display', 'none');
@@ -592,6 +592,33 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		})
 
 		$('#pos1-navsys_entry').val(generalVal);
+	});
+
+	$(document).on("change", '#ant2-postype_entry', function() {
+		if(($(this).val() == 2) || ($(this).val() == 5)){
+			$('#ant2-pos1_entry').attr('type', 'hidden');
+			$('#ant2-pos1_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+			$('#ant2-pos2_entry').attr('type', 'hidden');
+			$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+			$('#ant2-pos3_entry').attr('type', 'hidden');
+			$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		}
+		else if(($(this).val() == 3) || ($(this).val() == 4)){
+			$('#ant2-pos1_entry').attr('type', 'text');
+			$('#ant2-pos1_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+			$('#ant2-pos2_entry').attr('type', 'hidden');
+			$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+			$('#ant2-pos3_entry').attr('type', 'hidden');
+			$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});	
+		}
+		else{
+			$('#ant2-pos1_entry').attr('type', 'text');
+			$('#ant2-pos1_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+			$('#ant2-pos2_entry').attr('type', 'text');
+			$('#ant2-pos2_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+			$('#ant2-pos3_entry').attr('type', 'text');
+			$('#ant2-pos3_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
 	});
 
 	$('#adv-set-btn').click( function(){
