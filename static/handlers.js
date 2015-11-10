@@ -214,7 +214,6 @@ $(document).on("pageinit", "#config_page", function() {
 
             $('#config-save-load-submit').click(function(){
 
-
                 if (mode == "base") {
                     console.log("Request to load new " + mode + " config and restart");
                 }
@@ -225,6 +224,9 @@ $(document).on("pageinit", "#config_page", function() {
                     config_to_send["config_file_name"] = config_name;
                 }
 
+                $('#start_button').css('display', 'none');
+                $('#stop_button').css('display', 'inline-block');
+                
                 socket.emit("write and load config " + mode, config_to_send);
 
                 $( "#popupSave" ).popup( "close");
@@ -252,6 +254,7 @@ $(document).on("pageinit", "#logs_page", function() {
 
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
+        $(this).parent().remove();
         console.log("Delete log: " + log_to_delete);
         socket.emit("delete log", {"name": log_to_delete});
     });
