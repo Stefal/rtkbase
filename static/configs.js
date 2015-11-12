@@ -145,6 +145,33 @@ function defaultStringToInputs(i, method){
 	}
 }
 
+function checkBaseAntennaCoordinates(){
+	if(($('#ant2-postype_entry').val() == 'single') || ($('#ant2-postype_entry').val() == 'rtcm')){
+		$('#ant2-pos1_entry').attr('type', 'hidden');
+		$('#ant2-pos1_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#ant2-pos2_entry').attr('type', 'hidden');
+		$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#ant2-pos3_entry').attr('type', 'hidden');
+		$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	}
+	else if(($('#ant2-postype_entry').val() == 'posfile') || ($('#ant2-postype_entry').val() == 'rinexhead')){
+		$('#ant2-pos1_entry').attr('type', 'text');
+		$('#ant2-pos1_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		$('#ant2-pos2_entry').attr('type', 'hidden');
+		$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#ant2-pos3_entry').attr('type', 'hidden');
+		$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});	
+	}
+	else{
+		$('#ant2-pos1_entry').attr('type', 'text');
+		$('#ant2-pos1_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		$('#ant2-pos2_entry').attr('type', 'text');
+		$('#ant2-pos2_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		$('#ant2-pos3_entry').attr('type', 'text');
+		$('#ant2-pos3_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+	}
+}
+
 function showBase(msg){
 	var to_append = "";
 	var config_key = "";
@@ -447,6 +474,8 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
+	checkBaseAntennaCoordinates();
+
 	$(document).on("change", '.top_input', function() {
 		var method = $(this).attr('id').substr(0, 3);
 		var numb = $(this).attr('id').substr(6, 1);
@@ -479,30 +508,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	});
 
 	$(document).on("change", '#ant2-postype_entry', function() {
-		if(($(this).val() == 'single') || ($(this).val() == 'rtcm')){
-			$('#ant2-pos1_entry').attr('type', 'hidden');
-			$('#ant2-pos1_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
-			$('#ant2-pos2_entry').attr('type', 'hidden');
-			$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
-			$('#ant2-pos3_entry').attr('type', 'hidden');
-			$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
-		}
-		else if(($(this).val() == 'posfile') || ($(this).val() == 'rinexhead')){
-			$('#ant2-pos1_entry').attr('type', 'text');
-			$('#ant2-pos1_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
-			$('#ant2-pos2_entry').attr('type', 'hidden');
-			$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
-			$('#ant2-pos3_entry').attr('type', 'hidden');
-			$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});	
-		}
-		else{
-			$('#ant2-pos1_entry').attr('type', 'text');
-			$('#ant2-pos1_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
-			$('#ant2-pos2_entry').attr('type', 'text');
-			$('#ant2-pos2_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
-			$('#ant2-pos3_entry').attr('type', 'text');
-			$('#ant2-pos3_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
-		}
+		checkBaseAntennaCoordinates();
 	});
 
 	$('#adv-set-btn').click( function(){
