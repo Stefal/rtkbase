@@ -146,17 +146,21 @@ function defaultStringToInputs(i, method){
 }
 
 function checkBaseAntennaCoordinates(){
-	if(($('#ant2-postype_entry').val() == 'single') || ($('#ant2-postype_entry').val() == 'rtcm')){
+	if(($('#ant2-postype_entry').val() == 'single') || ($('#ant2-postype_entry').val() == 'rtcm') || ($('#ant2-postype_entry').val() == 'rinexhead')){
 		$('#ant2-pos1_entry').attr('type', 'hidden');
 		$('#ant2-pos1_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		$('#ant2-pos2_entry').attr('type', 'hidden');
 		$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		$('#ant2-pos3_entry').attr('type', 'hidden');
 		$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#file-staposfile_entry').attr('type', 'hidden');
+		$('#file-staposfile_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 	}
-	else if(($('#ant2-postype_entry').val() == 'posfile') || ($('#ant2-postype_entry').val() == 'rinexhead')){
-		$('#ant2-pos1_entry').attr('type', 'text');
-		$('#ant2-pos1_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+	else if($('#ant2-postype_entry').val() == 'posfile'){
+		$('#file-staposfile_entry').attr('type', 'text');
+		$('#file-staposfile_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		$('#ant2-pos1_entry').attr('type', 'hidden');
+		$('#ant2-pos1_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		$('#ant2-pos2_entry').attr('type', 'hidden');
 		$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		$('#ant2-pos3_entry').attr('type', 'hidden');
@@ -169,6 +173,8 @@ function checkBaseAntennaCoordinates(){
 		$('#ant2-pos2_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		$('#ant2-pos3_entry').attr('type', 'text');
 		$('#ant2-pos3_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		$('#file-staposfile_entry').attr('type', 'hidden');
+		$('#file-staposfile_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 	}
 }
 
@@ -471,6 +477,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos1_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos2_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos3_entry').parent().parent());
+	$(".ui-field-contain.fields-field .general-settings").append($('#file-staposfile_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
