@@ -281,6 +281,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         case "rover":
             $('#config_select-button').parent().parent().css('display', 'block');
             $('#save_as_button').css('display', 'inline-block');
+            $('#save_button').text('Save');
             $('#hide_buttons_button').css('display', 'inline-block');
             mode = "rover";
             console.log("Launching rover mode");
@@ -291,6 +292,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         case "base":
             $('#config_select-button').parent().parent().css('display', 'none');
             $('#save_as_button').css('display', 'none');
+            $('#save_button').text('Save & Load');
             $('#hide_buttons_button').css('display', 'none');
             mode = "base";
             console.log("Launching base mode");
