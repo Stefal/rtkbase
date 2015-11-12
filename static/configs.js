@@ -10,14 +10,7 @@ function checkInputSelects(i, method){ //inp OR out OR log
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
 	$('div.additional' + method + i).remove();
 
-	// $('#' + method + 'str' + i + '-type_entry').parent().parent().parent().css('margin-top', '50px');
-	// $('#inpstr1-type_entry').parent().parent().parent().css('margin-top', '0px');
-	// $('#inpstr-type_entry').parent().parent().parent().css('margin-top', '0px');
-
 	if($('#outstr1-type_entry').val() == 'off'){
-		$('#outstr2-type_entry').parent().parent().parent().css('display', 'none');
-		$('#outstr2-format_entry').parent().parent().parent().css('display', 'none');
-		$('#outstr2-path_entry').parent().parent().css('display', 'none');
 		$('#outstr2-type_entry').val('off');
 		$('#outstr2-path_entry').val('');
 	}
@@ -434,7 +427,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 	for (key in prefixArr) {
 		for(var b = prefixArr[key]; b >=1; b--){
-			if((key != 'inp' || b != 1) && (b != 3)){
+			if((key != 'inp' || b != 1) && (b != 3) && (key != 'out' || b != 2)){
 				$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
 			    $(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
     			$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
@@ -537,4 +530,8 @@ function showRover(msg, rover_config_order, rover_config_comments){
 			$('#denyChange').click(function() {popup = true;});
 		}
 	});
+
+	$('label[for*="path_entry"]').each(function(){
+    	$(this).text('');
+	})
 }
