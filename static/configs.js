@@ -140,6 +140,7 @@ function defaultStringToInputs(i, method){
 			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
 			break;
 		case "tcpsvr":
+			var splitVal = correctVal.split(':');
 			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
 			break;
 
