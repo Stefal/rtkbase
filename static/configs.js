@@ -23,6 +23,20 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			break;
 		case "file":
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path" class="config_form_field"></div>').trigger("create");
+			if(method == 'log'){
+				if(i == 1){
+					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.log');
+					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.log');
+				}
+				else if(i == 2)
+					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
+					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
+			}
+			else if(method == 'out' && i == 1){
+				$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.log');
+				$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.log');
+			}
+
 			break;
 		case "tcpcli":
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address" class="config_form_field"><input type="text" id="port' +method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"></div>').trigger("create");
