@@ -252,9 +252,11 @@ $(document).on("pageinit", "#logs_page", function() {
         if(splitLogString[0].slice(0, 3) == 'rov')
             log_state = 'Rover';
         else if(splitLogString[0].slice(0, 3) == 'ref')
-            log_state = 'Base';
+            log_state = 'Reference';
         else if(splitLogString[0].slice(0, 3) == 'sol')
             log_state = 'Solution';
+        else if(splitLogString[0].slice(0, 3) == 'bas')
+            log_state = 'Base';
 
 
         $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');

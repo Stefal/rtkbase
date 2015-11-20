@@ -32,9 +32,15 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
 					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
 			}
-			else if(method == 'out' && i == 1){
-				$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.log');
-				$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.log');
+			else if(method == 'out'){
+				if(i == 1){
+					$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.log');
+					$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.log');
+				}
+				else if(i == ''){
+					$('#pathout').val('/home/reach/logs/bas_%Y%m%d%h%M.log');
+					$('#outstr-path_entry').val('/home/reach/logs/bas_%Y%m%d%h%M.log');	
+				}
 			}
 
 			break;
@@ -234,7 +240,7 @@ function showBase(msg){
     var config_comment = "";
     var input_title = "";
     var issetInput = "";
-	var prefixArr = [ 'inp', 'out'];
+	var prefixArr = ['out'];
 	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
     var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
     var optionsArr = ['1002', '1010', '1019', '1020', '1005', '1006', '1007', '1008'];
