@@ -246,9 +246,16 @@ $(document).on("pageinit", "#config_page", function() {
 $(document).on("pageinit", "#logs_page", function() {
 
     $('.log_string').each(function(){
-
+        var log_state = '';
         var splitLogString = $(this).text().split(',');
-        var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
+
+        if(splitLogString[0].slice(0, 3) == 'rov')
+            log_state = 'Rover';
+        else if(splitLogString[0].slice(0, 3) == 'ref')
+            log_state = 'Base';
+        else if(splitLogString[0].slice(0, 3) == 'sol')
+            log_state = 'Solution';
+
 
         $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
     });
