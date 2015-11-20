@@ -62,6 +62,8 @@ class LogManager():
                     "size": log_size
                 })
 
+        self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)
+
     def deleteLog(self, log_name):
         # try to delete log if it exists
 
