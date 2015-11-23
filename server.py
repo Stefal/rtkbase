@@ -37,6 +37,7 @@ from port import changeBaudrateTo230400
 from threading import Thread
 from flask import Flask, render_template, session, request, send_file
 from flask.ext.socketio import SocketIO, emit, disconnect
+from subprocess import check_output
 
 app = Flask(__name__)
 app.template_folder = "."
@@ -51,7 +52,8 @@ changeBaudrateTo230400()
 
 rtk = RTKLIB(socketio)
 
-app_version = "v0.0"
+git_tag_cmd = "git describe --tags"
+app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
