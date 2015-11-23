@@ -37,6 +37,7 @@ from port import changeBaudrateTo230400
 from threading import Thread
 from flask import Flask, render_template, session, request, send_file
 from flask.ext.socketio import SocketIO, emit, disconnect
+from subprocess import check_output
 
 app = Flask(__name__)
 app.template_folder = "."
@@ -51,7 +52,8 @@ changeBaudrateTo230400()
 
 rtk = RTKLIB(socketio)
 
-perform_update = False
+git_tag_cmd = "git describe --tags"
+app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -61,7 +63,7 @@ def index():
     print("INDEX DEBUG")
     rtk.logm.updateAvailableLogs()
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
-    return render_template("index.html", logs = rtk.logm.available_logs)
+    return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version)
 
 @app.route("/logs/<path:log_name>")
 def downloadLog(log_name):
@@ -128,13 +130,10 @@ def readConfigRover(json):
 def writeConfigRover(json):
     rtk.writeConfigRover(json)
 
-    # we don't need to do this every time
-    if "config_file_name" in json:
-        config_file = json["config_file_name"]
-    else:
-        config_file = None
-
-    rtk.loadConfigRover(config_file)
+@socketio.on("write and load config rover", namespace="/test")
+def writeAndLoadConfig(json):
+    rtk.writeConfigRover(json)
+    rtk.loadConfigRover(json.get("config_file_name", None))
 
 #### str2str config handling ####
 
@@ -142,9 +141,25 @@ def writeConfigRover(json):
 def readConfigBase(json):
     rtk.readConfigBase()
 
-@socketio.on("write config base", namespace="/test")
+@socketio.on("write and load config base", namespace="/test")
 def writeConfigBase(json):
     rtk.writeConfigBase(json)
+
+#### Delete log button handler ####
+@socketio.on("delete log", namespace="/test")
+def deleteLog(json):
+    rtk.logm.deleteLog(json.get("name"))
+
+#### Delete config ####
+@socketio.on("delete config", namespace="/test")
+def deleteLog(json):
+    rtk.deleteConfig(json.get("name"))
+    # rtk.conm.deleteConfig(json.get("name"))
+
+#### Reset config to default ####
+@socketio.on("reset config", namespace="/test")
+def resetConfig(json):
+    rtk.resetConfigToDefault(json.get("name"))
 
 @socketio.on("update reachview", namespace="/test")
 def updateReachView():
@@ -172,10 +187,5 @@ if __name__ == "__main__":
 
         if rtk.led.blinker_thread is not None:
             rtk.led.blinker_thread.join()
-
-
-
-
-
 
 

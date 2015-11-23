@@ -56,8 +56,9 @@ class Str2StrController:
     def readConfig(self):
         parameters_to_send = {}
 
-        parameters_to_send["inpstr-path"] = self.input_stream
-        parameters_to_send["outstr-path"] = self.output_stream
+        parameters_to_send["0"] = {"parameter": "outstr-path", "value": self.output_stream, "description": "Output path for corrections"}
+
+        parameters_to_send["1"] = {"parameter": "rtcm3_out_messages", "value": ",".join(self.rtcm3_messages), "description": "RTCM3 messages for output"}
 
         # if we don't have a set base position we want to send empty strings
         if not self.base_position:
@@ -65,29 +66,33 @@ class Str2StrController:
         else:
             base_pos = self.base_position
 
-        parameters_to_send["base_pos_lat"] = base_pos[0]
-        parameters_to_send["base_pos_lon"] = base_pos[1]
-        parameters_to_send["base_pos_height"] = base_pos[2]
+        parameters_to_send["2"] = {"parameter": "base_pos_lat", "value": base_pos[0], "description": "Base latitude"}
+        parameters_to_send["3"] = {"parameter": "base_pos_lon", "value": base_pos[1], "description": "Base longitude"}
+        parameters_to_send["4"] = {"parameter": "base_pos_height", "value": base_pos[2], "description": "Base height"}
 
-        parameters_to_send["rtcm3_out_messages"] = ",".join(self.rtcm3_messages)
+        print("DEBUG read")
 
+        print(parameters_to_send)
         return parameters_to_send
 
     def writeConfig(self, parameters_received):
 
+        print("DEBUG write")
+
+        print(parameters_received)
+
         coordinate_filled_flag = 3
         base_pos = []
 
-        self.input_stream = parameters_received["inpstr-path"]
-        self.output_stream = parameters_received["outstr-path"]
+        self.output_stream = parameters_received["0"]["value"]
 
         # llh
         self.base_position = []
-        self.base_position.append(parameters_received["base_pos_lat"])
-        self.base_position.append(parameters_received["base_pos_lon"])
-        self.base_position.append(parameters_received["base_pos_height"])
+        self.base_position.append(parameters_received["2"]["value"])
+        self.base_position.append(parameters_received["3"]["value"])
+        self.base_position.append(parameters_received["4"]["value"])
 
-        self.rtcm3_messages = parameters_received["rtcm3_out_messages"].split(",")
+        self.rtcm3_messages = parameters_received["1"]["value"].split(",")
 
     def setPort(self, port, input = True, format = "ubx"):
         if input:

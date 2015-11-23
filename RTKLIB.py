@@ -339,14 +339,19 @@ class RTKLIB:
 
         self.semaphore.acquire()
 
-        print("Got signal to write rover config")
-
         if "config_file_name" not in config:
             config_file = None
         else:
             config_file = config["config_file_name"]
 
+        print("Got signal to write rover config to file " + config_file)
+
         self.conm.writeConfig(config_file, config)
+
+        self.conm.updateAvailableConfigs()
+
+        # send available configs to the browser
+        self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
 
         self.semaphore.release()
 
@@ -407,27 +412,13 @@ class RTKLIB:
 
         print("Got signal to read the rover config")
 
+        print("Sending rover config " + config_file)
+
+        # read from file
         self.conm.readConfig(config_file)
 
-        # after this, to preserve the order of the options in the frontend we send a special order message
-        print("Sending rover config order")
-
-        options_order = {}
-
-        # create a structure the corresponds to the options order
-        for index, value in enumerate(self.conm.buff_dict_order):
-            options_order[str(index)] = value
-
-        # send the options order
-        self.socketio.emit("current config rover order", options_order, namespace="/test")
-
-        # send the options comments
-        print("Sending rover config comments")
-        self.socketio.emit("current config rover comments", self.conm.buff_dict_comments, namespace="/test")
-
-        # now we send the whole config with values
-        print("Sending rover config values")
-        self.socketio.emit("current config rover", self.conm.buff_dict, namespace="/test")
+        # send to the browser
+        self.socketio.emit("current config rover", self.conm.buffered_config.items, namespace="/test")
 
         self.semaphore.release()
 
@@ -455,6 +446,34 @@ class RTKLIB:
 
         # otherwise, we are inactive
         return 1
+
+    def deleteConfig(self, config_name):
+        # pass deleteConfig to conm
+
+        print("Got signal to delete config " + config_name)
+
+        self.conm.deleteConfig(config_name)
+
+        self.conm.updateAvailableConfigs()
+
+        # send available configs to the browser
+        self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
+
+        print(self.conm.available_configs)
+
+    def resetConfigToDefault(self, config_name):
+        # pass reset config to conm
+
+        print("Got signal to reset config " + config_name)
+
+        self.conm.resetConfigToDefault(config_name)
+
+        self.conm.updateAvailableConfigs()
+
+        # send available configs to the browser
+        self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
+        
+        print(self.conm.available_configs)
 
     def saveState(self):
         # save current state for future resurrection:
@@ -598,7 +617,12 @@ class RTKLIB:
 
         state = self.getState()
 
+        self.conm.updateAvailableConfigs()
         state["available_configs"] = self.conm.available_configs
+
+        print("Available configs to send: ")
+        print(str(state["available_configs"]))
+
         self.socketio.emit("current state", state, namespace = "/test")
 
     def updateLED(self, pattern = None):

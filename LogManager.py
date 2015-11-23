@@ -22,7 +22,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 from glob import glob
-from os import path
+from os import remove, path
 
 class LogManager():
 
@@ -61,6 +61,17 @@ class LogManager():
                     "name": log_name,
                     "size": log_size
                 })
+
+        self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)
+
+    def deleteLog(self, log_name):
+        # try to delete log if it exists
+
+        try:
+            remove(self.log_path + log_name)
+        except OSError, e:
+            print ("Error: " + e.filename + " - " + e.strerror)
+
 
 
 

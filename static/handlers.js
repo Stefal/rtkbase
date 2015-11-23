@@ -1,9 +1,26 @@
 // here we will register events for all buttons/switches and so on...
 // it is guaranteed the binding will only trigger once, on the first time
 // config page is opened
-$(document).on("pageinit", "#config_page", function() {
 
-    // $('.loader').css('display', 'none');
+// this function adds '.conf' to save as form if we want to enter new title
+function checkConfTitle() {
+    var conf = $('#config_select_hidden').val();
+
+    if($('#config_select_hidden').val() == 'custom'){
+        $('input[name=config-title]').val('');
+        $('input[name=config-title]').prop('type', 'text');
+        $('input[name=config-title]').parent().css({'visibility':'visible', 'border':'1px solid #ddd', 'width':'125px', 'float':'left' ,'margin-right':'10px'});
+        $('.conf_tail').css('display', 'inline');
+    }
+    else{
+        $('input[name=config-title]').val(conf.substr(0, conf.length - 5));
+        $('input[name=config-title]').prop('type', 'hidden');
+        $('input[name=config-title]').parent().css({'visibility':'hidden', 'border':'none'});
+        $('.conf_tail').css('display', 'none');
+    }
+}
+
+$(document).on("pageinit", "#config_page", function() {
 
 	var mode = $("input[name=radio_base_rover]:checked").val();
 	if(mode == 'base')
@@ -19,6 +36,9 @@ $(document).on("pageinit", "#config_page", function() {
         if (mode == "base") {
             cleanStatus(mode, "started");
         }
+
+        $('#start_button').css('display', 'none');
+        $('#stop_button').css('display', 'inline-block');
     });
 
     $(document).on("click", "#stop_button", function(e) {
@@ -30,6 +50,9 @@ $(document).on("pageinit", "#config_page", function() {
         // and change status in the coordinate grid
 
         cleanStatus(mode, "stopped");
+
+        $('#stop_button').css('display', 'none');
+        $('#start_button').css('display', 'inline-block');
     });
 
     $(document).on("change", "#config_select", function(e) {
@@ -49,71 +72,200 @@ $(document).on("pageinit", "#config_page", function() {
             }
         }
 
+        // visibility of reset button only for default configs
+        if(jQuery.inArray( config_name, defaultConfigs ) >= 0)
+            $('#reset_config_button').removeClass('ui-disabled');
+        else
+            $('#reset_config_button').addClass('ui-disabled');
+
+        if($("#config_select").find('.extra_config').length != 0)
+            $('#delete_config_button').removeClass('ui-disabled');
+        else
+            $('#delete_config_button').addClass('ui-disabled');
+
         socket.emit("read config " + mode, to_send);
     });
 
-    $(document).on("click", "#load_and_restart_button", function(e) {
+    $('#hide_buttons_button').click(function() {
+        $(this).parent().find('ul').slideToggle('fast');
+        return false;
+    });
+
+    // hide extra buttons with click out of extra buttons div
+    $(document).click(function(event) {
+        if ($(event.target).closest(".hidden_list").length)
+            return
+        else{
+            $(".hidden_list").slideUp('fast');
+            event.stopPropagation();
+        }
+    });
+
+    $('#reset_config_button').click(function(){
+        var conf_to_reset = $('#config_select').val();
+
+        console.log("Reset config with name: " + conf_to_reset);
+        socket.emit("reset config", {"name": conf_to_reset});
+        $(".hidden_list").slideUp('fast');
+    });
+
+    $('#delete_config_button').click(function(){
+        $( "#popupDelete" ).popup( "open");
+        $(".hidden_list").slideUp('fast');
+
+        $('#config-delete-submit').click(function(){
+
+        var conf_to_delete = $('#config_delete_hidden').val();
+
+        if(conf_to_delete != null){
+            if(jQuery.inArray( conf_to_delete, defaultConfigs ) >= 0){
+                console.log(conf_to_delete);
+                console.log("Don't try to delete default config");
+            }
+            else{
+                console.log("Delete conf: " + conf_to_delete);
+                socket.emit("delete config", {"name": conf_to_delete});
+            }
+        }
+        else
+            console.log("Nothing to delete");
+
+        $( "#popupDelete" ).popup( "close");
+        });
+    });
+
+    $(document).on("click", ".save_configs_button", function(e) {
         var config_to_send = {};
         var current_id = "";
+        var current_parameter = "";
         var current_value = "";
+        var current_description = "";
+        var current_comment = "";
 
         var mode = $("input[name=radio_base_rover]:checked").val();
-        var config_name = $("#config_select").val();
 
+        $('input[id*="_entry"], select[id*="_entry"]').each(function(i, obj){
+            if(($(this).attr('id') != 'outstr-type_entry') && ($(this).attr('id') != 'inpstr-type_entry')){
+                current_parameter = obj.id.substring(0, obj.id.length - 6);
+                current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
+                current_value = obj.value;
+                current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
+                current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
 
-        console.log('got signal to write config' + config_name);
-        // first, we need to read all the needed info from config form elements
-        // we create a js object with this info and send to our server
+                console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
-        // find all the needed fields
+                var payload = {};
+                payload['parameter'] = current_parameter;
+                payload['value'] = current_value;
 
-        $('input[id*="_entry"]').each(function(i, obj){
-            current_id = obj.id.substring(0, obj.id.length - 6);
-            current_value = obj.value;
+                if(current_description != '')
+                    payload['description'] = current_description;
+                if(current_comment != '')
+                payload['comment'] = current_comment;
 
-            console.log("id == " + current_id + " value == " + current_value);
-
-            config_to_send[current_id] = current_value;
+                config_to_send[current_id] = payload;
+            }
         });
 
-        $('select[id*="_entry"]').each(function(i, obj){
-            current_id = obj.id.substring(0, obj.id.length - 6);
-            current_value = obj.value;
+        if($(this).attr('id') == 'save_as_button'){
+            $(".hidden_list").slideUp('fast');
+            $( "#popupLogin" ).popup( "open");
+            
+            checkConfTitle();
 
-            console.log("id == " + current_id + " value == " + current_value);
+            $('#config_select_hidden').change(function(){
+            	checkConfTitle();
+            });
 
-            config_to_send[current_id] = current_value;
-        });
+            $('#config-title-submit').click(function(){
+            	var confTitle = $('input[name=config-title]').val();
+            	var config_name = (confTitle.substr(confTitle.length - 5) == '.conf') ? confTitle.substr(0, confTitle.length - 5) : confTitle;
 
-        if (mode == "base") {
-            console.log("Request to load new " + mode + " config and restart");
-            cleanStatus(mode, "started");
-        } else {
-            // if we are in rover mode, we need to pay attention
-            // to the chosen config
-            console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+                var validSymbols = /^[a-zA-Z0-9_\-]+$/;
 
-            config_to_send["config_file_name"] = config_name;
+                if (!validSymbols.test(config_name)) {
+                    $('.space_alert').css('display', 'inline-block');
+                } 
+                else{
+                    config_name += '.conf';
+                    $('.space_alert').css('display', 'none');
+                    $( "#popupLogin" ).popup( "close");
+                    console.log('got signal to write config ' + config_name);
+
+                    if (mode != "base")
+                        config_to_send["config_file_name"] = config_name;
+
+                 socket.emit("write config " + mode, config_to_send);
+                }
+            });
         }
+        else if($(this).attr('id') == 'save_button'){
+            var config_name = $("#config_select").val();
 
-        socket.emit("write config " + mode, config_to_send);
+            $('#config-save-submit').click(function(){
+                console.log('got signal to write config ' + config_name);
+
+                if (mode != "base")
+                    config_to_send["config_file_name"] = config_name;
+
+                socket.emit("write config " + mode, config_to_send);
+
+                $( "#popupSave" ).popup( "close");
+            });
+
+            $('#config-save-load-submit').click(function(){
+
+                if (mode == "base") {
+                    console.log("Request to load new " + mode + " config and restart");
+                }
+                else {
+                    console.log('got signal to write config ' + config_name);
+                    console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+
+                    config_to_send["config_file_name"] = config_name;
+                }
+
+                $('#start_button').css('display', 'none');
+                $('#stop_button').css('display', 'inline-block');
+                
+                socket.emit("write and load config " + mode, config_to_send);
+
+                $( "#popupSave" ).popup( "close");
+            });
+
+            if (mode == "base") {
+                $('#config-save-load-submit').click();
+            }
+            else
+                $( "#popupSave" ).popup( "open");
+        }
     });
 
 });
 
 $(document).on("pageinit", "#logs_page", function() {
 
-        $('.log_string').each(function(){
+    $('.log_string').each(function(){
+        var log_state = '';
+        var splitLogString = $(this).text().split(',');
 
-            var splitLogString = $(this).text().split(',');
-            var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
+        if(splitLogString[0].slice(0, 3) == 'rov')
+            log_state = 'Rover';
+        else if(splitLogString[0].slice(0, 3) == 'ref')
+            log_state = 'Reference';
+        else if(splitLogString[0].slice(0, 3) == 'sol')
+            log_state = 'Solution';
+        else if(splitLogString[0].slice(0, 3) == 'bas')
+            log_state = 'Base';
 
-            $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
-        });
+        $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
+    });
 
     $('.delete-log-button').click(function(){
-        var log_for_delete = $(this).parent().children('.log_string').attr('href').slice(6);
-        console.log("Delete log: " + log_for_delete);
+        var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
+        $(this).parent().remove();
+        console.log("Delete log: " + log_to_delete);
+        socket.emit("delete log", {"name": log_to_delete});
     });
 
     $(document).on("click", "#update_button", function(e) {
@@ -136,6 +288,9 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
     switch($(this).val()) {
         case "rover":
             $('#config_select-button').parent().parent().css('display', 'block');
+            $('#save_as_button').css('display', 'inline-block');
+            $('#save_button').text('Save');
+            $('#hide_buttons_button').css('display', 'inline-block');
             mode = "rover";
             console.log("Launching rover mode");
             socket.emit("shutdown base")
@@ -144,6 +299,9 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             break;
         case "base":
             $('#config_select-button').parent().parent().css('display', 'none');
+            $('#save_as_button').css('display', 'none');
+            $('#save_button').text('Save & Load');
+            $('#hide_buttons_button').css('display', 'none');
             mode = "base";
             console.log("Launching base mode");
             socket.emit("shutdown rover");
@@ -152,6 +310,9 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
     }
 
     cleanStatus(mode, status);
+
+    $('#stop_button').css('display', 'none');
+    $('#start_button').css('display', 'inline-block');
 
     console.log("Request for " + mode + " config");
     socket.emit("read config " + mode, to_send);
