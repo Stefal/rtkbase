@@ -220,8 +220,12 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             {% endfor %}
         </ol>
         <div class="ui-field-contain" id="update_buttons">
-            <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button">Update</a>
+            <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+                <p>Current version: {{ app_version }}</p>
+                <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button">Update</a>
+            </div>
         </div>
+
     </div>
 
 </div>

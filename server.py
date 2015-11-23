@@ -51,7 +51,7 @@ changeBaudrateTo230400()
 
 rtk = RTKLIB(socketio)
 
-perform_update = False
+app_version = "v0.0"
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -61,7 +61,7 @@ def index():
     print("INDEX DEBUG")
     rtk.logm.updateAvailableLogs()
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
-    return render_template("index.html", logs = rtk.logm.available_logs)
+    return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version)
 
 @app.route("/logs/<path:log_name>")
 def downloadLog(log_name):
