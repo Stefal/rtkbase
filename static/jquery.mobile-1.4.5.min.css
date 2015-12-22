@@ -820,12 +820,12 @@ legend, .ui-input-text input, .ui-input-search input {
     font-size: 16px
 }
 
-.ui-field-contain {
+/*.ui-field-contain {
     border-bottom-color: #828282;
     border-bottom-color: rgba(0, 0, 0, .15);
     border-bottom-width: 1px;
     border-bottom-style: solid
-}
+}*/
 
 .table-stroke thead th, .table-stripe thead th, .table-stripe tbody tr:last-child {
     border-bottom: 1px solid #d6d6d6;
