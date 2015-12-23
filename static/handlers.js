@@ -297,24 +297,26 @@ $(document).on("pageinit", "#settings", function() {
     $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
 
     $(document).on("click", "#update_button", function(e) {
-        var online = navigator.onLine;
-        var updateStatus = 120;
+            var online = navigator.onLine;
+            var updateStatus = 120;
 
-        if(online){
-            console.log("Sending update message");
+            if(online){
+                console.log("Sending update message");
 
-            var intervalID = setInterval(function(){--updateStatus;$('.load_update').html('<img src="static/images/loader.gif" style="height:54px;position:relative;top:-5px"><span style="position:relative;top:-26px;left:-36px;color:red">' + updateStatus + '</span>');}, 1000);
-            
-            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:10px;">Refresh the page</span>');}, 1000*60*2);
-            socket.emit("update reachview");
+                $('.load_update').css('display', 'block');
+                var intervalID = setInterval(function(){
+                    --updateStatus;
+                    $('.load_update p').text(updateStatus);
+                }, 1000);
+                
+                setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:20px;">Refresh the page</span>');}, 1000*60*2);
+                socket.emit("update reachview");
+            }
+            else
+                $('.connect').text('Internet connection is lost');
 
-            // while()
-        }
-        else
-            $('.connect').text('Internet connection is lost');
-
-        return false;
-    });
+            return false;
+        });
 })
 
 
