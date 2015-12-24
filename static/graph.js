@@ -15,6 +15,29 @@ function Chart() {
     this.horizontalGuide = '';
 
     this.create = function(){
+
+        var grid_style = {
+            borderRight: "2px solid #ddd",
+            borderTop: "2px solid #ddd",
+            textAlign: "left", 
+            borderCollapse: 'collapse',
+        };
+
+        $("#status_block").css(grid_style);
+        $("#mode_block").css(grid_style);
+        $("#lat_block").css(grid_style);
+        $("#lon_block").css(grid_style);
+        $("#height_block").css(grid_style);
+        $('.ui-grid-b .ui-bar').css({borderBottom: '2px solid #ddd'});
+
+        // Default values for the info boxes
+
+        $("#mode_value").text("no link");
+        $("#status_value").text("no link");
+        $("#lon_value").text("0");
+        $("#lat_value").text("0");
+        $("#height_value").html("0");
+
         var height = 55*5;
         var margin = {top: 30, right: 10, bottom: 30, left: 40};
         //  the size of the overall svg element
