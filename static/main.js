@@ -106,7 +106,7 @@ $(document).ready(function () {
 
         delete_options_hidden.find('.default_config').remove();
 
-        available_configs_list.val(msg.rover.current_config);
+        
 
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
@@ -134,6 +134,7 @@ $(document).ready(function () {
             $('#start_button').css('display', 'inline-block');
         }
 
+        available_configs_list.val(msg.rover.current_config);
     });
 
     socket.on("available configs", function(msg) {
