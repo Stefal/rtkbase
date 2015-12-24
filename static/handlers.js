@@ -268,22 +268,29 @@ $(document).on("pageinit", "#config_page", function() {
 
 $(document).on("pageinit", "#logs_page", function() {
 
-    $('.log_string').each(function(){
-        var log_state = '';
-        var splitLogString = $(this).text().split(',');
+    if($('.log_string').length == '0'){
+        $('.empty_logs').css('display', 'block');
+    }
+    else{
+        $('.empty_logs').css('display', 'none');
 
-        if(splitLogString[0].slice(0, 3) == 'rov')
-            log_state = 'Rover';
-        else if(splitLogString[0].slice(0, 3) == 'ref')
-            log_state = 'Reference';
-        else if(splitLogString[0].slice(0, 3) == 'sol')
-            log_state = 'Solution';
-        else if(splitLogString[0].slice(0, 3) == 'bas')
-            log_state = 'Base';
+        $('.log_string').each(function(){
+            var log_state = '';
+            var splitLogString = $(this).text().split(',');
+
+            if(splitLogString[0].slice(0, 3) == 'rov')
+                log_state = 'Rover';
+            else if(splitLogString[0].slice(0, 3) == 'ref')
+                log_state = 'Reference';
+            else if(splitLogString[0].slice(0, 3) == 'sol')
+                log_state = 'Solution';
+            else if(splitLogString[0].slice(0, 3) == 'bas')
+                log_state = 'Base';
 
 
-        $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
-    });
+            $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
+        });
+    }
 
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);

@@ -230,6 +230,9 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     </div>
 
     <div data-role="main" class="ui-content">
+            <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all empty_logs" style="display:none;">
+                <p>There are currently no logs available</p>
+            </div>
         <ol data-role="listview" data-inset="true" id="logs_list">
             {% for log in logs %}
                 <li><a href="/logs/{{ log.name }}" target="_blank" class="log_string">{{ log.name }},{{ log.size }}</a><a href="#" data-role="button" data-icon="delete" data-iconpos="notext" class='delete-log-button'>Delete</a></li>
