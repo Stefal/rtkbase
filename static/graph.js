@@ -135,7 +135,8 @@ function Chart() {
             .attr("dy", height + 20)
             .text(function(d) {
                 return d;
-            });
+            })
+            .style("font-size","13px");
     }
 
     this.resize = function(){
@@ -365,10 +366,10 @@ function updateCoordinateGrid(msg) {
         // coordinates
         // fix length of the strings
 
-        var lon_value = msg.lon.substring(0, 9) + Array(9 - msg.lon.substring(0, 9).length + 1).join(" ");
-        var lat_value = msg.lat.substring(0, 9) + Array(9 - msg.lat.substring(0, 9).length + 1).join(" ");
+        var lon_value = msg.lon.substring(0, 11) + Array(11 - msg.lon.substring(0, 11).length + 1).join(" ");
+        var lat_value = msg.lat.substring(0, 11) + Array(11 - msg.lat.substring(0, 11).length + 1).join(" ");
 
-        var height_value = msg.height.substring(0, 9) + Array(9 - msg.height.substring(0, 9).length + 1 + 2).join(" ");
+        var height_value = msg.height.substring(0, 11) + Array(11 - msg.height.substring(0, 11).length + 1 + 2).join(" ");
 
         $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
         $("#lat_value").html("<span style='white-space:pre;'>" + lat_value + "</span>");
