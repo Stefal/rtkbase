@@ -21,6 +21,7 @@ function Chart() {
             borderTop: "1px solid #ddd",
             textAlign: "left", 
             borderCollapse: 'collapse',
+            fontSize: '15px'
         };
 
         $("#status_block").css({borderRight: '1px solid #ddd'});
