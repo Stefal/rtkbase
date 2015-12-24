@@ -231,33 +231,6 @@ function checkBaseAntennaCoordinates(){
 	}
 }
 
-function checkBasePosition(){
-	if($('#base_position').val() == 'single'){
-		$('#base_pos_lat_entry').val('');
-		$('#base_pos_lat_entry').attr('type', 'hidden');
-		$('#base_pos_lat_entry').parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
-		$("label[for='base_pos_lat_entry']").text('');
-		$('#base_pos_lon_entry').val('');
-		$('#base_pos_lon_entry').attr('type', 'hidden');
-		$('#base_pos_lon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
-		$('#base_pos_height_entry').val('');
-		$('#base_pos_height_entry').attr('type', 'hidden');
-		$('#base_pos_height_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
-	}
-	else{
-		$('#base_pos_lat_entry').val($('#base_pos_lat_entry').val());
-		$('#base_pos_lat_entry').attr('type', 'text');
-		$('#base_pos_lat_entry').parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
-		$("label[for='base_pos_lat_entry']").text('Base latitude');
-		$('#base_pos_lon_entry').val($('#base_pos_lon_entry').val());
-		$('#base_pos_lon_entry').attr('type', 'text');
-		$('#base_pos_lon_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
-		$('#base_pos_height_entry').val($('#base_pos_height_entry').val());
-		$('#base_pos_height_entry').attr('type', 'text');
-		$('#base_pos_height_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
-	}
-}
-
 function showBase(msg){
 	var to_append = "";
 	var config_key = "";
@@ -267,11 +240,10 @@ function showBase(msg){
     var config_comment = "";
     var input_title = "";
     var issetInput = "";
-    var splitArr = "";
 	var prefixArr = ['out'];
 	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
     var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
-    var optionsArr = ['1002', '1010', '1019', '1020', '1005', '1006', '1007', '1008'];
+    var optionsArr = ['1002', '1005', '1006', '1007', '1008', '1010', '1019', '1020'];
     
     console.log("Received current base config:");
 
@@ -350,24 +322,6 @@ function showBase(msg){
 
         	to_append += '<div>';
         }
-		else if(config_parameter == 'file-cmdfile1'){
-    		splitArr = config_comment.split(',');
-
-    		to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
-    		to_append += '<select name="select-native-1" id="file-cmdfile1_entry" class="config_form_field top_input">';
-
-    		$.each(splitArr, function(index, value){
-                value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
-                innerSplit = value.split(':');
-
-                if(innerSplit['1'] == config_value)
-                    to_append += '<option value="' + innerSplit['1'] + '" selected="selected">' + innerSplit['1'] + '</option>';
-                else
-                	to_append += '<option value="' + innerSplit['1'] + '">' + innerSplit['1'] + '</option>';
-            })
-            
-            to_append += '</select>';
-    	}
         else if(config_parameter == 'rtcm3_out_messages'){
         		var selectedOptionArr = config_value.split(',');
 
@@ -389,22 +343,6 @@ function showBase(msg){
 				to_append += '</fieldset>';
         }
         else{
-
-        	if(config_parameter == 'base_pos_lat'){
-        		to_append += '<label for="base_position">Base position</label>';
-        		to_append += '<select name="base_position" id="base_position" class="config_form_field">';
-
-      			if(config_value == ''){
-	        		to_append += '<option value="single" selected>single</option>';
-    	    		to_append += '<option value="llh">llh</option>';
-        		}
-        		else{
-	        		to_append += '<option value="single">single</option>';
-    	    		to_append += '<option value="llh" selected>llh</option>';        			
-        		}
-        		to_append += '</select>';
-        	}
-
         	to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
             to_append += '<input type="text" id="' + config_parameter + '_entry" value="' + config_value + '" data-clear-btn="true">';
         }
@@ -415,14 +353,6 @@ function showBase(msg){
     to_append += '</div>';
 
     form_div.html(to_append).trigger("create");
-
-    $('#file-cmdfile1_entry option').each(function(){
-		var cutOption = $(this).val().slice(3,-4);
-		$(this).text(cutOption);
-	});
-
-	var cutSelectTitle1 = $('#file-cmdfile1_entry-button').find('span.config_form_field:first-child').text().slice(3,-4);
-	$('#file-cmdfile1_entry-button').find('span.config_form_field:first-child').text(cutSelectTitle1);
 
     $(document).on("change", '.top_input', function() {
 		var method = $(this).attr('id').substr(0, 3);
@@ -441,10 +371,6 @@ function showBase(msg){
 		$('#rtcm3_out_messages_entry').val($(this).val());
 	});
 
-    $(document).on("change", '#base_position', function() {
-    	checkBasePosition();
-	});
-
 	$(document).on("change", '.additional_general input', function() {
 		
 		$(this).parent().parent().removeClass('additional_general');
@@ -461,8 +387,6 @@ function showBase(msg){
 		defaultStringToInputs('', prefixArr[key]);
 		formString('', prefixArr[key]);
 	}
-
-	checkBasePosition();
 
 	var popup = true;
 
@@ -505,7 +429,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
     to_append += '<div class="ui-field-contain fields-field">';
     to_append += '<div class="general-settings"></div>';
-    to_append += '<button class="ui-btn ui-corner-all" id="adv-set-btn">Advanced settings</button>';
+    to_append += '<button class="ui-btn" id="adv-set-btn">Advanced settings</button>';
     to_append += '<div class="advanced-settings" style="display:none">';
 
     // console.log();
@@ -602,7 +526,6 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		}
 	}
 
-	$(".ui-field-contain.fields-field .general-settings").append($('#file-cmdfile1_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-postype_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos1_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos2_entry').parent().parent());
@@ -610,17 +533,6 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").append($('#file-staposfile_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
-
-	$('#file-cmdfile1_entry option, #file-cmdfile2_entry option').each(function(){
-		var cutOption = $(this).val().slice(3,-4);
-		$(this).text(cutOption);
-	});
-
-	var cutSelectTitle1 = $('#file-cmdfile1_entry-button').find('span.config_form_field:first-child').text().slice(3,-4);
-	$('#file-cmdfile1_entry-button').find('span.config_form_field:first-child').text(cutSelectTitle1);
-
-	var cutSelectTitle2 = $('#file-cmdfile2_entry-button').find('span.config_form_field:first-child').text().slice(3,-4);
-	$('#file-cmdfile2_entry-button').find('span.config_form_field:first-child').text(cutSelectTitle2);
 
 	checkBaseAntennaCoordinates();
 
