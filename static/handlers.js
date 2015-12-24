@@ -205,6 +205,7 @@ $(document).on("pageinit", "#config_page", function() {
     });
 
     $('#save_button').click(function(){
+        var mode = $("input[name=radio_base_rover]:checked").val();
 
         if (mode == "base") {
             $('#config-save-load-submit').click();
@@ -234,8 +235,7 @@ $(document).on("pageinit", "#config_page", function() {
         var config_to_send = GetConfigToSend();
 
         if (mode == "base") {
-            alert($('#base_pos_lat_entry').val() + ' ' +  $('base_pos_lon_entry').val() + ' ' + $('base_pos_height_entry').val());
-            if(!$.isNumeric($('#base_pos_lat_entry').val()) || !$.isNumeric($('base_pos_lon_entry').val()) || !$.isNumeric($('base_pos_height_entry').val())){
+            if(!$.isNumeric($('#base_pos_lat_entry').val()) || !$.isNumeric($('#base_pos_lon_entry').val()) || !$.isNumeric($('#base_pos_height_entry').val())){
                 $( "#popupPos" ).popup( "open");
             }
             else{
