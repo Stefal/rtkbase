@@ -34,7 +34,7 @@ $(document).on("pageinit", "#config_page", function() {
         socket.emit("start " + mode);
 
         if (mode == "base") {
-            cleanStatus(mode, "started");
+            chart.cleanStatus(mode, "started");
         }
 
         $('#start_button').css('display', 'none');
@@ -49,7 +49,7 @@ $(document).on("pageinit", "#config_page", function() {
         // after sending the stop command, we should clean the sat graph
         // and change status in the coordinate grid
 
-        cleanStatus(mode, "stopped");
+        chart.cleanStatus(mode, "stopped");
 
         $('#stop_button').css('display', 'none');
         $('#start_button').css('display', 'inline-block');
@@ -297,26 +297,24 @@ $(document).on("pageinit", "#settings", function() {
     $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
 
     $(document).on("click", "#update_button", function(e) {
-            var online = navigator.onLine;
-            var updateStatus = 120;
+        var online = navigator.onLine;
+        var updateStatus = 120;
 
-            if(online){
-                console.log("Sending update message");
+        if(online){
+            console.log("Sending update message");
 
-                $('.load_update').css('display', 'block');
-                var intervalID = setInterval(function(){
-                    --updateStatus;
-                    $('.load_update p').text(updateStatus);
-                }, 1000);
-                
-                setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:20px;">Refresh the page</span>');}, 1000*60*2);
-                socket.emit("update reachview");
-            }
-            else
-                $('.connect').text('Internet connection is lost');
+            var intervalID = setInterval(function(){--updateStatus;$('.load_update').html('<img src="static/images/loader.gif" style="height:54px;position:relative;top:-5px"><span style="position:relative;top:-26px;left:-36px;color:red">' + updateStatus + '</span>');}, 1000);
+            
+            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:10px;">Refresh the page</span>');}, 1000*60*2);
+            socket.emit("update reachview");
 
-            return false;
-        });
+            // while()
+        }
+        else
+            $('.connect').text('Internet connection is lost');
+
+        return false;
+    });
 })
 
 
@@ -356,7 +354,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         break;
     }
 
-    cleanStatus(mode, status);
+    chart.cleanStatus(mode, status);
 
     $('#stop_button').css('display', 'none');
     $('#start_button').css('display', 'inline-block');

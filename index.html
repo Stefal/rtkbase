@@ -29,6 +29,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery.mobile-1.4.5.min.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.11.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery.mobile-1.4.5.min.js') }}"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='Chart.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='configs.js') }}" charset="utf-8"></script>
@@ -82,7 +83,8 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     </div>
 
     <!-- Canvases for the graphs!!!!!!!!!!!!!!!!!! -->
-    <canvas id="sat_chart_canvas"></canvas>
+    <!-- <canvas id="sat_chart_canvas"></canvas> -->
+    <div id="bar-chart"></div>
 <!--     <div data-role="footer" data-position="fixed">
         <h1>Status Footer, more information later</h1>
     </div> -->
@@ -259,9 +261,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
                 <p>Current version: {{ app_version }}</p>
                 <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button" style="float:left">Update</a><span class='connect' style="color:red;font-size:12px;"></span>
-                <div class="load_update" style="height:44px;float:left;position:relative;display:none;">
-                    <img src="static/images/update_loader.gif" style="height:54px;"><p style="position:absolute;top:0px;left:0px;color:red;width:54px;text-align:center;">120</p>
-                </div>
+                <div class="load_update" style="height:44px;padding:11.2px"></div>
                 <p style="clear:both">During update ReachView will go inactive for about a minute. Wait for the LED to start blinking again, then reconnect.</p>
             </div>
         </div>
