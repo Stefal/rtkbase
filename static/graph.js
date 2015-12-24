@@ -17,18 +17,18 @@ function Chart() {
     this.create = function(){
 
         var grid_style = {
-            borderRight: "2px solid #ddd",
-            borderTop: "2px solid #ddd",
+            borderRight: "1x solid #ddd",
+            borderTop: "1px solid #ddd",
             textAlign: "left", 
             borderCollapse: 'collapse',
         };
 
-        $("#status_block").css(grid_style);
-        $("#mode_block").css(grid_style);
+        $("#status_block").css({borderRight: '1px solid #ddd'});
+        $("#mode_block").css({borderRight: '1px solid #ddd'});
         $("#lat_block").css(grid_style);
         $("#lon_block").css(grid_style);
         $("#height_block").css(grid_style);
-        $('.ui-grid-b .ui-bar').css({borderBottom: '2px solid #ddd'});
+        $('.ui-grid-b .ui-bar').css({borderBottom: '1px solid #ddd',borderRight: '1px solid #ddd'});
 
         // Default values for the info boxes
 
@@ -343,6 +343,16 @@ function Chart() {
             .text(function(d) {
                 return d;
             });
+
+        var msg = {
+            "lat" : "0",
+            "lon" : "0",
+            "height": "0",
+            "solution_status": status,
+            "positioning_mode": mode
+        };
+
+        updateCoordinateGrid(msg)
     }
 
 }
