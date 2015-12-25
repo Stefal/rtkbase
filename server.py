@@ -30,6 +30,7 @@ import time
 import json
 import os
 import signal
+import sys
 
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
@@ -38,6 +39,7 @@ from threading import Thread
 from flask import Flask, render_template, session, request, send_file
 from flask.ext.socketio import SocketIO, emit, disconnect
 from subprocess import check_output
+from NetworkTools import getNetworkStatus
 
 app = Flask(__name__)
 app.template_folder = "."
@@ -52,6 +54,7 @@ changeBaudrateTo230400()
 
 rtk = RTKLIB(socketio)
 
+# Extract git tag as software version
 git_tag_cmd = "git describe --tags"
 app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
 
@@ -63,7 +66,7 @@ def index():
     print("INDEX DEBUG")
     rtk.logm.updateAvailableLogs()
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
-    return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version)
+    return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version, network_status = getNetworkStatus())
 
 @app.route("/logs/<path:log_name>")
 def downloadLog(log_name):
@@ -172,12 +175,14 @@ def updateReachView():
 if __name__ == "__main__":
     try:
         socketio.run(app, host = "0.0.0.0", port = 80)
+
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
 
         # clean up broadcast and blink threads
         rtk.server_not_interrupted = False
         rtk.led.blinker_not_interrupted = False
+        rtk.waiting_for_single = False
 
         if rtk.coordinate_thread is not None:
             rtk.coordinate_thread.join()
@@ -187,5 +192,4 @@ if __name__ == "__main__":
 
         if rtk.led.blinker_thread is not None:
             rtk.led.blinker_thread.join()
-
 

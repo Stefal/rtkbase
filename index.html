@@ -29,7 +29,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery.mobile-1.4.5.min.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.11.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery.mobile-1.4.5.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='d3.v3.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='configs.js') }}" charset="utf-8"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='graph.js') }}" charset="utf-8"></script>
@@ -45,7 +45,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <ul>
                 <li><a href="#" class="tab ui-btn-active ui-state-persist">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
-                <li><a href="#logs_page" class="tab">Logs</a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
@@ -82,7 +82,8 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     </div>
 
     <!-- Canvases for the graphs!!!!!!!!!!!!!!!!!! -->
-    <canvas id="sat_chart_canvas"></canvas>
+    <!-- <canvas id="sat_chart_canvas"></canvas> -->
+    <div id="bar-chart"></div>
 <!--     <div data-role="footer" data-position="fixed">
         <h1>Status Footer, more information later</h1>
     </div> -->
@@ -96,7 +97,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <ul>
                 <li><a href="#status_page" class="tab">Status</a></li>
                 <li><a href="#" class="tab ui-btn-active ui-state-persist">Config</a></li>
-                <li><a href="#logs_page" class="tab">Logs</a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
@@ -175,12 +176,27 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                     <div data-role="popup" id="popupDialog">
                         <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                         <div data-role="header">
-                            <h1>Change input?</h1>
+                            <h1>Warning</h1>
                         </div>
                         <div data-role="main" class="ui-content">
-                            <p>Are you sure you want to change this input?</p>
-                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">Yes</a>
-                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">No</a>
+                            <p>Changing this input will make onboard receiver inaccessible to RTKLIB.</p>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">OK</a>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">Cancel</a>
+                      </div>
+                      <div data-role="footer">
+                        <h1> </h1>
+                      </div>
+                    </div>
+                    <!-- end of popup-->
+                    <!-- Popup for empty base position-->
+                    <div data-role="popup" id="popupPos">
+                        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                        <div data-role="header">
+                            <h1>Warning</h1>
+                        </div>
+                        <div data-role="main" class="ui-content">
+                            <p>All base coordinates must be entered to achieve float or fixed solution</p>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">OK</a>
                       </div>
                       <div data-role="footer">
                         <h1> </h1>
@@ -208,30 +224,53 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <ul>
                 <li><a href="#status_page" class="tab">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
-                <li><a href="#" class="tab ui-btn-active ui-state-persist">Logs</a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab ui-btn-active ui-state-persist">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
 
     <div data-role="main" class="ui-content">
-        <a href="http://reach.local:5000" target="_blank" id="wifi_link">Wi-Fi setup</a>
-        <script>
-            $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000")
-        </script>
+            <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all empty_logs" style="display:none;">
+                <p>There are currently no logs available</p>
+            </div>
         <ol data-role="listview" data-inset="true" id="logs_list">
             {% for log in logs %}
                 <li><a href="/logs/{{ log.name }}" target="_blank" class="log_string">{{ log.name }},{{ log.size }}</a><a href="#" data-role="button" data-icon="delete" data-iconpos="notext" class='delete-log-button'>Delete</a></li>
             {% endfor %}
         </ol>
+    </div>
+
+</div>
+
+<div data-role="page" id="settings">
+    <div data-role="header">
+        <div data-role="navbar" id="navbar3">
+            <ul>
+                <li><a href="#status_page" class="tab">Status</a></li>
+                <li><a href="#config_page" class="tab">Config</a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" class="tab ui-btn-active ui-state-persist" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div data-role="main" class="ui-content">
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <p>Network: {{ network_status.ssid }}</p>
+            <p>IP: {{ network_status.ip_address }}</p>
+            <a href="http://reach.local:5000" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="wifi_link">Wi-Fi setup</a>
+        </div>
         <div class="ui-field-contain" id="update_buttons">
             <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
                 <p>Current version: {{ app_version }}</p>
-                <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button">Update</a>
+                <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button" style="float:left">Update</a><span class='connect' style="color:red;font-size:12px;"></span>
+                <div class="load_update" style="height:44px;float:left;position:relative;display:none;">
+                    <img src="static/images/update_loader.gif" style="height:54px;">
+                    <p style="position:absolute;top:0px;left:0px;color:red;width:54px;text-align:center;">120</p>
+                </div>
+                <p style="clear:both">During update ReachView will go inactive for about a minute. Wait for the LED to start blinking again, then reconnect.</p>
             </div>
         </div>
-
     </div>
-
 </div>
 
 </body>

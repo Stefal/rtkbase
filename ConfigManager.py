@@ -23,7 +23,7 @@
 
 from glob import glob
 from os import remove, path
-from shutil import copy
+from shutil import copy, Error
 
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
@@ -171,7 +171,6 @@ class Config:
         for item_number in self.items:
             # some of the fields are not numbers and need to be treated separately
             try:
-                item_n = int(item_number)
                 int_item_number = int(item_number)
             except ValueError:
                 pass
@@ -195,8 +194,7 @@ class ConfigManager:
             self.config_path = config_path
 
         self.default_rover_config = "reach_single_default.conf"
-
-        self.default_config_path = "/home/reach/ReachView/rtklib_configs/"
+        self.default_base_config = "reach_base_default.conf"
 
         self.available_configs = []
         self.updateAvailableConfigs()
@@ -217,6 +215,12 @@ class ConfigManager:
         for conf in configs:
             if conf:
                 self.available_configs.append(conf[path_length:])
+
+        # we do not show the base config
+        try:
+            self.available_configs.remove(self.default_base_config)
+        except:
+            pass
 
     def readConfig(self, from_file):
 
@@ -255,7 +259,7 @@ class ConfigManager:
     def resetConfigToDefault(self, config_name):
         # try to copy default config to the working configs directory
         if "/" not in config_name:
-            default_config_value = self.default_config_path + config_name
+            default_config_value = self.config_path + config_name
         else:
             default_config_value = config_name
 
@@ -263,6 +267,8 @@ class ConfigManager:
             copy(default_config_value, self.config_path)
         except IOError, e:
             print("Error resetting config " + config_name + " to default. Error: " + e.filename + " - " + e.strerror)
+        except Error as e:
+            print('Error: %s' % e)
 
     def deleteConfig(self, config_name):
         # try to delete config if it exists
@@ -273,6 +279,44 @@ class ConfigManager:
             remove(config_name)
         except OSError, e:
             print ("Error: " + e.filename + " - " + e.strerror)
+
+    def readItemFromConfig(self, property, from_file):
+        # read a complete item from config, found by "parameter part"
+
+        conf = Config(self.config_path + from_file)
+
+        # cycle through this config to find the needed option
+        for item_number in conf.items:
+            if conf.items[item_number]["parameter"] == property:
+                # in case we found it
+                return conf.items[item_number]
+
+        # in case we didn't
+        return None
+
+    def writeItemToConfig(self, item, to_file):
+        # write a complete item to the file
+
+        # first we read the whole file
+        conf = Config(self.config_path + to_file)
+
+        # then we substitute the one property
+        # cycle through this config to find the needed option
+        for item_number in conf.items:
+            if conf.items[item_number]["parameter"] == item["parameter"]:
+                # in case we found it
+                conf.items[item_number] = item
+
+                # rewrite the file again:
+                self.writeConfig(to_file, conf.items)
+                return 1
+                break
+
+        # in case we didn't find it
+        return None
+
+
+
 
 
 

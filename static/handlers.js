@@ -34,7 +34,7 @@ $(document).on("pageinit", "#config_page", function() {
         socket.emit("start " + mode);
 
         if (mode == "base") {
-            cleanStatus(mode, "started");
+            chart.cleanStatus(mode, "started");
         }
 
         $('#start_button').css('display', 'none');
@@ -49,7 +49,7 @@ $(document).on("pageinit", "#config_page", function() {
         // after sending the stop command, we should clean the sat graph
         // and change status in the coordinate grid
 
-        cleanStatus(mode, "stopped");
+        chart.cleanStatus(mode, "stopped");
 
         $('#stop_button').css('display', 'none');
         $('#start_button').css('display', 'inline-block');
@@ -134,15 +134,13 @@ $(document).on("pageinit", "#config_page", function() {
         });
     });
 
-    $(document).on("click", ".save_configs_button", function(e) {
+    function GetConfigToSend(){
         var config_to_send = {};
         var current_id = "";
         var current_parameter = "";
         var current_value = "";
         var current_description = "";
         var current_comment = "";
-
-        var mode = $("input[name=radio_base_rover]:checked").val();
 
         $('input[id*="_entry"], select[id*="_entry"]').each(function(i, obj){
             if(($(this).attr('id') != 'outstr-type_entry') && ($(this).attr('id') != 'inpstr-type_entry')){
@@ -167,77 +165,102 @@ $(document).on("pageinit", "#config_page", function() {
             }
         });
 
-        if($(this).attr('id') == 'save_as_button'){
-            $(".hidden_list").slideUp('fast');
-            $( "#popupLogin" ).popup( "open");
-            
+        return (config_to_send);
+    }
+
+    $('#save_as_button').click(function(){
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        var config_to_send = GetConfigToSend();
+
+        $(".hidden_list").slideUp('fast');
+        $( "#popupLogin" ).popup( "open");
+
+        checkConfTitle();
+
+        $('#config_select_hidden').change(function(){
             checkConfTitle();
+        });
 
-            $('#config_select_hidden').change(function(){
-            	checkConfTitle();
-            });
+        $('#config-title-submit').click(function(){
+            var confTitle = $('input[name=config-title]').val();
+            var config_name = (confTitle.substr(confTitle.length - 5) == '.conf') ? confTitle.substr(0, confTitle.length - 5) : confTitle;
 
-            $('#config-title-submit').click(function(){
-            	var confTitle = $('input[name=config-title]').val();
-            	var config_name = (confTitle.substr(confTitle.length - 5) == '.conf') ? confTitle.substr(0, confTitle.length - 5) : confTitle;
+            var validSymbols = /^[a-zA-Z0-9_\-]+$/;
 
-                var validSymbols = /^[a-zA-Z0-9_\-]+$/;
-
-                if (!validSymbols.test(config_name)) {
-                    $('.space_alert').css('display', 'inline-block');
-                } 
-                else{
-                    config_name += '.conf';
-                    $('.space_alert').css('display', 'none');
-                    $( "#popupLogin" ).popup( "close");
-                    console.log('got signal to write config ' + config_name);
-
-                    if (mode != "base")
-                        config_to_send["config_file_name"] = config_name;
-
-                 socket.emit("write config " + mode, config_to_send);
-                }
-            });
-        }
-        else if($(this).attr('id') == 'save_button'){
-            var config_name = $("#config_select").val();
-
-            $('#config-save-submit').click(function(){
+            if (!validSymbols.test(config_name)) {
+                $('.space_alert').css('display', 'inline-block');
+            } 
+            else{
+                config_name += '.conf';
+                $('.space_alert').css('display', 'none');
+                $( "#popupLogin" ).popup( "close");
                 console.log('got signal to write config ' + config_name);
 
                 if (mode != "base")
                     config_to_send["config_file_name"] = config_name;
 
-                socket.emit("write config " + mode, config_to_send);
+             socket.emit("write config " + mode, config_to_send);
+            }
+        });
+    });
 
-                $( "#popupSave" ).popup( "close");
-            });
+    $('#save_button').click(function(){
+        var mode = $("input[name=radio_base_rover]:checked").val();
 
-            $('#config-save-load-submit').click(function(){
+        if (mode == "base") {
+            $('#config-save-load-submit').click();
+        }
+        else
+            $( "#popupSave" ).popup( "open");
+    });
 
-                if (mode == "base") {
-                    console.log("Request to load new " + mode + " config and restart");
-                }
-                else {
-                    console.log('got signal to write config ' + config_name);
-                    console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+    $('#config-save-submit').click(function(){
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        var config_name = $("#config_select").val();
+        var config_to_send = GetConfigToSend();
 
-                    config_to_send["config_file_name"] = config_name;
-                }
+        console.log('got signal to write config ' + config_name);
 
+        if (mode != "base")
+            config_to_send["config_file_name"] = config_name;
+
+        socket.emit("write config " + mode, config_to_send);
+
+        $( "#popupSave" ).popup( "close");
+    });
+
+    $('#config-save-load-submit').click(function(){
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        var config_name = $("#config_select").val();
+        var config_to_send = GetConfigToSend();
+
+        if (mode == "base") {
+            if(!$.isNumeric($('#base_pos_lat_entry').val()) || !$.isNumeric($('#base_pos_lon_entry').val()) || !$.isNumeric($('#base_pos_height_entry').val())){
+                $( "#popupPos" ).popup( "open");
+            }
+            else{
+                console.log("Request to load new " + mode + " config and restart");
                 $('#start_button').css('display', 'none');
                 $('#stop_button').css('display', 'inline-block');
-                
+                chart.cleanStatus('base', 'started');
+
                 socket.emit("write and load config " + mode, config_to_send);
 
                 $( "#popupSave" ).popup( "close");
-            });
-
-            if (mode == "base") {
-                $('#config-save-load-submit').click();
             }
-            else
-                $( "#popupSave" ).popup( "open");
+        }
+        else {
+            console.log('got signal to write config ' + config_name);
+            console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+
+            config_to_send["config_file_name"] = config_name;
+
+            $('#start_button').css('display', 'none');
+            $('#stop_button').css('display', 'inline-block');
+
+            socket.emit("write and load config " + mode, config_to_send);
+
+            $( "#popupSave" ).popup( "close");
         }
     });
 
@@ -245,34 +268,71 @@ $(document).on("pageinit", "#config_page", function() {
 
 $(document).on("pageinit", "#logs_page", function() {
 
-    $('.log_string').each(function(){
-        var log_state = '';
-        var splitLogString = $(this).text().split(',');
+    if($('.log_string').length == '0'){
+        $('.empty_logs').css('display', 'block');
+    }
+    else{
+        $('.empty_logs').css('display', 'none');
 
-        if(splitLogString[0].slice(0, 3) == 'rov')
-            log_state = 'Rover';
-        else if(splitLogString[0].slice(0, 3) == 'ref')
-            log_state = 'Reference';
-        else if(splitLogString[0].slice(0, 3) == 'sol')
-            log_state = 'Solution';
-        else if(splitLogString[0].slice(0, 3) == 'bas')
-            log_state = 'Base';
+        $('.log_string').each(function(){
+            var log_state = '';
+            var splitLogString = $(this).text().split(',');
 
-        $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
-    });
+            if(splitLogString[0].slice(0, 3) == 'rov')
+                log_state = 'Rover';
+            else if(splitLogString[0].slice(0, 3) == 'ref')
+                log_state = 'Reference';
+            else if(splitLogString[0].slice(0, 3) == 'sol')
+                log_state = 'Solution';
+            else if(splitLogString[0].slice(0, 3) == 'bas')
+                log_state = 'Base';
+
+
+            $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
+        });
+    }
 
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
         $(this).parent().remove();
+        
         console.log("Delete log: " + log_to_delete);
         socket.emit("delete log", {"name": log_to_delete});
+
+        if($('.log_string').length == '0'){
+            $('.empty_logs').css('display', 'block');
+    }
     });
 
-    $(document).on("click", "#update_button", function(e) {
-        console.log("Sending update message");
-        socket.emit("update reachview");
-    });
 });
+
+$(document).on("pageinit", "#settings", function() {
+
+    $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
+
+    $(document).on("click", "#update_button", function(e) {
+            var online = navigator.onLine;
+            var updateStatus = 120;
+
+            if(online){
+                console.log("Sending update message");
+
+            $('.load_update').css('display', 'block');
+            var intervalID = setInterval(function(){
+                --updateStatus;
+                $('.load_update p').text(updateStatus);
+            }, 1000);
+               
+            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:20px;">Refresh the page</span>');}, 1000*60*2);
+            socket.emit("update reachview");
+           }
+           else
+               $('.connect').text('Internet connection is lost');
+
+        return false;
+    });
+})
+
 
 // handle base/rover switching
 
@@ -295,6 +355,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             console.log("Launching rover mode");
             socket.emit("shutdown base")
             socket.emit("launch rover");
+            $("#config_select").val("reach_single_default.conf");
             to_send["config_file_name"] = $("#config_select").val();
             break;
         case "base":
@@ -309,7 +370,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         break;
     }
 
-    cleanStatus(mode, status);
+    chart.cleanStatus(mode, status);
 
     $('#stop_button').css('display', 'none');
     $('#start_button').css('display', 'inline-block');

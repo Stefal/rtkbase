@@ -55,19 +55,22 @@ $(document).ready(function () {
     $("a.tab").click(function () {
         active_tab = $(this).text();
 
-        if(active_tab == 'Status'){
-            if(!$("#sat_chart_canvas").length) {
-                createGraph();
-            }
-        }
-
         console.log("Active tab = " + active_tab);
     });
 
-    createGraph();
+    chart = new Chart();
+    chart.create();
+
+    $(window).resize(function() {
+        chart.resize();
+    });
+
+        // $(window).resize(function() {
+        //     chart.resize();
+        // });
 
     console.log("SAT GRAPH DEBUG");
-    console.dir(satellite_graph);
+    // console.dir(satellite_graph);
 
     // ####################### HANDLE REACH MODES, START AND STOP MESSAGES #######################
 
@@ -103,7 +106,7 @@ $(document).ready(function () {
 
         delete_options_hidden.find('.default_config').remove();
 
-        available_configs_list.val(msg.rover.current_config);
+        
 
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
@@ -124,13 +127,14 @@ $(document).ready(function () {
         if(msg.started == 'yes'){
             $('#start_button').css('display', 'none');
             $('#stop_button').css('display', 'inline-block');
-            cleanStatus(msg.state, "started");
+            chart.cleanStatus(msg.state, "started");
         }
         else{
             $('#stop_button').css('display', 'none');
             $('#start_button').css('display', 'inline-block');
         }
 
+        available_configs_list.val(msg.rover.current_config);
     });
 
     socket.on("available configs", function(msg) {
@@ -176,16 +180,28 @@ $(document).ready(function () {
     socket.on("satellite broadcast rover", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
-            console.log("satellite msg received");
-            updateSatelliteGraphRover(msg);
+            console.log('');
+            console.log('');
+            console.log("rover satellite msg received");
+            console.log(msg);
+            console.log('');
+            console.log('');
+            chart.roverUpdate(msg);
+            // updateSatelliteGraphRover(msg, roverBars, height, labels);
+        
         }
     });
 
     socket.on("satellite broadcast base", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
-            console.log("satellite msg received");
-            updateSatelliteGraphBase(msg);
+            console.log('');
+            console.log('');
+            console.log("base satellite msg received");
+            console.log(msg);
+            console.log('');
+            console.log('');
+            chart.baseUpdate(msg);
         }
     });
 

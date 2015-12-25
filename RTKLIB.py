@@ -412,7 +412,7 @@ class RTKLIB:
 
         print("Got signal to read the rover config")
 
-        print("Sending rover config " + config_file)
+        print("Sending rover config " + str(config_file))
 
         # read from file
         self.conm.readConfig(config_file)
