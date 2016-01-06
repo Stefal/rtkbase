@@ -22,12 +22,13 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 import pexpect
+from glob import glob
 
 # This module automates working with STR2STR software
 
 class Str2StrController:
 
-    def __init__(self, str2str_path = None, gps_cmd_file_path = None):
+    def __init__(self, str2str_path = None, gps_cmd_file_path = None, gps_cmd_file = None):
 
         if str2str_path is None:
             self.bin_path = "/home/reach/RTKLIB/app/str2str/gcc"
@@ -35,9 +36,11 @@ class Str2StrController:
             self.bin_path = str2str_path
 
         if gps_cmd_file_path is None:
-            self.gps_cmd_file = "/home/reach/RTKLIB/app/rtkrcv/reach_raw.cmd"
+            self.gps_cmd_file_path = "/home/reach/RTKLIB/app/rtkrcv/"
+            self.gps_cmd_file = "GPS_10Hz.cmd"
         else:
-            self.gps_cmd_file = gps_cmd_file_path
+            self.gps_cmd_file_path = gps_cmd_file_path
+            self.gps_cmd_file = gps_cmd_file
 
         self.child = 0
         self.started = False
@@ -52,6 +55,27 @@ class Str2StrController:
 
         self.setSerialStream() # input ublox serial
         self.setTCPServerStream(input = False) # output tcp server on port 9000
+
+    def getAvailableReceiverCommandFiles(self):
+        # returns a list of available cmd files in the working rtkrcv directory
+        available_cmd_files = glob(self.gps_cmd_file_path + "*.cmd")
+        available_cmd_files = [cmd_file.replace(self.gps_cmd_file_path, "") for cmd_file in available_cmd_files]
+
+        return available_cmd_files
+
+    def formCommentString(self, options_list):
+
+        comment = "("
+
+        for index, option in enumerate(options_list):
+            comment += str(index) + ":" + str(option)
+
+            if index < len(options_list) - 1:
+                comment += ","
+
+        comment += ")"
+
+        return comment
 
     def readConfig(self):
         parameters_to_send = {}
@@ -70,7 +94,12 @@ class Str2StrController:
         parameters_to_send["3"] = {"parameter": "base_pos_lon", "value": base_pos[1], "description": "Base longitude"}
         parameters_to_send["4"] = {"parameter": "base_pos_height", "value": base_pos[2], "description": "Base height"}
 
-        parameters_to_send["5"] = {"parameter": "gps_cmd_file", "value": self.gps_cmd_file, "description": "Receiver configuration file"}
+        parameters_to_send["5"] = {
+                "parameter": "gps_cmd_file", 
+                "value": self.gps_cmd_file, 
+                "description": "Receiver configuration file",
+                "comment": self.formCommentString(self.getAvailableReceiverCommandFiles())
+        }
 
         print("DEBUG read")
         print(parameters_to_send)
@@ -95,6 +124,8 @@ class Str2StrController:
         self.base_position.append(parameters_received["4"]["value"])
 
         self.rtcm3_messages = parameters_received["1"]["value"].split(",")
+
+        self.gps_cmd_file = parameters_received["5"]["value"]
 
     def setPort(self, port, input = True, format = "ubx"):
         if input:
@@ -219,7 +250,7 @@ class Str2StrController:
                 cmd += " -p " + " ".join(base_position)
 
             if gps_cmd_file:
-                cmd += " -c " + gps_cmd_file
+                cmd += " -c " + self.gps_cmd_file_path + gps_cmd_file
 
             cmd = self.bin_path + cmd
             print("Starting str2str with")
