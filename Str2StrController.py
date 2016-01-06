@@ -70,9 +70,11 @@ class Str2StrController:
         parameters_to_send["3"] = {"parameter": "base_pos_lon", "value": base_pos[1], "description": "Base longitude"}
         parameters_to_send["4"] = {"parameter": "base_pos_height", "value": base_pos[2], "description": "Base height"}
 
-        print("DEBUG read")
+        parameters_to_send["5"] = {"parameter": "gps_cmd_file", "value": self.gps_cmd_file, "description": "Receiver configuration file"}
 
+        print("DEBUG read")
         print(parameters_to_send)
+
         return parameters_to_send
 
     def writeConfig(self, parameters_received):
