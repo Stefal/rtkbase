@@ -269,14 +269,33 @@ function showBase(msg){
 
     	issetInput = (typeof config_key['description'] == "undefined") ? '0' : '1';
 
-        console.log("config base item: " + config_parameter + " = " + config_value + ' description: ' + config_description + ', comment ' + config_comment);
+        console.log("config base item: " + config_parameter + " = " + config_value + ' description: ' + config_description + ', comment: ' + config_comment);
 
         to_append += '<div class="ui-field-contain>">';
         to_append += '<input type="hidden" id="' + config_parameter + '_check" value="' + issetInput +'">';
         to_append += '<input type="hidden" id="' + config_parameter + '_comment" value="' + config_comment +'">';
         to_append += '<input type="hidden" id="' + config_parameter + '_order" value="' + k +'">';
         
-        if((config_parameter == 'inpstr-path') || (config_parameter == 'outstr-path')){
+
+        if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
+            splitArr = config_comment.split(',');                    
+
+
+			to_append +=  '<select name="select-native-1" id="' + config_parameter + '_entry" class="config_form_field">';
+            
+            $.each(splitArr, function(index, value){
+                value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
+                innerSplit = value.split(':');
+
+                if(innerSplit['1'] == config_value)
+                    to_append += '<option value="' + innerSplit['1'] + '" selected="selected">' + innerSplit['1'] + '</option>';
+                else
+                	to_append += '<option value="' + innerSplit['1'] + '">' + innerSplit['1'] + '</option>';
+            })
+
+            to_append += '</select>';
+        }
+        else if((config_parameter == 'inpstr-path') || (config_parameter == 'outstr-path')){
         	var splitK = config_parameter.split('-');
 
         	if(config_parameter == 'inpstr-path')
