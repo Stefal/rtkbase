@@ -554,6 +554,17 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
+	$('#file-cmdfile1_entry option, #file-cmdfile2_entry option').each(function(){
+		var cutOption = $(this).val().slice(3,-4);
+		$(this).text(cutOption);
+	});
+
+	var cutSelectTitle1 = $('#file-cmdfile1_entry-button').find('span.config_form_field:first-child').text().slice(3,-4);
+	$('#file-cmdfile1_entry-button').find('span.config_form_field:first-child').text(cutSelectTitle1);
+
+	var cutSelectTitle2 = $('#file-cmdfile2_entry-button').find('span.config_form_field:first-child').text().slice(3,-4);
+	$('#file-cmdfile2_entry-button').find('span.config_form_field:first-child').text(cutSelectTitle2);
+
 	checkBaseAntennaCoordinates();
 
 	$(document).on("change", '.top_input', function() {
