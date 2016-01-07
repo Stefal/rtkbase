@@ -328,6 +328,9 @@ class RtkController:
 
         self.semaphore.acquire()
 
+        self.obs_rover = {}
+        self.obs_base = {}
+
         self.child.send("obs\r\n")
 
         if self.expectAnswer("get obs") < 0:

@@ -26,6 +26,8 @@
 var defaultConfigs = ['reach_single_default.conf', 'reach_kinematic_default.conf', 'reach_base_default.conf'];
 
 var isActive = true;
+lastBaseMsg = new Object();
+numOfRepetition = 0;
 
 // ############################### MAIN ###############################
 
@@ -65,13 +67,6 @@ $(document).ready(function () {
         chart.resize();
     });
 
-        // $(window).resize(function() {
-        //     chart.resize();
-        // });
-
-    console.log("SAT GRAPH DEBUG");
-    // console.dir(satellite_graph);
-
     // ####################### HANDLE REACH MODES, START AND STOP MESSAGES #######################
 
     // handle data broadcast
@@ -106,8 +101,10 @@ $(document).ready(function () {
 
         delete_options_hidden.find('.default_config').remove();
 
+        select_options.val(msg.rover.current_config);
+        console.info(select_options.val());
+        console.info(msg.rover.current_config);
         
-
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
         } else if (msg.state == "base") {
@@ -134,7 +131,8 @@ $(document).ready(function () {
             $('#start_button').css('display', 'inline-block');
         }
 
-        available_configs_list.val(msg.rover.current_config);
+
+
     });
 
     socket.on("available configs", function(msg) {
@@ -180,27 +178,24 @@ $(document).ready(function () {
     socket.on("satellite broadcast rover", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
-            console.log('');
-            console.log('');
-            console.log("rover satellite msg received");
-            console.log(msg);
-            console.log('');
-            console.log('');
+            
+            console.groupCollapsed('Rover satellite msg received:');
+                for (var k in msg)
+                    console.log(k + ':' + msg[k]);
+            console.groupEnd();
+
             chart.roverUpdate(msg);
-            // updateSatelliteGraphRover(msg, roverBars, height, labels);
-        
         }
     });
 
     socket.on("satellite broadcast base", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
-            console.log('');
-            console.log('');
-            console.log("base satellite msg received");
-            console.log(msg);
-            console.log('');
-            console.log('');
+            console.groupCollapsed('Base satellite msg received:');
+                for (var k in msg)
+                    console.log(k + ':' + msg[k]);
+            console.groupEnd();
+
             chart.baseUpdate(msg);
         }
     });
@@ -210,7 +205,12 @@ $(document).ready(function () {
     socket.on("coordinate broadcast", function(msg) {
         // check if the browser tab and app tab
         if ((active_tab == "Status") && (isActive == true)) {
-            console.log("coordinate msg received");
+
+            console.groupCollapsed('Coordinate msg received:');
+                for (var k in msg)
+                    console.log(k + ':' + msg[k]);
+            console.groupEnd();
+
             updateCoordinateGrid(msg);
         }
     });

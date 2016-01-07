@@ -22,6 +22,7 @@ function checkConfTitle() {
 
 $(document).on("pageinit", "#config_page", function() {
 
+    console.info($("#config_select").val());
 	var mode = $("input[name=radio_base_rover]:checked").val();
 	if(mode == 'base')
 		$('#config_select-button').parent().parent().css('display', 'none');
@@ -58,13 +59,13 @@ $(document).on("pageinit", "#config_page", function() {
     $(document).on("change", "#config_select", function(e) {
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_name = $("#config_select").val();
+
         var to_send = {};
 
         if (mode == "base") {
             console.log("Request for " + mode + " config");
         } else {
             // if we are in rover mode, we need to pay attention which config is currently chosen
-            var config_name = $("#config_select").val();
             console.log("Request for " + mode + "config, name is " + config_name);
 
             if (config_name != "") {
@@ -119,7 +120,6 @@ $(document).on("pageinit", "#config_page", function() {
 
         if(conf_to_delete != null){
             if(jQuery.inArray( conf_to_delete, defaultConfigs ) >= 0){
-                console.log(conf_to_delete);
                 console.log("Don't try to delete default config");
             }
             else{
@@ -150,7 +150,7 @@ $(document).on("pageinit", "#config_page", function() {
                 current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
                 current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
 
-                console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
+                // console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
                 var payload = {};
                 payload['parameter'] = current_parameter;
@@ -159,12 +159,12 @@ $(document).on("pageinit", "#config_page", function() {
                 if(current_description != '')
                     payload['description'] = current_description;
                 if(current_comment != '')
-                payload['comment'] = current_comment;
+                    payload['comment'] = current_comment;
 
                 config_to_send[current_id] = payload;
             }
         });
-
+        
         return (config_to_send);
     }
 
@@ -194,7 +194,16 @@ $(document).on("pageinit", "#config_page", function() {
                 config_name += '.conf';
                 $('.space_alert').css('display', 'none');
                 $( "#popupLogin" ).popup( "close");
-                console.log('got signal to write config ' + config_name);
+
+                console.groupCollapsed('Sending config to save as ' + config_name +':');
+                    jQuery.each(config_to_send, function(i, val) {
+                        console.groupCollapsed(val['parameter']);
+                            console.log('value:' + val['value']);
+                            console.log('comment: ' + val['comment']);
+                            console.log('description: ' + val['description']);
+                        console.groupEnd();
+                    })
+                console.groupEnd();
 
                 if (mode != "base")
                     config_to_send["config_file_name"] = config_name;
@@ -219,7 +228,15 @@ $(document).on("pageinit", "#config_page", function() {
         var config_name = $("#config_select").val();
         var config_to_send = GetConfigToSend();
 
-        console.log('got signal to write config ' + config_name);
+        console.groupCollapsed('Sending config ' + config_name + ' to save:');
+            jQuery.each(config_to_send, function(i, val) {
+                console.groupCollapsed(val['parameter']);
+                    console.log('value:' + val['value']);
+                    console.log('comment: ' + val['comment']);
+                    console.log('description: ' + val['description']);
+                console.groupEnd();
+            })
+        console.groupEnd();
 
         if (mode != "base")
             config_to_send["config_file_name"] = config_name;
@@ -239,7 +256,17 @@ $(document).on("pageinit", "#config_page", function() {
                 $( "#popupPos" ).popup( "open");
             }
             else{
-                console.log("Request to load new " + mode + " config and restart");
+                
+                console.groupCollapsed('Sending config ' + config_name + ' to save and restart:');
+                    jQuery.each(config_to_send, function(i, val) {
+                        console.groupCollapsed(val['parameter']);
+                            console.log('value:' + val['value']);
+                            console.log('comment: ' + val['comment']);
+                            console.log('description: ' + val['description']);
+                        console.groupEnd();
+                    })
+                console.groupEnd();
+
                 $('#start_button').css('display', 'none');
                 $('#stop_button').css('display', 'inline-block');
                 chart.cleanStatus('base', 'started');
@@ -250,8 +277,15 @@ $(document).on("pageinit", "#config_page", function() {
             }
         }
         else {
-            console.log('got signal to write config ' + config_name);
-            console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+            console.groupCollapsed('Sending config ' + config_name + ' to save and restart:');
+                jQuery.each(config_to_send, function(i, val) {
+                    console.groupCollapsed(val['parameter']);
+                        console.log('value:' + val['value']);
+                        console.log('comment: ' + val['comment']);
+                        console.log('description: ' + val['description']);
+                    console.groupEnd();
+                })
+            console.groupEnd();
 
             config_to_send["config_file_name"] = config_name;
 
@@ -355,7 +389,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             console.log("Launching rover mode");
             socket.emit("shutdown base")
             socket.emit("launch rover");
-            $("#config_select").val("reach_single_default.conf");
+            // $("#config_select").val("reach_single_default.conf");
             to_send["config_file_name"] = $("#config_select").val();
             break;
         case "base":
