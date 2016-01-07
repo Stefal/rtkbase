@@ -26,6 +26,8 @@
 var defaultConfigs = ['reach_single_default.conf', 'reach_kinematic_default.conf', 'reach_base_default.conf'];
 
 var isActive = true;
+lastBaseMsg = new Object();
+numOfRepetition = 0;
 
 // ############################### MAIN ###############################
 
@@ -99,8 +101,10 @@ $(document).ready(function () {
 
         delete_options_hidden.find('.default_config').remove();
 
+        select_options.val(msg.rover.current_config);
+        console.info(select_options.val());
+        console.info(msg.rover.current_config);
         
-
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
         } else if (msg.state == "base") {
@@ -127,7 +131,8 @@ $(document).ready(function () {
             $('#start_button').css('display', 'inline-block');
         }
 
-        available_configs_list.val(msg.rover.current_config);
+
+
     });
 
     socket.on("available configs", function(msg) {
@@ -205,7 +210,7 @@ $(document).ready(function () {
                 for (var k in msg)
                     console.log(k + ':' + msg[k]);
             console.groupEnd();
-            
+
             updateCoordinateGrid(msg);
         }
     });

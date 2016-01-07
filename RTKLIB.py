@@ -410,6 +410,8 @@ class RTKLIB:
         else:
             config_file = config["config_file_name"]
 
+        print("Package got: " + str(config))
+
         print("Got signal to read the rover config by the name " + str(config_file))
         print("Sending rover config " + str(config_file))
 

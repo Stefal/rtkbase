@@ -292,6 +292,17 @@ function Chart() {
             this.chartdata1[i]['color'] = new_sat_fillcolors[i];
         };
 
+        if(JSON.stringify(msg) == JSON.stringify(lastBaseMsg)){
+            numOfRepetition++;
+        }
+        else{
+           lastBaseMsg = msg;
+           numOfRepetition = 0;
+        }
+
+        if(numOfRepetition >= 5)
+            this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
+
         this.baseBars.data(this.chartdata1)
         .transition()    
         .attr('height', function (data) {

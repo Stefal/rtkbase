@@ -22,6 +22,7 @@ function checkConfTitle() {
 
 $(document).on("pageinit", "#config_page", function() {
 
+    console.info($("#config_select").val());
 	var mode = $("input[name=radio_base_rover]:checked").val();
 	if(mode == 'base')
 		$('#config_select-button').parent().parent().css('display', 'none');
@@ -58,13 +59,13 @@ $(document).on("pageinit", "#config_page", function() {
     $(document).on("change", "#config_select", function(e) {
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_name = $("#config_select").val();
+
         var to_send = {};
 
         if (mode == "base") {
             console.log("Request for " + mode + " config");
         } else {
             // if we are in rover mode, we need to pay attention which config is currently chosen
-            var config_name = $("#config_select").val();
             console.log("Request for " + mode + "config, name is " + config_name);
 
             if (config_name != "") {
@@ -388,7 +389,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             console.log("Launching rover mode");
             socket.emit("shutdown base")
             socket.emit("launch rover");
-            $("#config_select").val("reach_single_default.conf");
+            // $("#config_select").val("reach_single_default.conf");
             to_send["config_file_name"] = $("#config_select").val();
             break;
         case "base":
