@@ -50,7 +50,7 @@ class Str2StrController:
         self.output_stream = ""
 
         # Reach defaults for base position and rtcm3 messages:
-        self.rtcm3_messages = ["1002", "1006", "1013", "1019"]
+        self.rtcm3_messages = ["1002", "1006", "1008", "1010", "1019", "1020"]
         self.base_position = [] # lat, lon, height
 
         self.setSerialStream() # input ublox serial
