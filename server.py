@@ -68,11 +68,23 @@ def index():
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
     return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version, network_status = getNetworkStatus())
 
-@app.route("/logs/<path:log_name>")
+# @app.route("/logs/<path:log_name>")
+# def processLog(log_name):
+
+#     print("Got signal to download a log, name = " + str(log_name))
+#     print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
+
+#     raw_log_path = rtk.logm.log_path + "/" + log_name
+#     rtk.processLogPackage(raw_log_path)
+
+    # log_package_path = rtk.getRINEXPackage(raw_log_path)
+    # print("Sending log file " + log_package_path)
+    # return send_file(log_package_path, as_attachment = True)
+
+@app.route("/logs/download/<path:log_name>")
 def downloadLog(log_name):
-    print("Got signal to download a log, name = " + str(log_name))
-    print("Path to log == " + rtk.logm.log_path + str(log_name))
-    return send_file(rtk.logm.log_path + log_name, as_attachment = True)
+    full_log_path = rtk.logm.log_path + "/" + log_name
+    return send_file(full_log_path, as_attachment = True)
 
 @socketio.on("connect", namespace="/test")
 def testConnect():
@@ -153,11 +165,28 @@ def writeConfigBase(json):
 def deleteLog(json):
     rtk.logm.deleteLog(json.get("name"))
 
+@socketio.on("process log", namespace="/test")
+def processLog(json):
+    log_name = json.get("name")
+
+    print("Got signal to process a log, name = " + str(log_name))
+    print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
+
+    raw_log_path = rtk.logm.log_path + "/" + log_name
+    rtk.processLogPackage(raw_log_path)
+
+@socketio.on("cancel log conversion", namespace="/test")
+def cancelLogConversion(json):
+    log_name = json.get("name")
+    raw_log_path = rtk.logm.log_path + "/" + log_name
+    rtk.cancelLogConversion(raw_log_path)
+
 #### Delete config ####
 @socketio.on("delete config", namespace="/test")
 def deleteLog(json):
+    log_name = json.get("name")
+    raw_log_path = rtk.logm.log_path + "/" + log_name
     rtk.deleteConfig(json.get("name"))
-    # rtk.conm.deleteConfig(json.get("name"))
 
 #### Reset config to default ####
 @socketio.on("reset config", namespace="/test")

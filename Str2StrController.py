@@ -21,6 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import pexpect
 from glob import glob
 
@@ -28,19 +29,12 @@ from glob import glob
 
 class Str2StrController:
 
-    def __init__(self, str2str_path = None, gps_cmd_file_path = None, gps_cmd_file = None):
+    def __init__(self, rtklib_path):
 
-        if str2str_path is None:
-            self.bin_path = "/home/reach/RTKLIB/app/str2str/gcc"
-        else:
-            self.bin_path = str2str_path
+        self.bin_path = rtklib_path + "/app/str2str/gcc"
 
-        if gps_cmd_file_path is None:
-            self.gps_cmd_file_path = "/home/reach/RTKLIB/app/rtkrcv/"
-            self.gps_cmd_file = "GPS_10Hz.cmd"
-        else:
-            self.gps_cmd_file_path = gps_cmd_file_path
-            self.gps_cmd_file = gps_cmd_file
+        self.gps_cmd_file_path = rtklib_path + "/app/rtkrcv"
+        self.gps_cmd_file = "GPS_10Hz.cmd"
 
         self.child = 0
         self.started = False
@@ -58,8 +52,8 @@ class Str2StrController:
 
     def getAvailableReceiverCommandFiles(self):
         # returns a list of available cmd files in the working rtkrcv directory
-        available_cmd_files = glob(self.gps_cmd_file_path + "*.cmd")
-        available_cmd_files = [cmd_file.replace(self.gps_cmd_file_path, "") for cmd_file in available_cmd_files]
+        available_cmd_files = glob(self.gps_cmd_file_path + "/" +"*.cmd")
+        available_cmd_files = [os.path.basename(cmd_file) for cmd_file in available_cmd_files]
 
         return available_cmd_files
 
@@ -95,8 +89,8 @@ class Str2StrController:
         parameters_to_send["4"] = {"parameter": "base_pos_height", "value": base_pos[2], "description": "Base height"}
 
         parameters_to_send["5"] = {
-                "parameter": "gps_cmd_file", 
-                "value": self.gps_cmd_file, 
+                "parameter": "gps_cmd_file",
+                "value": self.gps_cmd_file,
                 "description": "Receiver configuration file",
                 "comment": self.formCommentString(self.getAvailableReceiverCommandFiles())
         }
@@ -250,7 +244,7 @@ class Str2StrController:
                 cmd += " -p " + " ".join(base_position)
 
             if gps_cmd_file:
-                cmd += " -c " + self.gps_cmd_file_path + gps_cmd_file
+                cmd += " -c " + self.gps_cmd_file_path + "/" + gps_cmd_file
 
             cmd = self.bin_path + cmd
             print("Starting str2str with")

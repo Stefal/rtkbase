@@ -40,6 +40,7 @@ then
 
     cp /home/reach/ReachView/rtklib_configs/rtkrcv /home/reach/RTKLIB/app/rtkrcv/gcc/
     cp /home/reach/ReachView/rtklib_configs/str2str /home/reach/RTKLIB/app/str2str/gcc/
+    cp /home/reach/ReachView/rtklib_configs/convbin /home/reach/RTKLIB/app/convbin/gcc/
 fi
 
 chown -R reach:users /home/reach

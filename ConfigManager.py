@@ -21,8 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from glob import glob
-from os import remove, path
 from shutil import copy, Error
 
 # This module aims to make working with RTKLIB configs easier
@@ -186,12 +186,9 @@ class Config:
 
 class ConfigManager:
 
-    def __init__(self, config_path = None):
+    def __init__(self, rtklib_path):
 
-        if config_path is None:
-            self.config_path = "/home/reach/RTKLIB/app/rtkrcv/"
-        else:
-            self.config_path = config_path
+        self.config_path = rtklib_path + "/app/rtkrcv/"
 
         self.default_rover_config = "reach_single_default.conf"
         self.default_base_config = "reach_base_default.conf"
@@ -207,14 +204,11 @@ class ConfigManager:
     def updateAvailableConfigs(self):
 
         self.available_configs = []
-        path_length = len(self.config_path)
 
         # get a list of available .conf files in the config directory
         configs = glob(self.config_path + "*.conf")
+        self.available_configs = [os.path.basename(config) for config in configs]
 
-        for conf in configs:
-            if conf:
-                self.available_configs.append(conf[path_length:])
 
         # we do not show the base config
         try:
@@ -276,7 +270,7 @@ class ConfigManager:
             config_name = self.config_path + config_name
 
         try:
-            remove(config_name)
+            os.remove(config_name)
         except OSError, e:
             print ("Error: " + e.filename + " - " + e.strerror)
 

@@ -30,19 +30,13 @@ import time
 
 class RtkController:
 
-    def __init__(self, rtkrcv_path = None, config_path = None):
+    def __init__(self, rtklib_path):
 
-        if rtkrcv_path is None:
-            self.bin_path = "/home/reach/RTKLIB/app/rtkrcv/gcc"
-        else:
-            self.bin_path = rtkrcv_path
-
-        if config_path is None:
-            self.config_path = "/home/reach/RTKLIB/app/rtkrcv/"
-        else:
-            self.config_path = config_path
+        self.bin_path = rtklib_path + "/app/rtkrcv/gcc"
+        self.config_path = rtklib_path + "/app/rtkrcv"
 
         self.child = 0
+
         self.status = {}
         self.obs_rover = {}
         self.obs_base = {}
@@ -84,7 +78,7 @@ class RtkController:
             if "/" in config_name:
                 spawn_command = self.bin_path + "/rtkrcv -o " + config_name
             else:
-                spawn_command = self.bin_path + "/rtkrcv -o " + self.config_path + config_name
+                spawn_command = self.bin_path + "/rtkrcv -o " + self.config_path + "/" + config_name
 
             self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
 
@@ -121,7 +115,11 @@ class RtkController:
                 r = 1
 
             # wait for rtkrcv to shutdown
-            self.child.wait()
+            try:
+                self.child.wait()
+            except pexpect.ExceptionPexpect:
+                print("Already dead!!")
+
             if self.child.isalive():
                 r = -1
 
@@ -381,10 +379,6 @@ class RtkController:
                                 # 2 to be base
                                 self.obs_base[name] = level
 
-                            # print("print from getObs:\n" + str(self.obs))
-
-    #                print("Useful info extracted from status: ")
-    #                print(self.info)
                 else:
                     self.obs_base = {}
                     self.obs_rover = {}

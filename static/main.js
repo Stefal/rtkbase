@@ -102,9 +102,7 @@ $(document).ready(function () {
         delete_options_hidden.find('.default_config').remove();
 
         select_options.val(msg.rover.current_config);
-        console.info(select_options.val());
-        console.info(msg.rover.current_config);
-        
+
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
         } else if (msg.state == "base") {
@@ -157,7 +155,7 @@ $(document).ready(function () {
         delete_options_hidden.find('.default_config').remove();
 
         var newNum = select_options.children('option').length;
-    
+
         if(newNum<oldNum){
             available_configs_list.val('reach_single_default.conf');
             available_configs_list.parent().find('span').html('reach_single_default.conf');
@@ -178,7 +176,7 @@ $(document).ready(function () {
     socket.on("satellite broadcast rover", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
-            
+
             console.groupCollapsed('Rover satellite msg received:');
                 for (var k in msg)
                     console.log(k + ':' + msg[k]);

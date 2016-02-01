@@ -20,6 +20,118 @@ function checkConfTitle() {
     }
 }
 
+function extractTimeFromLogName(log_name) {
+    var hours = log_name.slice(12, 14);
+    var minutes = log_name.slice(14, 16);
+    var day = log_name.slice(10, 12);
+    var month = log_name.slice(8, 10);
+    var year = log_name.slice(4, 8);
+
+    return hours + ":" + minutes + " " + day + "." + month + "." + year;
+}
+
+function formConversionStatusDialog(dialog_id) {
+
+    var resulting_string = '<p id="' + dialog_id + '" ';
+    resulting_string += 'class="log_conversion_status_string">';
+    resulting_string += 'Waiting...</p>';
+
+    return resulting_string;
+}
+
+function updateConversionStatusDialog(log_being_converted, conversion_status) {
+    var dialog_id = log_being_converted + "_status";
+    dialog_id = dialog_id.replace(".", "_");
+    var logs_list = $("#logs_list");
+
+    console.log("Updating dialog id == '" + dialog_id + "' with status " + conversion_status);
+
+    $("#" + dialog_id).html("<strong>" + conversion_status + "</strong>");
+    logs_list.listview("refresh");
+}
+
+function createCancelConversionButton(log_being_converted) {
+    var dialog_id = "delete_" + log_being_converted;
+    dialog_id = dialog_id.replace(".", "_");
+    var logs_list = $("#logs_list");
+
+    console.log("Updating icon from delete to cancel on button " + dialog_id);
+    console.log("Current icon is " + $("#" + dialog_id).attr("data-icon"));
+    // dialog_id = dialog_id.replace(".", "_");
+
+    $("#" + dialog_id).attr("data-icon", "forbidden");
+    $("#" + dialog_id).addClass("ui-icon-forbidden").removeClass("ui-icon-delete");
+    $("#" + dialog_id).addClass("cancel-log-button").removeClass("delete-log-button");
+    $("#" + dialog_id).attr("title", "Cancel");
+    $("#" + dialog_id).text("Cancel");
+
+    logs_list.listview("refresh");
+
+    $(".cancel-log-button").off("click");
+    $(".cancel-log-button").on("click", function () {
+        console.log("Sending cancel msg");
+        socket.emit("cancel log conversion", {"name": log_being_converted});
+    })
+}
+
+function deleteCancelConversionButton(log_being_converted) {
+    var dialog_id = "delete_" + log_being_converted;
+    dialog_id = dialog_id.replace(".", "_");
+    var logs_list = $("#logs_list");
+
+    console.log("Updating icon from delete to cancel on button " + dialog_id);
+    console.log("Current icon is " + $("#" + dialog_id).attr("data-icon"));
+    // dialog_id = dialog_id.replace(".", "_");
+
+    $(".cancel-log-button").off("click");
+    $(".cancel-log-button").on("click", function () {
+        var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
+        $(this).parent().remove();
+
+        console.log("Delete log: " + log_to_delete);
+        socket.emit("delete log", {"name": log_to_delete});
+
+        if($('.log_string').length == '0') {
+            $('.empty_logs').css('display', 'block');
+        }
+    })
+
+    $("#" + dialog_id).attr("data-icon", "delete");
+    $("#" + dialog_id).removeClass("ui-icon-forbidden").addClass("ui-icon-delete");
+    $("#" + dialog_id).removeClass("cancel-log-button").addClass("delete-log-button");
+    $("#" + dialog_id).attr("title", "Delete");
+    $("#" + dialog_id).text("Delete");
+
+    logs_list.listview("refresh");
+}
+
+function setConversionTimer(log_being_converted, time_string) {
+        var msg = "Converting log to RINEX...Approximate time left: ";
+        var formatted_time = Math.floor(time_string / 60) + ' minutes ' + time_string % 60 + ' seconds';
+
+        var dialog_id = log_being_converted + "_status";
+        dialog_id = dialog_id.replace(".", "_");
+
+        $('#' + dialog_id).html("<strong>" + msg + formatted_time + "</strong>");
+
+        console.log("Setting conversion timer for " + dialog_id);
+        console.log("Timer string is " + time_string);
+
+        var intervalID = setInterval(function() {
+           --time_string;
+           formatted_time = Math.floor(time_string / 60) + ' minutes ' + time_string % 60 + ' seconds';
+
+           $('#' + dialog_id).html("<strong>" + msg + formatted_time + "</strong>");
+        }, 1000);
+
+        var timeoutID = setTimeout(function() {
+           clearInterval(intervalID);
+           $('#' + dialog_id).html("Your download will begin shortly");
+        }, time_string * 1000);
+
+        return [intervalID, timeoutID];
+    }
+
 $(document).on("pageinit", "#config_page", function() {
 
     console.info($("#config_select").val());
@@ -164,7 +276,7 @@ $(document).on("pageinit", "#config_page", function() {
                 config_to_send[current_id] = payload;
             }
         });
-        
+
         return (config_to_send);
     }
 
@@ -189,7 +301,7 @@ $(document).on("pageinit", "#config_page", function() {
 
             if (!validSymbols.test(config_name)) {
                 $('.space_alert').css('display', 'inline-block');
-            } 
+            }
             else{
                 config_name += '.conf';
                 $('.space_alert').css('display', 'none');
@@ -256,7 +368,7 @@ $(document).on("pageinit", "#config_page", function() {
                 $( "#popupPos" ).popup( "open");
             }
             else{
-                
+
                 console.groupCollapsed('Sending config ' + config_name + ' to save and restart:');
                     jQuery.each(config_to_send, function(i, val) {
                         console.groupCollapsed(val['parameter']);
@@ -302,6 +414,15 @@ $(document).on("pageinit", "#config_page", function() {
 
 $(document).on("pageinit", "#logs_page", function() {
 
+    var interval_timer = "";
+    var timeout_timer = "";
+
+    $('.delete-log-button').each(function () {
+        var current_id = $(this).attr("id");
+        $(this).attr("id", current_id.replace(".", "_"));
+    })
+
+
     if($('.log_string').length == '0'){
         $('.empty_logs').css('display', 'block');
     }
@@ -310,7 +431,17 @@ $(document).on("pageinit", "#logs_page", function() {
 
         $('.log_string').each(function(){
             var log_state = '';
-            var splitLogString = $(this).text().split(',');
+            var splitLogString = $(this).find("h2").text().split(',');
+
+            var log_start_time = extractTimeFromLogName(splitLogString[0]);
+            var log_name = splitLogString[0];
+            var log_size = "(" + splitLogString[1] + " MB)"
+            var log_format = splitLogString[2];
+
+            var paragraph_id = log_name + "_status";
+            paragraph_id = paragraph_id.replace(".", "_");
+
+            $(this).find("p").attr("id", paragraph_id);
 
             if(splitLogString[0].slice(0, 3) == 'rov')
                 log_state = 'Rover';
@@ -321,23 +452,102 @@ $(document).on("pageinit", "#logs_page", function() {
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
 
+            $(this).find("h2").text(log_state + ': ' + log_start_time + " " + log_size + " " + log_format);
 
-            $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
+            if(splitLogString[3] == "True") {
+                console.log("Found log being converted: " + log_name);
+                updateConversionStatusDialog(log_name, "This log is being converted. Please wait");
+                createCancelConversionButton(log_name);
+            }
         });
     }
 
+    $('.log_string').each(function() {
+        $(this).on("click", function() {
+            var log_to_process = $(this).parent().children('.log_string').attr('id').slice(6);
+            console.log("Request to process log " + log_to_process);
+            socket.emit("process log", {"name": log_to_process});
+        });
+    });
+
     $('.delete-log-button').click(function(){
-        var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
+        var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
         $(this).parent().remove();
-        
+
         console.log("Delete log: " + log_to_delete);
         socket.emit("delete log", {"name": log_to_delete});
 
-        if($('.log_string').length == '0'){
+        if($('.log_string').length == '0') {
             $('.empty_logs').css('display', 'block');
-    }
+        }
     });
 
+    // show conversion status by adding a new list view field under the log we are  trying to convert/download
+    socket.on("log conversion start", function(msg) {
+        var log_being_converted = msg.name;
+        var time_estimate = msg.conversion_time;
+
+        console.log("Log conversion start for " + log_being_converted);
+
+        // append a status window after the listview item
+        updateConversionStatusDialog(log_being_converted, "Preparing to convert...");
+
+        var timer_ids = setConversionTimer(log_being_converted, time_estimate);
+        interval_timer = timer_ids[0];
+        timeout_timer = timer_ids[1];
+
+        console.log("Create cancel conversion button for log " + log_being_converted);
+        createCancelConversionButton(log_being_converted);
+    });
+
+    socket.on("log conversion results", function(msg) {
+        var log_being_converted = msg.name;
+        var conversion_status = msg.conversion_status;
+        var messages_parsed = msg.messages_parsed;
+
+        console.log("Got conversion results:");
+        console.log(log_being_converted + " " + conversion_status);
+
+        var update_message = conversion_status + ". " + messages_parsed;
+        clearInterval(interval_timer);
+        clearTimeout(timeout_timer);
+        updateConversionStatusDialog(log_being_converted, update_message);
+        deleteCancelConversionButton(log_being_converted);
+    });
+
+    socket.on("log conversion failed", function(msg) {
+        var log_being_converted = msg.name;
+        var conversion_status = msg.conversion_status;
+        var messages_parsed = msg.messages_parsed;
+
+        console.log("Conversion failed!");
+        console.log(log_being_converted + " " + conversion_status);
+
+        var update_message = conversion_status + ". " + messages_parsed;
+        updateConversionStatusDialog(log_being_converted, update_message);
+    });
+
+    socket.on("log download path", function(msg) {
+        console.log("Log download path == " + msg.log_url_tail);
+
+        var full_log_url = location.protocol + '//' + location.host + msg.log_url_tail;
+        window.location.href = full_log_url;
+    });
+
+    socket.on("log conversion canceled", function(msg) {
+        var log_being_converted = msg.name;
+        console.log("Log conversion cancel confirmed!");
+
+        clearInterval(interval_timer);
+        clearTimeout(timeout_timer);
+        updateConversionStatusDialog(log_being_converted, "log conversion canceled");
+        deleteCancelConversionButton(log_being_converted);
+    })
+
+    socket.on("clean busy messages", function(msg) {
+        console.log("Clearing busy messages");
+        $(".log_conversion_status_string:contains('Please wait')").html("");
+    });
 });
 
 $(document).on("pageinit", "#settings", function() {
@@ -345,23 +555,23 @@ $(document).on("pageinit", "#settings", function() {
     $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
 
     $(document).on("click", "#update_button", function(e) {
-            var online = navigator.onLine;
-            var updateStatus = 120;
+        var online = navigator.onLine;
+        var updateStatus = 120;
 
-            if(online){
-                console.log("Sending update message");
+        if (online) {
+            console.log("Sending update message");
 
             $('.load_update').css('display', 'block');
             var intervalID = setInterval(function(){
                 --updateStatus;
                 $('.load_update p').text(updateStatus);
             }, 1000);
-               
+
             setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:20px;">Refresh the page</span>');}, 1000*60*2);
             socket.emit("update reachview");
-           }
-           else
-               $('.connect').text('Internet connection is lost');
+        }
+        else
+            $('.connect').text('Internet connection is lost');
 
         return false;
     });

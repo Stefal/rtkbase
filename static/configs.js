@@ -25,21 +25,29 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path (required)" class="config_form_field"></div>').trigger("create");
 			if(method == 'log'){
 				if(i == 1){
-					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.log');
-					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.log');
+					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
+					$('#pathlog1').attr('type', 'hidden');
+					$('#pathlog1').parent().css({'visibility':'hidden', 'border':'none'});
+					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
 				}
 				else if(i == 2)
-					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
-					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
+					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
+					$('#pathlog2').attr('type', 'hidden');
+					$('#pathlog2').parent().css({'visibility':'hidden', 'border':'none'});
+					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 			}
 			else if(method == 'out'){
 				if(i == 1){
-					$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.log');
-					$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.log');
+					$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
+					$('#pathout1').attr('type', 'hidden');
+					$('#pathout1').parent().css({'visibility':'hidden', 'border':'none'});
+					$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 				}
 				else if(i == ''){
-					$('#pathout').val('/home/reach/logs/bas_%Y%m%d%h%M.log');
-					$('#outstr-path_entry').val('/home/reach/logs/bas_%Y%m%d%h%M.log');	
+					$('#pathout').val('/home/reach/logs/bas_%Y%m%d%h%M.rtmc3');
+					$('#pathout').attr('type', 'hidden');
+					$('#pathout').parent().css({'visibility':'hidden', 'border':'none'});
+					$('#outstr-path_entry').val('/home/reach/logs/bas_%Y%m%d%h%M.rtcm3');
 				}
 			}
 
@@ -243,7 +251,7 @@ function showBase(msg){
 	var prefixArr = ['out'];
 	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
     var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
-    var optionsArr = ['1002', '1006', '1008', '1010', '1019', '1020'];
+    var optionsArr = ['1002', '1006', '1008', '1010', '1019', '1020', '1107', '1117', '1127'];
     
     console.groupCollapsed("Received current base config:");
     // clean prev versions

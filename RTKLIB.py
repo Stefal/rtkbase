@@ -27,10 +27,14 @@ from Str2StrController import Str2StrController
 from LogManager import LogManager
 from ReachLED import ReachLED
 
-from threading import Semaphore, Thread
 import json
 import time
+import os
+import signal
+import zipfile
+
 from subprocess import check_output, Popen, PIPE
+from threading import Semaphore, Thread
 
 # master class for working with all RTKLIB programmes
 # prevents them from stacking up and handles errors
@@ -41,7 +45,15 @@ class RTKLIB:
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
 
-    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None, log_path = None):
+    def __init__(self, socketio, rtklib_path = None, enable_led = True, log_path = None):
+
+
+        if rtklib_path is None:
+            rtklib_path = "/home/reach/RTKLIB"
+
+        if log_path is None:
+            log_path = "/home/reach/logs"
+
         # default state for RTKLIB is "rover single"
         self.state = "rover"
 
@@ -49,14 +61,14 @@ class RTKLIB:
         self.socketio = socketio
 
         # these are necessary to handle rover mode
-        self.rtkc = RtkController(rtkrcv_path, config_path)
-        self.conm = ConfigManager(config_path)
+        self.rtkc = RtkController(rtklib_path)
+        self.conm = ConfigManager(rtklib_path)
 
         # this one handles base settings
-        self.s2sc = Str2StrController(str2str_path, gps_cmd_file_path)
+        self.s2sc = Str2StrController(rtklib_path)
 
         # take care of serving logs
-        self.logm = LogManager(log_path)
+        self.logm = LogManager(rtklib_path, log_path)
 
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()
@@ -71,6 +83,7 @@ class RTKLIB:
         self.server_not_interrupted = True
         self.satellite_thread = None
         self.coordinate_thread = None
+        self.conversion_thread = None
 
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
@@ -410,8 +423,6 @@ class RTKLIB:
         else:
             config_file = config["config_file_name"]
 
-        print("Package got: " + str(config))
-
         print("Got signal to read the rover config by the name " + str(config_file))
         print("Sending rover config " + str(config_file))
 
@@ -473,8 +484,172 @@ class RTKLIB:
 
         # send available configs to the browser
         self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
-        
+
         print(self.conm.available_configs)
+
+    def cancelLogConversion(self, raw_log_path):
+        if self.logm.log_being_converted:
+            print("Canceling log conversion for " + raw_log_path)
+
+            self.logm.convbin.child.kill(signal.SIGINT)
+
+            self.conversion_thread.join()
+            self.logm.convbin.child.close(force = True)
+
+            print("Thread killed")
+            self.logm.cleanLogFiles(raw_log_path)
+            self.logm.log_being_converted = ""
+
+            self.socketio.emit("Conversion canceled, downloading raw log", {"name": os.path.basename(raw_log_path)}, namespace="/test")
+            print("Canceled msg sent")
+
+    def processLogPackage(self, raw_log_path):
+
+        currently_converting = False
+
+        try:
+            print("conversion thread is alive " + str(self.conversion_thread.isAlive()))
+            currently_converting = self.conversion_thread.isAlive()
+        except AttributeError:
+            pass
+
+        log_filename = os.path.basename(raw_log_path)
+        potential_zip_path = os.path.splitext(raw_log_path)[0] + ".zip"
+
+        can_send_file = True
+
+        # can't send if there is no converted package and we are busy
+        if (not os.path.isfile(potential_zip_path)) and (currently_converting):
+            can_send_file = False
+
+        if can_send_file:
+            print("Starting a new bg conversion thread for log " + raw_log_path)
+            self.logm.log_being_converted = raw_log_path
+            self.conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
+            self.conversion_thread.start()
+        else:
+            error_msg = {
+                "name": os.path.basename(raw_log_path),
+                "conversion_status": "A log is being converted at the moment. Please wait",
+                "messages_parsed": ""
+            }
+            self.socketio.emit("log conversion failed", error_msg, namespace="/test")
+
+    def conversionIsRequired(self, raw_log_path):
+        log_filename = os.path.basename(raw_log_path)
+        potential_zip_path = os.path.splitext(raw_log_path)[0] + ".zip"
+
+        if os.path.isfile(potential_zip_path):
+            print("Raw logs differ " + str(self.rawLogsDiffer(raw_log_path, potential_zip_path)))
+            return self.rawLogsDiffer(raw_log_path, potential_zip_path)
+        else:
+            print("No zip file!!! Conversion required")
+            return True
+
+    def rawLogsDiffer(self, raw_log_path, zip_package_path):
+        # check if the raw log is the same size in the zip and in filesystem
+        log_name = os.path.basename(raw_log_path)
+        raw_log_size = os.path.getsize(raw_log_path)
+
+        zip_package = zipfile.ZipFile(zip_package_path)
+        raw_file_inside_info = zip_package.getinfo("Raw/" + log_name)
+        raw_file_inside_size = raw_file_inside_info.file_size
+
+        if raw_log_size == raw_file_inside_size:
+            return False
+        else:
+            return True
+
+    def getRINEXPackage(self, raw_log_path):
+        # if this is a solution log, return the file right away
+        if raw_log_path.endswith("pos"):
+            log_url_tail = "/logs/download/" + os.path.basename(raw_log_path)
+            self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
+            return raw_log_path
+
+        # return RINEX package if it already exists
+        # create one if not
+        log_filename = os.path.basename(raw_log_path)
+        potential_zip_path = os.path.splitext(raw_log_path)[0] + ".zip"
+        result_path = ""
+
+        if self.conversionIsRequired(raw_log_path):
+            print("Conversion is Required!")
+            result_path = self.createRINEXPackage(raw_log_path)
+            # handle canceled conversion
+            if result_path is None:
+                log_url_tail = "/logs/download/" + os.path.basename(raw_log_path)
+                self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
+                return None
+        else:
+            result_path = potential_zip_path
+            print("Conversion is not Required!")
+            already_converted_package = {
+                "name": log_filename,
+                "conversion_status": "Log already converted. Details inside the package",
+                "messages_parsed": ""
+            }
+            self.socketio.emit("log conversion results", already_converted_package, namespace="/test")
+
+        log_url_tail = "/logs/download/" + os.path.basename(result_path)
+        self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
+
+        self.cleanBusyMessages()
+        self.logm.log_being_converted = ""
+
+        return result_path
+
+    def cleanBusyMessages(self):
+        # if user tried to convert other logs during conversion, he got an error message
+        # this function clears them to show it's ok to convert again
+        self.socketio.emit("clean busy messages", {}, namespace="/test")
+
+    def createRINEXPackage(self, raw_log_path):
+        # create a RINEX package before download
+        # in case we fail to convert, return the raw log path back
+        result = raw_log_path
+        log_filename = os.path.basename(raw_log_path)
+
+        conversion_time_string = self.logm.calculateConversionTime(raw_log_path)
+
+        start_package = {
+            "name": log_filename,
+            "conversion_time": conversion_time_string
+        }
+
+        conversion_result_package = {
+            "name": log_filename,
+            "conversion_status": "",
+            "messages_parsed": "",
+            "log_url_tail": ""
+        }
+
+        self.socketio.emit("log conversion start", start_package, namespace="/test")
+        try:
+            log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
+        except:
+            print("Interrupted by exception")
+            return None
+
+        print("Log conversion done!")
+
+        if log is not None:
+            result = log.createLogPackage()
+            if log.isValid():
+                conversion_result_package["conversion_status"] = "Log converted to RINEX"
+                conversion_result_package["messages_parsed"] = log.log_metadata.formValidMessagesString()
+            else:
+                conversion_result_package["conversion_status"] = "Conversion successful, but log does not contain any useful data. Downloading raw log"
+        else:
+            print("Could not convert log. Is the extension wrong?")
+            conversion_result_package["conversion_status"] = "Log conversion failed. Downloading raw log"
+
+        self.socketio.emit("log conversion results", conversion_result_package, namespace="/test")
+
+        print("Log conversion results:")
+        print(str(log))
+
+        return result
 
     def saveState(self):
         # save current state for future resurrection:
@@ -517,7 +692,7 @@ class RTKLIB:
         return state
 
     def byteify(self, input):
-        # thanks to Mark Amery from StackOverFlow for this awesome function
+        # thanks to Mark Amery from StackOverflow for this awesome function
         if isinstance(input, dict):
             return {self.byteify(key): self.byteify(value) for key, value in input.iteritems()}
         elif isinstance(input, list):
