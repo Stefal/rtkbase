@@ -44,10 +44,10 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 				}
 				else if(i == ''){
-					$('#pathout').val('/home/reach/logs/bas_%Y%m%d%h%M.rtmc3');
+					$('#pathout').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtmc3');
 					$('#pathout').attr('type', 'hidden');
 					$('#pathout').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#outstr-path_entry').val('/home/reach/logs/bas_%Y%m%d%h%M.rtcm3');
+					$('#outstr-path_entry').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3');
 				}
 			}
 
