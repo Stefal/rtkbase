@@ -44,10 +44,10 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 				}
 				else if(i == ''){
-					$('#pathout').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtmc3');
+					$('#pathout').val('/home/reach/logs/bas_%Y%m%d%h%M.rtcm3');
 					$('#pathout').attr('type', 'hidden');
 					$('#pathout').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#outstr-path_entry').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3');
+					$('#outstr-path_entry').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3#rtcm3');
 				}
 			}
 
@@ -91,7 +91,8 @@ function formString(i, method){
 			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #device' + method + i).val()) + baudrate + ':8:n:1:off' + end);
 			break;
 		case "file":
-			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #path' + method + i).val()) + end);
+			// $('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #path' + method + i).val()) + end);
+			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #path' + method + i).val()));
 			break;
 		case "tcpcli":
 			var port = ($.trim($('.additional' + method + i + ' #port' + method + i).val()) == '') ? '' : ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val());
@@ -402,6 +403,11 @@ function showBase(msg){
     $(document).on("change", '#select-choice-10', function() {
 		$('#rtcm3_out_messages_entry').val($(this).val());
 	});
+
+	$(document).on("change", '#outstr-type_entry', function() {
+		if($(this).val() == 'file')
+			formString('', 'out');
+	})
 
 	$(document).on("change", '.additional_general input', function() {
 		
