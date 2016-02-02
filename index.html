@@ -248,10 +248,12 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         </div>
         <ul data-role="listview" data-inset="true" id="logs_list" data-split-theme="a">
             {% for log in logs %}
+                <li data-role="list-divider" class="log_kind">{{ log.name }}</li>
                 <li>
                     <a href="#" id="/logs/{{ log.name }}" class="log_string">
                         <h2>{{ log.name }},{{ log.size }},{{ log.format }},{{ log.is_being_converted }}</h2>
                         <p class="log_conversion_status_string"></p>
+                        <p class="ui-li-aside log_size"><strong>{{ log.size }}MB</strong></p>
                     </a>
                     <a href="#" id="delete_{{ log.name }}" data-icon="delete" class="delete-log-button">Delete</a>
                 </li>

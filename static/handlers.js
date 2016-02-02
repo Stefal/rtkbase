@@ -429,13 +429,18 @@ $(document).on("pageinit", "#logs_page", function() {
     else{
         $('.empty_logs').css('display', 'none');
 
+        var currentTime = '';
         $('.log_string').each(function(){
+            $(this).css('border', '1px solid #ddd');
+            $(this).parent().find('.delete-log-button').css('border', '1px solid #ddd');
+            
             var log_state = '';
             var splitLogString = $(this).find("h2").text().split(',');
 
             var log_start_time = extractTimeFromLogName(splitLogString[0]);
+            var time = log_start_time.split(' ');
             var log_name = splitLogString[0];
-            var log_size = "(" + splitLogString[1] + " MB)"
+            // var log_size = "(" + splitLogString[1] + " MB)"
             var log_format = splitLogString[2];
 
             var paragraph_id = log_name + "_status";
@@ -452,13 +457,35 @@ $(document).on("pageinit", "#logs_page", function() {
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
 
-            $(this).find("h2").text(log_state + ': ' + log_start_time + " " + log_size + " " + log_format);
+            if(currentTime == time[0])
+                $(this).css('border-top', '1px solid transparent');
+
+            $(this).find("h2").text(time[0] + ', ' +log_state + ', ' + log_format);
 
             if(splitLogString[3] == "True") {
                 console.log("Found log being converted: " + log_name);
                 updateConversionStatusDialog(log_name, "This log is being converted. Please wait");
                 createCancelConversionButton(log_name);
             }
+
+            currentTime = time[0];
+        });
+
+        var currentDate = '';
+
+        $('.log_kind').each(function(){
+            $(this).css('border', '1px solid #ddd');
+
+            var splitLogString = $(this).text().split(',');
+            var log_start_time = extractTimeFromLogName(splitLogString[0]);
+            var date = log_start_time.split(' ');
+
+            if(currentDate != date[1])
+                $(this).text(date[1]);
+           else
+                $(this).remove();
+
+            currentDate = date[1];
         });
     }
 
