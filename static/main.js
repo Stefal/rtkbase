@@ -64,7 +64,13 @@ $(document).ready(function () {
     chart.create();
 
     $(window).resize(function() {
-        chart.resize();
+        if(window.location.hash == ''){
+            chart.resize();     
+        }
+    });
+
+    $('.status_page').click(function(){
+        setTimeout(function(){chart.resize();}, 500);
     });
 
     // ####################### HANDLE REACH MODES, START AND STOP MESSAGES #######################
