@@ -63,23 +63,8 @@ app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/Reach
 
 @app.route("/")
 def index():
-    print("INDEX DEBUG")
     rtk.logm.updateAvailableLogs()
-    print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
-    return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version, network_status = getNetworkStatus())
-
-# @app.route("/logs/<path:log_name>")
-# def processLog(log_name):
-
-#     print("Got signal to download a log, name = " + str(log_name))
-#     print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
-
-#     raw_log_path = rtk.logm.log_path + "/" + log_name
-#     rtk.processLogPackage(raw_log_path)
-
-    # log_package_path = rtk.getRINEXPackage(raw_log_path)
-    # print("Sending log file " + log_package_path)
-    # return send_file(log_package_path, as_attachment = True)
+    return render_template("index.html", app_version = app_version, network_status = getNetworkStatus())
 
 @app.route("/logs/download/<path:log_name>")
 def downloadLog(log_name):
@@ -94,6 +79,13 @@ def testConnect():
 @socketio.on("disconnect", namespace="/test")
 def testDisconnect():
     print("Browser client disconnected")
+
+#### Log list handling ###
+
+@socketio.on("get logs list")
+def getAvailableLogs():
+    rtk.logm.updateAvailableLogs()
+    rtk.socketio.emit("available logs list", rtk.logm.available_logs, namespace="/test")
 
 #### rtkrcv launch/shutdown signal handling ####
 
