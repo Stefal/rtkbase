@@ -5,6 +5,10 @@ function checkInputSelects(i, method){ //inp OR out OR log
 	$('#' + method + 'str' + i + '-path_entry').parent().css({'visibility':'hidden', 'border':'none'});
 	$('#pos1-navsys_entry').attr('type', 'hidden');
 	$('#pos1-navsys_entry').parent().css({'visibility':'hidden', 'border':'none'});
+	
+	$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 
 	$('#' + method + 'str' + i + '-path_entry').parent().parent().css('display', 'block');
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
@@ -236,6 +240,26 @@ function checkBaseAntennaCoordinates(){
 		$('#ant2-pos3_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		$('#file-staposfile_entry').attr('type', 'hidden');
 		$('#file-staposfile_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	}
+}
+
+function checkNtripcliStatus(){
+	if($('#inpstr2-type_entry').val() == 'ntripcli'){
+		$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+
+		if($('#inpstr2-nmeareq_entry').val() == 'latlon'){
+			$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+			$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+		else{
+			$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+			$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		}
+	}
+	else{
+		$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 	}
 }
 
@@ -572,6 +596,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-type_check").parent().after($('#inpstr2-nmeareq_entry').parent().parent().parent());
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-nmeareq_entry").parent().parent().after($('#inpstr2-nmealat_entry').parent().parent());
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-nmealat_entry").parent().parent().after($('#inpstr2-nmealon_entry').parent().parent());
+
 	$('#file-cmdfile1_entry option, #file-cmdfile2_entry option').each(function(){
 		var cutOption = $(this).val().slice(3,-4);
 		$(this).text(cutOption);
@@ -585,6 +613,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 	checkBaseAntennaCoordinates();
 
+	$(document).on("change", '#inpstr2-nmeareq_entry', function() {
+		checkNtripcliStatus();
+	});
+
 	$(document).on("change", '.top_input', function() {
 		var method = $(this).attr('id').substr(0, 3);
 		var numb = $(this).attr('id').substr(6, 1);
@@ -593,6 +625,8 @@ function showRover(msg, rover_config_order, rover_config_comments){
 			$('#' + method + 'str' + numb + '-path_entry').val('');
 			checkInputSelects(numb, method);
 		}
+
+		checkNtripcliStatus();
 	});
 
 	$(document).on("change", '.additional_general input', function() {
@@ -632,6 +666,8 @@ function showRover(msg, rover_config_order, rover_config_comments){
 			formString(b, key);
 		}
 	}
+
+	checkNtripcliStatus();
 
 	var popup = true;
 
