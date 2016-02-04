@@ -430,10 +430,7 @@ $(document).on("pageinit", "#logs_page", function() {
         $('.empty_logs').css('display', 'none');
 
         var currentTime = '';
-        $('.log_string').each(function(){
-            $(this).css('border', '1px solid #ddd');
-            $(this).parent().find('.delete-log-button').css('border', '1px solid #ddd');
-            
+        $('.log_string').each(function(){            
             var log_state = '';
             var splitLogString = $(this).find("h2").text().split(',');
 
@@ -457,10 +454,16 @@ $(document).on("pageinit", "#logs_page", function() {
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
 
-            if(currentTime == time[0])
-                $(this).css('border-top', '1px solid transparent');
+            
+            $(this).css('border-bottom', '1px solid transparent');
+            $(this).parent().find('.delete-log-button').css('border-bottom', '1px solid transparent');
 
-            $(this).find("h2").text(time[0] + ', ' +log_state + ', ' + log_format);
+            if(currentTime == time[0]){
+                $(this).css('border-top', '1px dashed #ddd');
+                $(this).parent().find('.delete-log-button').css('border-top', '1px dashed #ddd');
+            }
+
+            $(this).find("h2").text(time[0] + ', ' + log_state);
 
             if(splitLogString[3] == "True") {
                 console.log("Found log being converted: " + log_name);
@@ -474,8 +477,6 @@ $(document).on("pageinit", "#logs_page", function() {
         var currentDate = '';
 
         $('.log_kind').each(function(){
-            $(this).css('border', '1px solid #ddd');
-
             var splitLogString = $(this).text().split(',');
             var log_start_time = extractTimeFromLogName(splitLogString[0]);
             var date = log_start_time.split(' ');

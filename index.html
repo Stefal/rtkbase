@@ -37,9 +37,19 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}" charset="utf-8"></script>
 </head>
 <style>
+    .ui-listview .log_format{
+        position: absolute;
+        bottom: 1em;
+        right: 3.333em;
+        margin: 0;
+        text-align: right;
+    }
     @media only screen and (max-width:760px){
         .ui-listview > li h2{
-            font-size: 0.7em;
+            font-size: 0.75em;
+        }
+        .ui-listview > li p{
+            font-size: 0.5em;
         }
     }
 </style>
@@ -254,6 +264,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                         <h2>{{ log.name }},{{ log.size }},{{ log.format }},{{ log.is_being_converted }}</h2>
                         <p class="log_conversion_status_string"></p>
                         <p class="ui-li-aside log_size"><strong>{{ log.size }}MB</strong></p>
+                        <p class="log_format"><strong>{{ log.format }}</strong></p>
                     </a>
                     <a href="#" id="delete_{{ log.name }}" data-icon="delete" class="delete-log-button">Delete</a>
                 </li>
