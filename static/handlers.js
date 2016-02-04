@@ -412,6 +412,10 @@ $(document).on("pageinit", "#config_page", function() {
 
 });
 
+$(document).on("click", ".logs_page", function() {
+    console.log('log page');
+});
+
 $(document).on("pageinit", "#logs_page", function() {
 
     var interval_timer = "";
@@ -463,7 +467,7 @@ $(document).on("pageinit", "#logs_page", function() {
                 $(this).parent().find('.delete-log-button').css('border-top', '1px dashed #ddd');
             }
 
-            $(this).find("h2").text(time[0] + ', ' + log_state);
+            $(this).find("h2").text(time[0] + ' | ' + log_state);
 
             if(splitLogString[3] == "True") {
                 console.log("Found log being converted: " + log_name);
