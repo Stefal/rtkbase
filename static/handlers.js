@@ -414,12 +414,40 @@ $(document).on("pageinit", "#config_page", function() {
 
 $(document).on("click", ".logs_page", function() {
     console.log('log page');
+
+    socket.emit("get logs list");
+    // setTimeout(function(){socket.emit("get logs list");}, 500);
 });
 
 $(document).on("pageinit", "#logs_page", function() {
 
     var interval_timer = "";
     var timeout_timer = "";
+
+    socket.on("available logs", function(msg) {
+
+        console.info('logs here');
+        var to_append = "";
+
+        for(var k in msg){
+            var log = msg[k];
+            
+            console.log(log['name']);
+
+            // to_append += "<li data-role='list-divider' class='log_kind'>" + log['name'] + " </li>";        
+            to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string'>";
+            to_append += "<h2>" + log['name'] + "," + log['size'] + "," + log['format'] + "," + log['is_being_converted'] + "</h2>";
+            to_append += "<p class='log_conversion_status_string'></p>";
+            to_append += "<p class='ui-li-aside log_size'><strong>" + log['size'] + "MB</strong></p>";
+            to_append += "<p class='log_format'><strong>" + log['format'] + "</strong></p>";
+            to_append += "</a><a href='#' id='delete_" + log['name'] + "' data-icon='delete' class='delete-log-button'>Delete</a></li>";
+        }
+        var logs_list = $("#logs_list");
+
+        logs_list.html(to_append);
+        logs_list.listview("refresh");
+
+    });
 
     // $('.delete-log-button').each(function () {
     //     var current_id = $(this).attr("id");

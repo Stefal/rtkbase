@@ -82,10 +82,12 @@ def testDisconnect():
 
 #### Log list handling ###
 
-@socketio.on("get logs list")
+@socketio.on("get logs list", namespace="/test")
 def getAvailableLogs():
+    print("DEBUG updating logs")
     rtk.logm.updateAvailableLogs()
-    rtk.socketio.emit("available logs list", rtk.logm.available_logs, namespace="/test")
+    print("Updated logs list is " + str(rtk.logm.available_logs))
+    rtk.socketio.emit("available logs", rtk.logm.available_logs, namespace="/test")
 
 #### rtkrcv launch/shutdown signal handling ####
 
