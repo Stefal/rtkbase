@@ -32,26 +32,22 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
 					$('#pathlog1').attr('type', 'hidden');
 					$('#pathlog1').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
 				}
 				else if(i == 2)
 					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 					$('#pathlog2').attr('type', 'hidden');
 					$('#pathlog2').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 			}
 			else if(method == 'out'){
 				if(i == 1){
 					$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 					$('#pathout1').attr('type', 'hidden');
 					$('#pathout1').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 				}
 				else if(i == ''){
-					$('#pathout').val('/home/reach/logs/bas_%Y%m%d%h%M.rtcm3');
+					$('#pathout').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3#rtcm3');
 					$('#pathout').attr('type', 'hidden');
 					$('#pathout').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#outstr-path_entry').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3#rtcm3');
 				}
 			}
 
