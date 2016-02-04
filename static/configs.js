@@ -588,7 +588,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
-	$(".ui-field-contain.fields-field .general-settings #inpstr2-type_check").parent().after($('#inpstr2-nmeareq_entry').parent().parent().parent());
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-path_check").parent().after($('#inpstr2-nmeareq_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings #inpstr2-nmeareq_entry").parent().parent().after($('#inpstr2-nmealat_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings #inpstr2-nmealat_entry").parent().parent().after($('#inpstr2-nmealon_entry').parent().parent());
 
