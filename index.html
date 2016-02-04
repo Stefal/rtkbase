@@ -36,6 +36,13 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <script type="text/javascript" src="{{ url_for('static', filename='handlers.js') }}" charset="utf-8"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}" charset="utf-8"></script>
 </head>
+<style>
+    @media only screen and (max-width:760px){
+        .ui-listview > li h2{
+            font-size: 0.7em;
+        }
+    }
+</style>
 <body>
 
 <!-- Status page here:-->
@@ -43,7 +50,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar1">
             <ul>
-                <li><a href="#" class="tab ui-btn-active ui-state-persist">Status</a></li>
+                <li><a href="#" class="tab ui-btn-active ui-state-persist status_page">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
                 <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
@@ -95,7 +102,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar2">
             <ul>
-                <li><a href="#status_page" class="tab">Status</a></li>
+                <li><a href="#status_page" class="tab status_page">Status</a></li>
                 <li><a href="#" class="tab ui-btn-active ui-state-persist">Config</a></li>
                 <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
@@ -222,7 +229,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         <div data-role="navbar" id="navbar3">
             <ul>
                 <li>
-                    <a href="#status_page" class="tab">Status</a>
+                    <a href="#status_page" class="tab status_page">Status</a>
                 </li>
                 <li>
                     <a href="#config_page" class="tab">Config</a>
@@ -258,7 +265,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar3">
             <ul>
-                <li><a href="#status_page" class="tab">Status</a></li>
+                <li><a href="#status_page" class="tab status_page">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
                 <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" class="tab ui-btn-active ui-state-persist" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
