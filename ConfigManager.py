@@ -21,6 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
+import ReachTools
+
 import os
 from glob import glob
 from shutil import copy, Error
@@ -125,9 +127,26 @@ class Config:
                     description = " ".join(description)
                     item["description"] = description
 
+                # add information about available serial connections to input and output paths
+                if "path" in item["parameter"]:
+                    item["comment"] = self.formSelectCommentFromList(ReachTools.getAvailableSerialPorts())
+
         # we return the item we managed to extract form from string. if it's empty,
         # then we could not parse the string, hence it's empty, commented, or invalid
         return item
+
+    def formSelectCommentFromList(self, items_list):
+        comment = ""
+
+        if items_list:
+            comment = "("
+
+            for index, item in enumerate(items_list):
+                comment += str(index) + ":" + str(item) + ","
+
+            comment = comment[:-1] + ")"
+
+        return comment
 
     def readFromFile(self, from_file):
 

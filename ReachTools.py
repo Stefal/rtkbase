@@ -21,10 +21,11 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from subprocess import check_output
 
 def getImageVersion():
-    
+
     image_version_file = "/home/reach/.reach/image_version"
 
     try:
@@ -94,7 +95,7 @@ def getAppVersion():
     return app_version
 
 def getSystemStatus():
-    
+
     system_status = {
         "network_status": getNetworkStatus(),
         "image_version": getImageVersion(),
@@ -103,5 +104,10 @@ def getSystemStatus():
 
     return system_status
 
+def getAvailableSerialPorts():
 
+    possible_ports_ports_to_use = ["ttyMFD2", "ttyUSB0"]
+    serial_ports_to_use = [port for port in possible_ports_ports_to_use if os.path.exists("/dev/" + port)]
+
+    return serial_ports_to_use
 
