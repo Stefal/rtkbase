@@ -5,6 +5,10 @@ function checkInputSelects(i, method){ //inp OR out OR log
 	$('#' + method + 'str' + i + '-path_entry').parent().css({'visibility':'hidden', 'border':'none'});
 	$('#pos1-navsys_entry').attr('type', 'hidden');
 	$('#pos1-navsys_entry').parent().css({'visibility':'hidden', 'border':'none'});
+	
+	$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 
 	$('#' + method + 'str' + i + '-path_entry').parent().parent().css('display', 'block');
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
@@ -53,26 +57,22 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
 					$('#pathlog1').attr('type', 'hidden');
 					$('#pathlog1').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
 				}
 				else if(i == 2)
 					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 					$('#pathlog2').attr('type', 'hidden');
 					$('#pathlog2').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 			}
 			else if(method == 'out'){
 				if(i == 1){
 					$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 					$('#pathout1').attr('type', 'hidden');
 					$('#pathout1').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 				}
 				else if(i == ''){
-					$('#pathout').val('/home/reach/logs/bas_%Y%m%d%h%M.rtmc3');
+					$('#pathout').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3#rtcm3');
 					$('#pathout').attr('type', 'hidden');
 					$('#pathout').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#outstr-path_entry').val('/home/reach/logs/bas_%Y%m%d%h%M.rtcm3');
 				}
 			}
 
@@ -116,7 +116,8 @@ function formString(i, method){
 			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #device' + method + i).val()) + baudrate + ':8:n:1:off' + end);
 			break;
 		case "file":
-			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #path' + method + i).val()) + end);
+			// $('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #path' + method + i).val()) + end);
+			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #path' + method + i).val()));
 			break;
 		case "tcpcli":
 			var port = ($.trim($('.additional' + method + i + ' #port' + method + i).val()) == '') ? '' : ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val());
@@ -270,6 +271,26 @@ function checkBaseAntennaCoordinates(){
 		$('#ant2-pos3_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		$('#file-staposfile_entry').attr('type', 'hidden');
 		$('#file-staposfile_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	}
+}
+
+function checkNtripcliStatus(){
+	if($('#inpstr2-type_entry').val() == 'ntripcli'){
+		$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+
+		if($('#inpstr2-nmeareq_entry').val() == 'latlon'){
+			$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+			$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+		else{
+			$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+			$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		}
+	}
+	else{
+		$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 	}
 }
 
@@ -436,6 +457,11 @@ function showBase(msg){
     $(document).on("change", '#select-choice-10', function() {
 		$('#rtcm3_out_messages_entry').val($(this).val());
 	});
+
+	$(document).on("change", '#outstr-type_entry', function() {
+		if($(this).val() == 'file')
+			formString('', 'out');
+	})
 
 	$(document).on("change", '.additional_general input', function() {
 		
@@ -606,6 +632,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-path_check").parent().after($('#inpstr2-nmeareq_entry').parent().parent().parent());
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-nmeareq_entry").parent().parent().after($('#inpstr2-nmealat_entry').parent().parent());
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-nmealat_entry").parent().parent().after($('#inpstr2-nmealon_entry').parent().parent());
+
 	$('#file-cmdfile1_entry option, #file-cmdfile2_entry option').each(function(){
 		var cutOption = $(this).val().slice(3,-4);
 		$(this).text(cutOption);
@@ -619,6 +649,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 	checkBaseAntennaCoordinates();
 
+	$(document).on("change", '#inpstr2-nmeareq_entry', function() {
+		checkNtripcliStatus();
+	});
+
 	$(document).on("change", '.top_input', function() {
 		var method = $(this).attr('id').substr(0, 3);
 		var numb = $(this).attr('id').substr(6, 1);
@@ -627,6 +661,8 @@ function showRover(msg, rover_config_order, rover_config_comments){
 			$('#' + method + 'str' + numb + '-path_entry').val('');
 			checkInputSelects(numb, method);
 		}
+
+		checkNtripcliStatus();
 	});
 
 	$(document).on("change", '.additional_general select', function() {
@@ -694,6 +730,8 @@ function showRover(msg, rover_config_order, rover_config_comments){
 			formString(b, key);
 		}
 	}
+
+	checkNtripcliStatus();
 
 	var popup = true;
 

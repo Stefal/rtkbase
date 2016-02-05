@@ -36,6 +36,13 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <script type="text/javascript" src="{{ url_for('static', filename='handlers.js') }}" charset="utf-8"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}" charset="utf-8"></script>
 </head>
+<style>
+    @media only screen and (max-width:760px){
+        .ui-listview > li h2{
+            font-size: 0.7em;
+        }
+    }
+</style>
 <body>
 
 <!-- Status page here:-->
@@ -43,7 +50,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar1">
             <ul>
-                <li><a href="#" class="tab ui-btn-active ui-state-persist">Status</a></li>
+                <li><a href="#" class="tab ui-btn-active ui-state-persist status_page">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
                 <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
@@ -95,7 +102,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar2">
             <ul>
-                <li><a href="#status_page" class="tab">Status</a></li>
+                <li><a href="#status_page" class="tab status_page">Status</a></li>
                 <li><a href="#" class="tab ui-btn-active ui-state-persist">Config</a></li>
                 <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
@@ -222,7 +229,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         <div data-role="navbar" id="navbar3">
             <ul>
                 <li>
-                    <a href="#status_page" class="tab">Status</a>
+                    <a href="#status_page" class="tab status_page">Status</a>
                 </li>
                 <li>
                     <a href="#config_page" class="tab">Config</a>
@@ -258,7 +265,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar3">
             <ul>
-                <li><a href="#status_page" class="tab">Status</a></li>
+                <li><a href="#status_page" class="tab status_page">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
                 <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" class="tab ui-btn-active ui-state-persist" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
@@ -267,20 +274,23 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
 
     <div data-role="main" class="ui-content">
         <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
-            <p>Network: {{ network_status.ssid }}</p>
-            <p>IP: {{ network_status.ip_address }}</p>
+            <p>Network: {{ system_status.network_status.ssid }}</p>
+            <p>IP: {{ system_status.network_status.ip_address }}</p>
             <a href="http://reach.local:5000" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="wifi_link">Wi-Fi setup</a>
         </div>
         <div class="ui-field-contain" id="update_buttons">
             <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
-                <p>Current version: {{ app_version }}</p>
+                <p>ReachView version: {{ system_status.app_version }}</p>
+                <p style="clear:both">During update ReachView will go inactive for about a minute. Wait for the LED to start blinking again, then refresh the page.</p>
                 <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button" style="float:left">Update</a><span class='connect' style="color:red;font-size:12px;"></span>
                 <div class="load_update" style="height:44px;float:left;position:relative;display:none;">
                     <img src="static/images/update_loader.gif" style="height:54px;">
                     <p style="position:absolute;top:0px;left:0px;color:red;width:54px;text-align:center;">120</p>
                 </div>
-                <p style="clear:both">During update ReachView will go inactive for about a minute. Wait for the LED to start blinking again, then reconnect.</p>
             </div>
+        </div>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <p>Reach image version: {{ system_status.image_version }}</p>
         </div>
     </div>
 </div>

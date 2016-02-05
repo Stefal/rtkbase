@@ -55,7 +55,7 @@ class Convbin:
 
     def convertLogToRINEX(self, log_path, format):
 
-        spawn_command = " ".join([self.bin_path + "/convbin", "-r", format, log_path])
+        spawn_command = " ".join([self.bin_path + "/convbin", "-r", format, "-v", "3.02", log_path])
 
         print("Specified format is " + format)
 
