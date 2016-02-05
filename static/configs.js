@@ -19,7 +19,32 @@ function checkInputSelects(i, method){ //inp OR out OR log
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="device' + method + i + '" data-clear-btn="true" placeholder="Device (required)" class="config_form_field"><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field"></div>').trigger("create");
+			var append = '';
+			var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
+
+			var splitArr = [];
+
+			var serialSelects = $('#' + method + 'str' + i + '-path_comment').val();
+			serialSelects = serialSelects.substr(1, serialSelects.length-2);
+			var serialSelect = serialSelects.split(',');
+
+			$.each(serialSelect, function(index, value){
+				var serialOption = value.split(':');
+				splitArr.push(serialOption[1]);
+			});
+
+			var baudrateValue = (splitArr[0] == 'ttyMFD2') ? '57600' : '115200';
+			
+			append += '<div class="additional' + method + i + ' additional_general"><select name="select-native-1" id="device' + method + i + '" class="config_form_field">';
+			
+			$.each(splitArr, function(index, value){
+				var currentSerialOption = (serialArr[value]) ? serialArr[value] : value;
+				append += '<option value="' + value + '">' + currentSerialOption + '</option>';				
+			})
+
+			append += '</select><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field" value="' + baudrateValue + '"></div>';
+			
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append(append).trigger("create");
 			break;
 		case "file":
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path (required)" class="config_form_field"></div>').trigger("create");
@@ -87,7 +112,7 @@ function formString(i, method){
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
-			var baudrate = ($.trim($('.additional' + method + i + ' #baudrate' + method + i).val()) == '') ? '' : ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val()); 
+			var baudrate = ($.trim($('.additional' + method + i + ' #baudrate' + method + i).val()) == '') ? '' : ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val());
 			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #device' + method + i).val()) + baudrate + ':8:n:1:off' + end);
 			break;
 		case "file":
@@ -142,8 +167,17 @@ function defaultStringToInputs(i, method){
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
 			var splitVal = correctVal.split(':');
+			var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
+			var currentSerialOption = (serialArr[splitVal['0']]) ? serialArr[splitVal['0']] : splitVal['0'];
 			$('.additional' + method + i + ' #device' + method + i).val(splitVal['0']);
+			$('.additional' + method + i + ' #device' + method + i).parent().find('span.config_form_field').text(currentSerialOption);
 			$('.additional' + method + i + ' #baudrate' + method + i).val(splitVal['1']);
+
+			if($('.additional' + method + i + ' #device' + method + i).val() == 'ttyUSB0'){
+				$('.additional' + method + i + ' #baudrate' + method + i).val('115200');
+				$('.additional' + method + i + ' #baudrate' + method + i).attr('type', 'hidden');
+				$('.additional' + method + i + ' #baudrate' + method + i).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+			}
 			break;
 		case "file":
 			$('.additional' + method + i + ' #path' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
@@ -288,7 +322,7 @@ function showBase(msg){
         to_append += '<input type="hidden" id="' + config_parameter + '_order" value="' + k +'">';
         
 
-        if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
+        if( (config_comment) && (config_comment.indexOf(',') >= 0) && (config_parameter.substr(-4) != 'path') ){
             splitArr = config_comment.split(',');                    
 
 
@@ -489,7 +523,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
             to_append += '<input type="hidden" id="' + config_parameter + '_order" value="' + k +'">';
             to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
 
-            if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
+            if( (config_comment) && (config_comment.indexOf(',') >= 0) && (config_parameter.substr(-4) != 'path') ){
                 splitArr = config_comment.split(',');                    
 
                 if(jQuery.inArray(config_parameter, topClassArr) >= 0)
@@ -593,6 +627,34 @@ function showRover(msg, rover_config_order, rover_config_comments){
 			$('#' + method + 'str' + numb + '-path_entry').val('');
 			checkInputSelects(numb, method);
 		}
+	});
+
+	$(document).on("change", '.additional_general select', function() {
+		
+		$(this).parent().parent().removeClass('additional_general');
+		
+		var method = $(this).parent().parent().parent().attr('class').substr(10, 3);
+		var numb = $(this).parent().parent().parent().attr('class').substr(13, 1);
+		
+		if($(this).val() == 'ttyMFD2'){
+			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+		else if($(this).val() == 'ttyUSB0'){
+			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'hidden');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		}
+		else{
+			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+
+		formString(numb, method);
+
+		$(this).parent().parent().parent().addClass('additional_general');
 	});
 
 	$(document).on("change", '.additional_general input', function() {
