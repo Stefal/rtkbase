@@ -24,29 +24,35 @@ function checkInputSelects(i, method){ //inp OR out OR log
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
 			var append = '';
-			var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
-
-			var splitArr = [];
-
-			var serialSelects = $('#' + method + 'str' + i + '-path_comment').val();
-			serialSelects = serialSelects.substr(1, serialSelects.length-2);
-			var serialSelect = serialSelects.split(',');
-
-			$.each(serialSelect, function(index, value){
-				var serialOption = value.split(':');
-				splitArr.push(serialOption[1]);
-			});
-
-			var baudrateValue = (splitArr[0] == 'ttyMFD2') ? '57600' : '115200';
 			
-			append += '<div class="additional' + method + i + ' additional_general"><select name="select-native-1" id="device' + method + i + '" class="config_form_field">';
-			
-			$.each(splitArr, function(index, value){
-				var currentSerialOption = (serialArr[value]) ? serialArr[value] : value;
-				append += '<option value="' + value + '">' + currentSerialOption + '</option>';				
-			})
+			if((method == 'inp') && (i == '1')){
+				append += '<div class="additional' + method + i + ' additional_general"><input type="text" id="device' + method + i + '" data-clear-btn="true" placeholder="Device (required)" class="config_form_field"><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field"></div>';
+			}
+			else{
+				var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
 
-			append += '</select><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field" value="' + baudrateValue + '"></div>';
+				var splitArr = [];
+
+				var serialSelects = $('#' + method + 'str' + i + '-path_comment').val();
+				serialSelects = serialSelects.substr(1, serialSelects.length-2);
+				var serialSelect = serialSelects.split(',');
+
+				$.each(serialSelect, function(index, value){
+					var serialOption = value.split(':');
+					splitArr.push(serialOption[1]);
+				});
+
+				var baudrateValue = (splitArr[0] == 'ttyMFD2') ? '57600' : '115200';
+				
+				append += '<div class="additional' + method + i + ' additional_general"><select name="select-native-1" id="device' + method + i + '" class="config_form_field">';
+				
+				$.each(splitArr, function(index, value){
+					var currentSerialOption = (serialArr[value]) ? serialArr[value] : value;
+					append += '<option value="' + value + '">' + currentSerialOption + '</option>';				
+				})
+
+				append += '</select><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field" value="' + baudrateValue + '"></div>';
+			}
 			
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append(append).trigger("create");
 			break;
