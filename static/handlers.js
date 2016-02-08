@@ -130,7 +130,107 @@ function setConversionTimer(log_being_converted, time_string) {
         }, time_string * 1000);
 
         return [intervalID, timeoutID];
+}
+
+function splitLogInformation(){
+    if($('.log_string').length == '0'){
+        $('.empty_logs').css('display', 'block');
     }
+    else{
+        $('.empty_logs').css('display', 'none');
+
+        var currentTime = '';
+        $('.log_string').each(function(){            
+            var log_state = '';
+            var splitLogString = $(this).find("h2").text().split(',');
+
+            var log_start_time = extractTimeFromLogName(splitLogString[0]);
+            var time = log_start_time.split(' ');
+            var log_name = splitLogString[0];
+            var log_format = splitLogString[2];
+
+            var paragraph_id = log_name + "_status";
+            paragraph_id = paragraph_id.replace(".", "_");
+
+            $(this).find("p").attr("id", paragraph_id);
+
+            if(splitLogString[0].slice(0, 3) == 'rov')
+                log_state = 'Rover';
+            else if(splitLogString[0].slice(0, 3) == 'ref')
+                log_state = 'Reference';
+            else if(splitLogString[0].slice(0, 3) == 'sol')
+                log_state = 'Solution';
+            else if(splitLogString[0].slice(0, 3) == 'bas')
+                log_state = 'Base';
+
+            
+            $(this).css('border-bottom', '1px solid transparent');
+            $(this).parent().find('.delete-log-button').css('border-bottom', '1px solid transparent');
+
+            if(currentTime == time[0]){
+                $(this).css('border-top', '1px dashed #ddd');
+                $(this).parent().find('.delete-log-button').css('border-top', '1px dashed #ddd');
+            }
+
+            $(this).find("h2").text(time[0] + ' | ' + log_state);
+
+            if(splitLogString[3] == "True") {
+                console.log("Found log being converted: " + log_name);
+                updateConversionStatusDialog(log_name, "This log is being converted. Please wait");
+                createCancelConversionButton(log_name);
+            }
+
+            currentTime = time[0];
+        });
+    }
+}
+
+function addDivider(){
+    $('.delete-log-button').each(function () {
+        var current_id = $(this).attr("id");
+        $(this).attr("id", current_id.replace(".", "_"));
+    })
+
+    var currentDate = '';
+
+    $('.data_divider').each(function(){
+        var splitLogString = $(this).text().split(',');
+        var log_start_time = extractTimeFromLogName(splitLogString[0]);
+        var date = log_start_time.split(' ');
+
+        if(currentDate != date[1])
+            $(this).text(date[1]);
+       else
+            $(this).remove();
+
+        currentDate = date[1];
+    });
+}
+
+
+function registerDownloadLogHandler(){
+    $('.log_string').each(function() {
+        $(this).on("click", function() {
+            var log_to_process = $(this).parent().children('.log_string').attr('id').slice(6);
+            console.log("Request to process log " + log_to_process);
+            socket.emit("process log", {"name": log_to_process});
+        });
+    });
+}
+
+function registerDeleteLogHandler(){
+    $('.delete-log-button').click(function(){
+        var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
+        $(this).parent().remove();
+
+        console.log("Delete log: " + log_to_delete);
+        socket.emit("delete log", {"name": log_to_delete});
+
+        if($('.log_string').length == '0') {
+            $('.empty_logs').css('display', 'block');
+        }
+    });
+}
 
 $(document).on("pageinit", "#config_page", function() {
 
@@ -412,74 +512,50 @@ $(document).on("pageinit", "#config_page", function() {
 
 });
 
+$(document).on("click", ".logs_page", function() {
+    socket.emit("get logs list");
+});
+
 $(document).on("pageinit", "#logs_page", function() {
 
     var interval_timer = "";
     var timeout_timer = "";
 
-    $('.delete-log-button').each(function () {
-        var current_id = $(this).attr("id");
-        $(this).attr("id", current_id.replace(".", "_"));
-    })
+    socket.on("available logs", function(msg) {
 
+        var to_append = "";
 
-    if($('.log_string').length == '0'){
-        $('.empty_logs').css('display', 'block');
-    }
-    else{
-        $('.empty_logs').css('display', 'none');
+        console.groupCollapsed("Received logs:");
 
-        $('.log_string').each(function(){
-            var log_state = '';
-            var splitLogString = $(this).find("h2").text().split(',');
+        for(var k in msg){
+            var log = msg[k];
 
-            var log_start_time = extractTimeFromLogName(splitLogString[0]);
-            var log_name = splitLogString[0];
-            var log_size = "(" + splitLogString[1] + " MB)"
-            var log_format = splitLogString[2];
+            console.groupCollapsed(log['name']);
+                console.log('size:' + log['size']);
+                console.log('format: ' + log['format']);
+                console.log('is_being_converted: ' + log['is_being_converted']);
+            console.groupEnd();
 
-            var paragraph_id = log_name + "_status";
-            paragraph_id = paragraph_id.replace(".", "_");
-
-            $(this).find("p").attr("id", paragraph_id);
-
-            if(splitLogString[0].slice(0, 3) == 'rov')
-                log_state = 'Rover';
-            else if(splitLogString[0].slice(0, 3) == 'ref')
-                log_state = 'Reference';
-            else if(splitLogString[0].slice(0, 3) == 'sol')
-                log_state = 'Solution';
-            else if(splitLogString[0].slice(0, 3) == 'bas')
-                log_state = 'Base';
-
-            $(this).find("h2").text(log_state + ': ' + log_start_time + " " + log_size + " " + log_format);
-
-            if(splitLogString[3] == "True") {
-                console.log("Found log being converted: " + log_name);
-                updateConversionStatusDialog(log_name, "This log is being converted. Please wait");
-                createCancelConversionButton(log_name);
-            }
-        });
-    }
-
-    $('.log_string').each(function() {
-        $(this).on("click", function() {
-            var log_to_process = $(this).parent().children('.log_string').attr('id').slice(6);
-            console.log("Request to process log " + log_to_process);
-            socket.emit("process log", {"name": log_to_process});
-        });
-    });
-
-    $('.delete-log-button').click(function(){
-        var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
-        $(this).parent().remove();
-
-        console.log("Delete log: " + log_to_delete);
-        socket.emit("delete log", {"name": log_to_delete});
-
-        if($('.log_string').length == '0') {
-            $('.empty_logs').css('display', 'block');
+            to_append += "<li data-role='list-divider' class='data_divider'>" + log['name'] + " </li>";     
+            to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string'>";
+            to_append += "<h2>" + log['name'] + "," + log['size'] + "," + log['format'] + "," + log['is_being_converted'] + "</h2>";
+            to_append += "<p class='log_conversion_status_string'></p>";
+            to_append += "<p class='ui-li-aside log_size'><strong>" + log['size'] + "MB</strong></p>";
+            to_append += "<p class='log_format'><strong>" + log['format'] + "</strong></p>";
+            to_append += "</a><a href='#' id='delete_" + log['name'] + "' data-icon='delete' class='delete-log-button'>Delete</a></li>";
         }
+
+        console.groupEnd();
+
+        var logs_list = $("#logs_list");
+
+        logs_list.html(to_append);
+        logs_list.listview("refresh");
+
+        splitLogInformation();
+        addDivider();
+        registerDownloadLogHandler();
+        registerDeleteLogHandler()
     });
 
     // show conversion status by adding a new list view field under the log we are  trying to convert/download

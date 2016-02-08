@@ -65,6 +65,9 @@ class LogManager():
             if extension == ".log":
                 self.changeLogExtension(no_extension_path + extension)
 
+            if extension == ".rtmc3":
+                self.changeLogExtension(no_extension_path + extension)
+
     def updateAvailableLogs(self):
 
         # clean previous values

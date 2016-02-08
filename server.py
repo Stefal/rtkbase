@@ -59,7 +59,6 @@ rtk = RTKLIB(socketio)
 
 @app.route("/")
 def index():
-    print("INDEX DEBUG")
     rtk.logm.updateAvailableLogs()
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
     return render_template("index.html", logs = rtk.logm.available_logs, system_status = ReachTools.getSystemStatus())
@@ -77,6 +76,15 @@ def testConnect():
 @socketio.on("disconnect", namespace="/test")
 def testDisconnect():
     print("Browser client disconnected")
+
+#### Log list handling ###
+
+@socketio.on("get logs list", namespace="/test")
+def getAvailableLogs():
+    print("DEBUG updating logs")
+    rtk.logm.updateAvailableLogs()
+    print("Updated logs list is " + str(rtk.logm.available_logs))
+    rtk.socketio.emit("available logs", rtk.logm.available_logs, namespace="/test")
 
 #### rtkrcv launch/shutdown signal handling ####
 
