@@ -64,19 +64,6 @@ def index():
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
     return render_template("index.html", logs = rtk.logm.available_logs, system_status = ReachTools.getSystemStatus())
 
-# @app.route("/logs/<path:log_name>")
-# def processLog(log_name):
-
-#     print("Got signal to download a log, name = " + str(log_name))
-#     print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
-
-#     raw_log_path = rtk.logm.log_path + "/" + log_name
-#     rtk.processLogPackage(raw_log_path)
-
-    # log_package_path = rtk.getRINEXPackage(raw_log_path)
-    # print("Sending log file " + log_package_path)
-    # return send_file(log_package_path, as_attachment = True)
-
 @app.route("/logs/download/<path:log_name>")
 def downloadLog(log_name):
     full_log_path = rtk.logm.log_path + "/" + log_name
@@ -157,9 +144,12 @@ def writeConfigBase(json):
     rtk.writeConfigBase(json)
 
 #### Delete log button handler ####
+
 @socketio.on("delete log", namespace="/test")
 def deleteLog(json):
     rtk.logm.deleteLog(json.get("name"))
+
+#### Download and convert log handlers ####
 
 @socketio.on("process log", namespace="/test")
 def processLog(json):
@@ -177,6 +167,18 @@ def cancelLogConversion(json):
     raw_log_path = rtk.logm.log_path + "/" + log_name
     rtk.cancelLogConversion(raw_log_path)
 
+#### RINEX versioning ####
+
+@socketio.on("read RINEX version", namespace="/test")
+def readRINEXVersion():
+    rinex_version = rtk.logm.getRINEXVersion()
+    rtk.socketio.emit("current RINEX version", {"version": rinex_version}, namespace="/test")
+
+@socketio.on("write RINEX version", namespace="/test")
+def writeRINEXVersion(json):
+    rinex_version = json.get("version")
+    rtk.logm.setRINEXVersion(rinex_version)
+
 #### Delete config ####
 @socketio.on("delete config", namespace="/test")
 def deleteLog(json):
@@ -189,6 +191,8 @@ def deleteLog(json):
 def resetConfig(json):
     rtk.resetConfigToDefault(json.get("name"))
 
+#### Update ReachView ####
+
 @socketio.on("update reachview", namespace="/test")
 def updateReachView():
     print("Got signal to update!!!")
@@ -196,6 +200,18 @@ def updateReachView():
     rtk.shutdown()
     socketio.server.stop()
     os.execl("/home/reach/ReachView/update.sh", "", str(os.getpid()))
+
+#### Device hardware functions ####
+
+@socketio.on("reboot device", namespace="/test")
+def rebootReach():
+    print("Rebooting...")
+    check_output("reboot")
+
+@socketio.on("turn off wi-fi", namespace="/test")
+def turnOffWiFi():
+    print("Turning off wi-fi")
+    check_output("rfkill block wlan", shell = True)
 
 if __name__ == "__main__":
     try:
