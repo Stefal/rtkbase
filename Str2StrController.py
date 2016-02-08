@@ -25,6 +25,8 @@ import os
 import pexpect
 from glob import glob
 
+import ReachTools
+
 # This module automates working with STR2STR software
 
 class Str2StrController:
@@ -74,7 +76,12 @@ class Str2StrController:
     def readConfig(self):
         parameters_to_send = {}
 
-        parameters_to_send["0"] = {"parameter": "outstr-path", "value": self.output_stream, "description": "Output path for corrections"}
+        parameters_to_send["0"] = {
+            "parameter": "outstr-path",
+            "value": self.output_stream,
+            "comment": self.formCommentString(ReachTools.getAvailableSerialPorts()),
+            "description": "Output path for corrections"
+        }
 
         parameters_to_send["1"] = {"parameter": "rtcm3_out_messages", "value": ",".join(self.rtcm3_messages), "description": "RTCM3 messages for output"}
 
