@@ -626,7 +626,7 @@ class RTKLIB:
 
         self.socketio.emit("log conversion start", start_package, namespace="/test")
         try:
-            log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
+            log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path, self.logm.getRINEXVersion())
         except:
             print("Interrupted by exception")
             return None

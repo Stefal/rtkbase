@@ -52,7 +52,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <ul>
                 <li><a href="#" class="tab ui-btn-active ui-state-persist status_page">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
-                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" class="settings" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
@@ -104,7 +104,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <ul>
                 <li><a href="#status_page" class="tab status_page">Status</a></li>
                 <li><a href="#" class="tab ui-btn-active ui-state-persist">Config</a></li>
-                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" class="settings" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
@@ -236,7 +236,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                 </li>
                 <li style="position:relative;padding-right:33.5px">
                     <a href="#logs_page" class="tab ui-btn-active ui-state-persist">Logs</a>
-                    <a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a>
+                    <a href="#settings" class="settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a>
                 </li>
             </ul>
         </div>
@@ -267,7 +267,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <ul>
                 <li><a href="#status_page" class="tab status_page">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
-                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" class="tab ui-btn-active ui-state-persist" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" class="tab ui-btn-active ui-state-persist settings" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
@@ -277,6 +277,25 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <p>Network: {{ system_status.network_status.ssid }}</p>
             <p>IP: {{ system_status.network_status.ip_address }}</p>
             <a href="http://reach.local:5000" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="wifi_link">Wi-Fi setup</a>
+            <a href="" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="turn_off_wifi">Turn off Wi-Fi</a>
+            <p id="off_wi-fi_warning"></p>
+        </div>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <p style="display:inline-block; float:left;padding-right:20px;position:relative;top:5px;">RINEX version:</p>
+            <div style="float:left;">
+                <select name="select-native-1" id="rinex_version" class="config_form_field">
+                    <option value="2.10">2.10</option>
+                    <option value="2.11">2.11</option>
+                    <option value="2.12">2.12</option>
+                    <option value="3.00">3.00</option>
+                    <option value="3.02">3.01</option>
+                    <option value="3.02">3.02</option>
+                </select>
+            </div>
+        </div>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <a href="" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="reboot">Reboot</a>
+            <p id="reboot_warning"></p>
         </div>
         <div class="ui-field-contain" id="update_buttons">
             <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">

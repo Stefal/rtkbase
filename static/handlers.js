@@ -550,9 +550,19 @@ $(document).on("pageinit", "#logs_page", function() {
     });
 });
 
+$(document).on("click", ".settings", function() {
+    console.log('Sending message for current RINEX version');
+    socket.emit("read RINEX version");
+  });
+
 $(document).on("pageinit", "#settings", function() {
 
     $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
+
+    socket.on("current RINEX version", function(msg) {
+        $('#rinex_version').val(msg['version']);
+        $('#rinex_version').parent().find('span.config_form_field').text(msg['version']);
+    });
 
     $(document).on("click", "#update_button", function(e) {
         var online = navigator.onLine;
@@ -573,6 +583,29 @@ $(document).on("pageinit", "#settings", function() {
         else
             $('.connect').text('Internet connection is lost');
 
+        return false;
+    });
+
+    $(document).on("click", "#reboot", function(e) {
+        console.log("Sending message for reboot");
+        socket.emit("reboot device");
+        console.log('rebooting reach');
+        $('#reboot_warning').text('Will now reboot, please, close the app.');
+
+        return false;
+    });
+
+    $(document).on("click", "#turn_off_wifi", function(e) {
+        console.log("Sending message for turning off wifi");
+        socket.emit("turn off wi-fi");
+        $('#off_wi-fi_warning').text('The app and wi-fi are now inactive until a power cycle.');
+
+        return false;
+    });
+
+    $(document).on("change", "#rinex_version", function(e) {
+        console.log("Sending message with rinex version:" + $(this).val());
+        socket.emit("write RINEX version", {"version": $(this).val()});
         return false;
     });
 })
