@@ -6,6 +6,10 @@ function checkInputSelects(i, method){ //inp OR out OR log
 	$('#pos1-navsys_entry').attr('type', 'hidden');
 	$('#pos1-navsys_entry').parent().css({'visibility':'hidden', 'border':'none'});
 
+	$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+
 	$('#' + method + 'str' + i + '-path_entry').parent().parent().css('display', 'block');
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
 	$('div.additional' + method + i).remove();
@@ -19,7 +23,38 @@ function checkInputSelects(i, method){ //inp OR out OR log
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="device' + method + i + '" data-clear-btn="true" placeholder="Device (required)" class="config_form_field"><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field"></div>').trigger("create");
+			var append = '';
+
+			if((method == 'inp') && (i == '1')){
+				append += '<div class="additional' + method + i + ' additional_general"><input type="text" id="device' + method + i + '" data-clear-btn="true" placeholder="Device (required)" class="config_form_field"><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field"></div>';
+			}
+			else{
+				var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
+
+				var splitArr = [];
+
+				var serialSelects = $('#' + method + 'str' + i + '-path_comment').val();
+				serialSelects = serialSelects.substr(1, serialSelects.length-2);
+				var serialSelect = serialSelects.split(',');
+
+				$.each(serialSelect, function(index, value){
+					var serialOption = value.split(':');
+					splitArr.push(serialOption[1]);
+				});
+
+				var baudrateValue = (splitArr[0] == 'ttyMFD2') ? '57600' : '115200';
+
+				append += '<div class="additional' + method + i + ' additional_general"><select name="select-native-1" id="device' + method + i + '" class="config_form_field">';
+
+				$.each(splitArr, function(index, value){
+					var currentSerialOption = (serialArr[value]) ? serialArr[value] : value;
+					append += '<option value="' + value + '">' + currentSerialOption + '</option>';
+				})
+
+				append += '</select><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field" value="' + baudrateValue + '"></div>';
+			}
+
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append(append).trigger("create");
 			break;
 		case "file":
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path (required)" class="config_form_field"></div>').trigger("create");
@@ -28,26 +63,22 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
 					$('#pathlog1').attr('type', 'hidden');
 					$('#pathlog1').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
 				}
 				else if(i == 2)
 					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 					$('#pathlog2').attr('type', 'hidden');
 					$('#pathlog2').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 			}
 			else if(method == 'out'){
 				if(i == 1){
 					$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 					$('#pathout1').attr('type', 'hidden');
 					$('#pathout1').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#outstr1-path_entry').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
 				}
 				else if(i == ''){
-					$('#pathout').val('/home/reach/logs/bas_%Y%m%d%h%M.rtmc3');
+					$('#pathout').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3#rtcm3');
 					$('#pathout').attr('type', 'hidden');
 					$('#pathout').parent().css({'visibility':'hidden', 'border':'none'});
-					$('#outstr-path_entry').val('/home/reach/logs/bas_%Y%m%d%h%M.rtcm3');
 				}
 			}
 
@@ -72,7 +103,7 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			break;
 
 	}
-	
+
 	$('#inpstr-path_entry').parent().parent().append($('#inpstr-format_base').parent().parent().parent());
 	$('#outstr-path_entry').parent().parent().append($('#outstr-format_base').parent().parent());
 }
@@ -87,11 +118,12 @@ function formString(i, method){
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
-			var baudrate = ($.trim($('.additional' + method + i + ' #baudrate' + method + i).val()) == '') ? '' : ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val()); 
+			var baudrate = ($.trim($('.additional' + method + i + ' #baudrate' + method + i).val()) == '') ? '' : ':' + $.trim($('.additional' + method + i + ' #baudrate' + method + i).val());
 			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #device' + method + i).val()) + baudrate + ':8:n:1:off' + end);
 			break;
 		case "file":
-			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #path' + method + i).val()) + end);
+			// $('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #path' + method + i).val()) + end);
+			$('#' + method + 'str' + i + '-path_entry').val($.trim($('.additional' + method + i + ' #path' + method + i).val()));
 			break;
 		case "tcpcli":
 			var port = ($.trim($('.additional' + method + i + ' #port' + method + i).val()) == '') ? '' : ':' + $.trim($('.additional' + method + i + ' #port' + method + i).val());
@@ -142,8 +174,17 @@ function defaultStringToInputs(i, method){
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
 			var splitVal = correctVal.split(':');
+			var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
+			var currentSerialOption = (serialArr[splitVal['0']]) ? serialArr[splitVal['0']] : splitVal['0'];
 			$('.additional' + method + i + ' #device' + method + i).val(splitVal['0']);
+			$('.additional' + method + i + ' #device' + method + i).parent().find('span.config_form_field').text(currentSerialOption);
 			$('.additional' + method + i + ' #baudrate' + method + i).val(splitVal['1']);
+
+			if($('.additional' + method + i + ' #device' + method + i).val() == 'ttyUSB0'){
+				$('.additional' + method + i + ' #baudrate' + method + i).val('115200');
+				$('.additional' + method + i + ' #baudrate' + method + i).attr('type', 'hidden');
+				$('.additional' + method + i + ' #baudrate' + method + i).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+			}
 			break;
 		case "file":
 			$('.additional' + method + i + ' #path' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
@@ -180,7 +221,7 @@ function defaultStringToInputs(i, method){
 			break;
 		case "ntripsvr": //[:passwd@]addr[:port][/mntpnt[:str]]
 			var splitVal = correctVal.split('@');
-			
+
 			if(splitVal.length == 1){
 				var splitAdress = '';
 				var splitMount = splitVal[0].split('/');
@@ -225,7 +266,7 @@ function checkBaseAntennaCoordinates(){
 		$('#ant2-pos2_entry').attr('type', 'hidden');
 		$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		$('#ant2-pos3_entry').attr('type', 'hidden');
-		$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});	
+		$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 	}
 	else{
 		$('#ant2-pos1_entry').attr('type', 'text');
@@ -236,6 +277,26 @@ function checkBaseAntennaCoordinates(){
 		$('#ant2-pos3_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		$('#file-staposfile_entry').attr('type', 'hidden');
 		$('#file-staposfile_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	}
+}
+
+function checkNtripcliStatus(){
+	if($('#inpstr2-type_entry').val() == 'ntripcli'){
+		$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+
+		if($('#inpstr2-nmeareq_entry').val() == 'latlon'){
+			$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+			$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+		else{
+			$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+			$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		}
+	}
+	else{
+		$('#inpstr2-nmeareq_entry').parent().parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#inpstr2-nmealat_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#inpstr2-nmealon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 	}
 }
 
@@ -252,7 +313,7 @@ function showBase(msg){
 	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
     var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
     var optionsArr = ['1002', '1006', '1008', '1010', '1019', '1020', '1107', '1117', '1127'];
-    
+
     console.groupCollapsed("Received current base config:");
     // clean prev versions
     var form_div =$("#config_form_column_space");
@@ -286,14 +347,14 @@ function showBase(msg){
         to_append += '<input type="hidden" id="' + config_parameter + '_check" value="' + issetInput +'">';
         to_append += '<input type="hidden" id="' + config_parameter + '_comment" value="' + config_comment +'">';
         to_append += '<input type="hidden" id="' + config_parameter + '_order" value="' + k +'">';
-        
 
-        if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
-            splitArr = config_comment.split(',');                    
+
+        if( (config_comment) && (config_comment.indexOf(',') >= 0) && (config_parameter.substr(-4) != 'path') ){
+            splitArr = config_comment.split(',');
 
 
 			to_append +=  '<select name="select-native-1" id="' + config_parameter + '_entry" class="config_form_field">';
-            
+
             $.each(splitArr, function(index, value){
                 value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
                 innerSplit = value.split(':');
@@ -313,7 +374,7 @@ function showBase(msg){
         		typeArr.splice(5, 1);
         	else
         		typeArr.splice(4, 1);
-        	
+
         	var checkedOption = config_value.split('://');
         	var checkedFormat = config_value.split('#');
 
@@ -329,13 +390,13 @@ function showBase(msg){
         	});
 
         	to_append += '</select>';
-        	
+
         	to_append += '<div>';
 
         	if(config_parameter == 'inpstr-path'){
         		to_append += '<label for="' + splitK[0] + '-format_base">Input format</label>';
         		to_append += '<select name="select-native-1" id="' + splitK[0] + '-format_base" class="config_form_field top_input">';
-        		
+
         		$.each(formatArr, function(index, value){
             		if(checkedFormat[1] == value)
             			to_append += '<option value="' + value + '" selected="selected">' + value + '</option>';
@@ -376,14 +437,14 @@ function showBase(msg){
         	to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
             to_append += '<input type="text" id="' + config_parameter + '_entry" value="' + config_value + '" data-clear-btn="true">';
         }
-        
+
         to_append += '</div>';
     }
 
     to_append += '</div>';
 
     console.groupEnd();
-    
+
     form_div.html(to_append).trigger("create");
 
     $(document).on("change", '.top_input', function() {
@@ -392,6 +453,7 @@ function showBase(msg){
 		if($(this).attr('id').substr(7, 6) != 'format'){
 			$('#' + method + 'str-path_entry').val('');
 			checkInputSelects('', method);
+			formString('', method);
 		}
 		else{
 			var hashSplit = $('#' + method + 'str-path_entry').val().split('#');
@@ -403,17 +465,50 @@ function showBase(msg){
 		$('#rtcm3_out_messages_entry').val($(this).val());
 	});
 
-	$(document).on("change", '.additional_general input', function() {
-		
+	$(document).on("change", '#outstr-type_entry', function() {
+		if($(this).val() == 'file')
+			formString('', 'out');
+	})
+
+	$(document).on("change", '.additional_general select', function() {
+		console.log('change');
 		$(this).parent().parent().removeClass('additional_general');
-		
+
+		var method = $(this).parent().parent().parent().attr('class').substr(10, 3);
+
+		if($(this).val() == 'ttyMFD2'){
+			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+		else if($(this).val() == 'ttyUSB0'){
+			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'hidden');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		}
+		else{
+			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+
+		formString('', 'out');
+
+		$(this).parent().parent().parent().addClass('additional_general');
+	});
+
+	$(document).on("change", '.additional_general input', function() {
+		console.log('change');
+		$(this).parent().parent().removeClass('additional_general');
+
 		var method = $(this).parent().parent().attr('class').substr(10, 3);
-		
+
 		formString('', method);
 
 		$(this).parent().parent().addClass('additional_general');
+		console.log('change');
 	});
-	
+
 	for (key in prefixArr) {
 		checkInputSelects('', prefixArr[key]);
 		defaultStringToInputs('', prefixArr[key]);
@@ -471,7 +566,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		    config_value = config_key['value'];
 		    config_parameter = config_key['parameter'];
 		    config_description = (typeof config_key['description'] == "undefined") ? '' : config_key['description'];
- 
+
 		    config_comment = (typeof config_key['comment'] == "undefined") ? '' : config_key['comment'];
 		    input_title = (config_description == '') ? config_parameter : config_description;
 
@@ -489,14 +584,14 @@ function showRover(msg, rover_config_order, rover_config_comments){
             to_append += '<input type="hidden" id="' + config_parameter + '_order" value="' + k +'">';
             to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
 
-            if( (config_comment) && (config_comment.indexOf(',') >= 0) ){
-                splitArr = config_comment.split(',');                    
+            if( (config_comment) && (config_comment.indexOf(',') >= 0) && (config_parameter.substr(-4) != 'path') ){
+                splitArr = config_comment.split(',');
 
                 if(jQuery.inArray(config_parameter, topClassArr) >= 0)
 					to_append +=  '<select name="select-native-1" id="' + config_parameter + '_entry" class="config_form_field top_input">';
 				else
 					to_append +=  '<select name="select-native-1" id="' + config_parameter + '_entry" class="config_form_field">';
-                
+
                 $.each(splitArr, function(index, value){
                     value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
                     innerSplit = value.split(':');
@@ -534,7 +629,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 				to_append += '</fieldset>';
             }
             else
-                to_append += '<input type="text" data-clear-btn="true" id="' + config_parameter + '_entry" value="' + config_value + '" class="config_form_field" >';                 
+                to_append += '<input type="text" data-clear-btn="true" id="' + config_parameter + '_entry" value="' + config_value + '" class="config_form_field" >';
 
             to_append += '</div>';
         }
@@ -572,6 +667,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-path_check").parent().after($('#inpstr2-nmeareq_entry').parent().parent().parent());
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-nmeareq_entry").parent().parent().after($('#inpstr2-nmealat_entry').parent().parent());
+	$(".ui-field-contain.fields-field .general-settings #inpstr2-nmealat_entry").parent().parent().after($('#inpstr2-nmealon_entry').parent().parent());
+
 	$('#file-cmdfile1_entry option, #file-cmdfile2_entry option').each(function(){
 		var cutOption = $(this).val().slice(3,-4);
 		$(this).text(cutOption);
@@ -585,6 +684,10 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 	checkBaseAntennaCoordinates();
 
+	$(document).on("change", '#inpstr2-nmeareq_entry', function() {
+		checkNtripcliStatus();
+	});
+
 	$(document).on("change", '.top_input', function() {
 		var method = $(this).attr('id').substr(0, 3);
 		var numb = $(this).attr('id').substr(6, 1);
@@ -592,16 +695,47 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		if($(this).attr('id').substr(8, 6) != 'format'){
 			$('#' + method + 'str' + numb + '-path_entry').val('');
 			checkInputSelects(numb, method);
+			formString(numb, method);
 		}
+
+		checkNtripcliStatus();
+	});
+
+	$(document).on("change", '.additional_general select', function() {
+
+		$(this).parent().parent().removeClass('additional_general');
+
+		var method = $(this).parent().parent().parent().attr('class').substr(10, 3);
+		var numb = $(this).parent().parent().parent().attr('class').substr(13, 1);
+
+		if($(this).val() == 'ttyMFD2'){
+			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+		else if($(this).val() == 'ttyUSB0'){
+			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'hidden');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		}
+		else{
+			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
+			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
+			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		}
+
+		formString(numb, method);
+
+		$(this).parent().parent().parent().addClass('additional_general');
 	});
 
 	$(document).on("change", '.additional_general input', function() {
-		
+
 		$(this).parent().parent().removeClass('additional_general');
-		
+
 		var method = $(this).parent().parent().attr('class').substr(10, 3);
 		var numb = $(this).parent().parent().attr('class').substr(13, 1);
-		
+
 		formString(numb, method);
 
 		$(this).parent().parent().addClass('additional_general');
@@ -624,7 +758,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		$( ".advanced-settings" ).slideToggle('slow');
 		return false;
 	})
-	
+
 	for (key in prefixArr) {
 		for(var b = 1; b <=prefixArr[key]; b++){
 			checkInputSelects(b, key);
@@ -632,6 +766,8 @@ function showRover(msg, rover_config_order, rover_config_comments){
 			formString(b, key);
 		}
 	}
+
+	checkNtripcliStatus();
 
 	var popup = true;
 

@@ -26,6 +26,9 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
 <head>
     <title>ReachViewApp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="pragma" content="no-cache" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery.mobile-1.4.5.min.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.11.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery.mobile-1.4.5.min.js') }}"></script>
@@ -36,6 +39,23 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <script type="text/javascript" src="{{ url_for('static', filename='handlers.js') }}" charset="utf-8"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}" charset="utf-8"></script>
 </head>
+<style>
+    .ui-listview .log_format{
+        position: absolute;
+        bottom: 1em;
+        right: 3.333em;
+        margin: 0;
+        text-align: right;
+    }
+    @media only screen and (max-width:760px){
+        .ui-listview > li h2{
+            font-size: 0.75em;
+        }
+        .ui-listview > li p{
+            font-size: 0.5em;
+        }
+    }
+</style>
 <body>
 
 <!-- Status page here:-->
@@ -43,9 +63,9 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar1">
             <ul>
-                <li><a href="#" class="tab ui-btn-active ui-state-persist">Status</a></li>
+                <li><a href="#" class="tab ui-btn-active ui-state-persist status_page">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
-                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab logs_page">Logs</a><a href="#settings" data-role="button" data-icon="gear" class="settings" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
@@ -95,9 +115,9 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar2">
             <ul>
-                <li><a href="#status_page" class="tab">Status</a></li>
+                <li><a href="#status_page" class="tab status_page">Status</a></li>
                 <li><a href="#" class="tab ui-btn-active ui-state-persist">Config</a></li>
-                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab logs_page">Logs</a><a href="#settings" data-role="button" class="settings" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
@@ -222,33 +242,24 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         <div data-role="navbar" id="navbar3">
             <ul>
                 <li>
-                    <a href="#status_page" class="tab">Status</a>
+                    <a href="#status_page" class="tab status_page">Status</a>
                 </li>
                 <li>
                     <a href="#config_page" class="tab">Config</a>
                 </li>
                 <li style="position:relative;padding-right:33.5px">
-                    <a href="#logs_page" class="tab ui-btn-active ui-state-persist">Logs</a>
-                    <a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a>
+                    <a href="#logs_page" class="tab ui-btn-active ui-state-persist logs_page">Logs</a>
+                    <a href="#settings" class="settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a>
                 </li>
             </ul>
         </div>
     </div>
 
     <div data-role="main" class="ui-content">
-        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all empty_logs" style="display:none;">
-            <p>There are currently no logs available</p>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all empty_logs">
+            <p>Fetching available logs...</p>
         </div>
         <ul data-role="listview" data-inset="true" id="logs_list" data-split-theme="a">
-            {% for log in logs %}
-                <li>
-                    <a href="#" id="/logs/{{ log.name }}" class="log_string">
-                        <h2>{{ log.name }},{{ log.size }},{{ log.format }},{{ log.is_being_converted }}</h2>
-                        <p class="log_conversion_status_string"></p>
-                    </a>
-                    <a href="#" id="delete_{{ log.name }}" data-icon="delete" class="delete-log-button">Delete</a>
-                </li>
-            {% endfor %}
         </ul>
     </div>
 </div>
@@ -258,29 +269,51 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar3">
             <ul>
-                <li><a href="#status_page" class="tab">Status</a></li>
+                <li><a href="#status_page" class="tab status_page">Status</a></li>
                 <li><a href="#config_page" class="tab">Config</a></li>
-                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" class="tab ui-btn-active ui-state-persist" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab logs_page">Logs</a><a href="#settings" data-role="button" class="tab ui-btn-active ui-state-persist settings" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
             </ul>
         </div>
     </div>
 
     <div data-role="main" class="ui-content">
         <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
-            <p>Network: {{ network_status.ssid }}</p>
-            <p>IP: {{ network_status.ip_address }}</p>
+            <p>Network: {{ system_status.network_status.ssid }}</p>
+            <p>IP: {{ system_status.network_status.ip_address }}</p>
             <a href="http://reach.local:5000" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="wifi_link">Wi-Fi setup</a>
+            <a href="" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="turn_off_wifi">Turn off Wi-Fi</a>
+            <p id="off_wi-fi_warning"></p>
+        </div>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <p style="display:inline-block; float:left;padding-right:20px;position:relative;top:5px;">RINEX version:</p>
+            <div style="float:left;">
+                <select name="select-native-1" id="rinex_version" class="config_form_field">
+                    <option value="2.10">2.10</option>
+                    <option value="2.11">2.11</option>
+                    <option value="2.12">2.12</option>
+                    <option value="3.00">3.00</option>
+                    <option value="3.02">3.01</option>
+                    <option value="3.02">3.02</option>
+                </select>
+            </div>
+        </div>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <a href="" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="reboot">Reboot</a>
+            <p id="reboot_warning"></p>
         </div>
         <div class="ui-field-contain" id="update_buttons">
             <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
-                <p>Current version: {{ app_version }}</p>
+                <p>ReachView version: {{ system_status.app_version }}</p>
+                <p style="clear:both">During update ReachView will go inactive for about a minute. Wait for the LED to start blinking again, then refresh the page.</p>
                 <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button" style="float:left">Update</a><span class='connect' style="color:red;font-size:12px;"></span>
                 <div class="load_update" style="height:44px;float:left;position:relative;display:none;">
                     <img src="static/images/update_loader.gif" style="height:54px;">
                     <p style="position:absolute;top:0px;left:0px;color:red;width:54px;text-align:center;">120</p>
                 </div>
-                <p style="clear:both">During update ReachView will go inactive for about a minute. Wait for the LED to start blinking again, then reconnect.</p>
             </div>
+        </div>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <p>Reach image version: {{ system_status.image_version }}</p>
         </div>
     </div>
 </div>

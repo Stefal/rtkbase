@@ -65,6 +65,9 @@ class LogManager():
             if extension == ".log":
                 self.changeLogExtension(no_extension_path + extension)
 
+            if extension == ".rtmc3":
+                self.changeLogExtension(no_extension_path + extension)
+
     def updateAvailableLogs(self):
 
         # clean previous values
@@ -165,4 +168,22 @@ class LogManager():
         except OSError, e:
             print ("Error: " + e.filename + " - " + e.strerror)
 
+    def getRINEXVersion(self):
+        # read RINEX version from system file
+        print("Getting RINEX version from system settings")
+        version = "3.01"
+        try:
+            with open("/home/reach/.reach/rinex_version", "r") as f:
+                version = f.readline().rstrip("\n")
+        except IOError, OSError:
+            print("No such file detected, defaulting to 3.01")
+
+        return version
+
+    def setRINEXVersion(self, version):
+        # write RINEX version to system file
+        print("Writing new RINEX version to system file")
+
+        with open("/home/reach/.reach/rinex_version", "w") as f:
+            f.write(version)
 

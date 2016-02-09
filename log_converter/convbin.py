@@ -32,7 +32,7 @@ class Convbin:
         self.bin_path = rtklib_path + "/app/convbin/gcc"
         self.child = 0
 
-    def convertRTKLIBLogToRINEX(self, log_path):
+    def convertRTKLIBLogToRINEX(self, log_path, rinex_version="3.01"):
 
         print("Converting log " + log_path + "...")
 
@@ -42,7 +42,7 @@ class Convbin:
         log_format = [f for f in self.supported_log_formats if log_path.endswith(f)]
 
         if log_format:
-            log_metadata = self.convertLogToRINEX(log_path, log_format[0])
+            log_metadata = self.convertLogToRINEX(log_path, log_format[0], rinex_version)
 
             if log_metadata:
                 result = Log(log_path, log_metadata)
@@ -53,15 +53,18 @@ class Convbin:
 
         return result
 
-    def convertLogToRINEX(self, log_path, format):
+    def convertLogToRINEX(self, log_path, format, rinex_version):
 
-        spawn_command = " ".join([self.bin_path + "/convbin", "-r", format, log_path])
+        spawn_command = " ".join([self.bin_path + "/convbin", "-r", format, "-v", rinex_version, log_path])
 
         print("Specified format is " + format)
 
         self.child = pexpect.spawn(spawn_command, echo = False)
         print("Process spawned!")
         self.child.expect(pexpect.EOF, timeout = None)
+
+        if self.child.signalstatus != None:
+            raise ValueError
 
         print("pexpect.EOF occured")
 
