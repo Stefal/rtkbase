@@ -266,7 +266,7 @@ function checkBaseAntennaCoordinates(){
 		$('#ant2-pos2_entry').attr('type', 'hidden');
 		$('#ant2-pos2_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		$('#ant2-pos3_entry').attr('type', 'hidden');
-		$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});	
+		$('#ant2-pos3_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 	}
 	else{
 		$('#ant2-pos1_entry').attr('type', 'text');

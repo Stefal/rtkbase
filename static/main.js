@@ -65,7 +65,7 @@ $(document).ready(function () {
 
     $(window).resize(function() {
         if(window.location.hash == ''){
-            chart.resize();     
+            chart.resize();
         }
     });
 

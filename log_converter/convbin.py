@@ -63,6 +63,9 @@ class Convbin:
         print("Process spawned!")
         self.child.expect(pexpect.EOF, timeout = None)
 
+        if self.child.signalstatus != None:
+            raise ValueError
+
         print("pexpect.EOF occured")
 
         return self.parseConvbinOutput(self.child.before)

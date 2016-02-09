@@ -627,8 +627,10 @@ class RTKLIB:
         self.socketio.emit("log conversion start", start_package, namespace="/test")
         try:
             log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path, self.logm.getRINEXVersion())
-        except:
-            print("Interrupted by exception")
+        except ValueError:
+            print("Conversion canceled")
+            conversion_result_package["conversion_status"] = "Conversion canceled, downloading raw log"
+            self.socketio.emit("log conversion results", conversion_result_package, namespace="/test")
             return None
 
         print("Log conversion done!")

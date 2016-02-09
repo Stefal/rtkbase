@@ -19,7 +19,7 @@ function Chart() {
         var grid_style = {
             borderRight: "1x solid #ddd",
             borderTop: "1px solid #ddd",
-            textAlign: "left", 
+            textAlign: "left",
             borderCollapse: 'collapse',
             fontSize: '15px'
         };
@@ -54,20 +54,20 @@ function Chart() {
         var yScale = d3.scale.linear()
         .domain([0, 55])
         .range([0, height])
-     
+
         this.xScale = d3.scale.ordinal()
             .rangeBands([0, width])
 
         var verticalGuideScale = d3.scale.linear()
             .domain([0, 55])
             .range([height, 0])
-         
+
         this.vAxis = d3.svg.axis()
             .scale(verticalGuideScale)
             .orient('left')
             .ticks(10)
             .tickSize(-width, 0, 0)
-         
+
         this.verticalGuide = d3.select('svg').append('g')
         this.vAxis(this.verticalGuide)
         this.verticalGuide.attr('transform', 'translate(' + 30 + ', ' + margin.top + ')')
@@ -75,12 +75,12 @@ function Chart() {
             .style({fill: 'none', stroke: "black"})
         this.verticalGuide.selectAll('line')
             .style({stroke: "rgba(0,0,0,0.2)"})
-         
+
 
         this.hAxis = d3.svg.axis()
             .scale(this.xScale)
             .orient('bottom')
-         
+
         this.horizontalGuide = d3.select('svg').append('g')
         this.hAxis(this.horizontalGuide)
         this.horizontalGuide.attr('transform', 'translate(' + 30 + ', ' + (height + margin.top) + ')')
@@ -144,11 +144,11 @@ function Chart() {
 
         var margin = {top: 30, right: 10, bottom: 30, left: 40};
         var width = $("#bar-chart").width() - margin.left - margin.right;
-        
+
         var barWidth = width*0.08;
         var barOffset = width*0.02;
         this.svg.attr('width', width + margin.left + margin.right)
-        
+
         this.roverBars.attr("width", barWidth/2)
         .attr('x', function (data, i) {
             return i * (barWidth + barOffset);
@@ -246,7 +246,7 @@ function Chart() {
         };
 
         this.roverBars.data(this.chartdata)
-        .transition()    
+        .transition()
         .attr('height', function (data) {
             return 5*data.value;
         })
@@ -304,7 +304,7 @@ function Chart() {
             this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
 
         this.baseBars.data(this.chartdata1)
-        .transition()    
+        .transition()
         .attr('height', function (data) {
             return 5*data.value;
         })
@@ -331,7 +331,7 @@ function Chart() {
         }
 
         this.roverBars.data(this.chartdata)
-        .transition()    
+        .transition()
         .attr('height', function (data) {
             return 5*data.value;
         })
@@ -342,7 +342,7 @@ function Chart() {
         .duration(300);
 
         this.baseBars.data(this.chartdata)
-        .transition()    
+        .transition()
         .attr('height', function (data) {
             return 5*data.value;
         })

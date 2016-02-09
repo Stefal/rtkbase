@@ -140,7 +140,7 @@ function splitLogInformation(){
         $('.empty_logs').css('display', 'none');
 
         var currentTime = '';
-        $('.log_string').each(function(){            
+        $('.log_string').each(function(){
             var log_state = '';
             var splitLogString = $(this).find("h2").text().split(',');
 
@@ -163,7 +163,6 @@ function splitLogInformation(){
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
 
-            
             $(this).css('border-bottom', '1px solid transparent');
             $(this).parent().find('.delete-log-button').css('border-bottom', '1px solid transparent');
 
@@ -360,7 +359,11 @@ $(document).on("pageinit", "#config_page", function() {
                 current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
                 current_value = obj.value;
                 current_description = ($('input[id="' + current_parameter +'_check"]').val() == '1') ? $("label[for='" + current_parameter + "_entry']").text() : '';
-                current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
+
+                if(current_parameter.substring(current_parameter.length-4) == 'path')
+                    current_comment = '';
+                else
+                    current_comment = ($('input[id="' + current_parameter +'_comment"]').val() != '') ? $('input[id="' + current_parameter +'_comment"]').val() : '';
 
                 // console.log('id=' + current_parameter + ', value=' + current_value + ', description=' + current_description + ', comment=' + current_comment);
 
@@ -536,7 +539,7 @@ $(document).on("pageinit", "#logs_page", function() {
                 console.log('is_being_converted: ' + log['is_being_converted']);
             console.groupEnd();
 
-            to_append += "<li data-role='list-divider' class='data_divider'>" + log['name'] + " </li>";     
+            to_append += "<li data-role='list-divider' class='data_divider'>" + log['name'] + " </li>";
             to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string'>";
             to_append += "<h2>" + log['name'] + "," + log['size'] + "," + log['format'] + "," + log['is_being_converted'] + "</h2>";
             to_append += "<p class='log_conversion_status_string'></p>";
