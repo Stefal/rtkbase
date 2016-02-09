@@ -43,5 +43,6 @@ then
     cp /home/reach/ReachView/rtklib_configs/convbin /home/reach/RTKLIB/app/convbin/gcc/
 fi
 
+/home/reach/ReachView/install_packages.sh
 chown -R reach:users /home/reach
 /home/reach/ReachView/server.py
