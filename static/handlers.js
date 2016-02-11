@@ -540,9 +540,9 @@ $(document).on("pageinit", "#logs_page", function() {
             console.groupEnd();
 
             to_append += "<li data-role='list-divider' class='data_divider'>" + log['name'] + " </li>";
-            to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string'>";
+            to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string' style='white-space: normal;'>";
             to_append += "<h2>" + log['name'] + "," + log['size'] + "," + log['format'] + "," + log['is_being_converted'] + "</h2>";
-            to_append += "<p class='log_conversion_status_string'></p>";
+            to_append += "<p class='log_conversion_status_string' style='white-space: normal;width:85%;'></p>";
             to_append += "<p class='ui-li-aside log_size'><strong>" + log['size'] + "MB</strong></p>";
             to_append += "<p class='log_format'><strong>" + log['format'] + "</strong></p>";
             to_append += "</a><a href='#' id='delete_" + log['name'] + "' data-icon='delete' class='delete-log-button'>Delete</a></li>";
