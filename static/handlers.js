@@ -173,7 +173,7 @@ function splitLogInformation(){
 
             $(this).find("h2").text(time[0] + ' | ' + log_state);
 
-            if(splitLogString[3] == "True") {
+            if(splitLogString[3] == "true") {
                 console.log("Found log being converted: " + log_name);
                 updateConversionStatusDialog(log_name, "This log is being converted. Please wait");
                 createCancelConversionButton(log_name);
