@@ -115,6 +115,17 @@
 	position:relative;
 	top:20px;
 }
+.select_hidder{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	z-index:50;
+}
+.advanced-settings{
+	display:none;
+}
 .ui-listview .log_format{
     position: absolute;
     bottom: 1em;

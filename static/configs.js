@@ -518,7 +518,7 @@ function showBase(msg){
 	var popup = true;
 
 	$('#inpstr-type_entry').parent().css({'position':'relative'});
-	$('#inpstr-type_entry').parent().append('<div class="select_hidder" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;"></div>');
+	$('#inpstr-type_entry').parent().append('<div class="select_hidder"></div>');
 
 	$('.select_hidder, #baudrateinp, #deviceinp').click(function() {
 		if(popup){
@@ -557,7 +557,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
     to_append += '<div class="ui-field-contain fields-field">';
     to_append += '<div class="general-settings"></div>';
     to_append += '<button class="ui-btn" id="adv-set-btn">Advanced settings</button>';
-    to_append += '<div class="advanced-settings" style="display:none">';
+    to_append += '<div class="advanced-settings">';
 
     if (!$.isEmptyObject(msg)) {
         for (var k in msg) {
@@ -772,7 +772,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	var popup = true;
 
 	$('#inpstr1-type_entry').parent().css({'position':'relative'});
-	$('#inpstr1-type_entry').parent().append('<div class="select_hidder" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;"></div>');
+	$('#inpstr1-type_entry').parent().append('<div class="select_hidder"></div>');
 
 	$('#deviceinp1, #baudrateinp1, .select_hidder').click(function() {
 		if(popup){
