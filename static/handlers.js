@@ -540,9 +540,9 @@ $(document).on("pageinit", "#logs_page", function() {
             console.groupEnd();
 
             to_append += "<li data-role='list-divider' class='data_divider'>" + log['name'] + " </li>";
-            to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string' style='white-space: normal;'>";
+            to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string'>";
             to_append += "<h2>" + log['name'] + "," + log['size'] + "," + log['format'] + "," + log['is_being_converted'] + "</h2>";
-            to_append += "<p class='log_conversion_status_string' style='white-space: normal;width:85%;'></p>";
+            to_append += "<p class='log_conversion_status_string'></p>";
             to_append += "<p class='ui-li-aside log_size'><strong>" + log['size'] + "MB</strong></p>";
             to_append += "<p class='log_format'><strong>" + log['format'] + "</strong></p>";
             to_append += "</a><a href='#' id='delete_" + log['name'] + "' data-icon='delete' class='delete-log-button'>Delete</a></li>";
@@ -656,7 +656,7 @@ $(document).on("pageinit", "#settings", function() {
                 $('.load_update p').text(updateStatus);
             }, 1000);
 
-            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:20px;">Refresh the page</span>');}, 1000*60*2);
+            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span>Refresh the page</span>');}, 1000*60*2);
             socket.emit("update reachview");
         }
         else
