@@ -69,7 +69,7 @@ $(document).ready(function () {
         }
     });
 
-    $('.status_page').click(function(){
+    $(document).on("pagebeforeshow", "#status_page", function() {
         setTimeout(function(){chart.resize();}, 500);
     });
 
