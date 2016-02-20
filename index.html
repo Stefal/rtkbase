@@ -183,7 +183,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                         <h1> </h1>
                       </div>
                     </div>
-                    <!-- Popup for input change-->
+                    <!-- Popup for input change -->
                     <div data-role="popup" id="popupDialog">
                         <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                         <div data-role="header">
@@ -193,6 +193,21 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                             <p>Changing this input will make onboard receiver inaccessible to RTKLIB.</p>
                             <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="acceptChange">OK</a>
                             <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" id="denyChange">Cancel</a>
+                      </div>
+                      <div data-role="footer">
+                        <h1> </h1>
+                      </div>
+                    </div>
+                    <!-- end of popup-->
+                    <!-- Popup for empty required inputs -->
+                    <div data-role="popup" id="popupEmpty">
+                        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                        <div data-role="header">
+                            <h1>Warning</h1>
+                        </div>
+                        <div data-role="main" class="ui-content">
+                            <p>You leave some required fields empty.</p>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow" id="close_empty_warning">OK</a>
                       </div>
                       <div data-role="footer">
                         <h1> </h1>

@@ -386,9 +386,21 @@ $(document).on("pageinit", "#config_page", function() {
     $('#save_as_button').click(function(){
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_to_send = GetConfigToSend();
+        var empty = false;
 
         $(".hidden_list").slideUp('fast');
-        $( "#popupLogin" ).popup( "open");
+
+        $('.required_field').each(function(){
+            if($(this).val() == ''){
+                empty = true;
+                return false;
+            }
+        });
+
+        if(empty)
+            $( "#popupEmpty" ).popup( "open");
+        else
+            $( "#popupLogin" ).popup( "open");
 
         checkConfTitle();
 
@@ -430,12 +442,25 @@ $(document).on("pageinit", "#config_page", function() {
 
     $('#save_button').click(function(){
         var mode = $("input[name=radio_base_rover]:checked").val();
+        var empty = false;
 
-        if (mode == "base") {
-            $('#config-save-load-submit').click();
+        $('.required_field').each(function(){
+            if($(this).val() == ''){
+                empty = true;
+                return false;
+            }
+        });
+
+        if(empty){
+            $( "#popupEmpty" ).popup( "open");
         }
-        else
-            $( "#popupSave" ).popup( "open");
+        else{
+            if (mode == "base") {
+                $('#config-save-load-submit').click();
+            }
+            else
+                $( "#popupSave" ).popup( "open");
+        }
     });
 
     $('#config-save-submit').click(function(){
