@@ -1,14 +1,15 @@
-.nav_log_container{
+li.nav_log_container{
 	position:relative;
-	padding-right:33.5px
+	padding-right:38.5px
 }
 .nav_log_container .settings{
 	position:absolute;
-	right:0;
+	right:5px;
 	top:0;
-	width:33.5px;
+	width:32.5px;
 	height:33.5px;
 	padding:0px;
+	z-index: 10;
 }
 .loader{
 	text-align:center;
