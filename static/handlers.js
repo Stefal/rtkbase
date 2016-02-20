@@ -540,7 +540,7 @@ $(document).on("pageinit", "#config_page", function() {
 
 });
 
-$(document).on("click", ".logs_page", function() {
+$(document).on("pagebeforeshow", "#logs_page", function() {
     socket.emit("get logs list");
 });
 
@@ -654,7 +654,7 @@ $(document).on("pageinit", "#logs_page", function() {
     });
 });
 
-$(document).on("click", ".settings", function() {
+$(document).on("pagebeforeshow", "#settings", function() {
     console.log('Sending message for current RINEX version');
     socket.emit("read RINEX version");
   });
