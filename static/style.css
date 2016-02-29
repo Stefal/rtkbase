@@ -107,6 +107,9 @@ li.nav_log_container{
 .log_string{
 	white-space: normal;
 }
+.no_logs{
+	display: none;
+}
 .log_conversion_status_string{
 	white-space: normal;
 	width:85%;

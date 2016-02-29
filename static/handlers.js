@@ -540,7 +540,7 @@ $(document).on("pageinit", "#config_page", function() {
 
 });
 
-$(document).on("pagebeforeshow", "#logs_page", function() {
+$(document).on("click", ".logs_page", function() {
     socket.emit("get logs list");
 });
 
@@ -583,7 +583,24 @@ $(document).on("pageinit", "#logs_page", function() {
         splitLogInformation();
         addDivider();
         registerDownloadLogHandler();
-        registerDeleteLogHandler()
+        registerDeleteLogHandler();
+
+        if($('.log_string').length == '0'){
+            if(msg == ''){
+                $('.empty_logs').css('display', 'none');
+                $('.no_logs').css('display', 'block');
+            }
+            else{
+                $('.empty_logs').css('display', 'block');
+                $('.no_logs').css('display', 'none');
+            }
+        }
+        else{
+            $('.empty_logs').css('display', 'none');
+            $('.no_logs').css('display', 'none');
+        }
+            // $('.empty_logs').css('display', 'none');
+
     });
 
     // show conversion status by adding a new list view field under the log we are  trying to convert/download
