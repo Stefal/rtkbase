@@ -135,7 +135,8 @@ $(document).ready(function () {
             $('#start_button').css('display', 'inline-block');
         }
 
-
+        console.log('time_calibrated');
+        console.log(msg['time_calibrated']);
 
     });
 

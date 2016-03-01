@@ -85,6 +85,8 @@ class RTKLIB:
         self.coordinate_thread = None
         self.conversion_thread = None
 
+        self.time_calibrated = False
+
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
         self.loadState()
@@ -796,6 +798,8 @@ class RTKLIB:
 
         self.conm.updateAvailableConfigs()
         state["available_configs"] = self.conm.available_configs
+
+        state["time_calibrated"] = self.time_calibrated
 
         print("Available configs to send: ")
         print(str(state["available_configs"]))

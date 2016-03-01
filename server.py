@@ -31,7 +31,7 @@ import json
 import os
 import signal
 import sys
-import ReachTools
+from reach_tools import ReachTools
 
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
