@@ -137,6 +137,13 @@ li.nav_log_container{
     margin: 0;
     text-align: right;
 }
+.warning_footer{
+	display: none;
+}
+.warning_footer h1.ui-title{
+	overflow: visible;
+	white-space: normal;
+}
 @media only screen and (max-width:760px){
     .ui-listview > li h2{
         font-size: 0.75em;

@@ -135,10 +135,21 @@ $(document).ready(function () {
             $('#start_button').css('display', 'inline-block');
         }
 
-        console.log('time_calibrated');
-        console.log(msg['time_calibrated']);
+        if(msg['time_calibrated'] == false){
+            $('.warning_footer h1').text("Reach internal clock isn't calibrated. Please connect to an antenna to synchronise time with GPS");
+            $('.warning_footer').slideDown();
+            $('#stop_button').addClass('ui-disabled');
+            $('#start_button').addClass('ui-disabled');
+        }
 
     });
+
+    socket.on("time calibrated", function(msg) {
+        $('.warning_footer h1').text("Reach internal clock is calibrated.");
+        setTimeout(function(){$('.warning_footer').slideUp()}, 5000);
+        $('#stop_button').removeClass('ui-disabled');
+        $('#start_button').removeClass('ui-disabled');
+    })
 
     socket.on("available configs", function(msg) {
         var select_options = $("#config_select");
