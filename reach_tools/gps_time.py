@@ -13,6 +13,25 @@ def enable_nav_timeutc(port):
     msg = binascii.unhexlify("".join(poll_time_utc))
     port.write(msg)
 
+def get_gps_time(serial_device, baud_rate):
+
+    port = serial.Serial(serial_device, baud_rate, timeout = 1.5)
+    enable_nav_timeutc(port)
+
+    try:
+        multiple_bytes = port.read(1024)
+    except OSError:
+        print("Could not open serial device")
+    else:
+        ubx_log = hexify(multiple_bytes)
+        time_data = MSG_NAV_TIMEUTC(ubx_log)
+
+        if time_data.time_valid:
+            return time_data.utc_time
+        else:
+            return None
+
+
 class MSG_NAV_TIMEUTC:
 
     msg_start = [0xb5, 0x62, 0x01, 0x21, 0x14, 0x00]
@@ -94,33 +113,4 @@ class MSG_NAV_TIMEUTC:
             time.append(msg[i])
 
         return time
-
-
-if __name__ == "__main__":
-
-    port = serial.Serial("/dev/ttyMFD1", 230400, timeout = 1.5)
-
-    enable_nav_timeutc(port)
-
-    while True:
-        try:
-            multiple_bytes = port.read(1024)
-        except OSError:
-            print("Could not open serial device")
-        else:
-            ubx_log = hexify(multiple_bytes)
-            time_data = MSG_NAV_TIMEUTC(ubx_log)
-            print(time_data)
-
-
-
-
-
-
-
-
-
-
-
-
 

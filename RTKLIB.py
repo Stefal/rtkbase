@@ -26,6 +26,7 @@ from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
 from LogManager import LogManager
 from ReachLED import ReachLED
+from reach_tools import reach_tools
 
 import json
 import time

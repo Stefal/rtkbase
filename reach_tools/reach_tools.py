@@ -26,6 +26,7 @@ from subprocess import check_output
 
 def isTimeSynchronizedByNtp(self):
     out = check_output("timedatectl")
+
     if "NTP synchronized: yes" in out:
         return True
     else:
