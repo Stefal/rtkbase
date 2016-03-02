@@ -93,6 +93,9 @@ $(document).ready(function () {
         var delete_options_hidden = $('#config_delete_hidden');
         var available_configs_list = $('.available_configs');
         var to_append = "";
+        var to_send = {};
+        var mode = "";
+        var status = "stopped";
 
         for (var i = 0; i < msg.available_configs.length; i++) {
             if(jQuery.inArray( msg.available_configs[i], defaultConfigs ) >= 0)
@@ -110,10 +113,33 @@ $(document).ready(function () {
         select_options.val(msg.rover.current_config);
 
         if (msg.state == "rover") {
-            $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
+            $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').attr( 'checked', true );
+            $('#config_select-button').parent().parent().css('display', 'block');
+            $('#save_as_button').css('display', 'inline-block');
+            $('#save_button').text('Save');
+            $('#hide_buttons_button').css('display', 'inline-block');
+            mode = "rover";
+            to_send["config_file_name"] = $("#config_select").val();
         } else if (msg.state == "base") {
-            $('input:radio[name="radio_base_rover"]').filter('[value="base"]').next().click();
+            $('input:radio[name="radio_base_rover"]').filter('[value="base"]').attr( 'checked', true );
+            $('#config_select-button').parent().parent().css('display', 'none');
+            $('#save_as_button').css('display', 'none');
+            $('#save_button').text('Save & Load');
+            $('#hide_buttons_button').css('display', 'none');
+            mode = "base";
         }
+
+        var msg_status = {
+            "lat" : "0",
+            "lon" : "0",
+            "height": "0",
+            "solution_status": status,
+            "positioning_mode": mode
+        };
+
+        updateCoordinateGrid(msg_status)
+
+        socket.emit("read config " + mode, to_send);
 
         if(jQuery.inArray( msg.rover.current_config, defaultConfigs ) >= 0)
             $('#reset_config_button').removeClass('ui-disabled');
