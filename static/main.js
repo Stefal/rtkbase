@@ -175,7 +175,7 @@ $(document).ready(function () {
         }
 
         if(msg.system_time_correct == false){
-            $('.warning_footer h1').text("Waiting for GPS time...Please connect to an antenna");
+            $('.warning_footer h1').text("Waiting for GPS time...Is antenna connected?");
             $('.warning_footer').slideDown();
             $('#stop_button').addClass('ui-disabled');
             $('#start_button').addClass('ui-disabled');
