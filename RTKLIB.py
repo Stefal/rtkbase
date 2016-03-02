@@ -112,7 +112,7 @@ class RTKLIB:
 
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
-        self.loadState()
+        # self.loadState()
 
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
