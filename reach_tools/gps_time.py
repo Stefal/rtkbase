@@ -30,9 +30,12 @@ def update_system_time(date, time):
     print(time)
     # busybox date cmd can use a following format
     # YYYY.MM.DD-hh:mm:ss
-    datetime_string = ".".join(date) + "-" + ":".join(time)
+    printable_date = ".".join(str(x) for x in date)
+    printable_time = ":".join(str(x) for x in time)
+
+    datetime_string = printable_date + "-" + printable_time
     cmd = ["date", "-s", datetime_string]
-    out = check_output(cmd)
+    out = subprocess.check_output(cmd)
 
 def get_gps_time(port):
 
@@ -43,16 +46,18 @@ def get_gps_time(port):
     else:
         ubx_log = hexify(multiple_bytes)
         time_data = MSG_NAV_TIMEUTC(ubx_log)
+        print(time_data)
 
         if time_data.time_valid:
-            return date, time
+            return time_data.date, time_data.time
 
-    return None
+    return None, None
 
 def set_gps_time(serial_device, baud_rate):
 
     port = serial.Serial(serial_device, baud_rate, timeout = 1.5)
     enable_nav_timeutc(port)
+    print("TIMEUTC enabled")
     time = None
 
     while time is None:
@@ -67,7 +72,8 @@ class MSG_NAV_TIMEUTC:
 
     def __init__(self, ubx_hex_log):
         self.time_valid = False
-        self.utc_time = None
+        self.date = None
+        self.time = None
 
         extracted_messages = self.scan_log(ubx_hex_log)
 
@@ -76,16 +82,16 @@ class MSG_NAV_TIMEUTC:
                 if self.is_valid(msg):
                     if self.time_is_valid(msg):
                         self.time_valid = True
-                        self.utc_time = self.unpack(msg)
+                        self.date, self.time= self.unpack(msg)
 
     def __str__(self):
         to_print = "ubx NAV-TIMEUTC message\n"
 
         if self.time_valid:
             to_print += "Time data is valid\n"
-            to_print += ".".join(str(x) for x in self.utc_time[:3])
+            to_print += ".".join(str(x) for x in self.date)
             to_print += " "
-            to_print += ":".join(str(x) for x in self.utc_time[3:])
+            to_print += ":".join(str(x) for x in self.time)
         else:
             to_print += "Time data is invalid!"
 
