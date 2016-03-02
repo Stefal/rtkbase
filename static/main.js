@@ -86,6 +86,19 @@ $(document).ready(function () {
         console.log("Got message containing Reach state. Currently in " + msg.state + " mode");
         console.log("Current rover config is " + msg.rover.current_config);
 
+
+        console.groupCollapsed('Current state received:');
+            for (var k in msg){
+                if((k == 'started') || (k == 'state') || (k == 'system_time_correct'))
+                    console.log(k + ':' + msg[k]);
+                else{
+                    console.groupCollapsed(k);
+                        for (var m in msg[k])
+                            console.log(m + ':' + msg[k][m]);
+                    console.groupEnd();   
+                }     
+            }
+        console.groupEnd();
         // add current configs to the dropdown menu
 
         var select_options = $("#config_select");
@@ -161,7 +174,7 @@ $(document).ready(function () {
             $('#start_button').css('display', 'inline-block');
         }
 
-        if(msg['time_calibrated'] == false){
+        if(msg['system_time_correct'] == false){
             $('.warning_footer h1').text("Reach internal clock isn't calibrated. Please connect to an antenna to synchronise time with GPS");
             $('.warning_footer').slideDown();
             $('#stop_button').addClass('ui-disabled');
@@ -170,7 +183,7 @@ $(document).ready(function () {
 
     });
 
-    socket.on("time calibrated", function(msg) {
+    socket.on("system_time_corrected", function(msg) {
         $('.warning_footer h1').text("Reach internal clock is calibrated.");
         setTimeout(function(){$('.warning_footer').slideUp()}, 5000);
         $('#stop_button').removeClass('ui-disabled');
