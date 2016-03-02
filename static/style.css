@@ -139,6 +139,10 @@ li.nav_log_container{
 }
 .warning_footer{
 	display: none;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
 }
 .warning_footer h1.ui-title{
 	overflow: visible;
