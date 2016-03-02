@@ -24,41 +24,6 @@
 import os
 from subprocess import check_output
 
-def isTimeSynchronizedByNtp(self):
-    out = check_output("timedatectl")
-
-    if "NTP synchronized: yes" in out:
-        return True
-    else:
-        return False
-
-def gpsTimeUpdateRequired(self, solution_status):
-    # we require time updated by gps if ntp sync is not available and we haven't done it yet
-    if self.system_time_calibrated:
-        return False
-    else:
-        if self.isTimeSynchronizedByNtp():
-            self.system_time_calibrated = True
-            return False
-        else:
-            if solution_status != "-":
-                self.system_time_calibrated = True
-                return True
-            else:
-                return False
-
-def updateSystemTime(self, date, time):
-    # requires a date list and a time list
-    # ["YYYY", "MM", "DD"], ["hh", "mm", "ss"]
-    print("##### UPDATING SYSTEM TIME #####")
-    print(date)
-    print(time)
-    # busybox date cmd can use a following format
-    # YYYY.MM.DD-hh:mm:ss
-    datetime_string = ".".join(date) + "-" + ":".join(time)
-    cmd = ["date", "-s", datetime_string]
-    out = check_output(cmd)
-
 def getImageVersion():
 
     image_version_file = "/home/reach/.reach/image_version"

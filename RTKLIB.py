@@ -26,7 +26,7 @@ from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
 from LogManager import LogManager
 from ReachLED import ReachLED
-from reach_tools import reach_tools
+from reach_tools import reach_tools, gps_time
 
 import json
 import time
@@ -108,11 +108,27 @@ class RTKLIB:
         self.coordinate_thread = None
         self.conversion_thread = None
 
-        self.time_calibrated = False
+        self.system_time_correct = False
+
+        self.time_thread = Thread(target = self.setCorrectTime)
+        self.time_thread.start()
 
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
         # self.loadState()
+
+    def setCorrectTime(self):
+        # determine if we have ntp service ready or we need gps time
+
+        if not gps_time.time_synchronised_by_ntp():
+            # wait for gps time
+            gps_time.set_gps_time("/dev/ttyMFD1", 230400)
+
+        self.system_time_correct = True
+        self.socketio.emit("system time corrected", {}, namespace="/test")
+
+        self.loadState()
+        self.socketio.emit("system state reloaded", {}, namespace="/test")
 
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
@@ -811,7 +827,7 @@ class RTKLIB:
         self.conm.updateAvailableConfigs()
         state["available_configs"] = self.conm.available_configs
 
-        state["time_calibrated"] = self.time_calibrated
+        state["system_time_correct"] = self.system_time_correct
 
         print("Available configs to send: ")
         print(str(state["available_configs"]))

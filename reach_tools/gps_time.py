@@ -3,6 +3,7 @@
 import serial
 import binascii
 import ctypes
+import subprocess
 
 def hexify(char_list):
     """ transform a char list into a list of int values"""
@@ -13,10 +14,27 @@ def enable_nav_timeutc(port):
     msg = binascii.unhexlify("".join(poll_time_utc))
     port.write(msg)
 
-def get_gps_time(serial_device, baud_rate):
+def time_synchronised_by_ntp():
+    out = subprocess.check_output("timedatectl")
 
-    port = serial.Serial(serial_device, baud_rate, timeout = 1.5)
-    enable_nav_timeutc(port)
+    if "NTP synchronized: yes" in out:
+        return True
+    else:
+        return False
+
+def update_system_time(date, time):
+    # requires a date list and a time list
+    # ["YYYY", "MM", "DD"], ["hh", "mm", "ss"]
+    print("##### UPDATING SYSTEM TIME #####")
+    print(date)
+    print(time)
+    # busybox date cmd can use a following format
+    # YYYY.MM.DD-hh:mm:ss
+    datetime_string = ".".join(date) + "-" + ":".join(time)
+    cmd = ["date", "-s", datetime_string]
+    out = check_output(cmd)
+
+def get_gps_time(port):
 
     try:
         multiple_bytes = port.read(1024)
@@ -27,10 +45,20 @@ def get_gps_time(serial_device, baud_rate):
         time_data = MSG_NAV_TIMEUTC(ubx_log)
 
         if time_data.time_valid:
-            return time_data.utc_time
-        else:
-            return None
+            return date, time
 
+    return None
+
+def set_gps_time(serial_device, baud_rate):
+
+    port = serial.Serial(serial_device, baud_rate, timeout = 1.5)
+    enable_nav_timeutc(port)
+    time = None
+
+    while time is None:
+        date, time = get_gps_time(port)
+
+    update_system_time(date, time)
 
 class MSG_NAV_TIMEUTC:
 
@@ -100,17 +128,20 @@ class MSG_NAV_TIMEUTC:
 
     def unpack(self, msg):
         """Extract the actual time from the message"""
-        time = []
+        datetime = []
 
         # unpack year
         byte1 = ctypes.c_uint8(msg[18])
         byte2 = ctypes.c_uint8(msg[19])
 
         year = ctypes.c_uint16(byte2.value << 8 | byte1.value).value
-        time.append(year)
+        datetime.append(year)
         # unpack month, day, hour, minute, second
         for i in range(20, 25):
-            time.append(msg[i])
+            datetime.append(msg[i])
 
-        return time
+        date = datetime[:3]
+        time = datetime[3:]
+
+        return date, time
 
