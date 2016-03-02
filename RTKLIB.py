@@ -45,6 +45,28 @@ class RTKLIB:
 
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
+    # if the state file is not available, these settings are loaded
+    default_state = {
+        "base": {
+            "base_position": [],
+            "gps_cmd_file": "GPS_10Hz.cmd",
+            "input_stream": "serial://ttyMFD1:230400:8:n:1:off#ubx",
+            "output_stream": "tcpsvr://:9000#rtcm3",
+            "rtcm3_messages": [
+                "1002",
+                "1006",
+                "1008",
+                "1010",
+                "1019",
+                "1020"
+            ]
+        },
+        "rover": {
+            "current_config": "reach_single_default.conf"
+        },
+        "started": "no",
+        "state": "rover"
+    }
 
     def __init__(self, socketio, rtklib_path = None, enable_led = True, log_path = None):
 
@@ -90,7 +112,7 @@ class RTKLIB:
 
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
-        # self.loadState()
+        self.loadState()
 
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
@@ -716,7 +738,7 @@ class RTKLIB:
             # can't find the file, let's create a new one with default state
             print("Could not find existing state, Launching default single rover mode...")
 
-            return 1
+            return self.default_state
         else:
 
             print("Found existing state...trying to decode...")
@@ -728,7 +750,7 @@ class RTKLIB:
                 print("Could not decode json state. Launching single rover mode as default...")
                 f.close()
 
-                return 1
+                return self.default_state
             else:
                 print("Decoding succesful")
 
@@ -746,17 +768,6 @@ class RTKLIB:
 
         # get current state
         json_state = self.getState()
-
-        if json_state == 1:
-            # we dont need to load as we were forced to start
-            # as default single rover due to corrupt/missing state file
-
-            self.launchRover()
-
-            # for the first start, just let it be green
-            self.updateLED("green")
-
-            return
 
         print("Now loading the state printed above... ")
 
