@@ -70,7 +70,6 @@ class RTKLIB:
 
     def __init__(self, socketio, rtklib_path = None, enable_led = True, log_path = None):
 
-
         if rtklib_path is None:
             rtklib_path = "/home/reach/RTKLIB"
 
@@ -122,6 +121,7 @@ class RTKLIB:
 
         if not gps_time.time_synchronised_by_ntp():
             # wait for gps time
+            self.updateLED("orange,off")
             gps_time.set_gps_time("/dev/ttyMFD1", 230400)
 
         self.system_time_correct = True

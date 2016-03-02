@@ -174,8 +174,8 @@ $(document).ready(function () {
             $('#start_button').css('display', 'inline-block');
         }
 
-        if(msg['system_time_correct'] == false){
-            $('.warning_footer h1').text("Reach internal clock isn't calibrated. Please connect to an antenna to synchronise time with GPS");
+        if(msg.system_time_correct == false){
+            $('.warning_footer h1').text("Waiting for GPS time...Please connect to an antenna");
             $('.warning_footer').slideDown();
             $('#stop_button').addClass('ui-disabled');
             $('#start_button').addClass('ui-disabled');
@@ -183,8 +183,8 @@ $(document).ready(function () {
 
     });
 
-    socket.on("system_time_corrected", function(msg) {
-        $('.warning_footer h1').text("Reach internal clock is calibrated.");
+    socket.on("system time corrected", function(msg) {
+        $('.warning_footer h1').text("Reach time synced with GPS!");
         setTimeout(function(){$('.warning_footer').slideUp()}, 5000);
         $('#stop_button').removeClass('ui-disabled');
         $('#start_button').removeClass('ui-disabled');
