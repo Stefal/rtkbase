@@ -31,7 +31,7 @@ import json
 import os
 import signal
 import sys
-import ReachTools
+from reach_tools import reach_tools
 
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
@@ -51,7 +51,6 @@ socketio = SocketIO(app)
 
 # configure Ublox for 230400 baudrate!
 changeBaudrateTo230400()
-
 rtk = RTKLIB(socketio)
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
@@ -60,8 +59,7 @@ rtk = RTKLIB(socketio)
 @app.route("/")
 def index():
     rtk.logm.updateAvailableLogs()
-    print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
-    return render_template("index.html", logs = rtk.logm.available_logs, system_status = ReachTools.getSystemStatus())
+    return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
 
 @app.route("/logs/download/<path:log_name>")
 def downloadLog(log_name):

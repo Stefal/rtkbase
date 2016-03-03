@@ -26,6 +26,7 @@ from ConfigManager import ConfigManager
 from Str2StrController import Str2StrController
 from LogManager import LogManager
 from ReachLED import ReachLED
+from reach_tools import reach_tools, gps_time
 
 import json
 import time
@@ -44,9 +45,30 @@ class RTKLIB:
 
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
+    # if the state file is not available, these settings are loaded
+    default_state = {
+        "base": {
+            "base_position": [],
+            "gps_cmd_file": "GPS_10Hz.cmd",
+            "input_stream": "serial://ttyMFD1:230400:8:n:1:off#ubx",
+            "output_stream": "tcpsvr://:9000#rtcm3",
+            "rtcm3_messages": [
+                "1002",
+                "1006",
+                "1008",
+                "1010",
+                "1019",
+                "1020"
+            ]
+        },
+        "rover": {
+            "current_config": "reach_single_default.conf"
+        },
+        "started": "no",
+        "state": "rover"
+    }
 
     def __init__(self, socketio, rtklib_path = None, enable_led = True, log_path = None):
-
 
         if rtklib_path is None:
             rtklib_path = "/home/reach/RTKLIB"
@@ -85,9 +107,31 @@ class RTKLIB:
         self.coordinate_thread = None
         self.conversion_thread = None
 
+        self.system_time_correct = False
+
+        self.time_thread = Thread(target = self.setCorrectTime)
+        self.time_thread.start()
+
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
+        # self.loadState()
+
+    def setCorrectTime(self):
+        # determine if we have ntp service ready or we need gps time
+
+        if not gps_time.time_synchronised_by_ntp():
+            # wait for gps time
+            print("Time is not synced by NTP")
+            self.updateLED("orange,off")
+            gps_time.set_gps_time("/dev/ttyMFD1", 230400)
+
+        print("Time is synced by NTP!")
+
+        self.system_time_correct = True
+        self.socketio.emit("system time corrected", {}, namespace="/test")
+
         self.loadState()
+        self.socketio.emit("system state reloaded", {}, namespace="/test")
 
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
@@ -500,7 +544,6 @@ class RTKLIB:
             self.logm.cleanLogFiles(raw_log_path)
             self.logm.log_being_converted = ""
 
-            self.socketio.emit("Conversion canceled, downloading raw log", {"name": os.path.basename(raw_log_path)}, namespace="/test")
             print("Canceled msg sent")
 
     def processLogPackage(self, raw_log_path):
@@ -627,7 +670,7 @@ class RTKLIB:
         self.socketio.emit("log conversion start", start_package, namespace="/test")
         try:
             log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path, self.logm.getRINEXVersion())
-        except ValueError:
+        except ValueError, IndexError:
             print("Conversion canceled")
             conversion_result_package["conversion_status"] = "Conversion canceled, downloading raw log"
             self.socketio.emit("log conversion results", conversion_result_package, namespace="/test")
@@ -714,7 +757,7 @@ class RTKLIB:
             # can't find the file, let's create a new one with default state
             print("Could not find existing state, Launching default single rover mode...")
 
-            return 1
+            return self.default_state
         else:
 
             print("Found existing state...trying to decode...")
@@ -726,7 +769,7 @@ class RTKLIB:
                 print("Could not decode json state. Launching single rover mode as default...")
                 f.close()
 
-                return 1
+                return self.default_state
             else:
                 print("Decoding succesful")
 
@@ -744,17 +787,6 @@ class RTKLIB:
 
         # get current state
         json_state = self.getState()
-
-        if json_state == 1:
-            # we dont need to load as we were forced to start
-            # as default single rover due to corrupt/missing state file
-
-            self.launchRover()
-
-            # for the first start, just let it be green
-            self.updateLED("green")
-
-            return
 
         print("Now loading the state printed above... ")
 
@@ -797,6 +829,8 @@ class RTKLIB:
 
         self.conm.updateAvailableConfigs()
         state["available_configs"] = self.conm.available_configs
+
+        state["system_time_correct"] = self.system_time_correct
 
         print("Available configs to send: ")
         print(str(state["available_configs"]))

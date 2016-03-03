@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
-import ReachTools
+from reach_tools import reach_tools
 
 import os
 from glob import glob
@@ -129,7 +129,7 @@ class Config:
 
                 # add information about available serial connections to input and output paths
                 if "path" in item["parameter"]:
-                    item["comment"] = self.formSelectCommentFromList(ReachTools.getAvailableSerialPorts())
+                    item["comment"] = self.formSelectCommentFromList(reach_tools.getAvailableSerialPorts())
 
         # we return the item we managed to extract form from string. if it's empty,
         # then we could not parse the string, hence it's empty, commented, or invalid

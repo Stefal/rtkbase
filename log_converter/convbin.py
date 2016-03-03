@@ -63,10 +63,17 @@ class Convbin:
         print("Process spawned!")
         self.child.expect(pexpect.EOF, timeout = None)
 
-        if self.child.signalstatus != None:
-            raise ValueError
+        print("DEBUGGG")
+        print("signal status is "  + str(self.child.signalstatus))
+        print("exit status is " + str(self.child.exitstatus))
+        print("status is " + str(self.child.status))
 
-        print("pexpect.EOF occured")
+        if self.child.exitstatus != 0 and self.child.signalstatus == None:
+            raise ValueError
+            print("Convbin killed by external signal")
+            return None
+
+        print("Conversion process finished correctly")
 
         return self.parseConvbinOutput(self.child.before)
 

@@ -26,7 +26,7 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			var append = '';
 
 			if((method == 'inp') && (i == '1')){
-				append += '<div class="additional' + method + i + ' additional_general"><input type="text" id="device' + method + i + '" data-clear-btn="true" placeholder="Device (required)" class="config_form_field"><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field"></div>';
+				append += '<div class="additional' + method + i + ' additional_general"><input type="text" id="device' + method + i + '" data-clear-btn="true" placeholder="Device (required)" class="config_form_field required_field"><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field required_field"></div>';
 			}
 			else{
 				var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
@@ -51,13 +51,13 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					append += '<option value="' + value + '">' + currentSerialOption + '</option>';
 				})
 
-				append += '</select><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field" value="' + baudrateValue + '"></div>';
+				append += '</select><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field required_field" value="' + baudrateValue + '"></div>';
 			}
 
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append(append).trigger("create");
 			break;
 		case "file":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path (required)" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path (required)" class="config_form_field required_field"></div>').trigger("create");
 			if(method == 'log'){
 				if(i == 1){
 					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
@@ -84,22 +84,22 @@ function checkInputSelects(i, method){ //inp OR out OR log
 
 			break;
 		case "tcpcli":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field"><input type="text" id="port' +method + i + '" data-clear-btn="true" placeholder="Port (required)" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field required_field"><input type="text" id="port' +method + i + '" data-clear-btn="true" placeholder="Port (required)" class="config_form_field required_field"></div>').trigger("create");
 			break;
 		case "tcpsvr":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port (required)" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port (required)" class="config_form_field required_field"></div>').trigger("create");
 			break;
 		case "ntripcli":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username' + method + i + '" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="password" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field required_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="text" id="username' + method + i + '" data-clear-btn="true" placeholder="Username" class="config_form_field"><input type="password" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ntripsvr":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="password" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field required_field"><input type="text" id="port' + method + i + '" data-clear-btn="true" placeholder="Port" class="config_form_field"><input type="text" id="mount' + method + i + '" data-clear-btn="true" placeholder="Mount Point" class="config_form_field"><input type="password" id="password' + method + i + '" data-clear-btn="true" placeholder="Password" class="config_form_field"></div>').trigger("create");
 			break;
 		case "ftp":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field required_field"></div>').trigger("create");
 			break;
 		case "http":
-			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field"></div>').trigger("create");
+			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="address' + method + i + '" data-clear-btn="true" placeholder="Address (required)" class="config_form_field required_field"></div>').trigger("create");
 			break;
 
 	}
@@ -518,7 +518,7 @@ function showBase(msg){
 	var popup = true;
 
 	$('#inpstr-type_entry').parent().css({'position':'relative'});
-	$('#inpstr-type_entry').parent().append('<div class="select_hidder" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;"></div>');
+	$('#inpstr-type_entry').parent().append('<div class="select_hidder"></div>');
 
 	$('.select_hidder, #baudrateinp, #deviceinp').click(function() {
 		if(popup){
@@ -557,7 +557,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
     to_append += '<div class="ui-field-contain fields-field">';
     to_append += '<div class="general-settings"></div>';
     to_append += '<button class="ui-btn" id="adv-set-btn">Advanced settings</button>';
-    to_append += '<div class="advanced-settings" style="display:none">';
+    to_append += '<div class="advanced-settings">';
 
     if (!$.isEmptyObject(msg)) {
         for (var k in msg) {
@@ -772,7 +772,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	var popup = true;
 
 	$('#inpstr1-type_entry').parent().css({'position':'relative'});
-	$('#inpstr1-type_entry').parent().append('<div class="select_hidder" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;"></div>');
+	$('#inpstr1-type_entry').parent().append('<div class="select_hidder"></div>');
 
 	$('#deviceinp1, #baudrateinp1, .select_hidder').click(function() {
 		if(popup){

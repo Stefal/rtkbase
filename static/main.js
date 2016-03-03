@@ -69,7 +69,7 @@ $(document).ready(function () {
         }
     });
 
-    $('.status_page').click(function(){
+    $(document).on("pagebeforeshow", "#status_page", function() {
         setTimeout(function(){chart.resize();}, 500);
     });
 
@@ -86,6 +86,19 @@ $(document).ready(function () {
         console.log("Got message containing Reach state. Currently in " + msg.state + " mode");
         console.log("Current rover config is " + msg.rover.current_config);
 
+
+        console.groupCollapsed('Current state received:');
+            for (var k in msg){
+                if((k == 'started') || (k == 'state') || (k == 'system_time_correct'))
+                    console.log(k + ':' + msg[k]);
+                else{
+                    console.groupCollapsed(k);
+                        for (var m in msg[k])
+                            console.log(m + ':' + msg[k][m]);
+                    console.groupEnd();   
+                }     
+            }
+        console.groupEnd();
         // add current configs to the dropdown menu
 
         var select_options = $("#config_select");
@@ -93,6 +106,9 @@ $(document).ready(function () {
         var delete_options_hidden = $('#config_delete_hidden');
         var available_configs_list = $('.available_configs');
         var to_append = "";
+        var to_send = {};
+        var mode = "";
+        var status = "stopped";
 
         for (var i = 0; i < msg.available_configs.length; i++) {
             if(jQuery.inArray( msg.available_configs[i], defaultConfigs ) >= 0)
@@ -110,10 +126,33 @@ $(document).ready(function () {
         select_options.val(msg.rover.current_config);
 
         if (msg.state == "rover") {
-            $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();
+            $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').attr( 'checked', true );
+            $('#config_select-button').parent().parent().css('display', 'block');
+            $('#save_as_button').css('display', 'inline-block');
+            $('#save_button').text('Save');
+            $('#hide_buttons_button').css('display', 'inline-block');
+            mode = "rover";
+            to_send["config_file_name"] = $("#config_select").val();
         } else if (msg.state == "base") {
-            $('input:radio[name="radio_base_rover"]').filter('[value="base"]').next().click();
+            $('input:radio[name="radio_base_rover"]').filter('[value="base"]').attr( 'checked', true );
+            $('#config_select-button').parent().parent().css('display', 'none');
+            $('#save_as_button').css('display', 'none');
+            $('#save_button').text('Save & Load');
+            $('#hide_buttons_button').css('display', 'none');
+            mode = "base";
         }
+
+        var msg_status = {
+            "lat" : "0",
+            "lon" : "0",
+            "height": "0",
+            "solution_status": status,
+            "positioning_mode": mode
+        };
+
+        updateCoordinateGrid(msg_status)
+
+        socket.emit("read config " + mode, to_send);
 
         if(jQuery.inArray( msg.rover.current_config, defaultConfigs ) >= 0)
             $('#reset_config_button').removeClass('ui-disabled');
@@ -135,9 +174,21 @@ $(document).ready(function () {
             $('#start_button').css('display', 'inline-block');
         }
 
-
+        if(msg.system_time_correct == false){
+            $('.warning_footer h1').text("Waiting for GPS time...Is antenna connected?");
+            $('.warning_footer').slideDown();
+            $('#stop_button').addClass('ui-disabled');
+            $('#start_button').addClass('ui-disabled');
+        }
 
     });
+
+    socket.on("system time corrected", function(msg) {
+        $('.warning_footer h1').text("Reach time synced with GPS!");
+        setTimeout(function(){$('.warning_footer').slideUp()}, 5000);
+        $('#stop_button').removeClass('ui-disabled');
+        $('#start_button').removeClass('ui-disabled');
+    })
 
     socket.on("available configs", function(msg) {
         var select_options = $("#config_select");
