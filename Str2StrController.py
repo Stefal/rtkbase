@@ -25,7 +25,7 @@ import os
 import pexpect
 from glob import glob
 
-import ReachTools
+from reach_tools import reach_tools
 
 # This module automates working with STR2STR software
 
@@ -79,7 +79,7 @@ class Str2StrController:
         parameters_to_send["0"] = {
             "parameter": "outstr-path",
             "value": self.output_stream,
-            "comment": self.formCommentString(ReachTools.getAvailableSerialPorts()),
+            "comment": self.formCommentString(reach_tools.getAvailableSerialPorts()),
             "description": "Output path for corrections"
         }
 
