@@ -121,8 +121,11 @@ class RTKLIB:
 
         if not gps_time.time_synchronised_by_ntp():
             # wait for gps time
+            print("Time is not synced by NTP")
             self.updateLED("orange,off")
             gps_time.set_gps_time("/dev/ttyMFD1", 230400)
+
+        print("Time is synced by NTP!")
 
         self.system_time_correct = True
         self.socketio.emit("system time corrected", {}, namespace="/test")

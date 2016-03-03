@@ -59,11 +59,14 @@ def set_gps_time(serial_device, baud_rate):
     enable_nav_timeutc(port)
     print("TIMEUTC enabled")
     time = None
+    ntp_not_synced = True
 
-    while time is None:
+    while time is None and ntp_not_synced:
         date, time = get_gps_time(port)
+        ntp_not_synced = not time_synchronised_by_ntp()
 
-    update_system_time(date, time)
+    if ntp_not_synced:
+        update_system_time(date, time)
 
 class MSG_NAV_TIMEUTC:
 
