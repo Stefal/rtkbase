@@ -55,7 +55,7 @@ changeBaudrateTo230400()
 rtk = RTKLIB(socketio)
 bluetooth = bluetooth_serial.BluetoothSerial(socketio)
 print("BLUETTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOTH")
-bluetooth.start_scan_process()
+bluetooth.start_scan_thread()
 print("BLUETTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOTH")
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
@@ -76,7 +76,7 @@ def downloadLog(log_name):
 @socketio.on("bluetooth scan", namespace="/test")
 def start_scan_thread():
     print("Scanning for nearby bluetooth devices")
-    bluetooth.start_scan_process()
+    bluetooth.start_scan_thread()
     print("Scan thread started")
 
 #### Handle connect/disconnect events ####

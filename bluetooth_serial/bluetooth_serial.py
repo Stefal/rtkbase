@@ -10,9 +10,10 @@ class BluetoothSerial:
         out = subprocess.check_output("rfkill unblock bluetooth", shell = True)
         self.server_socket = None
         self.socketio = socketio
-        self.scan_process = None
+        self.scan_thread = None
 
-    def scan(self):
+    def scan(self, queue):
+        print("Starting the actual scan")
         devices = bluetooth.discover_devices(lookup_names = True)
         print(devices)
         devices_dict = {}
@@ -27,19 +28,24 @@ class BluetoothSerial:
 
         print("Sending available bluetooth devices: ")
         print(devices_dict)
-        return devices_dict
+        queue.put(devices_dict)
 
     def capture_scan_results(self):
-        scan_process = multiprocessing.Process(target = self.scan)
+        print("Init queue")
+        scan_queue = multiprocessing.Queue()
+        scan_process = multiprocessing.Process(target = self.scan, args = (scan_queue, ))
         scan_process.start()
+        devices_dict = scan_queue.get()
+        print("Got devices dict from queue")
+        print(devices_dict)
         scan_process.join()
-        devices_dict = 
         self.socketio.emit("bluetooth scan results", devices_dict, namespace="/test")
 
-
     def start_scan_thread(self):
+        print("Starting capture scan results thread...")
         self.scan_thread = threading.Thread(target = self.capture_scan_results)
-        self.scan_process.start()
+        self.scan_thread.start()
+        print("Capture scan results thread started")
         
     def initialize_server(self):
         self.server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)

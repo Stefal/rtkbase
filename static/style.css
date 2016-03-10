@@ -148,6 +148,9 @@ li.nav_log_container{
 	overflow: visible;
 	white-space: normal;
 }
+#device_list{
+	clear: both;
+}
 #bluetooth_scan{
 	float: left;
 }

@@ -678,6 +678,8 @@ $(document).on("pagebeforeshow", "#settings", function() {
 
 $(document).on("pageinit", "#settings", function() {
 
+    var to_send = {};
+
     $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
 
     socket.on("current RINEX version", function(msg) {
@@ -735,6 +737,18 @@ $(document).on("pageinit", "#settings", function() {
         $('.bluetooth_container img').css('display', 'inline-block');
     })
 
+    $(document).on("click", ".device_string", function(e) {
+        var split = $(this).text().split('(');
+
+        to_send['name'] = split[0].substr(0, split[0].length - 1);
+        to_send['mac_address'] = split[1].substr(0, split[1].length - 1);
+        
+        socket.emit("bluetooth pair device", config_to_send);
+
+        return false;
+    })
+
+
     socket.on("bluetooth scan results", function(msg) {
 
         $('.bluetooth_container img').css('display', 'none');
@@ -751,7 +765,7 @@ $(document).on("pageinit", "#settings", function() {
                 console.log('mac_address: ' + device['mac_address']);
             console.groupEnd();
 
-                to_append += "<li><a href='#' id='device_" + device_index +"' class='log_string'";
+                to_append += "<li><a href='#' id='device_" + device_index +"' class='device_string'";
                 to_append += "<h2>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
                 to_append += "</a></li>";
 
