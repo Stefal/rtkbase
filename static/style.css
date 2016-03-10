@@ -64,7 +64,7 @@ li.nav_log_container{
 	color:red;
 	display:none;
 }
-.network_container, .rinex_version_container, .update_buttons_container, .image_version_container, .reboot_button_container{
+.network_container, .rinex_version_container, .update_buttons_container, .image_version_container, .reboot_button_container, .bluetooth_container{
 	margin-bottom:1em;
 }
 .rinex_version_container > p{
@@ -147,6 +147,14 @@ li.nav_log_container{
 .warning_footer h1.ui-title{
 	overflow: visible;
 	white-space: normal;
+}
+#bluetooth_scan{
+	float: left;
+}
+.bluetooth_container img{
+	height: 34px;
+	padding: 10px 5px;
+	display: none;
 }
 @media only screen and (max-width:760px){
     .ui-listview > li h2{

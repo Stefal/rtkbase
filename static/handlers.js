@@ -729,6 +729,45 @@ $(document).on("pageinit", "#settings", function() {
         socket.emit("write RINEX version", {"version": $(this).val()});
         return false;
     });
+
+    $(document).on("click", "#bluetooth_scan", function(e) {
+        socket.emit("bluetooth scan");
+        $('.bluetooth_container img').css('display', 'inline-block');
+    })
+
+    socket.on("bluetooth scan results", function(msg) {
+
+        $('.bluetooth_container img').css('display', 'none');
+
+        var to_append = "";
+        var device_index = 0;
+
+        console.groupCollapsed('Bluetooth scan results received:');
+            for (var k in msg){
+                var device = msg[k];
+
+            console.groupCollapsed(device['name']);
+                console.log('name:' + device['name']);
+                console.log('mac_address: ' + device['mac_address']);
+            console.groupEnd();
+
+                to_append += "<li><a href='#' id='device_" + device_index +"' class='log_string'";
+                to_append += "<h2>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
+                to_append += "</a></li>";
+
+                device_index++;
+
+            }
+
+        console.groupEnd();
+
+        var device_list = $("#device_list");
+
+        device_list.html(to_append);
+        device_list.listview("refresh");
+
+        // $('#bluetooth_warning').text(msg);
+    });
 })
 
 

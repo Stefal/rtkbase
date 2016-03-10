@@ -1,16 +1,46 @@
+import time
 import bluetooth
 import subprocess
+import multiprocessing
 import threading
 
 class BluetoothSerial:
 
-    def __init__(self):
+    def __init__(self, socketio):
         out = subprocess.check_output("rfkill unblock bluetooth", shell = True)
         self.server_socket = None
+        self.socketio = socketio
+        self.scan_process = None
 
     def scan(self):
-        return bluetooth.discover_devices(lookup_names = True)
+        devices = bluetooth.discover_devices(lookup_names = True)
+        print(devices)
+        devices_dict = {}
+        i = 0
+        for device in devices:
+            dev_dict = {
+                "mac_address": device[0],
+                "name": device[1]
+            }
+            devices_dict.update({i: dev_dict})
+            i += 1
 
+        print("Sending available bluetooth devices: ")
+        print(devices_dict)
+        return devices_dict
+
+    def capture_scan_results(self):
+        scan_process = multiprocessing.Process(target = self.scan)
+        scan_process.start()
+        scan_process.join()
+        devices_dict = 
+        self.socketio.emit("bluetooth scan results", devices_dict, namespace="/test")
+
+
+    def start_scan_thread(self):
+        self.scan_thread = threading.Thread(target = self.capture_scan_results)
+        self.scan_process.start()
+        
     def initialize_server(self):
         self.server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.server_socket.bind(("",bluetooth.PORT_ANY))
@@ -49,6 +79,9 @@ class BluetoothSerial:
         print("all done")
 
 if __name__ == "__main__":
-    bl = BluetoothSerial()
-    bl.initialize_server()
-    bl.accept_connection()
+    bl = BluetoothSerial(0)
+    bl.start_scan_thread()
+    for i in range(0, 20):
+        print(i)
+        time.sleep(1)
+    print("Started scanning thread")
