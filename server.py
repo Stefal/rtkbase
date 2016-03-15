@@ -54,7 +54,6 @@ socketio = SocketIO(app)
 changeBaudrateTo230400()
 rtk = RTKLIB(socketio)
 
-
 # bluetooth init
 bluetooth = bluetooth.Bluetooth()
 
@@ -71,17 +70,15 @@ def start_bluetooth_scan():
 def send_available_bluetooth_devices():
     print("Sending available bluetooth devices")
     devices = bluetooth.get_discoverable_devices()
-    devices_dict = bluetooth.pack_device_list(devices)
     print(devices)
-    socketio.emit("discoverable bluetooth devices", devices_dict, namespace="/test")
+    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
 @socketio.on("get paired bluetooth devices", namespace="/test")
 def send_paired_bluetooth_devices():
     print("Sending paired bluetooth devices")
     devices = bluetooth.get_paired_devices()
-    devices_dict = bluetooth.pack_device_list(devices)
     print(devices)
-    socketio.emit("paired bluetooth devices", devices_dict, namespace="/test")
+    socketio.emit("paired bluetooth devices", devices, namespace="/test")
 
 @app.route("/")
 def index():

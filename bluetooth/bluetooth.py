@@ -40,6 +40,25 @@ class Bluetooth:
             print(e)
             return None
 
+    def parse_device_info(self, info_string):
+        """Parse a string corresponding to a device."""
+        device = {}
+
+        if "[\x1b[0;" not in info_string:
+            try:
+                device_position = info_string.index("Device")
+            except ValueError:
+                pass
+            else:
+                if device_position > -1:
+                    attribute_list = info_string[device_position:].split(" ", 2)
+                    device = {
+                        "mac_address": attribute_list[1],
+                        "name": attribute_list[2]
+                    }
+
+        return device
+
     def get_available_devices(self):
         """Return a list of tuples of nearby discoverable devices."""
         try:
@@ -48,43 +67,13 @@ class Bluetooth:
             print(e)
             return None
         else:
-            print("Getting available devices...")
-            print(out)
             available_devices = []
-            print("Parsing available devices...")
-            print("FULL TEXT HERE1")
-            print(out)
-            print("FULL TEXT HERE2")
             for line in out:
-                print("Line to parse:")
-                print(line)
-                if "[\x1b[0;" not in line:
-                    try:
-                        device_position = line.index("Device")
-                    except ValueError:
-                        pass
-                    else:
-                        if device_position > -1:
-                            attribute_list = line[device_position:].split(" ", 2)
-                            print("Useful info:")
-                            print(attribute_list)
-                            mac_address = attribute_list[1]
-                            name = attribute_list[2]
-                            available_devices.append((mac_address, name))
+                device = self.parse_device_info(line)
+                if device:
+                    available_devices.append(device)
 
             return available_devices
-
-    def get_discoverable_devices(self):
-        available = self.get_available_devices()
-        paired = self.get_paired_devices()
-
-        discoverable = []
-
-        for dev in available:
-            if dev not in paired:
-                discoverable.append(dev)
-
-        return discoverable
 
     def get_paired_devices(self):
         """Return a list of tuples of paired devices."""
@@ -94,41 +83,20 @@ class Bluetooth:
             print(e)
             return None
         else:
-            available_devices = []
-            print("Parsing paired devices...")
+            paired_devices = []
             for line in out:
-                print("Line to parse:")
-                print(line)
-                if "[\x1b[0;" not in line:
-                    try:
-                        device_position = line.index("Device")
-                    except ValueError:
-                        pass
-                    else:
-                        if device_position > -1:
-                            attribute_list = line[device_position:].split(" ", 2)
-                            print("Useful info:")
-                            print(attribute_list)
-                            mac_address = attribute_list[1]
-                            name = attribute_list[2]
-                            available_devices.append((mac_address, name))
+                device = self.parse_device_info(line)
+                if device:
+                    paired_devices.append(device)
 
-            return available_devices
+            return paired_devices
 
-    def pack_device_list(self, list_of_devices):
-        """Pack a list of devices to a dict."""
-        devices = {}
-        i = 0
-        for mac_address, name in list_of_devices:
-            d = {
-                "name": name,
-                "mac_address": mac_address
-            }
+    def get_discoverable_devices(self):
+        """Filter paired devices out of available."""
+        available = self.get_available_devices()
+        paired = self.get_paired_devices()
 
-            devices.update({i: d})
-            i += 1
-
-        return devices
+        return [d for d in available if d not in paired]
 
     def get_device_info(self, mac_address):
         """Get device info by mac address."""
@@ -143,7 +111,7 @@ class Bluetooth:
     def pair(self, mac_address):
         """Try to pair with a device by mac address."""
         try:
-            out = self.get_output("pair " + mac_address + "\r\n", 4)
+            out = self.get_output("pair " + mac_address, 4)
         except BluetoothError, e:
             print(e)
             return None
@@ -153,7 +121,7 @@ class Bluetooth:
     def remove(self, mac_address):
         """Remove paired device by mac address, return success of the operation."""
         try:
-            out = self.get_output("remove " + mac_address + "\r\n", 3)
+            out = self.get_output("remove " + mac_address, 3)
         except BluetoothError, e:
             print(e)
             return None
@@ -163,7 +131,7 @@ class Bluetooth:
     def connect(self, mac_address):
         """Try to connect to a device by mac address."""
         try:
-            out = self.get_output("connect " + mac_address + "\r\n", 2)
+            out = self.get_output("connect " + mac_address, 2)
         except BluetoothError, e:
             print(e)
             return None
@@ -173,7 +141,7 @@ class Bluetooth:
     def disconnect(self, mac_address):
         """Try to disconnect to a device by mac address."""
         try:
-            out = self.get_output("disconnect " + mac_address + "\r\n", 2)
+            out = self.get_output("disconnect " + mac_address, 2)
         except BluetoothError, e:
             print(e)
             return None
@@ -186,40 +154,7 @@ if __name__ == "__main__":
     print("Init bluetooth...")
     bl = Bluetooth()
     print("Ready!")
-    bl.get_output("scan on")
-    print("Scan turned on")
-
-    searching_for_air = True
-    while searching_for_air:
-        print("Scanning...")
-        devices = bl.get_available_devices()
-        print(devices)
-        for mac, name in devices:
-            if name == "air":
-                searching_for_air = False
-                break
-
-    print("Found air!")
-    bl.remove(mac)
-
-    bl.get_device_info(mac)
-    print("Finally pairing...")
-    bl.pair(mac)
-
-    time.sleep(3)
-    print("Connecting...")
-    bl.connect(mac)
-
-
-
-
-
-
-
-
-
-
-
+    print(bl.get_discoverable_devices())
 
 
 
