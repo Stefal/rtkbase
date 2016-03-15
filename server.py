@@ -80,6 +80,11 @@ def send_paired_bluetooth_devices():
     print(devices)
     socketio.emit("paired bluetooth devices", devices, namespace="/test")
 
+@socketio.on("pair bluetooth device", namespace="/test")
+def pair_bluetooth_device(device):
+    print("Pairing device " + str(device))
+    bluetooth.pair(device["mac_address"])
+
 @app.route("/")
 def index():
     rtk.logm.updateAvailableLogs()
