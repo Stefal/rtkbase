@@ -79,7 +79,7 @@ class Bluetooth:
     def pair(self, mac_address):
         """Try to pair with a device by mac address."""
         try:
-            out = self.get_output("pair " + mac_address + "\r\n", 3)
+            out = self.get_output("pair " + mac_address + "\r\n", 4)
         except BluetoothError, e:
             print(e)
             return None
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     print("Init bluetooth...")
     bl = Bluetooth()
     print("Ready!")
-    pretty_print(bl.get_output("scan on"))
+    bl.get_output("scan on")
     print("Scan turned on")
 
     searching_for_air = True
@@ -141,19 +141,20 @@ if __name__ == "__main__":
         devices = bl.get_available_devices()
         print(devices)
         for mac, name in devices:
-            if name == "Galaxy Note3":
+            if name == "air":
                 searching_for_air = False
                 break
 
     print("Found air!")
+    bl.remove(mac)
 
-    pretty_print(bl.get_device_info(mac))
+    bl.get_device_info(mac)
     print("Finally pairing...")
-    pretty_print(bl.pair(mac))
+    bl.pair(mac)
 
     time.sleep(3)
     print("Connecting...")
-    pretty_print(bl.connect(mac))
+    bl.connect(mac)
 
 
 

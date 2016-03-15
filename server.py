@@ -35,7 +35,6 @@ import sys
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
 from reach_tools import reach_tools
-from bluetooth_serial import bluetooth_serial
 
 from threading import Thread
 from flask import Flask, render_template, session, request, send_file
@@ -53,10 +52,6 @@ socketio = SocketIO(app)
 # configure Ublox for 230400 baudrate!
 changeBaudrateTo230400()
 rtk = RTKLIB(socketio)
-bluetooth = bluetooth_serial.BluetoothSerial(socketio)
-print("BLUETTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOTH")
-bluetooth.scan()
-print("BLUETTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOTH")
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -70,14 +65,6 @@ def index():
 def downloadLog(log_name):
     full_log_path = rtk.logm.log_path + "/" + log_name
     return send_file(full_log_path, as_attachment = True)
-
-#### Bluetooth ####
-
-@socketio.on("bluetooth scan", namespace="/test")
-def start_scan_thread():
-    print("Scanning for nearby bluetooth devices")
-    bluetooth.scan()
-    print("Scan thread started")
 
 #### Handle connect/disconnect events ####
 
