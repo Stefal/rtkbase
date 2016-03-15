@@ -35,6 +35,7 @@ import sys
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
 from reach_tools import reach_tools
+from bluetooth import bluetooth
 
 from threading import Thread
 from flask import Flask, render_template, session, request, send_file
@@ -53,8 +54,25 @@ socketio = SocketIO(app)
 changeBaudrateTo230400()
 rtk = RTKLIB(socketio)
 
+
+# bluetooth init
+bluetooth = bluetooth.Bluetooth()
+
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
+
+@socketio.on("start bluetooth scan", namespace="/test")
+def start_bluetooth_scan():
+    print("Starting bluetooth scan")
+    bluetooth.start_scan()
+    socketio.emit("bluetooth scan started", namespace="/test")
+
+@socketio.on("get available bluetooth devices", namespace="/test")
+def send_available_bluetooth_devices():
+    print("Sending available bluetooth devices")
+    devices = bluetooth.get_available_devices_dict()
+    print(devices)
+    socketio.emit("available bluetooth devices", devices, namespace="/test")
 
 @app.route("/")
 def index():

@@ -733,7 +733,7 @@ $(document).on("pageinit", "#settings", function() {
     });
 
     $(document).on("click", "#bluetooth_scan", function(e) {
-        socket.emit("bluetooth scan");
+        socket.emit("start bluetooth scan");
         $('.bluetooth_container img').css('display', 'inline-block');
     })
 
@@ -748,8 +748,14 @@ $(document).on("pageinit", "#settings", function() {
         return false;
     })
 
+    socket.on("bluetooth scan started", function(msg) {
+        console.log('scan started');
+        var scanInterval = setInterval(function(){socket.emit("get available bluetooth devices");console.log('Send message to get available bluetooth devices');}, 2000);
+        setTimeout(function(){clearInterval(scanInterval);console.log('Stop receiving available bluetooth devices');}, 15000);
+    });
 
-    socket.on("bluetooth scan results", function(msg) {
+
+    socket.on("available bluetooth devices", function(msg) {
 
         $('.bluetooth_container img').css('display', 'none');
 

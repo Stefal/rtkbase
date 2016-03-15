@@ -48,15 +48,34 @@ class Bluetooth:
             print(e)
             return None
         else:
+            print("Getting available devices...")
+            print(out)
             available_devices = []
             for line in out:
-                if line.startswith("Device"):
-                    attribute_list = line.split(" ", 2)
-                    mac_address = attribute_list[1]
-                    name = attribute_list[2]
-                    available_devices.append((mac_address, name))
+                if "[\x1b[0;" not in line:
+                    try:
+                        device_position = line.index("Device")
+                    except ValueError:
+                        pass
+                    else:
+                        if device_position > -1:
+                            attribute_list = line[device_position:].split(" ", 2)
+                            mac_address = attribute_list[1]
+                            name = attribute_list[2]
+                            available_devices.append((mac_address, name))
 
             return available_devices
+
+    def get_available_devices_dict(self):
+        devices_dict = {}
+        devices = self.get_available_devices()
+        i = 0
+        for mac_address, name in devices:
+            device_dict = {i: {"mac_address": mac_address, "name": name}}
+            devices_dict.update(device_dict)
+            i += 1
+
+        return devices_dict
 
     def get_paired_devices(self):
         """Return a list of tuples of paired devices."""
@@ -68,8 +87,9 @@ class Bluetooth:
         else:
             available_devices = []
             for line in out:
-                if line.startswith("Device"):
-                    attribute_list = line.split(" ", 2)
+                line_start = line.index("Device")
+                if line_start > -1:
+                    attribute_list = line[line_start:].split(" ", 2)
                     mac_address = attribute_list[1]
                     name = attribute_list[2]
                     available_devices.append((mac_address, name))
