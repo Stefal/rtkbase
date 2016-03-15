@@ -67,12 +67,21 @@ def start_bluetooth_scan():
     bluetooth.start_scan()
     socketio.emit("bluetooth scan started", namespace="/test")
 
-@socketio.on("get available bluetooth devices", namespace="/test")
+@socketio.on("get discoverable bluetooth devices", namespace="/test")
 def send_available_bluetooth_devices():
     print("Sending available bluetooth devices")
-    devices = bluetooth.get_available_devices_dict()
+    devices = bluetooth.get_discoverable_devices()
+    devices_dict = bluetooth.pack_device_list(devices)
     print(devices)
-    socketio.emit("available bluetooth devices", devices, namespace="/test")
+    socketio.emit("discoverable bluetooth devices", devices_dict, namespace="/test")
+
+@socketio.on("get paired bluetooth devices", namespace="/test")
+def send_paired_bluetooth_devices():
+    print("Sending paired bluetooth devices")
+    devices = bluetooth.get_paired_devices()
+    devices_dict = bluetooth.pack_device_list(devices)
+    print(devices)
+    socketio.emit("paired bluetooth devices", devices_dict, namespace="/test")
 
 @app.route("/")
 def index():

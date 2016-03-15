@@ -51,7 +51,13 @@ class Bluetooth:
             print("Getting available devices...")
             print(out)
             available_devices = []
+            print("Parsing available devices...")
+            print("FULL TEXT HERE1")
+            print(out)
+            print("FULL TEXT HERE2")
             for line in out:
+                print("Line to parse:")
+                print(line)
                 if "[\x1b[0;" not in line:
                     try:
                         device_position = line.index("Device")
@@ -60,22 +66,25 @@ class Bluetooth:
                     else:
                         if device_position > -1:
                             attribute_list = line[device_position:].split(" ", 2)
+                            print("Useful info:")
+                            print(attribute_list)
                             mac_address = attribute_list[1]
                             name = attribute_list[2]
                             available_devices.append((mac_address, name))
 
             return available_devices
 
-    def get_available_devices_dict(self):
-        devices_dict = {}
-        devices = self.get_available_devices()
-        i = 0
-        for mac_address, name in devices:
-            device_dict = {i: {"mac_address": mac_address, "name": name}}
-            devices_dict.update(device_dict)
-            i += 1
+    def get_discoverable_devices(self):
+        available = self.get_available_devices()
+        paired = self.get_paired_devices()
 
-        return devices_dict
+        discoverable = []
+
+        for dev in available:
+            if dev not in paired:
+                discoverable.append(dev)
+
+        return discoverable
 
     def get_paired_devices(self):
         """Return a list of tuples of paired devices."""
@@ -86,15 +95,50 @@ class Bluetooth:
             return None
         else:
             available_devices = []
+            print("Parsing paired devices...")
             for line in out:
-                line_start = line.index("Device")
-                if line_start > -1:
-                    attribute_list = line[line_start:].split(" ", 2)
-                    mac_address = attribute_list[1]
-                    name = attribute_list[2]
-                    available_devices.append((mac_address, name))
+                print("Line to parse:")
+                print(line)
+                if "[\x1b[0;" not in line:
+                    try:
+                        device_position = line.index("Device")
+                    except ValueError:
+                        pass
+                    else:
+                        if device_position > -1:
+                            attribute_list = line[device_position:].split(" ", 2)
+                            print("Useful info:")
+                            print(attribute_list)
+                            mac_address = attribute_list[1]
+                            name = attribute_list[2]
+                            available_devices.append((mac_address, name))
 
             return available_devices
+
+    def pack_device_list(self, list_of_devices):
+        """Pack a list of devices to a dict."""
+        devices = {}
+        i = 0
+        for mac_address, name in list_of_devices:
+            d = {
+                "name": name,
+                "mac_address": mac_address
+            }
+
+            devices.update({i: d})
+            i += 1
+
+        return devices
+
+    def get_device_info(self, mac_address):
+        """Get device info by mac address."""
+        try:
+            out = self.get_output("info " + mac_address)
+        except BluetoothError, e:
+            print(e)
+            return None
+        else:
+            return out
 
     def pair(self, mac_address):
         """Try to pair with a device by mac address."""
@@ -110,16 +154,6 @@ class Bluetooth:
         """Remove paired device by mac address, return success of the operation."""
         try:
             out = self.get_output("remove " + mac_address + "\r\n", 3)
-        except BluetoothError, e:
-            print(e)
-            return None
-        else:
-            return out
-
-    def get_device_info(self, mac_address):
-        """Get device info by mac address."""
-        try:
-            out = self.get_output("info " + mac_address)
         except BluetoothError, e:
             print(e)
             return None

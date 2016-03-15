@@ -674,6 +674,8 @@ $(document).on("pageinit", "#logs_page", function() {
 $(document).on("pagebeforeshow", "#settings", function() {
     console.log('Sending message for current RINEX version');
     socket.emit("read RINEX version");
+    console.log('Sending message for paired bluetooth devices');
+    socket.emit("get paired bluetooth devices");
   });
 
 $(document).on("pageinit", "#settings", function() {
@@ -750,19 +752,17 @@ $(document).on("pageinit", "#settings", function() {
 
     socket.on("bluetooth scan started", function(msg) {
         console.log('scan started');
-        var scanInterval = setInterval(function(){socket.emit("get available bluetooth devices");console.log('Send message to get available bluetooth devices');}, 2000);
-        setTimeout(function(){clearInterval(scanInterval);console.log('Stop receiving available bluetooth devices');}, 15000);
+        var scanInterval = setInterval(function(){socket.emit("get discoverable bluetooth devices");console.log('Send message to get discoverable bluetooth devices');}, 2000);
+        setTimeout(function(){clearInterval(scanInterval);console.log('Stop receiving discoverable bluetooth devices');}, 15000);
     });
 
-
-    socket.on("available bluetooth devices", function(msg) {
-
-        $('.bluetooth_container img').css('display', 'none');
+    socket.on("paired bluetooth devices", function(msg) {
 
         var to_append = "";
         var device_index = 0;
+        to_append += "<li data-role='list-divider' class='data_divider'>Paired devices</li>";
 
-        console.groupCollapsed('Bluetooth scan results received:');
+        console.groupCollapsed('Bluetooth paired devices received:');
             for (var k in msg){
                 var device = msg[k];
 
@@ -781,12 +781,47 @@ $(document).on("pageinit", "#settings", function() {
 
         console.groupEnd();
 
+        var paired_device_list = $("#paired_device_list");
+
+        paired_device_list.html(to_append);
+        paired_device_list.listview("refresh");
+
+    });
+
+
+    socket.on("discoverable bluetooth devices", function(msg) {
+
+        $('.bluetooth_container img').css('display', 'none');
+
+        var to_append = "";
+        var device_index = 0;
+        to_append += "<li data-role='list-divider' class='data_divider'>Discoverable devices</li>";
+
+        console.groupCollapsed('Bluetooth discoverable devices received:');
+            for (var k in msg){
+                var device = msg[k];
+
+            console.groupCollapsed(device['name']);
+                console.log('name:' + device['name']);
+                console.log('mac_address: ' + device['mac_address']);
+                console.log('paired: ' + device['paired']);
+            console.groupEnd();
+
+                to_append += "<li><a href='#' id='device_" + device_index +"' class='device_string'";
+                to_append += "<h2>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
+                to_append += "</a></li>";
+
+                device_index++;
+
+            }
+
+        console.groupEnd();
+
         var device_list = $("#device_list");
 
         device_list.html(to_append);
         device_list.listview("refresh");
 
-        // $('#bluetooth_warning').text(msg);
     });
 })
 
