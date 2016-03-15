@@ -49,6 +49,12 @@ $(document).ready(function () {
     // say hello on connect
     socket.on("connect", function () {
         socket.emit("browser connected", {data: "I'm connected"});
+        $( "#popupDisconnected" ).popup( "close");
+    });
+
+    socket.on('disconnect', function(){
+        console.log('disconnected');
+        $( "#popupDisconnected" ).popup( "open");
     });
 
     // Current active tab
