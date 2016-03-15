@@ -741,11 +741,17 @@ $(document).on("pageinit", "#settings", function() {
 
     $(document).on("click", ".device_string", function(e) {
         var split = $(this).text().split('(');
+        var action = ($(this).parent().parent().attr('id') == 'paired_device_list') ? 'connect' : 'pair' ;
 
         to_send['name'] = split[0].substr(0, split[0].length - 1);
         to_send['mac_address'] = split[1].substr(0, split[1].length - 1);
         
-        socket.emit("bluetooth pair device", config_to_send);
+        console.groupCollapsed('Bluetooth device to ' + action +':');
+            console.log("name:" + to_send['name']);
+            console.log("mac_address:" + to_send['mac_address']);
+        console.groupEnd();
+
+        socket.emit(action + " bluetooth device", to_send);
 
         return false;
     })
