@@ -742,12 +742,9 @@ $(document).on("pageinit", "#settings", function() {
     $(document).on("click", "#paired_device_list .connected", function(e) {
         var to_send = {};
 
-        // var disconnect_connected_device_name = $(this).text().substr(0, $(this).text().length-20);
-        // var disconnect_connected_device_mac = $(this).text().substr(-20);
-        // var name = $('#paired_device_list li a:contains("' + delete_paired_device[1] + '")').text();
-
         to_send['name'] = $(this).text().substr(0, $(this).text().length-20);
-        to_send['mac_address'] = $(this).text().substr($(this).text().length-18, $(this).text().length-6);
+        to_send['mac_address'] = $(this).text().substr($(this).text().length-18);
+        to_send['mac_address'] = to_send['mac_address'].substr(0, to_send['mac_address'].length-1);
 
         console.groupCollapsed('Bluetooth device ' + to_send['name'] + ' to disconnect');
             console.log('name:' + to_send['name']);
@@ -756,7 +753,6 @@ $(document).on("pageinit", "#settings", function() {
 
         socket.emit("disconnect bluetooth device", to_send);
 
-        // console.log('try to disconnect' + disconnect_connected_device);
     })
 
     $(document).on("click", ".delete-paired-device", function(e) {
@@ -773,7 +769,7 @@ $(document).on("pageinit", "#settings", function() {
             console.log('mac_address:' + to_send['mac_address']);
         console.groupEnd();
 
-        socket.emit("delete paired device", to_send);
+        socket.emit("remove paired device", to_send);
     })
 
     $(document).on("click", ".disconnected", function(e) {
@@ -793,11 +789,18 @@ $(document).on("pageinit", "#settings", function() {
         return false;
     })
 
+    socket.on("bluetooth disconnect result", function(msg) {
+        $('#paired_device_list li a.device_string').css('color', '#333');
+        $('#paired_device_list li a.device_string').removeClass('connected');
+        $('#paired_device_list li a.device_string').addClass('disconnected');
+    })
+
     socket.on("bluetooth connect result", function(msg) {
         console.log('bluetooth device result: ' + msg["connected"]);
-    $('#paired_device_list li a').css('color', '#333');
-        $('#paired_device_list li a').removeClass('connected');
-        $('#paired_device_list li a').addClass('disconnected');
+
+        $('#paired_device_list li a.device_string').css('color', '#333');
+        $('#paired_device_list li a.device_string').removeClass('connected');
+        $('#paired_device_list li a.device_string').addClass('disconnected');
 
         if(msg["connected"]){
             $('#paired_device_list li a:contains("' + msg['mac_address'] + '")').css('color', 'green');

@@ -130,7 +130,9 @@ class Bluetooth:
             print(e)
             return None
         else:
-            return out
+            res = self.child.expect(["not available", "Device has been removed", pexpect.EOF])
+            success = True if res == 1 else False
+            return success
 
     def connect(self, mac_address):
         """Try to connect to a device by mac address."""
