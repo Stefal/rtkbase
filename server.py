@@ -83,7 +83,42 @@ def send_paired_bluetooth_devices():
 @socketio.on("pair bluetooth device", namespace="/test")
 def pair_bluetooth_device(device):
     print("Pairing device " + str(device))
-    bluetooth.pair(device["mac_address"])
+    print("Pairing OK == " + str(bluetooth.pair(device["mac_address"])))
+    devices = bluetooth.get_paired_devices()
+    print("Updating paired devices: ")
+    print(devices)
+    socketio.emit("paired bluetooth devices", devices, namespace="/test")
+    devices = bluetooth.get_discoverable_devices()
+    print(devices)
+    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
+
+@socketio.on("delete paired device", namespace="/test")
+def delete_paired_device(device):
+    print("Deleting paired device " + str(device))
+    print("Pairing OK == " + str(bluetooth.remove(device["mac_address"])))
+    devices = bluetooth.get_paired_devices()
+    print("Updateing paired devices: ")
+    print(devices)
+    socketio.emit("paired bluetooth devices", devices, namespace="/test")
+    devices = bluetooth.get_discoverable_devices()
+    print(devices)
+    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
+
+@socketio.on("connect bluetooth device", namespace="/test")
+def connect_bluetooth_device(device):
+    print("Connecting bluetooth device device " + str(device))
+    connected = bluetooth.connect(device["mac_address"])
+    device["connected"] = connected
+    print("Connected successfully == " + str(connected))
+    socketio.emit("bluetooth connect result", device, namespace="/test")
+
+@socketio.on("disconnect bluetooth device", namespace="/test")
+def disconnect_bluetooth_device(device):
+    print("Disconnecting bluetooth device device " + str(device))
+    disconnected = bluetooth.disconnect(device["mac_address"])
+    device["connected"] = disconnected
+    print("Connected successfully == " + str(disconnected))
+    socketio.emit("bluetooth disconnect result", device, namespace="/test")
 
 @app.route("/")
 def index():

@@ -159,6 +159,9 @@ li.nav_log_container{
 	padding: 10px 5px;
 	display: none;
 }
+#paired_device_list li a.ui-btn-icon-right:after, #device_list li a.ui-btn-icon-right:after{
+	content: none;
+}
 @media only screen and (max-width:760px){
     .ui-listview > li h2{
         font-size: 0.75em;

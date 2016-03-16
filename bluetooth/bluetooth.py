@@ -43,8 +43,10 @@ class Bluetooth:
     def parse_device_info(self, info_string):
         """Parse a string corresponding to a device."""
         device = {}
+        block_list = ["[\x1b[0;", "removed"]
+        string_valid = not any(keyword in info_string for keyword in block_list)
 
-        if "[\x1b[0;" not in info_string:
+        if string_valid:
             try:
                 device_position = info_string.index("Device")
             except ValueError:
@@ -116,7 +118,9 @@ class Bluetooth:
             print(e)
             return None
         else:
-            return out
+            res = self.child.expect(["Failed to pair", "Pairing successful", pexpect.EOF])
+            success = True if res == 1 else False
+            return success
 
     def remove(self, mac_address):
         """Remove paired device by mac address, return success of the operation."""
@@ -136,7 +140,9 @@ class Bluetooth:
             print(e)
             return None
         else:
-            return out
+            res = self.child.expect(["Failed to connect", "Connection successful", pexpect.EOF])
+            success = True if res == 1 else False
+            return success
 
     def disconnect(self, mac_address):
         """Try to disconnect to a device by mac address."""
@@ -146,8 +152,9 @@ class Bluetooth:
             print(e)
             return None
         else:
-            return out
-
+            res = self.child.expect(["Failed to disconnect", "Successful disconnected", pexpect.EOF])
+            success = True if res == 1 else False
+            return success
 
 if __name__ == "__main__":
 
