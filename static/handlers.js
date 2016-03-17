@@ -742,8 +742,8 @@ $(document).on("pageinit", "#settings", function() {
     $(document).on("click", "#paired_device_list .connected", function(e) {
         var to_send = {};
 
-        to_send['name'] = $(this).text().substr(0, $(this).text().length-20);
-        to_send['mac_address'] = $(this).text().substr($(this).text().length-18);
+        to_send['name'] = $(this).find('h2').text().substr(0, $(this).find('h2').text().length-20);
+        to_send['mac_address'] = $(this).find('h2').text().substr($(this).find('h2').text().length-18);
         to_send['mac_address'] = to_send['mac_address'].substr(0, to_send['mac_address'].length-1);
 
         console.groupCollapsed('Bluetooth device ' + to_send['name'] + ' to disconnect');
@@ -752,7 +752,7 @@ $(document).on("pageinit", "#settings", function() {
         console.groupEnd();
 
         socket.emit("disconnect bluetooth device", to_send);
-
+         $(this).find('.scan_warning').html('<strong>Disconnect request sent</strong>');
     })
 
     $(document).on("click", ".delete-paired-device", function(e) {
@@ -770,10 +770,11 @@ $(document).on("pageinit", "#settings", function() {
         console.groupEnd();
 
         socket.emit("remove paired device", to_send);
+        $('#paired_device_list li a:contains("' + delete_paired_device[1] + '")').find('.scan_warning').html("<strong>Delete request sent</strong>");
     })
 
     $(document).on("click", ".disconnected", function(e) {
-        var split = $(this).text().split('(');
+        var split = $(this).find('h2').text().split('(');
         var action = ($(this).parent().parent().attr('id') == 'paired_device_list') ? 'connect' : 'pair' ;
 
         to_send['name'] = split[0].substr(0, split[0].length - 1);
@@ -785,6 +786,7 @@ $(document).on("pageinit", "#settings", function() {
         console.groupEnd();
 
         socket.emit(action + " bluetooth device", to_send);
+        $(this).find('.scan_warning').html('<strong>Sent ' + action + 'ing request</strong>');
 
         return false;
     })
@@ -793,6 +795,7 @@ $(document).on("pageinit", "#settings", function() {
         $('#paired_device_list li a.device_string').css('color', '#333');
         $('#paired_device_list li a.device_string').removeClass('connected');
         $('#paired_device_list li a.device_string').addClass('disconnected');
+        $('#paired_device_list li a:contains("' + msg['mac_address'] + '")').find('.scan_warning').html('<strong>Disconnected successfully!</strong>');
     })
 
     socket.on("bluetooth connect result", function(msg) {
@@ -806,9 +809,12 @@ $(document).on("pageinit", "#settings", function() {
             $('#paired_device_list li a:contains("' + msg['mac_address'] + '")').css('color', 'green');
             $('#paired_device_list li a:contains("' + msg['mac_address'] + '")').addClass('connected');
             $('#paired_device_list li a:contains("' + msg['mac_address'] + '")').removeClass('disconnected');
+            $('#paired_device_list li a:contains("' + msg['mac_address'] + '")').find('.scan_warning').html('<strong>Connected successfully!</strong>');
         }
-        else
+        else{
             $('#paired_device_list li a:contains("' + msg['mac_address'] + '")').css('color', 'red');
+            $('#paired_device_list li a:contains("' + msg['mac_address'] + '")').find('.scan_warning').html("<strong>Connection failed</strong>");
+        }
     });
 
     socket.on("bluetooth scan started", function(msg) {
@@ -823,6 +829,9 @@ $(document).on("pageinit", "#settings", function() {
         var device_index = 0;
         to_append += "<li data-role='list-divider' class='data_divider'>Paired devices</li>";
 
+        if(msg == '')
+            to_append += "<li>There are currently no paired devices</li>";       
+
         console.groupCollapsed('Bluetooth paired devices received:');
             for (var k in msg){
                 var device = msg[k];
@@ -832,8 +841,9 @@ $(document).on("pageinit", "#settings", function() {
                 console.log('mac_address: ' + device['mac_address']);
             console.groupEnd();
 
-                to_append += "<li><a href='#' data-icon='false' id='device_" + device_index +"' class='device_string disconnected' ";
-                to_append += "<h2>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
+                to_append += "<li><a href='#' data-icon='false' id='device_" + device_index +"' class='device_string disconnected' >";
+                to_append += "<h2 style='margin:0'>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
+                to_append += "<p class='scan_warning' style='margin:0'></p>";
                 to_append += "</a><a href='#' id='delete_" + device['mac_address'] + "' data-icon='delete' class='delete-paired-device'>Delete</a></li>";
 
                 device_index++;
@@ -866,8 +876,9 @@ $(document).on("pageinit", "#settings", function() {
                 console.log('paired: ' + device['paired']);
             console.groupEnd();
 
-                to_append += "<li><a href='#' id='device_" + device_index +"' class='device_string disconnected'";
-                to_append += "<h2>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
+                to_append += "<li><a href='#' id='device_" + device_index +"' class='device_string disconnected'>";
+                to_append += "<h2 style='margin:0'>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
+                to_append += "<p class='scan_warning' style='margin:0'></p>";
                 to_append += "</a></li>";
 
                 device_index++;
