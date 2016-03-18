@@ -2,6 +2,7 @@ import bluetooth
 import subprocess
 import multiprocessing
 import socket
+import time
 
 class BluetoothConnectionError(Exception):
     pass
@@ -69,14 +70,15 @@ class BluetoothTCPBridge:
         self.bluetooth_serial.kill_connection()
 
     def bridge(self):
-        while bridge_not_interrupted:
+        while self.bridge_not_interrupted:
             print("Initializing bluetooth server...")
             self.bluetooth_serial.initialize_server()
             self.bluetooth_serial.accept_connection()
             self.connect_tcp()
 
             try:
-                while True:
+                while self.bridge_not_interrupted:
+                    print(self.bridge_not_interrupted)
                     data_received = self.socket.recv(1024)
                     print("Received data via tcp: " + str(data_received))
                     self.bluetooth_serial.write(data_received)
@@ -85,24 +87,39 @@ class BluetoothTCPBridge:
                 self.kill_connections()
                 print("Bluetooth connection broken, reinitializing...")
 
+        print("Bridge interrupted, shutting down..")
+        self.kill_connections()
+
     def start(self):
-        self.bridge_not_interrupted = False
+        self.bridge_not_interrupted = True
         self.bridge_process = multiprocessing.Process(target = self.bridge)
         self.bridge_process.start()
 
     def stop(self):
         self.bridge_not_interrupted = False
-        self.bridge_process.join()
-        self.bridge_process = None
+        if self.bridge_process is not None:
+            self.bridge_process.join()
+            self.bridge_process = None
 
+
+class STOPITALREADY(Exception):
+    pass
 
 if __name__ == "__main__":
     bl = BluetoothTCPBridge()
+    bl.start()
+    i = 0
     try:
-        bl.run()
-    except KeyboardInterrupt:
-        bl.kill()
-        print("Deinited")
+        while True:
+            print(i)
+            time.sleep(1)
+            i += 1
+            if i == 10:
+                raise STOPITALREADY
+    except STOPITALREADY:
+        print("Caught STOPITALREADY, killing the bridge")
+        bl.stop()
+        print("Bridge stopped")
 
     print("Program exiting...")
 
