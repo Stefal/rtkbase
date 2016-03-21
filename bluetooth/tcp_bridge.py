@@ -4,10 +4,8 @@ import multiprocessing
 import socket
 import time
 
-class BluetoothConnectionError(Exception):
-    pass
-
-class BluetoothSerial:
+class RFCOMMServer:
+    """A bluetooth SPP RFCOMM server."""
 
     def __init__(self, buffer_size=1024):
         out = subprocess.check_output("rfkill unblock bluetooth", shell = True)
@@ -16,7 +14,9 @@ class BluetoothSerial:
         self.client_socket = None
         self.buffer_size = buffer_size
 
-    def initialize_server(self):
+        self.client_info = None
+
+    def initialize(self):
         self.server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.server_socket.bind(("",bluetooth.PORT_ANY))
         self.server_socket.listen(1)
@@ -36,8 +36,8 @@ class BluetoothSerial:
         print("Waiting for connection on RFCOMM channel " + str(port))
 
     def accept_connection(self):
-        self.client_socket, client_info = self.server_socket.accept()
-        print("Accepted connection from " + str(client_info))
+        self.client_socket, self.client_info = self.server_socket.accept()
+        print("Accepted connection from " + str(self.client_info))
 
     def kill_connection(self):
         self.client_socket.close()
@@ -45,18 +45,21 @@ class BluetoothSerial:
         self.client_socket = None
         self.server_socket = None
 
+        self.client_info = None
+
     def read(self):
         return self.client_socket.recv(self.buffer_size)
 
     def write(self, data):
         return self.client_socket.send(data)
 
-class BluetoothTCPBridge:
+class TCPtoRFCOMMBridge:
+    """A bridge that reads a tcp socket and sends data to a RFCOMMServer."""
 
     def __init__(self, tcp_port=8143):
         self.tcp_port = tcp_port
         self.socket = None
-        self.bluetooth_serial = BluetoothSerial()
+        self.rfcomm_server = RFCOMMServer()
 
         self.bridge_not_interrupted = True
         self.bridge_process = None
@@ -65,23 +68,26 @@ class BluetoothTCPBridge:
         self.socket = socket.create_connection(("localhost", self.tcp_port))
 
     def kill_connections(self):
+        print("Killing all bridge connections...")
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
-        self.bluetooth_serial.kill_connection()
+        self.rfcomm_server.kill_connection()
 
     def run_bridge(self):
         while self.bridge_not_interrupted:
             print("Initializing bluetooth server...")
-            self.bluetooth_serial.initialize_server()
-            self.bluetooth_serial.accept_connection()
+            self.rfcomm_server.initialize()
+            self.rfcomm_server.accept_connection()
+            print("Connected devices is: " + str(self.rfcomm_server.client_info))
             self.connect_tcp()
 
             try:
                 while self.bridge_not_interrupted:
-                    print(self.bridge_not_interrupted)
-                    data_received = self.socket.recv(1024)
-                    print("Received data via tcp: " + str(data_received))
-                    self.bluetooth_serial.write(data_received)
+                    network_data_received = self.socket.recv(1024)
+                    self.rfcomm_server.write(network_data_received)
+                    bluetooth_data_received = self.rfcomm_server.read()
+                    self.socket.send(bluetooth_data_received)
+
             except IOError, e:
                 print(e)
                 self.kill_connections()
@@ -92,6 +98,7 @@ class BluetoothTCPBridge:
         sys.stdout.close()
 
     def start(self):
+        """Run the bridge in a separate process."""
         self.bridge_not_interrupted = True
         self.bridge_process = multiprocessing.Process(target = self.run_bridge)
         self.bridge_process.start()
@@ -108,12 +115,13 @@ class STOPITALREADY(Exception):
     pass
 
 if __name__ == "__main__":
-    bl = BluetoothTCPBridge()
+    bl = TCPtoRFCOMMBridge()
     bl.start()
     i = 0
     try:
         while True:
             print(i)
+            print(bl.rfcomm_server.client_info)
             time.sleep(1)
             i += 1
             if i == 30:

@@ -3,11 +3,13 @@ import pexpect
 import subprocess
 import sys
 
-class BluetoothError(Exception):
+class BluetoothctlError(Exception):
     """This exception is raised, when bluetoothctl fails to start."""
     pass
 
-class Bluetooth:
+
+class Bluetoothctl:
+    """A wrapper for bluetoothctl utility."""
 
     def __init__(self):
         out = subprocess.check_output("rfkill unblock bluetooth", shell = True)
@@ -20,7 +22,7 @@ class Bluetooth:
         start_failed = self.child.expect(["bluetooth", pexpect.EOF])
 
         if start_failed:
-            raise BluetoothError("Bluetoothctl failed after running " + command)
+            raise BluetoothctlError("Bluetoothctl failed after running " + command)
 
         return self.child.before.split("\r\n")
 
@@ -28,7 +30,7 @@ class Bluetooth:
         """Start bluetooth scanning process."""
         try:
             out = self.get_output("scan on")
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
 
@@ -36,7 +38,7 @@ class Bluetooth:
         """Make device discoverable."""
         try:
             out = self.get_output("discoverable on")
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
 
@@ -65,7 +67,7 @@ class Bluetooth:
         """Return a list of tuples of nearby discoverable devices."""
         try:
             out = self.get_output("devices")
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
         else:
@@ -81,7 +83,7 @@ class Bluetooth:
         """Return a list of tuples of paired devices."""
         try:
             out = self.get_output("paired-devices")
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
         else:
@@ -104,7 +106,7 @@ class Bluetooth:
         """Get device info by mac address."""
         try:
             out = self.get_output("info " + mac_address)
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
         else:
@@ -114,7 +116,7 @@ class Bluetooth:
         """Try to pair with a device by mac address."""
         try:
             out = self.get_output("pair " + mac_address, 4)
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
         else:
@@ -126,7 +128,7 @@ class Bluetooth:
         """Remove paired device by mac address, return success of the operation."""
         try:
             out = self.get_output("remove " + mac_address, 3)
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
         else:
@@ -138,7 +140,7 @@ class Bluetooth:
         """Try to connect to a device by mac address."""
         try:
             out = self.get_output("connect " + mac_address, 2)
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
         else:
@@ -150,13 +152,14 @@ class Bluetooth:
         """Try to disconnect to a device by mac address."""
         try:
             out = self.get_output("disconnect " + mac_address, 2)
-        except BluetoothError, e:
+        except BluetoothctlError, e:
             print(e)
             return None
         else:
             res = self.child.expect(["Failed to disconnect", "Successful disconnected", pexpect.EOF])
             success = True if res == 1 else False
             return success
+
 
 if __name__ == "__main__":
 
