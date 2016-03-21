@@ -69,7 +69,7 @@ class BluetoothTCPBridge:
         self.socket.close()
         self.bluetooth_serial.kill_connection()
 
-    def bridge(self):
+    def run_bridge(self):
         while self.bridge_not_interrupted:
             print("Initializing bluetooth server...")
             self.bluetooth_serial.initialize_server()
@@ -89,15 +89,17 @@ class BluetoothTCPBridge:
 
         print("Bridge interrupted, shutting down..")
         self.kill_connections()
+        sys.stdout.close()
 
     def start(self):
         self.bridge_not_interrupted = True
-        self.bridge_process = multiprocessing.Process(target = self.bridge)
+        self.bridge_process = multiprocessing.Process(target = self.run_bridge)
         self.bridge_process.start()
 
     def stop(self):
         self.bridge_not_interrupted = False
         if self.bridge_process is not None:
+            self.bridge_process.terminate()
             self.bridge_process.join()
             self.bridge_process = None
 
@@ -114,7 +116,7 @@ if __name__ == "__main__":
             print(i)
             time.sleep(1)
             i += 1
-            if i == 10:
+            if i == 30:
                 raise STOPITALREADY
     except STOPITALREADY:
         print("Caught STOPITALREADY, killing the bridge")
