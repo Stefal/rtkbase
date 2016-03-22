@@ -51,13 +51,13 @@ app.config["UPLOAD_FOLDER"] = "../logs"
 
 socketio = SocketIO(app)
 
-# configure Ublox for 230400 baudrate!
-changeBaudrateTo230400()
-rtk = RTKLIB(socketio)
-
 # bluetooth init
 bluetoothctl = reach_bluetooth.bluetoothctl.Bluetoothctl()
 bluetooth_bridge = reach_bluetooth.tcp_bridge.TCPtoRFCOMMBridge()
+
+# configure Ublox for 230400 baudrate!
+changeBaudrateTo230400()
+rtk = RTKLIB(socketio)
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser

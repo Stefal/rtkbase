@@ -148,6 +148,30 @@ class Config:
 
         return comment
 
+    def parseBluetoothEntries(self, config_dict):
+        # check if anything is set as a tcpsvr with path :8143
+        # and change it to bluetooth
+        entries_with_bt_port = {k: v for (k, v) in config_dict.iteritems() if v["value"] == ":8143"}
+
+        for entry in entries_with_bt_port.keys():
+            # can be log or out or in
+            io_field = entries_with_bt_port[entry]["parameter"].split("-")[0]
+
+            # find the corresponding io type
+            io_type_entries = {k: v for (k, v) in config_dict.iteritems() if io_field + "-type" in v["parameter"]}
+
+            for key in io_type_entries.keys():
+                config_dict[key]["value"] = "bluetooth"
+
+        return config_dict
+
+    def processConfig(self, config_dict):
+        # sometimes, when reading we need to handle special situations, like bluetooth connection
+
+        config_dict = self.parseBluetoothEntries(config_dict)
+
+        return config_dict
+
     def readFromFile(self, from_file):
 
         # save file name as current
@@ -155,6 +179,7 @@ class Config:
 
         # clear previous data
         self.items = {}
+        items_dict = {}
 
         # current item container
         item = {}
@@ -168,10 +193,11 @@ class Config:
 
                 if item:
                     # save the info as {"0": item0, ...}
-                    self.items[str(i)] = item
+                    items_dict[str(i)] = item
 
                     i += 1
 
+        self.items = self.processConfig(items_dict)
 
     def writeToFile(self, to_file = None):
 
