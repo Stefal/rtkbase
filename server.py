@@ -35,7 +35,8 @@ import sys
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
 from reach_tools import reach_tools
-from bluetooth import bluetooth
+import reach_bluetooth.bluetoothctl
+import reach_bluetooth.tcp_bridge
 
 from threading import Thread
 from flask import Flask, render_template, session, request, send_file
@@ -55,7 +56,8 @@ changeBaudrateTo230400()
 rtk = RTKLIB(socketio)
 
 # bluetooth init
-bluetooth = bluetooth.Bluetooth()
+bluetoothctl = reach_bluetooth.bluetoothctl.Bluetoothctl()
+bluetooth_bridge = reach_bluetooth.tcp_bridge.TCPtoRFCOMMBridge()
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -63,51 +65,51 @@ bluetooth = bluetooth.Bluetooth()
 @socketio.on("start bluetooth scan", namespace="/test")
 def start_bluetooth_scan():
     print("Starting bluetooth scan")
-    bluetooth.start_scan()
+    bluetoothctl.start_scan()
     socketio.emit("bluetooth scan started", namespace="/test")
 
 @socketio.on("get discoverable bluetooth devices", namespace="/test")
 def send_available_bluetooth_devices():
     print("Sending available bluetooth devices")
-    devices = bluetooth.get_discoverable_devices()
+    devices = bluetoothctl.get_discoverable_devices()
     print(devices)
     socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
 @socketio.on("get paired bluetooth devices", namespace="/test")
 def send_paired_bluetooth_devices():
     print("Sending paired bluetooth devices")
-    devices = bluetooth.get_paired_devices()
+    devices = bluetoothctl.get_paired_devices()
     print(devices)
     socketio.emit("paired bluetooth devices", devices, namespace="/test")
 
 @socketio.on("pair bluetooth device", namespace="/test")
 def pair_bluetooth_device(device):
     print("Pairing device " + str(device))
-    print("Pairing OK == " + str(bluetooth.pair(device["mac_address"])))
-    devices = bluetooth.get_paired_devices()
+    print("Pairing OK == " + str(bluetoothctl.pair(device["mac_address"])))
+    devices = bluetoothctl.get_paired_devices()
     print("Updating paired devices: ")
     print(devices)
     socketio.emit("paired bluetooth devices", devices, namespace="/test")
-    devices = bluetooth.get_discoverable_devices()
+    devices = bluetoothctl.get_discoverable_devices()
     print(devices)
     socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
 @socketio.on("remove paired device", namespace="/test")
 def remove_paired_device(device):
     print("Removing paired device " + str(device))
-    print("Removed OK == " + str(bluetooth.remove(device["mac_address"])))
-    devices = bluetooth.get_paired_devices()
+    print("Removed OK == " + str(bluetoothctl.remove(device["mac_address"])))
+    devices = bluetoothctl.get_paired_devices()
     print("Updating paired devices: ")
     print(devices)
     socketio.emit("paired bluetooth devices", devices, namespace="/test")
-    devices = bluetooth.get_discoverable_devices()
+    devices = bluetoothctl.get_discoverable_devices()
     print(devices)
     socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
 @socketio.on("connect bluetooth device", namespace="/test")
 def connect_bluetooth_device(device):
     print("Connecting bluetooth device device " + str(device))
-    connected = bluetooth.connect(device["mac_address"])
+    connected = bluetoothctl.connect(device["mac_address"])
     device["connected"] = connected
     print("Connected successfully == " + str(connected))
     socketio.emit("bluetooth connect result", device, namespace="/test")
@@ -115,7 +117,7 @@ def connect_bluetooth_device(device):
 @socketio.on("disconnect bluetooth device", namespace="/test")
 def disconnect_bluetooth_device(device):
     print("Disconnecting bluetooth device device " + str(device))
-    disconnected = bluetooth.disconnect(device["mac_address"])
+    disconnected = bluetoothctl.disconnect(device["mac_address"])
     device["disconnected"] = disconnected
     print("Disconnected successfully == " + str(disconnected))
     socketio.emit("bluetooth disconnect result", device, namespace="/test")
@@ -151,7 +153,6 @@ def getAvailableLogs():
     rtk.socketio.emit("available logs", rtk.logm.available_logs, namespace="/test")
 
 #### rtkrcv launch/shutdown signal handling ####
-
 @socketio.on("launch rover", namespace="/test")
 def launchRover():
     rtk.launchRover()
