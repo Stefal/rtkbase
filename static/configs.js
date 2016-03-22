@@ -154,6 +154,11 @@ function formString(i, method){
 		case "http":
 			$('#' + method + 'str' + i + '-path_entry').val(begin + $.trim($('.additional' + method + i + ' #address' + method + i).val()) + end);
 			break;
+		case "bluetooth":
+			// $('#' + method + 'str' + i + '-type_entry').val('tcpsvr');
+			begin = (mode == 'rover') ? '' : 'tcpsvr' + '://';
+			$('#' + method + 'str' + i + '-path_entry').val( begin + ':8143' + end);
+			break;
 	}
 }
 
@@ -198,7 +203,6 @@ function defaultStringToInputs(i, method){
 			var splitVal = correctVal.split(':');
 			$('.additional' + method + i + ' #port' + method + i).val(splitVal['1']);
 			break;
-
 		case "ntripcli": //[user[:passwd]@]addr[:port][/mntpnt]
 			var splitVal = correctVal.split('@');
 

@@ -355,6 +355,10 @@ $(document).on("pageinit", "#config_page", function() {
 
         $('input[id*="_entry"], select[id*="_entry"]').each(function(i, obj){
             if(($(this).attr('id') != 'outstr-type_entry') && ($(this).attr('id') != 'inpstr-type_entry')){
+                // if( = 'bluetooth')
+                if($(this).val() == 'bluetooth')
+                    $(this).val('tcpsvr');
+
                 current_parameter = obj.id.substring(0, obj.id.length - 6);
                 current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
                 current_value = obj.value;
