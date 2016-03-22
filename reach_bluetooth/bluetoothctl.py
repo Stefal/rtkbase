@@ -64,7 +64,7 @@ class Bluetoothctl:
         return device
 
     def get_available_devices(self):
-        """Return a list of tuples of nearby discoverable devices."""
+        """Return a list of tuples of paired and discoverable devices."""
         try:
             out = self.get_output("devices")
         except BluetoothctlError, e:
@@ -164,8 +164,14 @@ class Bluetoothctl:
 if __name__ == "__main__":
 
     print("Init bluetooth...")
-    bl = Bluetooth()
+    bl = Bluetoothctl()
     print("Ready!")
+    bl.start_scan()
+    print("Scanning for 10 seconds...")
+    for i in range(0, 10):
+        print(i)
+        time.sleep(1)
+
     print(bl.get_discoverable_devices())
 
 
