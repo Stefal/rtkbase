@@ -107,22 +107,6 @@ def remove_paired_device(device):
     print(devices)
     socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
-@socketio.on("connect bluetooth device", namespace="/test")
-def connect_bluetooth_device(device):
-    print("Connecting bluetooth device device " + str(device))
-    connected = bluetoothctl.connect(device["mac_address"])
-    device["connected"] = connected
-    print("Connected successfully == " + str(connected))
-    socketio.emit("bluetooth connect result", device, namespace="/test")
-
-@socketio.on("disconnect bluetooth device", namespace="/test")
-def disconnect_bluetooth_device(device):
-    print("Disconnecting bluetooth device device " + str(device))
-    disconnected = bluetoothctl.disconnect(device["mac_address"])
-    device["disconnected"] = disconnected
-    print("Disconnected successfully == " + str(disconnected))
-    socketio.emit("bluetooth disconnect result", device, namespace="/test")
-
 @app.route("/")
 def index():
     rtk.logm.updateAvailableLogs()
