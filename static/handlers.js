@@ -3,6 +3,7 @@
 // config page is opened
 
 // this function adds '.conf' to save as form if we want to enter new title
+
 function checkConfTitle() {
     var conf = $('#config_select_hidden').val();
 
@@ -352,12 +353,29 @@ $(document).on("pageinit", "#config_page", function() {
         var current_value = "";
         var current_description = "";
         var current_comment = "";
+        var error;
+        var bluetoothRepeat = false;
+
 
         $('input[id*="_entry"], select[id*="_entry"]').each(function(i, obj){
             if(($(this).attr('id') != 'outstr-type_entry') && ($(this).attr('id') != 'inpstr-type_entry')){
-                // if( = 'bluetooth')
-                if($(this).val() == 'bluetooth')
-                    $(this).val('tcpsvr');
+
+                if($(this).val() == 'bluetooth'){
+                    if(!bluetoothRepeat){
+                        $(this).val('tcpcli');
+                        bluetoothRepeat = true;
+                    }
+                    else
+                        error = 'bluetooth repeated';
+                }
+
+                if($(this).val() == 'tcpcli'){
+                    var str = $(this).attr('id');
+                    var newStr = str.replace(new RegExp("type",'g'), "path");
+                    
+                    if($("#" + newStr).val() == 'localhost:8143')
+                        error = 'bluetooth occupied error';
+                }
 
                 current_parameter = obj.id.substring(0, obj.id.length - 6);
                 current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
@@ -384,7 +402,10 @@ $(document).on("pageinit", "#config_page", function() {
             }
         });
 
-        return (config_to_send);
+        if((error == 'bluetooth occupied error') || (error == 'bluetooth repeated'))
+            return error;
+        else
+            return (config_to_send);
     }
 
     $('#save_as_button').click(function(){
@@ -403,6 +424,10 @@ $(document).on("pageinit", "#config_page", function() {
 
         if(empty)
             $( "#popupEmpty" ).popup( "open");
+        else if(config_to_send == 'bluetooth occupied error')
+            $( "#popupOccupiedBluetooth" ).popup( "open");
+        else if(config_to_send == 'bluetooth repeated')
+            $( "#popupRepeatedBluetooth" ).popup( "open");
         else
             $( "#popupLogin" ).popup( "open");
 
@@ -447,6 +472,7 @@ $(document).on("pageinit", "#config_page", function() {
     $('#save_button').click(function(){
         var mode = $("input[name=radio_base_rover]:checked").val();
         var empty = false;
+        var config_to_send = GetConfigToSend();
 
         $('.required_field').each(function(){
             if($(this).val() == ''){
@@ -458,6 +484,11 @@ $(document).on("pageinit", "#config_page", function() {
         if(empty){
             $( "#popupEmpty" ).popup( "open");
         }
+        else if(config_to_send == 'bluetooth occupied error'){
+            $( "#popupOccupiedBluetooth" ).popup( "open");
+        }
+        else if(config_to_send == 'bluetooth repeated')
+            $( "#popupRepeatedBluetooth" ).popup( "open");
         else{
             if (mode == "base") {
                 $('#config-save-load-submit').click();

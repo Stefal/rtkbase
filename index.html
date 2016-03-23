@@ -234,6 +234,36 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                       </div>
                     </div>
                     <!-- end of popup-->
+                    <!-- Popup for occupied bluetooth port-->
+                    <div data-role="popup" id="popupOccupiedBluetooth">
+                        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                        <div data-role="header">
+                            <h1>Warning</h1>
+                        </div>
+                        <div data-role="main" class="ui-content">
+                            <p>This address and port are reserved for bluetooth connection, please choose something else.</p>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow">OK</a>
+                      </div>
+                      <div data-role="footer">
+                        <h1> </h1>
+                      </div>
+                    </div>
+                    <!-- end of popup-->
+                    <!-- Popup for repeated bluetooth -->
+                    <div data-role="popup" id="popupRepeatedBluetooth">
+                        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                        <div data-role="header">
+                            <h1>Warning</h1>
+                        </div>
+                        <div data-role="main" class="ui-content">
+                            <p>You've already chosen bluetooth as one of I/O options.</p>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow">OK</a>
+                      </div>
+                      <div data-role="footer">
+                        <h1> </h1>
+                      </div>
+                    </div>
+                    <!-- end of popup-->
                 </div>
                 <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
                     <select name="config_select" id="config_select" class='available_configs'>

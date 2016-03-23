@@ -156,8 +156,8 @@ function formString(i, method){
 			break;
 		case "bluetooth":
 			// $('#' + method + 'str' + i + '-type_entry').val('tcpsvr');
-			begin = (mode == 'rover') ? '' : 'tcpsvr' + '://';
-			$('#' + method + 'str' + i + '-path_entry').val( begin + ':8143' + end);
+			begin = (mode == 'rover') ? '' : 'tcpcli' + '://';
+			$('#' + method + 'str' + i + '-path_entry').val( begin + 'localhost:8143' + end);
 			break;
 	}
 }

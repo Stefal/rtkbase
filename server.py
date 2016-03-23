@@ -54,6 +54,7 @@ socketio = SocketIO(app)
 # bluetooth init
 bluetoothctl = reach_bluetooth.bluetoothctl.Bluetoothctl()
 bluetooth_bridge = reach_bluetooth.tcp_bridge.TCPtoRFCOMMBridge()
+bluetooth_bridge.start()
 
 # configure Ublox for 230400 baudrate!
 changeBaudrateTo230400()
