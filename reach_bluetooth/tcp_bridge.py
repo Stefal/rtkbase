@@ -105,7 +105,6 @@ class TCPtoRFCOMMBridge:
             try:
                 while True:
                     network_data_received = self.tcp_server.read()
-                    print("Received via TCP:\n{}".format(network_data_received))
                     if not network_data_received:
                         raise TCPConnectionError("External connection shutdown")
                     self.rfcomm_server.write(network_data_received)
