@@ -4,6 +4,9 @@ import multiprocessing
 import socket
 import time
 
+class TCPConnectionError(Exception):
+    pass
+
 class RFCOMMServer:
     """A bluetooth SPP RFCOMM server."""
 
@@ -13,8 +16,6 @@ class RFCOMMServer:
         self.server_socket = None
         self.client_socket = None
         self.buffer_size = buffer_size
-
-        self.client_info = None
 
     def initialize(self):
         self.server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
@@ -32,20 +33,13 @@ class RFCOMMServer:
             profiles = [bluetooth.SERIAL_PORT_PROFILE],
         )
 
-        print("Initialized bluetooth serial server")
-        print("Waiting for connection on RFCOMM channel " + str(port))
-
     def accept_connection(self):
-        self.client_socket, self.client_info = self.server_socket.accept()
-        print("Accepted connection from " + str(self.client_info))
+        self.client_socket, client_info = self.server_socket.accept()
+        return client_info
 
     def kill_connection(self):
         self.client_socket.close()
         self.server_socket.close()
-        self.client_socket = None
-        self.server_socket = None
-
-        self.client_info = None
 
     def read(self):
         return self.client_socket.recv(self.buffer_size)
@@ -53,49 +47,88 @@ class RFCOMMServer:
     def write(self, data):
         return self.client_socket.send(data)
 
+
+class TCPServer():
+    """A wrapper around TCP server."""
+
+    def __init__(self, tcp_port, buffer_size=1024):
+        self.server_socket = None
+        self.client_socket = None
+        self.address = ("localhost", tcp_port)
+        self.buffer_size = buffer_size
+
+    def initialize(self):
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server_socket.bind(self.address)
+        self.server_socket.listen(5)
+
+    def accept_connection(self):
+        self.client_socket, client_info = self.server_socket.accept()
+        return client_info
+
+    def kill_connection(self):
+        self.client_socket.close()
+        self.server_socket.close()
+
+    def read(self):
+        return self.client_socket.recv(self.buffer_size)
+
+    def write(self, data):
+        return self.client_socket.send(data)
+
+
 class TCPtoRFCOMMBridge:
     """A bridge that reads a tcp socket and sends data to a RFCOMMServer."""
 
     def __init__(self, tcp_port=8143):
-        self.tcp_port = tcp_port
-        self.socket = None
         self.rfcomm_server = RFCOMMServer()
+        self.tcp_server = TCPServer(tcp_port)
 
         self.bridge_not_interrupted = True
         self.bridge_process = None
 
-    def connect_tcp(self):
-        self.socket = socket.create_connection(("localhost", self.tcp_port))
-
     def kill_connections(self):
         print("Killing all bridge connections...")
-        self.socket.shutdown(socket.SHUT_RDWR)
-        self.socket.close()
         self.rfcomm_server.kill_connection()
+        self.tcp_server.kill_connection()
 
     def run_bridge(self):
+        self.rfcomm_server.initialize()
+        self.tcp_server.initialize()
+        print("Waiting for incoming TCP connection...")
+        print("{}:{} connected".format(*self.tcp_server.accept_connection()))
+        print("Waiting for incoming bluetooth connection...")
+        print("{} connected".format(self.rfcomm_server.accept_connection()))
         while self.bridge_not_interrupted:
-            print("Initializing bluetooth server...")
-            self.rfcomm_server.initialize()
-            self.rfcomm_server.accept_connection()
-            print("Connected devices is: " + str(self.rfcomm_server.client_info))
-            self.connect_tcp()
-
+            print("Starting the connection bridge...")
             try:
-                while self.bridge_not_interrupted:
-                    network_data_received = self.socket.recv(1024)
+                while True:
+                    network_data_received = self.tcp_server.read()
+                    print("Received via TCP:\n{}".format(network_data_received))
+                    if not network_data_received:
+                        raise TCPConnectionError("External connection shutdown")
                     self.rfcomm_server.write(network_data_received)
-                    bluetooth_data_received = self.rfcomm_server.read()
-                    self.socket.send(bluetooth_data_received)
-
             except IOError, e:
                 print(e)
+                print("Bluetooth connection killed, reinitializing...")
+                self.rfcomm_server.kill_connection()
+                self.rfcomm_server.initialize()
+                print("Waiting for incoming bluetooth connection...")
+                print("{} connected".format(self.rfcomm_server.accept_connection()))
+            except TCPConnectionError, e:
+                print(e)
+                print("TCP connection killed, reinitializing all...")
                 self.kill_connections()
-                print("Bluetooth connection broken, reinitializing...")
+                self.rfcomm_server.initialize()
+                self.tcp_server.initialize()
+                print("Waiting for incoming TCP connection...")
+                print("{}:{} connected".format(*self.tcp_server.accept_connection()))
+                print("Waiting for incoming bluetooth connection...")
+                print("{} connected".format(self.rfcomm_server.accept_connection()))
 
-        print("Bridge interrupted, shutting down..")
-        self.kill_connections()
-        sys.stdout.close()
+        print("Bridge stopped from outside, killing connections...")
+        self.kill_connection()
 
     def start(self):
         """Run the bridge in a separate process."""
@@ -111,29 +144,16 @@ class TCPtoRFCOMMBridge:
             self.bridge_process = None
 
 
-class STOPITALREADY(Exception):
-    pass
-
 if __name__ == "__main__":
-    bl = TCPtoRFCOMMBridge()
-    bl.start()
-    i = 0
-    try:
-        while True:
-            print(i)
-            print(bl.rfcomm_server.client_info)
-            time.sleep(1)
-            i += 1
-            if i == 30:
-                raise STOPITALREADY
-    except STOPITALREADY:
-        print("Caught STOPITALREADY, killing the bridge")
-        bl.stop()
-        print("Bridge stopped")
+    bridge = TCPtoRFCOMMBridge(8000)
+    bridge.start()
 
-    print("Program exiting...")
+    for i in range(0, 30):
+        print(i)
+        time.sleep(1)
 
-
+    print("Time is up, stopping...")
+    bridge.stop()
 
 
 
