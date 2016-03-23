@@ -151,7 +151,7 @@ class Config:
     def parseBluetoothEntries(self, config_dict):
         # check if anything is set as a tcpsvr with path :8143
         # and change it to bluetooth
-        entries_with_bt_port = {k: v for (k, v) in config_dict.iteritems() if v["value"] == ":8143"}
+        entries_with_bt_port = {k: v for (k, v) in config_dict.iteritems() if v["value"] == "localhost:8143"}
 
         for entry in entries_with_bt_port.keys():
             # can be log or out or in
