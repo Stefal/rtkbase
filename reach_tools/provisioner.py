@@ -42,6 +42,7 @@ def install_opkg_packages():
         subprocess.check_output(["opkg", "install", p])
 
 def restart_bt_daemon():
+    subprocess.check_output(["rfkill", "unblock", "bluetooth"])
     subprocess.check_output(["systemctl", "daemon-reload"])
     subprocess.check_output(["systemctl", "restart", "bluetooth.service"])
     subprocess.check_output(["systemctl", "restart", "bluetooth.service"])
@@ -65,7 +66,6 @@ def enable_bt_compatibility(file_path):
         f.writelines(data_to_write)
 
     restart_bt_daemon()
-
 
 def update_bluetooth_service():
     first = "/lib/systemd/system/bluetooth.service"
