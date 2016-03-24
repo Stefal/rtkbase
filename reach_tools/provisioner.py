@@ -37,7 +37,7 @@ def install_opkg_packages():
 
     packages = ["kernel-module-ftdi-sio"]
 
-    subprocess.check_output("opkg update")
+    subprocess.check_output(["opkg", "update"])
     for p in packages:
         subprocess.check_output(["opkg", "install", p])
 
@@ -68,9 +68,11 @@ def enable_bt_compatibility(file_path):
 
 
 def update_bluetooth_service():
-    enable_bt_compatibility()
+    first = "/lib/systemd/system/bluetooth.service"
+    second = "/etc/systemd/system/bluetooth.target.wants/bluetooth.service"
+    enable_bt_compatibility(first)
+    enable_bt_compatibility(second)
     restart_bt_daemon()
-
 
 def provision_reach():
     install_pip_packages()
