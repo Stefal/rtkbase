@@ -260,6 +260,36 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                       </div>
                     </div>
                     <!-- end of popup-->
+                    <!-- Popup for occupied bluetooth port-->
+                    <div data-role="popup" id="popupOccupiedBluetooth">
+                        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                        <div data-role="header">
+                            <h1>Warning</h1>
+                        </div>
+                        <div data-role="main" class="ui-content">
+                            <p>This address and port are reserved for bluetooth connection, please choose something else.</p>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow">OK</a>
+                      </div>
+                      <div data-role="footer">
+                        <h1> </h1>
+                      </div>
+                    </div>
+                    <!-- end of popup-->
+                    <!-- Popup for repeated bluetooth -->
+                    <div data-role="popup" id="popupRepeatedBluetooth">
+                        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                        <div data-role="header">
+                            <h1>Warning</h1>
+                        </div>
+                        <div data-role="main" class="ui-content">
+                            <p>You've already chosen bluetooth as one of I/O options.</p>
+                            <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow">OK</a>
+                      </div>
+                      <div data-role="footer">
+                        <h1> </h1>
+                      </div>
+                    </div>
+                    <!-- end of popup-->
                 </div>
                 <div class="ui-body ui-field-contain" data-role="controlgroup" data-type="horizontal">
                     <select name="config_select" id="config_select" class='available_configs'>
@@ -360,6 +390,15 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             <a href="http://reach.local:5000" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="wifi_link">Wi-Fi setup</a>
             <a href="" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="turn_off_wifi">Turn off Wi-Fi</a>
             <p id="off_wi-fi_warning"></p>
+        </div>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all bluetooth_container">
+            <p>Bluetooth</p>
+            <!-- <div id="device_list"></div> -->
+             <ul data-role="listview" data-inset="true" id="paired_device_list" data-split-theme="a">
+             </ul>
+             <ul data-role="listview" data-inset="true" id="device_list" data-split-theme="a">
+             </ul>
+            <a href="" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="bluetooth_scan">Scan</a> <img src="static/images/update_loader.gif">
         </div>
         <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all rinex_version_container">
             <p>RINEX version:</p>

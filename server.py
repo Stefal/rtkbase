@@ -31,10 +31,16 @@ import json
 import os
 import signal
 import sys
-from reach_tools import reach_tools
 
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
+from reach_tools import reach_tools, provisioner
+
+print("Installing all required packages")
+provisioner.provision_reach()
+
+import reach_bluetooth.bluetoothctl
+import reach_bluetooth.tcp_bridge
 
 from threading import Thread
 from flask import Flask, render_template, session, request, send_file
@@ -49,12 +55,61 @@ app.config["UPLOAD_FOLDER"] = "../logs"
 
 socketio = SocketIO(app)
 
+# bluetooth init
+bluetoothctl = reach_bluetooth.bluetoothctl.Bluetoothctl()
+bluetooth_bridge = reach_bluetooth.tcp_bridge.TCPtoRFCOMMBridge()
+bluetooth_bridge.start()
+
 # configure Ublox for 230400 baudrate!
 changeBaudrateTo230400()
 rtk = RTKLIB(socketio)
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
+
+@socketio.on("start bluetooth scan", namespace="/test")
+def start_bluetooth_scan():
+    print("Starting bluetooth scan")
+    bluetoothctl.start_scan()
+    socketio.emit("bluetooth scan started", namespace="/test")
+
+@socketio.on("get discoverable bluetooth devices", namespace="/test")
+def send_available_bluetooth_devices():
+    print("Sending available bluetooth devices")
+    devices = bluetoothctl.get_discoverable_devices()
+    print(devices)
+    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
+
+@socketio.on("get paired bluetooth devices", namespace="/test")
+def send_paired_bluetooth_devices():
+    print("Sending paired bluetooth devices")
+    devices = bluetoothctl.get_paired_devices()
+    print(devices)
+    socketio.emit("paired bluetooth devices", devices, namespace="/test")
+
+@socketio.on("pair bluetooth device", namespace="/test")
+def pair_bluetooth_device(device):
+    print("Pairing device " + str(device))
+    print("Pairing OK == " + str(bluetoothctl.pair(device["mac_address"])))
+    devices = bluetoothctl.get_paired_devices()
+    print("Updating paired devices: ")
+    print(devices)
+    socketio.emit("paired bluetooth devices", devices, namespace="/test")
+    devices = bluetoothctl.get_discoverable_devices()
+    print(devices)
+    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
+
+@socketio.on("remove paired device", namespace="/test")
+def remove_paired_device(device):
+    print("Removing paired device " + str(device))
+    print("Removed OK == " + str(bluetoothctl.remove(device["mac_address"])))
+    devices = bluetoothctl.get_paired_devices()
+    print("Updating paired devices: ")
+    print(devices)
+    socketio.emit("paired bluetooth devices", devices, namespace="/test")
+    devices = bluetoothctl.get_discoverable_devices()
+    print(devices)
+    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
 @app.route("/")
 def index():
@@ -65,6 +120,8 @@ def index():
 def downloadLog(log_name):
     full_log_path = rtk.logm.log_path + "/" + log_name
     return send_file(full_log_path, as_attachment = True)
+
+#### Handle connect/disconnect events ####
 
 @socketio.on("connect", namespace="/test")
 def testConnect():
@@ -85,7 +142,6 @@ def getAvailableLogs():
     rtk.socketio.emit("available logs", rtk.logm.available_logs, namespace="/test")
 
 #### rtkrcv launch/shutdown signal handling ####
-
 @socketio.on("launch rover", namespace="/test")
 def launchRover():
     rtk.launchRover()

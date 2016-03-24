@@ -3,6 +3,7 @@
 // config page is opened
 
 // this function adds '.conf' to save as form if we want to enter new title
+
 function checkConfTitle() {
     var conf = $('#config_select_hidden').val();
 
@@ -352,9 +353,29 @@ $(document).on("pageinit", "#config_page", function() {
         var current_value = "";
         var current_description = "";
         var current_comment = "";
+        var error = '';
+        var bluetoothRepeat = false;
+
 
         $('input[id*="_entry"], select[id*="_entry"]').each(function(i, obj){
             if(($(this).attr('id') != 'outstr-type_entry') && ($(this).attr('id') != 'inpstr-type_entry')){
+
+                if($(this).val() == 'bluetooth'){
+                    if(!bluetoothRepeat){
+                        // $(this).val('tcpcli');
+                        bluetoothRepeat = true;
+                    }
+                    else
+                        error = 'bluetooth repeated';
+                }
+                else if($(this).val() == 'tcpcli'){
+                    var str = $(this).attr('id');
+                    var newStr = str.replace(new RegExp("type",'g'), "path");
+                    
+                    if($("#" + newStr).val() == 'localhost:8143')
+                        error = 'bluetooth occupied error';
+                }
+
                 current_parameter = obj.id.substring(0, obj.id.length - 6);
                 current_id = parseInt($('input[id="' + current_parameter + '_order"]').val());
                 current_value = obj.value;
@@ -371,6 +392,9 @@ $(document).on("pageinit", "#config_page", function() {
                 payload['parameter'] = current_parameter;
                 payload['value'] = current_value;
 
+                if(payload['value'] == 'bluetooth')
+                    payload['value'] = 'tcpcli';
+
                 if(current_description != '')
                     payload['description'] = current_description;
                 if(current_comment != '')
@@ -380,7 +404,10 @@ $(document).on("pageinit", "#config_page", function() {
             }
         });
 
-        return (config_to_send);
+        if((error == 'bluetooth occupied error') || (error == 'bluetooth repeated'))
+            return error;
+        else
+            return (config_to_send);
     }
 
     $('#save_as_button').click(function(){
@@ -399,6 +426,10 @@ $(document).on("pageinit", "#config_page", function() {
 
         if(empty)
             $( "#popupEmpty" ).popup( "open");
+        else if(config_to_send == 'bluetooth occupied error')
+            $( "#popupOccupiedBluetooth" ).popup( "open");
+        else if(config_to_send == 'bluetooth repeated')
+            $( "#popupRepeatedBluetooth" ).popup( "open");
         else
             $( "#popupLogin" ).popup( "open");
 
@@ -443,6 +474,7 @@ $(document).on("pageinit", "#config_page", function() {
     $('#save_button').click(function(){
         var mode = $("input[name=radio_base_rover]:checked").val();
         var empty = false;
+        var config_to_send = GetConfigToSend();
 
         $('.required_field').each(function(){
             if($(this).val() == ''){
@@ -454,6 +486,10 @@ $(document).on("pageinit", "#config_page", function() {
         if(empty){
             $( "#popupEmpty" ).popup( "open");
         }
+        else if(config_to_send == 'bluetooth occupied error')
+            $( "#popupOccupiedBluetooth" ).popup( "open");
+        else if(config_to_send == 'bluetooth repeated')
+            $( "#popupRepeatedBluetooth" ).popup( "open");
         else{
             if (mode == "base") {
                 $('#config-save-load-submit').click();
@@ -467,6 +503,8 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_name = $("#config_select").val();
         var config_to_send = GetConfigToSend();
+
+        // console.log(config_to_send);
 
         console.groupCollapsed('Sending config ' + config_name + ' to save:');
             jQuery.each(config_to_send, function(i, val) {
@@ -674,9 +712,13 @@ $(document).on("pageinit", "#logs_page", function() {
 $(document).on("pagebeforeshow", "#settings", function() {
     console.log('Sending message for current RINEX version');
     socket.emit("read RINEX version");
+    console.log('Sending message for paired bluetooth devices');
+    socket.emit("get paired bluetooth devices");
   });
 
 $(document).on("pageinit", "#settings", function() {
+
+    var to_send = {};
 
     $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
 
@@ -728,6 +770,123 @@ $(document).on("pageinit", "#settings", function() {
         console.log("Sending message with rinex version:" + $(this).val());
         socket.emit("write RINEX version", {"version": $(this).val()});
         return false;
+    });
+
+    $(document).on("click", "#bluetooth_scan", function(e) {
+        socket.emit("start bluetooth scan");
+        $('.bluetooth_container img').css('display', 'inline-block');
+    })
+
+    $(document).on("click", ".delete-paired-device", function(e) {
+        var to_send = {};
+
+        var delete_paired_device = $(this).attr('id').split('_');
+        var name = $('#paired_device_list li a:contains("' + delete_paired_device[1] + '")').text();
+
+        to_send['name'] = name.substr(0, name.length-20);
+        to_send['mac_address'] = delete_paired_device[1];
+
+        console.groupCollapsed('Bluetooth device ' + to_send['name'] + ' to delete');
+            console.log('name:' + to_send['name']);
+            console.log('mac_address:' + to_send['mac_address']);
+        console.groupEnd();
+
+        socket.emit("remove paired device", to_send);
+        $('#paired_device_list li a:contains("' + delete_paired_device[1] + '")').find('.scan_warning').html("<strong>Delete request sent</strong>");
+    })
+
+    $(document).on("click", ".disconnected", function(e) {
+        var split = $(this).find('h2').text().split('(');
+
+        to_send['name'] = split[0].substr(0, split[0].length - 1);
+        to_send['mac_address'] = split[1].substr(0, split[1].length - 1);
+
+        console.groupCollapsed('Bluetooth device to pair:');
+            console.log("name:" + to_send['name']);
+            console.log("mac_address:" + to_send['mac_address']);
+        console.groupEnd();
+
+        socket.emit("pair bluetooth device", to_send);
+        $(this).find('.scan_warning').html('<strong>Sent pairing request</strong>');
+
+        return false;
+    })
+
+    socket.on("bluetooth scan started", function(msg) {
+        console.log('scan started');
+        var scanInterval = setInterval(function(){socket.emit("get discoverable bluetooth devices");console.log('Send message to get discoverable bluetooth devices');}, 2000);
+        setTimeout(function(){clearInterval(scanInterval);console.log('Stop receiving discoverable bluetooth devices');$('.bluetooth_container img').css('display', 'none');}, 15000);
+    });
+
+    socket.on("paired bluetooth devices", function(msg) {
+
+        var to_append = "";
+        var device_index = 0;
+        to_append += "<li data-role='list-divider' class='data_divider'>Paired devices</li>";
+
+        if(msg == '')
+            to_append += "<li>There are currently no paired devices</li>";
+
+        console.groupCollapsed('Bluetooth paired devices received:');
+            for (var k in msg){
+                var device = msg[k];
+
+            console.groupCollapsed(device['name']);
+                console.log('name:' + device['name']);
+                console.log('mac_address: ' + device['mac_address']);
+            console.groupEnd();
+
+                to_append += "<li><a href='#' data-icon='false' id='device_" + device_index +"' class='device_string disconnected' >";
+                to_append += "<h2 style='margin:0'>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
+                to_append += "<p class='scan_warning' style='margin:0'></p>";
+                to_append += "</a><a href='#' id='delete_" + device['mac_address'] + "' data-icon='delete' class='delete-paired-device'>Delete</a></li>";
+
+                device_index++;
+
+            }
+
+        console.groupEnd();
+
+        var paired_device_list = $("#paired_device_list");
+
+        paired_device_list.html(to_append);
+        paired_device_list.listview("refresh");
+
+    });
+
+
+    socket.on("discoverable bluetooth devices", function(msg) {
+
+        var to_append = "";
+        var device_index = 0;
+        to_append += "<li data-role='list-divider' class='data_divider'>Discoverable devices</li>";
+
+        console.groupCollapsed('Bluetooth discoverable devices received:');
+            for (var k in msg){
+                var device = msg[k];
+
+            console.groupCollapsed(device['name']);
+                console.log('name:' + device['name']);
+                console.log('mac_address: ' + device['mac_address']);
+                console.log('paired: ' + device['paired']);
+            console.groupEnd();
+
+                to_append += "<li><a href='#' id='device_" + device_index +"' class='device_string disconnected'>";
+                to_append += "<h2 style='margin:0'>" + device['name'] + " (" + device['mac_address'] +  ")</h2>";
+                to_append += "<p class='scan_warning' style='margin:0'></p>";
+                to_append += "</a></li>";
+
+                device_index++;
+
+            }
+
+        console.groupEnd();
+
+        var device_list = $("#device_list");
+
+        device_list.html(to_append);
+        device_list.listview("refresh");
+
     });
 })
 
