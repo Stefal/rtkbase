@@ -23,9 +23,9 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
-def enableBluetoothCompatibilityMode():
+def enableBluetoothCompatibilityMode(file_path):
 
-    with open("/etc/systemd/system/bluetooth.target.wants/bluetooth.service", "r") as f:
+    with open(file_path, "r") as f:
         data_read = f.readlines()
 
     data_to_write = []
@@ -37,9 +37,13 @@ def enableBluetoothCompatibilityMode():
 
         data_to_write.append(to_append)
 
-    with open("/etc/systemd/system/bluetooth.target.wants/bluetooth.service", "w") as f:
+    with open(file_path, "w") as f:
         f.writelines(data_to_write)
 
-
 if __name__ == "__main__":
-    enableBluetoothCompatibilityMode()
+    first = "/lib/systemd/system/bluetooth.service"
+    second = "/etc/systemd/system/bluetooth.target.wants/bluetooth.service"
+    enableBluetoothCompatibilityMode(first)
+    enableBluetoothCompatibilityMode(second)
+
+
