@@ -806,7 +806,7 @@ $(document).on("pageinit", "#settings", function() {
             console.log("mac_address:" + to_send['mac_address']);
         console.groupEnd();
 
-        socket.emit(action + " bluetooth device", to_send);
+        socket.emit("pair bluetooth device", to_send);
         $(this).find('.scan_warning').html('<strong>Sent pairing request</strong>');
 
         return false;
@@ -825,7 +825,7 @@ $(document).on("pageinit", "#settings", function() {
         to_append += "<li data-role='list-divider' class='data_divider'>Paired devices</li>";
 
         if(msg == '')
-            to_append += "<li>There are currently no paired devices</li>";       
+            to_append += "<li>There are currently no paired devices</li>";
 
         console.groupCollapsed('Bluetooth paired devices received:');
             for (var k in msg){
