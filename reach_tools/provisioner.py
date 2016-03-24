@@ -37,9 +37,14 @@ def install_opkg_packages():
 
     packages = ["kernel-module-ftdi-sio"]
 
-    subprocess.check_output(["opkg", "update"])
-    for p in packages:
-        subprocess.check_output(["opkg", "install", p])
+    try:
+        subprocess.check_output(["opkg", "update"])
+    except subprocess.CalledProcessError:
+        print("No internet connection, so no package installs!")
+        pass
+    else:
+        for p in packages:
+            subprocess.check_output(["opkg", "install", p])
 
 def restart_bt_daemon():
     subprocess.check_output(["rfkill", "unblock", "bluetooth"])
