@@ -11,3 +11,4 @@ echo "Reconfigure bluetoothd"
 echo "Restart bluetoothd"
 systemctl daemon-reload
 systemctl restart bluetooth.service
+hciconfig hci0 reset
