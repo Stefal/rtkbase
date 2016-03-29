@@ -649,7 +649,8 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 	for (key in prefixArr) {
 		for(var b = prefixArr[key]; b >=1; b--){
-			if((key != 'inp' || b != 1) && (b != 3) && (key != 'out' || b != 2)){
+			// if((key != 'inp' || b != 1) && (b != 3) && (key != 'out' || b != 2)){
+			if((key != 'inp' || b != 1) && (b != 3)){
 				$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-format_entry').parent().parent().parent());
 			    $(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-path_entry').parent().parent());
     			$(".ui-field-contain.fields-field .general-settings").prepend($('#' + key + 'str' + b + '-type_entry').parent().parent().parent());
