@@ -187,8 +187,6 @@ function defaultStringToInputs(i, method){
 
 			if($('.additional' + method + i + ' #device' + method + i).val() == 'ttyUSB0'){
 				$('.additional' + method + i + ' #baudrate' + method + i).val('115200');
-				$('.additional' + method + i + ' #baudrate' + method + i).attr('type', 'hidden');
-				$('.additional' + method + i + ' #baudrate' + method + i).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 			}
 			break;
 		case "file":
@@ -482,18 +480,12 @@ function showBase(msg){
 
 		if($(this).val() == 'ttyMFD2'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		}
 		else if($(this).val() == 'ttyUSB0'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'hidden');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		}
 		else{
 			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		}
 
 		formString('', 'out');
@@ -716,18 +708,12 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 		if($(this).val() == 'ttyMFD2'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		}
 		else if($(this).val() == 'ttyUSB0'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'hidden');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		}
 		else{
 			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		}
 
 		formString(numb, method);
