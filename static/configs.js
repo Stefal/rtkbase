@@ -669,6 +669,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos3_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").append($('#file-staposfile_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#file-cmdfile1_entry').parent().parent().parent());
+	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-dynamics_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
