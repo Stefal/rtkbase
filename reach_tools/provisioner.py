@@ -69,31 +69,46 @@ def install_opkg_packages(packages):
             for p in packages:
                 subprocess.check_output(["opkg", "install", p])
 
+def run_command_safely(cmd):
+    try:
+        subprocess.check_output(cmd)
+    except subprocess.CalledProcessError:
+        pass
+
 def restart_bt_daemon():
-    subprocess.check_output(["rfkill", "unblock", "bluetooth"])
-    subprocess.check_output(["systemctl", "daemon-reload"])
-    subprocess.check_output(["systemctl", "restart", "bluetooth.service"])
-    subprocess.check_output(["systemctl", "restart", "bluetooth.service"])
-    subprocess.check_output(["hciconfig", "hci0", "reset"])
+    run_command_safely(["rfkill", "unblock", "bluetooth"])
+    run_command_safely(["systemctl", "daemon-reload"])
+    run_command_safely(["systemctl", "restart", "bluetooth.service"])
+    run_command_safely(["systemctl", "restart", "bluetooth.service"])
+    run_command_safely(["hciconfig", "hci0", "reset"])
 
 def enable_bt_compatibility(file_path):
 
     with open(file_path, "r") as f:
         data_read = f.readlines()
 
-    data_to_write = []
+    need_to_update = True
+    required_line = 0
+
     for line in data_read:
-        if "ExecStart=/usr/lib/bluez5/bluetooth/bluetoothd" in line:
-            to_append = "ExecStart=/usr/lib/bluez5/bluetooth/bluetoothd -C\n"
-        else:
-            to_append = line
+        if "ExecStart=/usr/lib/bluez5/bluetooth/bluetoothd -C" in line:
+            need_to_update = False
 
-        data_to_write.append(to_append)
+    if need_to_update:
+        data_to_write = []
+        
+        for line in data_read:
+            if "ExecStart=/usr/lib/bluez5/bluetooth/bluetoothd" in line:
+                to_append = "ExecStart=/usr/lib/bluez5/bluetooth/bluetoothd -C\n"
+            else:
+                to_append = line
 
-    with open(file_path, "w") as f:
-        f.writelines(data_to_write)
+            data_to_write.append(to_append)
 
-    restart_bt_daemon()
+        with open(file_path, "w") as f:
+            f.writelines(data_to_write)
+
+        restart_bt_daemon()
 
 def update_bluetooth_service():
     first = "/lib/systemd/system/bluetooth.service"
