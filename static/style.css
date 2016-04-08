@@ -161,6 +161,7 @@ li.nav_log_container{
 }
 #paired_device_list li a.ui-btn-icon-right:after, #device_list li a.ui-btn-icon-right:after{
 	content: none;
+}
 .ui-listview > li p{
 	overflow: visible;
 	white-space: normal;
