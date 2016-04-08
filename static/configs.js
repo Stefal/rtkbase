@@ -185,9 +185,6 @@ function defaultStringToInputs(i, method){
 			$('.additional' + method + i + ' #device' + method + i).parent().find('span.config_form_field').text(currentSerialOption);
 			$('.additional' + method + i + ' #baudrate' + method + i).val(splitVal['1']);
 
-			if($('.additional' + method + i + ' #device' + method + i).val() == 'ttyUSB0'){
-				$('.additional' + method + i + ' #baudrate' + method + i).val('115200');
-			}
 			break;
 		case "file":
 			$('.additional' + method + i + ' #path' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
