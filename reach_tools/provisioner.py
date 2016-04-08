@@ -46,7 +46,6 @@ def check_opkg_packages(packages):
     else:
         for p in out.split("\n"):
             if p:
-                print(p)
                 installed_package_name = p.split()[0]
                 if installed_package_name in packages_to_check:
                     packages_to_check.remove(installed_package_name)
