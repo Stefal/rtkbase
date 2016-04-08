@@ -25,6 +25,7 @@
 
 import pip
 import subprocess
+import os
 
 def install_pip_packages():
 
@@ -33,18 +34,40 @@ def install_pip_packages():
     for p in packages:
         pip.main(["install", p])
 
-def install_opkg_packages():
+def check_opkg_packages(packages):
 
-    packages = ["kernel-module-ftdi-sio"]
-
+    packages_to_check = packages
+    
     try:
-        subprocess.check_output(["opkg", "update"])
+        out = subprocess.check_output(["opkg", "list-installed"])
     except subprocess.CalledProcessError:
-        print("No internet connection, so no package installs!")
-        pass
+        print("Error getting installed opkg packages")
+        return None
     else:
-        for p in packages:
-            subprocess.check_output(["opkg", "install", p])
+        for p in out.split("\n"):
+            if p:
+                print(p)
+                installed_package_name = p.split()[0]
+                if installed_package_name in packages_to_check:
+                    packages_to_check.remove(installed_package_name)
+
+        return packages_to_check
+
+def install_opkg_packages(packages):
+
+    packages = check_opkg_packages(packages)
+
+    if packages:
+        print("Installing missing packages:")
+        print(packages)
+        try:
+            subprocess.check_output(["opkg", "update"])
+        except subprocess.CalledProcessError:
+            print("No internet connection, so no package installs!")
+            pass
+        else:
+            for p in packages:
+                subprocess.check_output(["opkg", "install", p])
 
 def restart_bt_daemon():
     subprocess.check_output(["rfkill", "unblock", "bluetooth"])
@@ -81,6 +104,10 @@ def update_bluetooth_service():
 
 def provision_reach():
     install_pip_packages()
-    install_opkg_packages()
+    packages = ["kernel-module-ftdi-sio"]
+    install_opkg_packages(packages)
     update_bluetooth_service()
+
+if __name__ == "__main__":
+    provision_reach()
 
