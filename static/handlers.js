@@ -580,6 +580,7 @@ $(document).on("pageinit", "#config_page", function() {
 
 $(document).on("click", ".logs_page", function() {
     socket.emit("get logs list");
+    socket.emit("get available space");
 });
 
 $(document).on("pageinit", "#logs_page", function() {
