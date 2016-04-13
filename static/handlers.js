@@ -656,9 +656,16 @@ $(document).on("pageinit", "#logs_page", function() {
 
     });
 
+    $('.ui-slider-track').css('position', 'relative');
+    $('.ui-slider-track').append('<div class="free-log-space" style="position:absolute;top:7px;left:0;width:100%;height:100%;text-align:center;color:white;text-shadow: rgba(0,0,0,0.4) -1px -1px 0, rgba(0,0,0,0.4) -1px 1px 0, rgba(0,0,0,0.4) 1px -1px 0, rgba(0,0,0,0.4) 1px 1px 0;"></div>');
+
     socket.on("available space", function(msg) {
         $('#ui-bar-space').css('display', 'block');
-        $('#ui-bar-space p').text(msg['free'] + '/' + msg['total']);
+        $('#ui-bar-space p').text(msg['used'] + '/' + msg['total']);
+        // $('#ui-bar-space .progress-bar .ui-slider-bg').css({'width':  msg['used']/msg['total']/10 + '%'});
+        $('#ui-bar-space .progress-bar .ui-slider-bg').css({'width':  '10%'});
+        $('#ui-bar-space .progress-bar .free-log-space').html('<span>' + msg['used'] + 'MB / ' + msg['total'] + 'GB</span>');
+
     })
     // show conversion status by adding a new list view field under the log we are  trying to convert/download
     socket.on("log conversion start", function(msg) {

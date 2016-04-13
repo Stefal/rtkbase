@@ -354,7 +354,9 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     </div>
     <div data-role="main" class="ui-content">
         <div id="ui-bar-space" class="ui-bar ui-bar-a ui-corner-all image_version_container">
-            <p>Free space: 1000/2000</p>
+            <div class="progress-bar">
+                <input type="range" id="progress-bar" min="0" max="100" data-highlight="true" data-mini="true" disabled="disabled" />
+            </div>
         </div>
         <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all empty_logs">
             <p>Fetching available logs...</p>
