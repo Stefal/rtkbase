@@ -642,6 +642,10 @@ $(document).on("pageinit", "#logs_page", function() {
 
     });
 
+    socket.on("available space", function(msg) {
+        $('#ui-bar-space').css('display', 'block');
+        $('#ui-bar-space p').text(msg['free'] + '/' + msg['total']);
+    })
     // show conversion status by adding a new list view field under the log we are  trying to convert/download
     socket.on("log conversion start", function(msg) {
         var log_being_converted = msg.name;
