@@ -65,7 +65,7 @@ class Convbin:
             "-os",
             "-oi",
             "-ot",
-            "-ol"
+            "-ol",
             log_path
         ])
 
