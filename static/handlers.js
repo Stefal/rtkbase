@@ -662,8 +662,7 @@ $(document).on("pageinit", "#logs_page", function() {
     socket.on("available space", function(msg) {
         $('#ui-bar-space').css('display', 'block');
         $('#ui-bar-space p').text(msg['used'] + '/' + msg['total']);
-        // $('#ui-bar-space .progress-bar .ui-slider-bg').css({'width':  msg['used']/msg['total']/10 + '%'});
-        $('#ui-bar-space .progress-bar .ui-slider-bg').css({'width':  '10%'});
+        $('#ui-bar-space .progress-bar .ui-slider-bg').css({'width':  msg['percentage'] + '%'});
         $('#ui-bar-space .progress-bar .free-log-space').html('<span>' + msg['used'] + 'MB / ' + msg['total'] + 'GB</span>');
 
     })
