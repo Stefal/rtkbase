@@ -111,3 +111,6 @@ def getAvailableSerialPorts():
 
     return serial_ports_to_use
 
+def getFreeSpace():
+    available_space_kb = os.statvfs("/home")
+    return available_space
