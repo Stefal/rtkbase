@@ -414,6 +414,7 @@ $(document).on("pageinit", "#config_page", function() {
         var mode = $("input[name=radio_base_rover]:checked").val();
         var config_to_send = GetConfigToSend();
         var empty = false;
+        var highUpdateRate = false;
 
         $(".hidden_list").slideUp('fast');
 
@@ -424,8 +425,14 @@ $(document).on("pageinit", "#config_page", function() {
             }
         });
 
+        if(($('#pos1-dynamics_entry').val() == 'on') && (($('#file-cmdfile1_entry').val() == '../GPS_10Hz.cmd') || ($('#file-cmdfile1_entry').val() == '../GPS_14Hz.cmd') ))
+            highUpdateRate = true;
+
         if(empty)
             $( "#popupEmpty" ).popup( "open");
+        else if(highUpdateRate){
+            $( "#popupHighUpdateRate" ).popup( "open");
+        }
         else if(config_to_send == 'bluetooth occupied error')
             $( "#popupOccupiedBluetooth" ).popup( "open");
         else if(config_to_send == 'bluetooth repeated')
@@ -474,6 +481,7 @@ $(document).on("pageinit", "#config_page", function() {
     $('#save_button').click(function(){
         var mode = $("input[name=radio_base_rover]:checked").val();
         var empty = false;
+        var highUpdateRate = false;
         var config_to_send = GetConfigToSend();
 
         $('.required_field').each(function(){
@@ -483,8 +491,14 @@ $(document).on("pageinit", "#config_page", function() {
             }
         });
 
+        if(($('#pos1-dynamics_entry').val() == 'on') && (($('#file-cmdfile1_entry').val() == '../GPS_10Hz.cmd') || ($('#file-cmdfile1_entry').val() == '../GPS_14Hz.cmd') ))
+            highUpdateRate = true;
+
         if(empty){
             $( "#popupEmpty" ).popup( "open");
+        }
+        else if(highUpdateRate){
+            $( "#popupHighUpdateRate" ).popup( "open");
         }
         else if(config_to_send == 'bluetooth occupied error')
             $( "#popupOccupiedBluetooth" ).popup( "open");

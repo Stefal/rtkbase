@@ -185,11 +185,6 @@ function defaultStringToInputs(i, method){
 			$('.additional' + method + i + ' #device' + method + i).parent().find('span.config_form_field').text(currentSerialOption);
 			$('.additional' + method + i + ' #baudrate' + method + i).val(splitVal['1']);
 
-			if($('.additional' + method + i + ' #device' + method + i).val() == 'ttyUSB0'){
-				$('.additional' + method + i + ' #baudrate' + method + i).val('115200');
-				$('.additional' + method + i + ' #baudrate' + method + i).attr('type', 'hidden');
-				$('.additional' + method + i + ' #baudrate' + method + i).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
-			}
 			break;
 		case "file":
 			$('.additional' + method + i + ' #path' + method + i).val($('#' + method + 'str' + i + '-path_entry').val());
@@ -482,18 +477,12 @@ function showBase(msg){
 
 		if($(this).val() == 'ttyMFD2'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		}
 		else if($(this).val() == 'ttyUSB0'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'hidden');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		}
 		else{
 			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		}
 
 		formString('', 'out');
@@ -669,6 +658,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 	$(".ui-field-contain.fields-field .general-settings").append($('#ant2-pos3_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").append($('#file-staposfile_entry').parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#file-cmdfile1_entry').parent().parent().parent());
+	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-dynamics_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-navsys_entry').parent().parent().parent());
 	$(".ui-field-contain.fields-field .general-settings").prepend($('#pos1-posmode_entry').parent().parent().parent());
 
@@ -715,18 +705,12 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 		if($(this).val() == 'ttyMFD2'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		}
 		else if($(this).val() == 'ttyUSB0'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'hidden');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
 		}
 		else{
 			$('#baudrate' + $(this).attr('id').substr(6)).val('115200');
-			$('#baudrate' + $(this).attr('id').substr(6)).attr('type', 'text');
-			$('#baudrate' + $(this).attr('id').substr(6)).parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
 		}
 
 		formString(numb, method);
