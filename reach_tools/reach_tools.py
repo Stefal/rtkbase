@@ -112,5 +112,32 @@ def getAvailableSerialPorts():
     return serial_ports_to_use
 
 def getFreeSpace():
-    available_space_kb = os.statvfs("/home")
-    return available_space
+    space = os.statvfs("/home")
+    free = space.f_bavail * space.f_frsize
+    total = space.f_blocks * space.f_frsize
+    percentage = ((total - free)/total) * 100
+
+    result = {
+        "free": free/1024000,
+        "total": total/1024000,
+        "percentage": percentage
+    }
+    return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

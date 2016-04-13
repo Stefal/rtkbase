@@ -209,9 +209,7 @@ def writeConfigBase(json):
 
 @socketio.on("get available space", namespace="/test")
 def getAvailableSpace():
-    free_space = reach_tools.getFreeSpace()
-    rtk.socketio.emit("available space", {"free": free_space}, namespace="/test")
-
+    rtk.socketio.emit("available space", reach_tools.getFreeSpace(), namespace="/test")
 
 #### Delete log button handler ####
 
