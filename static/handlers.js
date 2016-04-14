@@ -225,6 +225,7 @@ function registerDeleteLogHandler(){
 
         console.log("Delete log: " + log_to_delete);
         socket.emit("delete log", {"name": log_to_delete});
+        socket.emit("get available space");
 
         if($('.log_string').length == '0') {
             $('.empty_logs').css('display', 'block');
