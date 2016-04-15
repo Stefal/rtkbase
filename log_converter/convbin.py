@@ -71,14 +71,10 @@ class Convbin:
 
         print("Specified format is " + format)
 
+        print("Spawning convbin with " + spawn_command)
         self.child = pexpect.spawn(spawn_command, echo = False)
         print("Process spawned!")
         self.child.expect(pexpect.EOF, timeout = None)
-
-        print("DEBUGGG")
-        print("signal status is "  + str(self.child.signalstatus))
-        print("exit status is " + str(self.child.exitstatus))
-        print("status is " + str(self.child.status))
 
         if self.child.exitstatus != 0 and self.child.signalstatus == None:
             raise ValueError
