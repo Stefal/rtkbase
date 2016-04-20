@@ -83,8 +83,8 @@ def set_gps_time(serial_device, baud_rate):
     enable_nav_timeutc(port)
 
     print("Restarting ntp service for faster sync...")
-    reach_tools.run_command_safely("timedatectl set-ntp false")
-    reach_tools.run_command_safely("timedatectl set-ntp true")
+    reach_tools.run_command_safely(["timedatectl", "set-ntp", "false"])
+    reach_tools.run_command_safely(["timedatectl", "set-ntp", "true"])
 
     print("TIMEUTC enabled")
     time = None
