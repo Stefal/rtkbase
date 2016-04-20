@@ -22,7 +22,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from subprocess import check_output
+import subprocess
 
 def getImageVersion():
 
@@ -43,7 +43,7 @@ def getNetworkStatus():
     # get Wi-Fi mode, Master or Managed
     cmd = ["configure_edison", "--showWiFiMode"]
     cmd = " ".join(cmd)
-    mode = check_output(cmd, shell = True).strip()
+    mode = subprocess.check_output(cmd, shell = True).strip()
 
     ssid = "empty"
     ip_address = "empty"
@@ -54,7 +54,7 @@ def getNetworkStatus():
 
         cmd = ["wpa_cli", "status"]
         cmd = " ".join(cmd)
-        out = check_output(cmd, shell = True)
+        out = subprocess.check_output(cmd, shell = True)
 
         out = out.split("\n")
 
@@ -72,7 +72,7 @@ def getNetworkStatus():
         # example of the output {"hostname": "reach", "ssid": "reach:ec:e8", "default_ssid": "edison_ap"}
         cmd = ["configure_edison", "--showNames"]
         cmd = " ".join(cmd)
-        out = check_output(cmd, shell = True)
+        out = subprocess.check_output(cmd, shell = True)
 
         anchor = '"ssid": "'
 
@@ -83,14 +83,14 @@ def getNetworkStatus():
 
         cmd = ["configure_edison", "--showWiFiIP"]
         cmd = " ".join(cmd)
-        ip_address = check_output(cmd, shell = True).strip()
+        ip_address = subprocess.check_output(cmd, shell = True).strip()
 
     return {"mode": mode, "ssid": ssid, "ip_address": ip_address}
 
 def getAppVersion():
     # Extract git tag as software version
     git_tag_cmd = "git describe --tags"
-    app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
+    app_version = subprocess.check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
 
     return app_version
 
@@ -136,6 +136,15 @@ def getFreeSpace():
     print(result)
 
     return result
+
+def run_command_safely(cmd):
+    try:
+        out = subprocess.check_output(cmd)
+    except subprocess.CalledProcessError:
+        out = None
+
+    return out
+
 
 
 

@@ -27,6 +27,7 @@ import serial
 import binascii
 import ctypes
 import subprocess
+import reach_tools
 
 def hexify(char_list):
     """ transform a char list into a list of int values"""
@@ -80,6 +81,11 @@ def set_gps_time(serial_device, baud_rate):
 
     port = serial.Serial(serial_device, baud_rate, timeout = 1.5)
     enable_nav_timeutc(port)
+
+    print("Restarting ntp service for faster sync...")
+    reach_tools.run_command_safely(["timedatectl", "set-ntp", "false"])
+    reach_tools.run_command_safely(["timedatectl", "set-ntp", "true"])
+
     print("TIMEUTC enabled")
     time = None
     ntp_not_synced = True
