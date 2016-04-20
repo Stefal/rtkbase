@@ -734,6 +734,8 @@ class RTKLIB:
         with open(self.state_file, "w") as f:
             json.dump(state, f, sort_keys = True, indent = 4)
 
+        reach_tools.run_command_safely(["sync"])
+
         return state
 
     def byteify(self, input):

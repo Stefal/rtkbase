@@ -102,6 +102,8 @@ def enable_bt_compatibility(file_path):
         with open(file_path, "w") as f:
             f.writelines(data_to_write)
 
+        reach_tools.run_command_safely(["sync"])
+
         restart_bt_daemon()
 
 def update_bluetooth_service():
