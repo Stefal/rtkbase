@@ -166,6 +166,24 @@ li.nav_log_container{
 	overflow: visible;
 	white-space: normal;
 }
+#ui-bar-space{
+	display: none;
+}
+.progress-bar input[type=number], .ui-slider-handle {
+    display: none;
+}  
+.progress-bar .ui-slider-track {
+    margin: 0px;
+}
+.ui-slider.ui-mini{
+	margin-bottom: 20px;
+}
+.ui-slider-track.ui-mini{
+	height: 30px;
+}
+.ui-slider-track.ui-state-disabled{
+	opacity: 1;
+}
 @media only screen and (max-width:760px){
     .ui-listview > li h2{
         font-size: 0.75em;

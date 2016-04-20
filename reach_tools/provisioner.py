@@ -37,7 +37,7 @@ def install_pip_packages():
 def check_opkg_packages(packages):
 
     packages_to_check = packages
-    
+
     try:
         out = subprocess.check_output(["opkg", "list-installed"])
     except subprocess.CalledProcessError:
@@ -95,7 +95,7 @@ def enable_bt_compatibility(file_path):
 
     if need_to_update:
         data_to_write = []
-        
+
         for line in data_read:
             if "ExecStart=/usr/lib/bluez5/bluetooth/bluetoothd" in line:
                 to_append = "ExecStart=/usr/lib/bluez5/bluetooth/bluetoothd -C\n"

@@ -225,6 +225,7 @@ function registerDeleteLogHandler(){
 
         console.log("Delete log: " + log_to_delete);
         socket.emit("delete log", {"name": log_to_delete});
+        socket.emit("get available space");
 
         if($('.log_string').length == '0') {
             $('.empty_logs').css('display', 'block');
@@ -594,6 +595,7 @@ $(document).on("pageinit", "#config_page", function() {
 
 $(document).on("click", ".logs_page", function() {
     socket.emit("get logs list");
+    socket.emit("get available space");
 });
 
 $(document).on("pageinit", "#logs_page", function() {
@@ -655,6 +657,16 @@ $(document).on("pageinit", "#logs_page", function() {
 
     });
 
+    $('.ui-slider-track').css('position', 'relative');
+    $('.ui-slider-track').append('<div class="free-log-space" style="position:absolute;top:7px;left:0;width:100%;height:100%;text-align:center;color:white;text-shadow: rgba(0,0,0,0.4) -1px -1px 0, rgba(0,0,0,0.4) -1px 1px 0, rgba(0,0,0,0.4) 1px -1px 0, rgba(0,0,0,0.4) 1px 1px 0;"></div>');
+
+    socket.on("available space", function(msg) {
+        $('#ui-bar-space').css('display', 'block');
+        $('#ui-bar-space p').text(msg['used'] + '/' + msg['total']);
+        $('#ui-bar-space .progress-bar .ui-slider-bg').css({'width':  msg['percentage'] + '%'});
+        $('#ui-bar-space .progress-bar .free-log-space').html('<span>' + msg['used'] + 'MB / ' + msg['total'] + 'GB</span>');
+
+    })
     // show conversion status by adding a new list view field under the log we are  trying to convert/download
     socket.on("log conversion start", function(msg) {
         var log_being_converted = msg.name;

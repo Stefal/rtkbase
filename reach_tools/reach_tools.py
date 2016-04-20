@@ -111,3 +111,46 @@ def getAvailableSerialPorts():
 
     return serial_ports_to_use
 
+def getLogsSize():
+    logs_path = "/home/reach/logs/"
+    size_in_bytes = sum(os.path.getsize(logs_path + f) for f in os.listdir(logs_path) if os.path.isfile(logs_path + f))
+    return size_in_bytes/(1024*1024)
+
+def getFreeSpace():
+    space = os.statvfs("/home")
+    free = space.f_bavail * space.f_frsize / 1024000
+    total = space.f_blocks * space.f_frsize / 1024000
+
+    used_by_logs = getLogsSize()
+    total_for_logs = free + used_by_logs
+    percentage = (float(used_by_logs)/float(total_for_logs)) * 100
+    total_for_logs_gb = float(total_for_logs) / 1024.0
+
+    result = {
+        "used": "{0:.0f}".format(used_by_logs),
+        "total": "{0:.1f}".format(total_for_logs_gb),
+        "percentage": "{0:.0f}".format(percentage)
+    }
+
+    print("Returning sizes!")
+    print(result)
+
+    return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
