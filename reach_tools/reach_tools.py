@@ -137,6 +137,13 @@ def getFreeSpace():
 
     return result
 
+def run_command_safely(cmd):
+    try:
+        subprocess.check_output(cmd)
+    except subprocess.CalledProcessError:
+        pass
+
+
 
 
 

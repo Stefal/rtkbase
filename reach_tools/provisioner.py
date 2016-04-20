@@ -26,6 +26,7 @@
 import pip
 import subprocess
 import os
+import reach_tools
 
 def install_pip_packages():
 
@@ -68,18 +69,12 @@ def install_opkg_packages(packages):
             for p in packages:
                 subprocess.check_output(["opkg", "install", p])
 
-def run_command_safely(cmd):
-    try:
-        subprocess.check_output(cmd)
-    except subprocess.CalledProcessError:
-        pass
-
 def restart_bt_daemon():
-    run_command_safely(["rfkill", "unblock", "bluetooth"])
-    run_command_safely(["systemctl", "daemon-reload"])
-    run_command_safely(["systemctl", "restart", "bluetooth.service"])
-    run_command_safely(["systemctl", "restart", "bluetooth.service"])
-    run_command_safely(["hciconfig", "hci0", "reset"])
+    reach_tools.run_command_safely(["rfkill", "unblock", "bluetooth"])
+    reach_tools.run_command_safely(["systemctl", "daemon-reload"])
+    reach_tools.run_command_safely(["systemctl", "restart", "bluetooth.service"])
+    reach_tools.run_command_safely(["systemctl", "restart", "bluetooth.service"])
+    reach_tools.run_command_safely(["hciconfig", "hci0", "reset"])
 
 def enable_bt_compatibility(file_path):
 
