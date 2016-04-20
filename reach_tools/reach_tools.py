@@ -22,7 +22,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from subprocess import check_output
+import subprocess
 
 def getImageVersion():
 
@@ -43,7 +43,7 @@ def getNetworkStatus():
     # get Wi-Fi mode, Master or Managed
     cmd = ["configure_edison", "--showWiFiMode"]
     cmd = " ".join(cmd)
-    mode = check_output(cmd, shell = True).strip()
+    mode = subprocess.check_output(cmd, shell = True).strip()
 
     ssid = "empty"
     ip_address = "empty"
@@ -54,7 +54,7 @@ def getNetworkStatus():
 
         cmd = ["wpa_cli", "status"]
         cmd = " ".join(cmd)
-        out = check_output(cmd, shell = True)
+        out = subprocess.check_output(cmd, shell = True)
 
         out = out.split("\n")
 
@@ -72,7 +72,7 @@ def getNetworkStatus():
         # example of the output {"hostname": "reach", "ssid": "reach:ec:e8", "default_ssid": "edison_ap"}
         cmd = ["configure_edison", "--showNames"]
         cmd = " ".join(cmd)
-        out = check_output(cmd, shell = True)
+        out = subprocess.check_output(cmd, shell = True)
 
         anchor = '"ssid": "'
 
@@ -83,14 +83,14 @@ def getNetworkStatus():
 
         cmd = ["configure_edison", "--showWiFiIP"]
         cmd = " ".join(cmd)
-        ip_address = check_output(cmd, shell = True).strip()
+        ip_address = subprocess.check_output(cmd, shell = True).strip()
 
     return {"mode": mode, "ssid": ssid, "ip_address": ip_address}
 
 def getAppVersion():
     # Extract git tag as software version
     git_tag_cmd = "git describe --tags"
-    app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
+    app_version = subprocess.check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
 
     return app_version
 
@@ -110,4 +110,56 @@ def getAvailableSerialPorts():
     serial_ports_to_use = [port for port in possible_ports_ports_to_use if os.path.exists("/dev/" + port)]
 
     return serial_ports_to_use
+
+def getLogsSize():
+    logs_path = "/home/reach/logs/"
+    size_in_bytes = sum(os.path.getsize(logs_path + f) for f in os.listdir(logs_path) if os.path.isfile(logs_path + f))
+    return size_in_bytes/(1024*1024)
+
+def getFreeSpace():
+    space = os.statvfs("/home")
+    free = space.f_bavail * space.f_frsize / 1024000
+    total = space.f_blocks * space.f_frsize / 1024000
+
+    used_by_logs = getLogsSize()
+    total_for_logs = free + used_by_logs
+    percentage = (float(used_by_logs)/float(total_for_logs)) * 100
+    total_for_logs_gb = float(total_for_logs) / 1024.0
+
+    result = {
+        "used": "{0:.0f}".format(used_by_logs),
+        "total": "{0:.1f}".format(total_for_logs_gb),
+        "percentage": "{0:.0f}".format(percentage)
+    }
+
+    print("Returning sizes!")
+    print(result)
+
+    return result
+
+def run_command_safely(cmd):
+    try:
+        out = subprocess.check_output(cmd)
+    except subprocess.CalledProcessError:
+        out = None
+
+    return out
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

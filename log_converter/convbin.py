@@ -55,18 +55,26 @@ class Convbin:
 
     def convertLogToRINEX(self, log_path, format, rinex_version):
 
-        spawn_command = " ".join([self.bin_path + "/convbin", "-r", format, "-v", rinex_version, log_path])
+        spawn_command = " ".join([
+            self.bin_path + "/convbin",
+            "-r",
+            format,
+            "-v",
+            rinex_version,
+            "-od",
+            "-os",
+            "-oi",
+            "-ot",
+            "-ol",
+            log_path
+        ])
 
         print("Specified format is " + format)
 
+        print("Spawning convbin with " + spawn_command)
         self.child = pexpect.spawn(spawn_command, echo = False)
         print("Process spawned!")
         self.child.expect(pexpect.EOF, timeout = None)
-
-        print("DEBUGGG")
-        print("signal status is "  + str(self.child.signalstatus))
-        print("exit status is " + str(self.child.exitstatus))
-        print("status is " + str(self.child.status))
 
         if self.child.exitstatus != 0 and self.child.signalstatus == None:
             raise ValueError
