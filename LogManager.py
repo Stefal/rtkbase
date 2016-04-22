@@ -129,9 +129,9 @@ class LogManager():
         conversion_time = 0
 
         if log_path.endswith("rtcm3"):
-            conversion_time = 24 * log_size
+            conversion_time = 42.0 * log_size
         elif log_path.endswith("ubx"):
-            conversion_time = 1.2 * log_size
+            conversion_time = 1.8 * log_size
 
         return "{:.0f}".format(conversion_time)
 
