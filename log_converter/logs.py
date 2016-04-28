@@ -28,7 +28,7 @@ import os
 class LogMetadata:
 
     message_names = {
-        "OBS": "OBS",
+        "OBS": "Obs",
         "NAV": "GPS nav",
         "GNAV": "GLONASS nav",
         "HNAV": "GEO nav",
