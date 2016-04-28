@@ -42,17 +42,7 @@ class LogMetadata:
 
         self.start_timestamp = 0
         self.stop_timestamp = 0
-
-        self.navigation_messages = {
-            "OBS": "0",
-            "NAV": "0",
-            "GNAV": "0",
-            "HNAV": "0",
-            "QNAV": "0",
-            "LNAV": "0",
-            "SBAS": "0",
-            "Errors": "0"
-        }
+        self.navigation_messages = {msg_type: 0 for msg_type in self.message_names.keys()}
 
         self.extractDataFromString(convbin_output)
 
@@ -71,7 +61,9 @@ class LogMetadata:
         # date
         human_readable_timestamp = timestamp[:4] + "-" + timestamp[4:6] + "-" + timestamp[6:8]
         # time
-        human_readable_timestamp += " " + timestamp[8:10] + ":" + timestamp[10:12] + ":" + timestamp[12:14]
+        human_readable_timestamp += " " + timestamp[8:10]
+        human_readable_timestamp += ":" + timestamp[10:12]
+        human_readable_timestamp += ":" + timestamp[12:14]
 
         return human_readable_timestamp
 
@@ -87,7 +79,7 @@ class LogMetadata:
 
     def formValidMessagesString(self):
 
-        correct_order = ["OBS", "NAV", "GNAV", "HNAV", "QNAV", "LNAV", "SBAS", "Errors"]
+        correct_order = self.message_names.keys()
 
         to_print = "Messages inside: "
 
@@ -145,16 +137,7 @@ class LogMetadata:
         # example string(split into a list by spaces)
         # O=32977 N=31 G=41 E=2
 
-        msg_dictionary = {
-            "O": "OBS",
-            "N": "NAV",
-            "G": "GNAV",
-            "H": "HNAV",
-            "Q": "QNAV",
-            "L": "LNAV",
-            "S": "SBAS",
-            "E": "Errors"
-        }
+        msg_dictionary = {msg_type[0]: msg_type for msg_type in self.message_names.keys()}
 
         for entry in data_list:
             split_entry = entry.split("=")
@@ -251,33 +234,6 @@ class Log:
         for log in all_log_files:
             try:
                 os.remove(log)
-            except:
+            except OSError:
                 pass
 
-
-class KinematicLog:
-
-    def __init__(self, rover_log, base_log):
-
-        self.rover_log = rover_log
-        self.base_log = base_log
-
-    def __str__(self):
-
-        return str(self.rover_log) + "\n" + str(self.base_log)
-
-    def createKinematicLogPackage(self, package_destination):
-
-        rover_file_tree = self.rover_log.prepareLogPackage()
-        base_file_tree = self.base_log.prepareLogPackage()
-
-        with zipfile.ZipFile(package_destination, "w") as newzip:
-            for f in rover_file_tree:
-                newzip.write(f[0], "Rover/" + f[1])
-
-            newzip.writestr("Rover/readme.txt", str(self.rover_log.log_metadata))
-
-            for f in base_file_tree:
-                newzip.write(f[0], "Base/" + f[1])
-
-            newzip.writestr("Base/readme.txt", str(self.base_log.log_metadata))
