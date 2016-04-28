@@ -35,7 +35,8 @@ class LogMetadata:
         "QNAV": "QZSS nav",
         "LNAV": "Galileo nav",
         "SBAS": "SBAS log",
-        "Errors": "Errors"
+        "Errors": "Errors",
+        "TM": "Time marks"
     }
 
     def __init__(self, convbin_output):
