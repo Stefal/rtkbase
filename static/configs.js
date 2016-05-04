@@ -14,12 +14,12 @@ function checkInputSelects(i, method){ //inp OR out OR log
 	$('#' + method + 'str' + i + '-format_entry').parent().parent().parent().css('display', 'block');
 	$('div.additional' + method + i).remove();
 
-	if($('#outstr1-type_entry').val() == 'off'){
-		$('#outstr2-type_entry').val('off');
-		$('#outstr2-path_entry').val('');
-	}
-	else
-		$('#outstr2-type_entry').parent().parent().parent().css('display', 'block');
+	// if($('#outstr1-type_entry').val() == 'off'){
+	// 	$('#outstr2-type_entry').val('off');
+	// 	$('#outstr2-path_entry').val('');
+	// }
+	// else
+	// 	$('#outstr2-type_entry').parent().parent().parent().css('display', 'block');
 
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
