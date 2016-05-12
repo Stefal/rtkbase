@@ -68,6 +68,11 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					$('#pathout1').attr('type', 'hidden');
 					$('#pathout1').parent().css({'visibility':'hidden', 'border':'none'});
 				}
+				else if(i == 2){
+					$('#pathout2').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
+					$('#pathout2').attr('type', 'hidden');
+					$('#pathout2').parent().css({'visibility':'hidden', 'border':'none'});
+				}
 				else if(i == ''){
 					$('#pathout').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3#rtcm3');
 					$('#pathout').attr('type', 'hidden');
