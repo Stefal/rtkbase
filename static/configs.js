@@ -64,12 +64,12 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			}
 			else if(method == 'out'){
 				if(i == 1){
-					$('#pathout1').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
+					$('#pathout1').val('/home/reach/logs/sol1_%Y%m%d%h%M.pos');
 					$('#pathout1').attr('type', 'hidden');
 					$('#pathout1').parent().css({'visibility':'hidden', 'border':'none'});
 				}
 				else if(i == 2){
-					$('#pathout2').val('/home/reach/logs/sol_%Y%m%d%h%M.pos');
+					$('#pathout2').val('/home/reach/logs/sol2_%Y%m%d%h%M.pos');
 					$('#pathout2').attr('type', 'hidden');
 					$('#pathout2').parent().css({'visibility':'hidden', 'border':'none'});
 				}
