@@ -159,10 +159,10 @@ function splitLogInformation(){
                 log_state = 'Rover';
             else if(splitLogString[0].slice(0, 3) == 'ref')
                 log_state = 'Reference';
-            else if(splitLogString[0].slice(0, 3) == 'sol')
-                log_state = 'Solution';
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
+            else
+                log_state = 'Solution';
 
             $(this).css('border-bottom', '1px solid transparent');
             $(this).parent().find('.delete-log-button').css('border-bottom', '1px solid transparent');
