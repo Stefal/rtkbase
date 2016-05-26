@@ -64,12 +64,14 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			}
 			else if(method == 'out'){
 				if(i == 1){
-					$('#pathout1').val('/home/reach/logs/sol1_%Y%m%d%h%M.pos');
+					// $('#pathout1').val('/home/reach/logs/sol1_%Y%m%d%h%M.pos');
+					$('#pathout1').val('/home/reach/logs/sol1_%Y%m%d%h%M.' + $('#outstr1-format_entry').val());
 					$('#pathout1').attr('type', 'hidden');
 					$('#pathout1').parent().css({'visibility':'hidden', 'border':'none'});
 				}
 				else if(i == 2){
-					$('#pathout2').val('/home/reach/logs/sol2_%Y%m%d%h%M.pos');
+					// $('#pathout2').val('/home/reach/logs/sol2_%Y%m%d%h%M.pos');
+					$('#pathout2').val('/home/reach/logs/sol2_%Y%m%d%h%M.' + $('#outstr2-format_entry').val());
 					$('#pathout2').attr('type', 'hidden');
 					$('#pathout2').parent().css({'visibility':'hidden', 'border':'none'});
 				}
@@ -693,6 +695,17 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 		checkNtripcliStatus();
 	});
+
+
+	$(document).on("change", '#outstr1-format_entry', function() {
+		if($('#outstr1-type_entry').val() == 'file')
+			$('#outstr1-path_entry').val('/home/reach/logs/sol1_%Y%m%d%h%M.' + $(this).val());
+	})
+
+	$(document).on("change", '#outstr2-format_entry', function() {
+		if($('#outstr2-type_entry').val() == 'file')
+			$('#outstr2-path_entry').val('/home/reach/logs/sol2_%Y%m%d%h%M.' + $(this).val());
+	})
 
 	$(document).on("change", '.additional_general select', function() {
 
