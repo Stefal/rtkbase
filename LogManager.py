@@ -29,6 +29,8 @@ from log_converter import convbin
 
 class LogManager():
 
+    supported_solution_formats = ["llh", "xyz", "enu", "nmea", "erb"]
+
     def __init__(self, rtklib_path, log_path):
 
         self.log_path = log_path
@@ -39,78 +41,43 @@ class LogManager():
         self.available_logs = []
         self.updateAvailableLogs()
 
-    def changeLogExtension(self, log_path):
-        # change log extension from .log to .format,
-        # judging by name
-        no_extension_path, extension = os.path.splitext(log_path)
-        new_extension = extension
-
-        if "rov" in no_extension_path:
-            new_extension = ".ubx"
-        elif "ref" in no_extension_path:
-            new_extension = ".rtcm3"
-        elif "bas" in no_extension_path:
-            new_extension = ".rtcm3"
-        elif "sol" in no_extension_path:
-            new_extension = ".pos"
-
-        os.rename(no_extension_path + extension, no_extension_path + new_extension)
-
-    def renameOldLogs(self):
-        all_logs = glob(self.log_path + "/*")
-
-        for log_path in all_logs:
-            no_extension_path, extension = os.path.splitext(log_path)
-
-            if extension == ".log":
-                self.changeLogExtension(no_extension_path + extension)
-
-            if extension == ".rtmc3":
-                self.changeLogExtension(no_extension_path + extension)
-
     def updateAvailableLogs(self):
 
-        # clean previous values
         self.available_logs = []
 
-        self.renameOldLogs()
+        print("Getting a list of available logs")
+        for log in glob(self.log_path + "/*"):
+            print(log)
+            log_name = os.path.basename(log)
+            # get size in bytes and convert to MB
+            log_size = self.getLogSize(log)
 
-        # get a list of available .log files in the log directory
-        full_path_logs = glob(self.log_path + "/*.rtcm3") + glob(self.log_path + "/*.ubx") + glob(self.log_path + "/*.pos")
+            potential_zip_path = os.path.splitext(log)[0] + ".zip"
 
-        for log in full_path_logs:
-            if log:
-                # if the entry is not empty, we get file name, size and prepare them for use in templates
+            log_format = self.getLogFormat(log)
+            is_being_converted = True if log == self.log_being_converted else False
 
-                log_name = os.path.basename(log)
-                # get size in bytes and convert to MB
-                log_size = os.path.getsize(log) / (1024*1024.0)
-                log_size = "{0:.2f}".format(log_size)
-
-
-                potential_zip_path = os.path.splitext(log)[0] + ".zip"
-
-                log_format = "None"
-                if os.path.isfile(potential_zip_path):
-                    log_format = "RINEX"
-                else:
-                    if log_name.endswith("ubx"):
-                        log_format = "UBX"
-                    elif log_name.endswith("rtcm3"):
-                        log_format = "RTCM3"
-                    elif log_name.endswith("pos"):
-                        log_format = ""
-
-                is_being_converted = True if log == self.log_being_converted else False
-
-                self.available_logs.append({
-                    "name": log_name,
-                    "size": log_size,
-                    "format": log_format,
-                    "is_being_converted": is_being_converted
-                })
+            self.available_logs.append({
+                "name": log_name,
+                "size": log_size,
+                "format": log_format,
+                "is_being_converted": is_being_converted
+            })
 
         self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)
+
+    def getLogSize(self, log_path):
+        size = os.path.getsize(log_path) / (1024 * 1024.0)
+        return "{0:.2f}".format(size)
+
+    def getLogFormat(self, log_path):
+        extension = os.path.splitext(log_path)[1][1:]
+
+        if (extension in self.supported_solution_formats or
+                    extension in self.convbin.supported_log_formats):
+            return extension.upper()
+        else:
+            return ""
 
     def formTimeString(self, seconds):
         # form a x minutes y seconds string from seconds
