@@ -22,11 +22,13 @@ function checkConfTitle() {
 }
 
 function extractTimeFromLogName(log_name) {
-    var hours = log_name.slice(12, 14);
-    var minutes = log_name.slice(14, 16);
-    var day = log_name.slice(10, 12);
-    var month = log_name.slice(8, 10);
-    var year = log_name.slice(4, 8);
+
+    var log_date = log_name.split('_');
+    var hours = log_date[1].slice(8, 10);
+    var minutes = log_date[1].slice(10, 12);
+    var day = log_date[1].slice(6, 8);
+    var month = log_date[1].slice(4, 6);
+    var year = log_date[1].slice(0, 4);
 
     return hours + ":" + minutes + " " + day + "." + month + "." + year;
 }
