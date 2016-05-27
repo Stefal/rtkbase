@@ -66,9 +66,14 @@ class LogManager():
                 })
 
                 print("after sort")
-                self.available_logs.sort(key = lambda log: log["name"][-12:], reverse = True)
+                self.available_logs.sort(key = lambda log: self.getLogCompareString(log["name"]), reverse = True)
                 for log in self.available_logs:
                     print(log)
+
+    def getLogCompareString(self, log_name):
+        name_without_extension = os.path.splitext(log_name)[0]
+        log_type, log_date = name_without_extension.split("_")
+        return log_date + log_type[0] 
 
     def getLogSize(self, log_path):
         size = os.path.getsize(log_path) / (1024 * 1024.0)
