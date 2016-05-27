@@ -47,31 +47,40 @@ class LogManager():
 
         print("Getting a list of available logs")
         for log in glob(self.log_path + "/*"):
-            print(log)
-            log_name = os.path.basename(log)
-            # get size in bytes and convert to MB
-            log_size = self.getLogSize(log)
+            if not log.endswith(".zip"):
+                print(log)
+                log_name = os.path.basename(log)
+                # get size in bytes and convert to MB
+                log_size = self.getLogSize(log)
 
-            potential_zip_path = os.path.splitext(log)[0] + ".zip"
+                potential_zip_path = os.path.splitext(log)[0] + ".zip"
 
-            log_format = self.getLogFormat(log)
-            is_being_converted = True if log == self.log_being_converted else False
+                log_format = self.getLogFormat(log)
+                is_being_converted = True if log == self.log_being_converted else False
 
-            self.available_logs.append({
-                "name": log_name,
-                "size": log_size,
-                "format": log_format,
-                "is_being_converted": is_being_converted
-            })
+                self.available_logs.append({
+                    "name": log_name,
+                    "size": log_size,
+                    "format": log_format,
+                    "is_being_converted": is_being_converted
+                })
 
-        self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)
+                print("after sort")
+                self.available_logs.sort(key = lambda log: log["name"][-12:], reverse = True)
+                for log in self.available_logs:
+                    print(log)
 
     def getLogSize(self, log_path):
         size = os.path.getsize(log_path) / (1024 * 1024.0)
         return "{0:.2f}".format(size)
 
     def getLogFormat(self, log_path):
-        extension = os.path.splitext(log_path)[1][1:]
+        file_path, extension = os.path.splitext(log_path)
+        extension = extension[1:]
+
+        potential_zip_path = file_path + ".zip"
+        if os.path.isfile(potential_zip_path):
+            return "RINEX"
 
         if (extension in self.supported_solution_formats or
                     extension in self.convbin.supported_log_formats):
