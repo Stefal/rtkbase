@@ -152,8 +152,8 @@ $(document).ready(function () {
             "lat" : "0",
             "lon" : "0",
             "height": "0",
-            "solution_status": status,
-            "positioning_mode": mode
+            "solution status": status,
+            "positioning mode": mode
         };
 
         updateCoordinateGrid(msg_status)
