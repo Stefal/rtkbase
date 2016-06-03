@@ -92,9 +92,6 @@ class Convbin:
             return None
 
     def resultStringIsValid(self, result_string):
-        print("CHECKING VALIDITY OF THE RESULT STRING")
-        print(result_string)
-        print(len(result_string))
         return True if len(result_string) > 21 else False
 
     def extractResultingString(self, output):

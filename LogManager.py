@@ -48,7 +48,6 @@ class LogManager():
         print("Getting a list of available logs")
         for log in glob(self.log_path + "/*"):
             if not log.endswith(".zip"):
-                print(log)
                 log_name = os.path.basename(log)
                 # get size in bytes and convert to MB
                 log_size = self.getLogSize(log)
@@ -65,10 +64,7 @@ class LogManager():
                     "is_being_converted": is_being_converted
                 })
 
-                print("after sort")
                 self.available_logs.sort(key = lambda log: self.getLogCompareString(log["name"]), reverse = True)
-                for log in self.available_logs:
-                    print(log)
 
     def getLogCompareString(self, log_name):
         name_without_extension = os.path.splitext(log_name)[0]
