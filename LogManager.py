@@ -29,6 +29,8 @@ from log_converter import convbin
 
 class LogManager():
 
+    supported_solution_formats = ["llh", "xyz", "enu", "nmea", "erb"]
+
     def __init__(self, rtklib_path, log_path):
 
         self.log_path = log_path
@@ -39,68 +41,20 @@ class LogManager():
         self.available_logs = []
         self.updateAvailableLogs()
 
-    def changeLogExtension(self, log_path):
-        # change log extension from .log to .format,
-        # judging by name
-        no_extension_path, extension = os.path.splitext(log_path)
-        new_extension = extension
-
-        if "rov" in no_extension_path:
-            new_extension = ".ubx"
-        elif "ref" in no_extension_path:
-            new_extension = ".rtcm3"
-        elif "bas" in no_extension_path:
-            new_extension = ".rtcm3"
-        elif "sol" in no_extension_path:
-            new_extension = ".pos"
-
-        os.rename(no_extension_path + extension, no_extension_path + new_extension)
-
-    def renameOldLogs(self):
-        all_logs = glob(self.log_path + "/*")
-
-        for log_path in all_logs:
-            no_extension_path, extension = os.path.splitext(log_path)
-
-            if extension == ".log":
-                self.changeLogExtension(no_extension_path + extension)
-
-            if extension == ".rtmc3":
-                self.changeLogExtension(no_extension_path + extension)
-
     def updateAvailableLogs(self):
 
-        # clean previous values
         self.available_logs = []
 
-        self.renameOldLogs()
-
-        # get a list of available .log files in the log directory
-        full_path_logs = glob(self.log_path + "/*.rtcm3") + glob(self.log_path + "/*.ubx") + glob(self.log_path + "/*.pos")
-
-        for log in full_path_logs:
-            if log:
-                # if the entry is not empty, we get file name, size and prepare them for use in templates
-
+        print("Getting a list of available logs")
+        for log in glob(self.log_path + "/*"):
+            if not log.endswith(".zip"):
                 log_name = os.path.basename(log)
                 # get size in bytes and convert to MB
-                log_size = os.path.getsize(log) / (1024*1024.0)
-                log_size = "{0:.2f}".format(log_size)
-
+                log_size = self.getLogSize(log)
 
                 potential_zip_path = os.path.splitext(log)[0] + ".zip"
 
-                log_format = "None"
-                if os.path.isfile(potential_zip_path):
-                    log_format = "RINEX"
-                else:
-                    if log_name.endswith("ubx"):
-                        log_format = "UBX"
-                    elif log_name.endswith("rtcm3"):
-                        log_format = "RTCM3"
-                    elif log_name.endswith("pos"):
-                        log_format = ""
-
+                log_format = self.getLogFormat(log)
                 is_being_converted = True if log == self.log_being_converted else False
 
                 self.available_logs.append({
@@ -110,7 +64,30 @@ class LogManager():
                     "is_being_converted": is_being_converted
                 })
 
-        self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)
+                self.available_logs.sort(key = lambda log: self.getLogCompareString(log["name"]), reverse = True)
+
+    def getLogCompareString(self, log_name):
+        name_without_extension = os.path.splitext(log_name)[0]
+        log_type, log_date = name_without_extension.split("_")
+        return log_date + log_type[0]
+
+    def getLogSize(self, log_path):
+        size = os.path.getsize(log_path) / (1024 * 1024.0)
+        return "{0:.2f}".format(size)
+
+    def getLogFormat(self, log_path):
+        file_path, extension = os.path.splitext(log_path)
+        extension = extension[1:]
+
+        potential_zip_path = file_path + ".zip"
+        if os.path.isfile(potential_zip_path):
+            return "RINEX"
+
+        if (extension in self.supported_solution_formats or
+                    extension in self.convbin.supported_log_formats):
+            return extension.upper()
+        else:
+            return ""
 
     def formTimeString(self, seconds):
         # form a x minutes y seconds string from seconds

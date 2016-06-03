@@ -42,14 +42,13 @@ class Convbin:
         log_format = [f for f in self.supported_log_formats if log_path.endswith(f)]
 
         if log_format:
-            log_metadata = self.convertLogToRINEX(log_path, log_format[0], rinex_version)
+            try:
+                log_metadata = self.convertLogToRINEX(log_path, log_format[0], rinex_version)
+            except ValueError:
+                return None
 
             if log_metadata:
                 result = Log(log_path, log_metadata)
-            else:
-                print("Error: Log invalid, or file extension is wrong")
-        else:
-            print("Error: Bad file extension")
 
         return result
 
@@ -77,12 +76,10 @@ class Convbin:
         self.child.expect(pexpect.EOF, timeout = None)
 
         if self.child.exitstatus != 0 and self.child.signalstatus == None:
-            raise ValueError
             print("Convbin killed by external signal")
-            return None
+            raise ValueError
 
         print("Conversion process finished correctly")
-
         return self.parseConvbinOutput(self.child.before)
 
     def parseConvbinOutput(self, output):
@@ -95,8 +92,7 @@ class Convbin:
             return None
 
     def resultStringIsValid(self, result_string):
-        # we didn't find any valid info if the output is shorter
-        return True if len(result_string) > 8 else False
+        return True if len(result_string) > 21 else False
 
     def extractResultingString(self, output):
         # get the last line of the convbin output

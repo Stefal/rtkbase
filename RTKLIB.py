@@ -582,6 +582,8 @@ class RTKLIB:
         log_filename = os.path.basename(raw_log_path)
         potential_zip_path = os.path.splitext(raw_log_path)[0] + ".zip"
 
+        print("Comparing " + raw_log_path + " and " + potential_zip_path  + " for conversion")
+
         if os.path.isfile(potential_zip_path):
             print("Raw logs differ " + str(self.rawLogsDiffer(raw_log_path, potential_zip_path)))
             return self.rawLogsDiffer(raw_log_path, potential_zip_path)
@@ -598,6 +600,10 @@ class RTKLIB:
         raw_file_inside_info = zip_package.getinfo("Raw/" + log_name)
         raw_file_inside_size = raw_file_inside_info.file_size
 
+        print("Sizes:")
+        print("Inside: " + str(raw_file_inside_size))
+        print("Raw:    " + str(raw_log_size))
+
         if raw_log_size == raw_file_inside_size:
             return False
         else:
@@ -605,7 +611,7 @@ class RTKLIB:
 
     def getRINEXPackage(self, raw_log_path):
         # if this is a solution log, return the file right away
-        if raw_log_path.endswith("pos"):
+        if "sol" in raw_log_path:
             log_url_tail = "/logs/download/" + os.path.basename(raw_log_path)
             self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
             return raw_log_path
@@ -957,7 +963,7 @@ class RTKLIB:
                 print("Sending RTKLIB status select information:")
                 print(self.rtkc.info)
 
-            self.socketio.emit("coordinate broadcast", self.rtkc.info, namespace = "/test")
+            self.socketio.emit("coordinate broadcast", self.rtkc.status, namespace = "/test")
 
             if self.enable_led:
                 self.updateLED()
