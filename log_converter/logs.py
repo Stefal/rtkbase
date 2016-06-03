@@ -113,9 +113,8 @@ class LogMetadata:
         raw_data = "".join(data_list)
         raw_data = raw_data.translate(None, "/:\r")
 
-        start_timestamp = raw_data.split("-")[0]
-        stop_timestamp = raw_data.split("-")[1]
-
+        print("Raw data is " + raw_data)
+        start_timestamp, stop_timestamp = raw_data.split("-")
         stop_year = self.calculateStopYear(start_timestamp, stop_timestamp)
 
         self.start_timestamp = start_timestamp

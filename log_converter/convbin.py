@@ -95,8 +95,9 @@ class Convbin:
             return None
 
     def resultStringIsValid(self, result_string):
-        # we didn't find any valid info if the output is shorter
-        return True if len(result_string) > 8 else False
+        print("CHECKING VALIDITY OF THE RESULT STRING")
+        print(result_string)
+        return True if len(result_string) > 19 else False
 
     def extractResultingString(self, output):
         # get the last line of the convbin output
