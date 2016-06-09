@@ -201,7 +201,7 @@ function addDivider(){
         var date = log_start_time.split(' ');
 
         if(currentDate != date[1])
-            $(this).text(date[1]);
+            $(this).find('span').text(date[1]);
        else
             $(this).remove();
 
@@ -221,6 +221,9 @@ function registerDownloadLogHandler(){
 }
 
 function registerDeleteLogHandler(){
+
+    delete_day_log = false;
+
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
         $(this).parent().remove();
@@ -233,6 +236,24 @@ function registerDeleteLogHandler(){
             $('.empty_logs').css('display', 'block');
         }
     });
+
+    $('.full_log_delete').click(function(){
+        $('#popupLogDelete').popup( "open");
+        $('#popupLogDelete').find( "#delete_index").val($(this).parent().index('.data_divider'));
+    })
+
+    $('#delete-day-log').click(function(){
+
+        var log_group = $( ".data_divider" ).eq($(this).parent().find('#delete_index').val());
+
+        log_group.nextUntil('.data_divider').each(function(){
+            $(this).find('.delete-log-button').click();
+        });
+
+        log_group.remove();
+
+        $('#popupLogDelete').popup( "close");
+    })
 }
 
 $(document).on("pageinit", "#config_page", function() {
@@ -620,7 +641,7 @@ $(document).on("pageinit", "#logs_page", function() {
                 console.log('is_being_converted: ' + log['is_being_converted']);
             console.groupEnd();
 
-            to_append += "<li data-role='list-divider' class='data_divider'>" + log['name'] + " </li>";
+            to_append += "<li data-role='list-divider' class='data_divider' style='position:relative;'><span>" + log['name'] + "</span><a href='#' class='ui-btn ui-icon-delete ui-btn-icon-notext full_log_delete' style='position:absolute;top:-1px;right:-1px;height:100%;width: calc(2.5em - 2px);'></a></li>";
             to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string'>";
             to_append += "<h2>" + log['name'] + "," + log['size'] + "," + log['format'] + "," + log['is_being_converted'] + "</h2>";
             to_append += "<p class='log_conversion_status_string'></p>";

@@ -366,6 +366,23 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         </div>
         <ul data-role="listview" data-inset="true" id="logs_list" data-split-theme="a">
         </ul>
+        <!-- Popup for day log delete -->
+        <div data-role="popup" id="popupLogDelete">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            <div data-role="header">
+                <h1>Delete logs</h1>
+            </div>
+            <div data-role="main" class="ui-content">
+                <p>Do you really want to delete this logs?</p>
+                <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-transition="flow" id="delete-day-log">Yes</a>
+                <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a" data-rel="back" data-transition="flow">No</a>
+                <input type="hidden" id="delete_index">
+          </div>
+          <div data-role="footer">
+            <h1> </h1>
+          </div>
+        </div>
+        <!-- Popup for input change -->
     </div>
     <div data-role="footer" class="warning_footer">
          <h1>
