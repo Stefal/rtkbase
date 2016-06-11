@@ -378,11 +378,11 @@ function updateCoordinateGrid(msg) {
         // coordinates
         var coordinates = (typeof(msg['pos llh single (deg,m) rover']) == 'undefined') ? '000' : msg['pos llh single (deg,m) rover'].split(',');
 
-        var lon_value = coordinates[0].substring(0, 11) + Array(11 - coordinates[0].substring(0, 11).length + 1).join(" ");
-        var lat_value = coordinates[1].substring(0, 11) + Array(11 - coordinates[1].substring(0, 11).length + 1).join(" ");
+        var lat_value = coordinates[0].substring(0, 11) + Array(11 - coordinates[0].substring(0, 11).length + 1).join(" ");
+        var lon_value = coordinates[1].substring(0, 11) + Array(11 - coordinates[1].substring(0, 11).length + 1).join(" ");
         var height_value = coordinates[2].substring(0, 11) + Array(11 - coordinates[2].substring(0, 11).length + 1 + 2).join(" ");
 
-        $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
         $("#lat_value").html("<span style='white-space:pre;'>" + lat_value + "</span>");
+        $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
         $("#height_value").html("<span style='white-space:pre;'>" + height_value + "  " + "</span>");
 }
