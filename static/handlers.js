@@ -226,16 +226,41 @@ function registerDeleteLogHandler(){
 
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
-        $(this).parent().remove();
+        
+        $('#popupSingleLogDelete').popup( "open");
+        $(this).parent().index('#logs_list .log_string');
+        $('#popupSingleLogDelete').find( "#delete_log_index").val($(this).parent().find('.log_string').index('.log_string'));
+        $('#popupSingleLogDelete').find( "#delete_log_title").val(log_to_delete);
+        $('.current_delete_log_title').text(log_to_delete);
+    });
 
-        console.log("Delete log: " + log_to_delete);
-        socket.emit("delete log", {"name": log_to_delete});
-        socket.emit("get available space");
+    $('#delete-single-log').click(function(){
+        var delete_title = $(this).parent().find('#delete_log_title').val();
+        var delete_index = $(this).parent().find('#delete_log_index').val();
+
+        if($( "#logs_list .log_string" ).eq(delete_index).parent().next().hasClass('data_divider') && $( "#logs_list .log_string" ).eq(delete_index).parent().prev().hasClass('data_divider') || (typeof $( "#logs_list .log_string" ).eq(delete_index).parent().next().attr('class') == "undefined"))
+            $( "#logs_list .log_string" ).eq(delete_index).parent().prev().remove();
+
+        $( "#logs_list .log_string" ).eq(delete_index).parent().remove();
+
+        if(typeof $( "#logs_list .log_string" ).eq(delete_index).attr('id') != "undefined"){
+            var next_log = $( "#logs_list .log_string" ).eq(delete_index).attr('id').slice(6);
+            $('#popupSingleLogDelete').find( "#delete_log_title").val(next_log);
+            $('.current_delete_log_title').text(next_log);
+
+            console.log("Delete log: " + delete_title);
+
+            socket.emit("delete log", {"name": delete_title});
+            socket.emit("get available space");
+        }
+        else{
+             $('#popupSingleLogDelete').popup( "close");
+        }
 
         if($('.log_string').length == '0') {
             $('.empty_logs').css('display', 'block');
         }
-    });
+    })
 
     $('.full_log_delete').click(function(){
         $('#popupLogDelete').popup( "open");
@@ -247,7 +272,14 @@ function registerDeleteLogHandler(){
         var log_group = $( ".data_divider" ).eq($(this).parent().find('#delete_index').val());
 
         log_group.nextUntil('.data_divider').each(function(){
-            $(this).find('.delete-log-button').click();
+            var log_to_delete = $(this).find('.delete-log-button').parent().children('.log_string').attr('id').slice(6);
+            $(this).find('.delete-log-button').parent().remove();
+            socket.emit("delete log", {"name": log_to_delete});
+            socket.emit("get available space");
+
+            if($('.log_string').length == '0') {
+                $('.empty_logs').css('display', 'block');
+            }
         });
 
         log_group.remove();
