@@ -84,19 +84,31 @@ function deleteCancelConversionButton(log_being_converted) {
 
     console.log("Updating icon from delete to cancel on button " + dialog_id);
     console.log("Current icon is " + $("#" + dialog_id).attr("data-icon"));
-    // dialog_id = dialog_id.replace(".", "_");
 
     $(".cancel-log-button").off("click");
     $(".cancel-log-button").on("click", function () {
+        console.log('something wrong here');
+
         var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
-        $(this).parent().remove();
+        var log_parse = log_to_delete.split('_');
 
-        console.log("Delete log: " + log_to_delete);
-        socket.emit("delete log", {"name": log_to_delete});
+            if(log_parse[0] == 'rov')
+                var log_state = 'rover';
+            else if(log_parse[0] == 'ref')
+                var log_state = 'reference';
+            else if(log_parse[0] == 'bas')
+                var log_state = 'base';
+            else
+                var log_state = 'solution';
 
-        if($('.log_string').length == '0') {
-            $('.empty_logs').css('display', 'block');
-        }
+        var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
+        
+        $('#popupSingleLogDelete').popup( "open");
+        $(this).parent().index('#logs_list .log_string');
+        $('#popupSingleLogDelete').find( "#delete_log_index").val($(this).parent().find('.log_string').index('.log_string'));
+        $('#popupSingleLogDelete').find( "#delete_log_title").val(log_to_delete);
+        $('.current_delete_log_title').text(log_state);
+        $('.current_delete_log_date').text(log_date);
     })
 
     $("#" + dialog_id).attr("data-icon", "delete");
@@ -226,12 +238,25 @@ function registerDeleteLogHandler(){
 
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
+        var log_parse = log_to_delete.split('_');
+
+            if(log_parse[0] == 'rov')
+                var log_state = 'rover';
+            else if(log_parse[0] == 'ref')
+                var log_state = 'reference';
+            else if(log_parse[0] == 'bas')
+                var log_state = 'base';
+            else
+                var log_state = 'solution';
+
+        var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
         
         $('#popupSingleLogDelete').popup( "open");
         $(this).parent().index('#logs_list .log_string');
         $('#popupSingleLogDelete').find( "#delete_log_index").val($(this).parent().find('.log_string').index('.log_string'));
         $('#popupSingleLogDelete').find( "#delete_log_title").val(log_to_delete);
-        $('.current_delete_log_title').text(log_to_delete);
+        $('.current_delete_log_title').text(log_state);
+        $('.current_delete_log_date').text(log_date);
     });
 
     $('#delete-single-log').click(function(){
@@ -245,8 +270,23 @@ function registerDeleteLogHandler(){
 
         if(typeof $( "#logs_list .log_string" ).eq(delete_index).attr('id') != "undefined"){
             var next_log = $( "#logs_list .log_string" ).eq(delete_index).attr('id').slice(6);
+
+            var log_parse = next_log.split('_');
+
+            if(log_parse[0] == 'rov')
+                var log_state = 'rover';
+            else if(log_parse[0] == 'ref')
+                var log_state = 'reference';
+            else if(log_parse[0] == 'bas')
+                var log_state = 'base';
+            else
+                var log_state = 'solution';
+
+            var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
+
             $('#popupSingleLogDelete').find( "#delete_log_title").val(next_log);
-            $('.current_delete_log_title').text(next_log);
+            $('.current_delete_log_title').text(log_state);
+            $('.current_delete_log_date').text(log_date);
 
             console.log("Delete log: " + delete_title);
 
@@ -258,7 +298,9 @@ function registerDeleteLogHandler(){
         }
 
         if($('.log_string').length == '0') {
-            $('.empty_logs').css('display', 'block');
+            $('.no_logs').css('display', 'block');
+            socket.emit("get logs list");
+            socket.emit("get available space");
         }
     })
 
@@ -278,7 +320,9 @@ function registerDeleteLogHandler(){
             socket.emit("get available space");
 
             if($('.log_string').length == '0') {
-                $('.empty_logs').css('display', 'block');
+                $('.no_logs').css('display', 'block');
+                socket.emit("get logs list");
+                socket.emit("get available space");
             }
         });
 
@@ -574,8 +618,6 @@ $(document).on("pageinit", "#config_page", function() {
         var config_name = $("#config_select").val();
         var config_to_send = GetConfigToSend();
 
-        // console.log(config_to_send);
-
         console.groupCollapsed('Sending config ' + config_name + ' to save:');
             jQuery.each(config_to_send, function(i, val) {
                 console.groupCollapsed(val['parameter']);
@@ -708,7 +750,6 @@ $(document).on("pageinit", "#logs_page", function() {
             $('.empty_logs').css('display', 'none');
             $('.no_logs').css('display', 'none');
         }
-            // $('.empty_logs').css('display', 'none');
 
     });
 
