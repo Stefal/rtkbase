@@ -163,6 +163,8 @@ function splitLogInformation(){
                 log_state = 'Reference';
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
+            else if(splitLogString[0].slice(0, 3) == 'cor')
+                log_state = 'Correction';
             else
                 log_state = 'Solution';
 
