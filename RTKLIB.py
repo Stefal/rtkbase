@@ -961,7 +961,7 @@ class RTKLIB:
 
             if count % 10 == 0:
                 print("Sending RTKLIB status select information:")
-                print(self.rtkc.info)
+                print(self.rtkc.status)
 
             self.socketio.emit("coordinate broadcast", self.rtkc.status, namespace = "/test")
 
