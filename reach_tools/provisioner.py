@@ -27,13 +27,20 @@ import pip
 import subprocess
 import os
 import reach_tools
+import imp
 
 def install_pip_packages():
 
-    packages = ["pybluez"]
+    packages = [
+        ("pybluez", "bluetooth")
+    ]
 
     for p in packages:
-        pip.main(["install", p])
+        try:
+            imp.find_module(p[1])
+        except ImportError:
+            print("No module " + p[0] + " found...")
+            pip.main(["install", p[0]])
 
 def check_opkg_packages(packages):
 
