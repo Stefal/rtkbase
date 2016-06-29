@@ -230,7 +230,7 @@ class RtkController:
             # print("Got status!!!:")
 
             for line in status:
-                spl = line.split(":")
+                spl = line.split(":", 1)
 
                 if len(spl) > 1:
                     # get rid of extra whitespace
