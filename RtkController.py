@@ -221,102 +221,18 @@ class RtkController:
             self.semaphore.release()
             return -1
 
-        # time to extract information from the status form
-
         status = self.child.before.split("\r\n")
 
         if status != {}:
-
-            # print("Got status!!!:")
-
             for line in status:
                 spl = line.split(":", 1)
 
                 if len(spl) > 1:
-                    # get rid of extra whitespace
 
                     param = spl[0].strip()
                     value = spl[1].strip()
 
                     self.status[param] = value
-
-                    # print(param + ":::"  + value)
-
-                    # print("Gotten status:\n" + str(self.status))
-
-            if self.status != {}:
-                # print("Current status:\n" + str(self.status))
-                self.info = {}
-
-
-                for key in self.status:
-                    # we want to parse all the messages received by rover, base or corr
-                    # this entry has a form of "# of input data rover"
-                    if key.startswith("# of input data"):
-                        # first we figure out what is this - rover, base or corr
-                        msg_from = key.rsplit(" ", 1)[1]
-
-                        # after split the message information has the form of "obs(100)" or "ion(10)"
-                        # split the messages by type
-                        input_messages = self.status[key].split(",")
-
-                        # the order for the messages is:
-                        # obs(0),nav(0),gnav(0),ion(0),sbs(0),pos(0),dgps(0),ssr(0),err(0)
-                        for msg in input_messages:
-                            first_bracket_index = msg.find("(")
-                            msg_type = msg[:first_bracket_index]
-                            msg_amount_received = msg[first_bracket_index + 1:msg.find(")")]
-                            # we save them in the form of self.info["obs_rover"] = "10"
-                            self.info[msg_type + "_" + msg_from] = msg_amount_received
-
-                    if key.startswith("# of rtcm messages"):
-                        # first we figure out what is this - rover, base or corr
-                        msg_from = key.rsplit(" ", 1)[1]
-
-                        # after split the message information has the form of "1010(100)" or "1002(10)"
-                        # split the messages by type
-                        # unlike input data, this one can be empty, thus extra if
-                        if self.status[key]:
-                            input_messages = self.status[key].split(",")
-
-                            # the order for the messages is:
-                            # obs(0),nav(0),gnav(0),ion(0),sbs(0),pos(0),dgps(0),ssr(0),err(0)
-                            for msg in input_messages:
-                                first_bracket_index = msg.find("(")
-                                msg_type = msg[:first_bracket_index]
-                                msg_amount_received = msg[first_bracket_index + 1:msg.find(")")]
-                                # we save them in the form of self.info["obs_rover"] = "10"
-                                self.info["rtcm_" + msg_type + "_" + msg_from] = msg_amount_received
-
-                    if key.startswith("# of satellites"):
-                        msg_from = key.rsplit(" ", 1)[1]
-
-                        if self.status[key]:
-                            self.info["satellites_" + msg_from] = self.status[key]
-
-                    if key == "# of valid satellites":
-                        self.info["satellites_valid"] = self.status[key]
-
-
-                    if key == "solution status":
-                        self.info["solution_status"] = self.status[key]
-
-                    if key == "positioning mode":
-                        self.info["positioning_mode"] = self.status[key]
-
-                    if key == "age of differential (s)":
-                        self.info["age_of_differential"] = self.status[key]
-
-                    if key == "pos llh single (deg,m) rover":
-                        llh = self.status[key].split(",")
-                        if len(llh) > 2:
-                            lat = llh[0]
-                            lon = llh[1]
-                            height = llh[2]
-
-                            self.info["lat"] = lat
-                            self.info["lon"] = lon
-                            self.info["height"] = height
 
         self.semaphore.release()
 
@@ -335,14 +251,9 @@ class RtkController:
             self.semaphore.release()
             return -1
 
-        # time to extract information from the obs form
-
         obs = self.child.before.split("\r\n")
-
-        # strip out empty lines
         obs = filter(None, obs)
 
-        # check for the header string
         matching_strings = [s for s in obs if "SAT" in s]
 
         if matching_strings != []:
@@ -386,20 +297,9 @@ class RtkController:
         self.semaphore.release()
 
         return 1
-### example usage
 
-#import timeit
-#print(timeit.timeit("rc.getStatus()", "import RtkController; rc = RtkController.RtkController('/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc'); rc.start()", number = 100))
 
-#rtk_location = "/Users/fedorovegor/Documents/RTKLIB/app/rtkrcv/gcc"
-#rc = RtkController(rtk_location)
 
-# if rc.start() > 0:
-#     rc.restart()
 
-#     while(1):
-#         rc.getStatus()
-#         print("###STATUS###")
-#         print(rc.status)
-#         rc.getObs()
-#         time.sleep(1)
+
+
