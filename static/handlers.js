@@ -314,19 +314,24 @@ function registerDeleteLogHandler(){
         var log_group = $( ".data_divider" ).eq($(this).parent().find('#delete_index').val());
 
         log_group.nextUntil('.data_divider').each(function(){
-            var log_to_delete = $(this).find('.delete-log-button').parent().children('.log_string').attr('id').slice(6);
-            $(this).find('.delete-log-button').parent().remove();
-            socket.emit("delete log", {"name": log_to_delete});
-            socket.emit("get available space");
+            $(this).addClass('log_to_delete');
+        });
 
-            if($('.log_string').length == '0') {
-                $('.no_logs').css('display', 'block');
-                socket.emit("get logs list");
-                socket.emit("get available space");
-            }
+        $('.log_to_delete').each(function(){
+            var log_to_delete = $(this).find('.log_string').attr('id').slice(6);
+            $(this).remove();
+
+            socket.emit("delete log", {"name": log_to_delete});
         });
 
         log_group.remove();
+
+        if($('.log_string').length == '0') {
+            $('.no_logs').css('display', 'block');
+            socket.emit("get logs list");
+            socket.emit("get available space");
+        }
+        socket.emit("get available space");
 
         $('#popupLogDelete').popup( "close");
     })
@@ -696,12 +701,14 @@ $(document).on("click", ".logs_page", function() {
 });
 
 $(document).on("pageinit", "#logs_page", function() {
-
+    
     var interval_timer = "";
     var timeout_timer = "";
 
     socket.on("available logs", function(msg) {
 
+        $( "#delete-day-log").unbind( "click" );
+        
         var to_append = "";
 
         console.groupCollapsed("Received logs:");
