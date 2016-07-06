@@ -27,13 +27,21 @@ import pip
 import subprocess
 import os
 import reach_tools
+import imp
+import shutil
 
 def install_pip_packages():
 
-    packages = ["pybluez"]
+    packages = [
+        ("pybluez", "bluetooth")
+    ]
 
     for p in packages:
-        pip.main(["install", p])
+        try:
+            imp.find_module(p[1])
+        except ImportError:
+            print("No module " + p[0] + " found...")
+            pip.main(["install", p[0]])
 
 def check_opkg_packages(packages):
 
@@ -113,11 +121,27 @@ def update_bluetooth_service():
     enable_bt_compatibility(second)
     restart_bt_daemon()
 
+def check_RTKLIB_integrity():
+    RTKLIB_path = "/home/reach/RTKLIB/"
+    reachview_binaries_path = "/home/reach/ReachView/rtklib_configs/"
+
+    RTKLIB_binaries = [
+        (RTKLIB_path + "app/rtkrcv/gcc/rtkrcv", reachview_binaries_path + "rtkrcv"),
+        (RTKLIB_path + "app/convbin/gcc/convbin", reachview_binaries_path + "convbin"),
+        (RTKLIB_path + "app/str2str/gcc/str2str", reachview_binaries_path + "str2str")
+    ]
+
+    for b in RTKLIB_binaries:
+        if not os.path.isfile(b[0]):
+            print("Could not find " + b[0] + "! Copying from ReachView backup...")
+            shutil.copy(b[1], b[0])
+
 def provision_reach():
     install_pip_packages()
     packages = ["kernel-module-ftdi-sio"]
     install_opkg_packages(packages)
     update_bluetooth_service()
+    check_RTKLIB_integrity()
 
 if __name__ == "__main__":
     provision_reach()
