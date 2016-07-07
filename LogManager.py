@@ -69,7 +69,7 @@ class LogManager():
     def getLogCompareString(self, log_name):
         name_without_extension = os.path.splitext(log_name)[0]
         log_type, log_date = name_without_extension.split("_")
-        return log_date + log_type[0]
+        return log_date + log_type[0:2]
 
     def getLogSize(self, log_path):
         size = os.path.getsize(log_path) / (1024 * 1024.0)
