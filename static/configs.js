@@ -57,10 +57,16 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					$('#pathlog1').attr('type', 'hidden');
 					$('#pathlog1').parent().css({'visibility':'hidden', 'border':'none'});
 				}
-				else if(i == 2)
+				else if(i == 2){
 					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 					$('#pathlog2').attr('type', 'hidden');
 					$('#pathlog2').parent().css({'visibility':'hidden', 'border':'none'});
+				}
+				else if(i == 3){
+					$('#pathlog3').val('/home/reach/logs/cor_%Y%m%d%h%M.rtcm3');
+					$('#pathlog3').attr('type', 'hidden');
+					$('#pathlog3').parent().css({'visibility':'hidden', 'border':'none'});
+				}
 			}
 			else if(method == 'out'){
 				if(i == 1){
