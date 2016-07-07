@@ -207,9 +207,11 @@ function addDivider(){
 
     var currentDate = '';
 
-    $('.data_divider').each(function(){
-        var splitLogString = $(this).text().split(',');
-        var log_start_time = extractTimeFromLogName(splitLogString[0]);
+    $('#logs_list .data_divider').each(function(){
+
+        var splitLogString = $(this).text();
+
+        var log_start_time = extractTimeFromLogName(splitLogString);
         var date = log_start_time.split(' ');
 
         if(currentDate != date[1])
