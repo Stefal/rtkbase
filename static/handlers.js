@@ -263,51 +263,6 @@ function registerDeleteLogHandler(){
         $('.current_delete_log_date').text(log_date);
     });
 
-    $('#delete-single-log').click(function(){
-        var delete_title = $(this).parent().find('#delete_log_title').val();
-        var delete_index = $(this).parent().find('#delete_log_index').val();
-
-        if($( "#logs_list .log_string" ).eq(delete_index).parent().next().hasClass('data_divider') && $( "#logs_list .log_string" ).eq(delete_index).parent().prev().hasClass('data_divider') || (typeof $( "#logs_list .log_string" ).eq(delete_index).parent().next().attr('class') == "undefined"))
-            $( "#logs_list .log_string" ).eq(delete_index).parent().prev().remove();
-
-        $( "#logs_list .log_string" ).eq(delete_index).parent().remove();
-
-        if(typeof $( "#logs_list .log_string" ).eq(delete_index).attr('id') != "undefined"){
-            var next_log = $( "#logs_list .log_string" ).eq(delete_index).attr('id').slice(6);
-
-            var log_parse = next_log.split('_');
-
-            if(log_parse[0] == 'rov')
-                var log_state = 'rover';
-            else if(log_parse[0] == 'ref')
-                var log_state = 'reference';
-            else if(log_parse[0] == 'bas')
-                var log_state = 'base';
-            else
-                var log_state = 'solution';
-
-            var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
-
-            $('#popupSingleLogDelete').find( "#delete_log_title").val(next_log);
-            $('.current_delete_log_title').text(log_state);
-            $('.current_delete_log_date').text(log_date);
-
-            console.log("Delete log: " + delete_title);
-
-            socket.emit("delete log", {"name": delete_title});
-            socket.emit("get available space");
-        }
-        else{
-             $('#popupSingleLogDelete').popup( "close");
-        }
-
-        if($('.log_string').length == '0') {
-            $('.no_logs').css('display', 'block');
-            socket.emit("get logs list");
-            socket.emit("get available space");
-        }
-    })
-
     $('.full_log_delete').click(function(){
         $('#popupLogDelete').popup( "open");
         $('#popupLogDelete').find( "#delete_index").val($(this).parent().index('.data_divider'));
@@ -681,6 +636,51 @@ $(document).on("pageinit", "#logs_page", function() {
     
     var interval_timer = "";
     var timeout_timer = "";
+
+    $('#delete-single-log').click(function(){
+        var delete_title = $(this).parent().find('#delete_log_title').val();
+        var delete_index = $(this).parent().find('#delete_log_index').val();
+
+        if($( "#logs_list .log_string" ).eq(delete_index).parent().next().hasClass('data_divider') && $( "#logs_list .log_string" ).eq(delete_index).parent().prev().hasClass('data_divider') || (typeof $( "#logs_list .log_string" ).eq(delete_index).parent().next().attr('class') == "undefined"))
+            $( "#logs_list .log_string" ).eq(delete_index).parent().prev().remove();
+
+        $( "#logs_list .log_string" ).eq(delete_index).parent().remove();
+
+        if(typeof $( "#logs_list .log_string" ).eq(delete_index).attr('id') != "undefined"){
+            var next_log = $( "#logs_list .log_string" ).eq(delete_index).attr('id').slice(6);
+
+            var log_parse = next_log.split('_');
+
+            if(log_parse[0] == 'rov')
+                var log_state = 'rover';
+            else if(log_parse[0] == 'ref')
+                var log_state = 'reference';
+            else if(log_parse[0] == 'bas')
+                var log_state = 'base';
+            else
+                var log_state = 'solution';
+
+            var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
+
+            $('#popupSingleLogDelete').find( "#delete_log_title").val(next_log);
+            $('.current_delete_log_title').text(log_state);
+            $('.current_delete_log_date').text(log_date);
+        }
+        else{
+             $('#popupSingleLogDelete').popup( "close");
+        }
+
+        console.log("Delete log: " + delete_title);
+
+        socket.emit("delete log", {"name": delete_title});
+        socket.emit("get available space");
+
+        if($('.log_string').length == '0') {
+            $('.no_logs').css('display', 'block');
+            socket.emit("get logs list");
+            socket.emit("get available space");
+        }
+    })
 
     $('.delete-day-log').click(function(){
 
