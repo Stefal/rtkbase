@@ -87,7 +87,6 @@ function deleteCancelConversionButton(log_being_converted) {
 
     $(".cancel-log-button").off("click");
     $(".cancel-log-button").on("click", function () {
-        console.log('something wrong here');
 
         var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
         var log_parse = log_to_delete.split('_');
@@ -103,12 +102,13 @@ function deleteCancelConversionButton(log_being_converted) {
 
         var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
         
-        $('#popupSingleLogDelete').popup( "open");
         $(this).parent().index('#logs_list .log_string');
         $('#popupSingleLogDelete').find( "#delete_log_index").val($(this).parent().find('.log_string').index('.log_string'));
         $('#popupSingleLogDelete').find( "#delete_log_title").val(log_to_delete);
         $('.current_delete_log_title').text(log_state);
         $('.current_delete_log_date').text(log_date);
+
+        $('#popupSingleLogDelete').popup( "open");
     })
 
     $("#" + dialog_id).attr("data-icon", "delete");
@@ -254,13 +254,14 @@ function registerDeleteLogHandler(){
                 var log_state = 'solution';
 
         var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
-        
-        $('#popupSingleLogDelete').popup( "open");
+
         $(this).parent().index('#logs_list .log_string');
         $('#popupSingleLogDelete').find( "#delete_log_index").val($(this).parent().find('.log_string').index('.log_string'));
         $('#popupSingleLogDelete').find( "#delete_log_title").val(log_to_delete);
         $('.current_delete_log_title').text(log_state);
         $('.current_delete_log_date').text(log_date);
+
+        $('#popupSingleLogDelete').popup( "open");
     });
 
     $('.full_log_delete').click(function(){
@@ -637,7 +638,7 @@ $(document).on("pageinit", "#logs_page", function() {
     var interval_timer = "";
     var timeout_timer = "";
 
-    $('#delete-single-log').click(function(){
+    $('.delete-single-log').click(function(){
         var delete_title = $(this).parent().find('#delete_log_title').val();
         var delete_index = $(this).parent().find('#delete_log_index').val();
 
