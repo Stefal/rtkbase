@@ -84,19 +84,31 @@ function deleteCancelConversionButton(log_being_converted) {
 
     console.log("Updating icon from delete to cancel on button " + dialog_id);
     console.log("Current icon is " + $("#" + dialog_id).attr("data-icon"));
-    // dialog_id = dialog_id.replace(".", "_");
 
     $(".cancel-log-button").off("click");
     $(".cancel-log-button").on("click", function () {
+
         var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
-        $(this).parent().remove();
+        var log_parse = log_to_delete.split('_');
 
-        console.log("Delete log: " + log_to_delete);
-        socket.emit("delete log", {"name": log_to_delete});
+            if(log_parse[0] == 'rov')
+                var log_state = 'rover';
+            else if(log_parse[0] == 'ref')
+                var log_state = 'reference';
+            else if(log_parse[0] == 'bas')
+                var log_state = 'base';
+            else
+                var log_state = 'solution';
 
-        if($('.log_string').length == '0') {
-            $('.empty_logs').css('display', 'block');
-        }
+        var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
+        
+        $(this).parent().index('#logs_list .log_string');
+        $('#popupSingleLogDelete').find( "#delete_log_index").val($(this).parent().find('.log_string').index('.log_string'));
+        $('#popupSingleLogDelete').find( "#delete_log_title").val(log_to_delete);
+        $('.current_delete_log_title').text(log_state);
+        $('.current_delete_log_date').text(log_date);
+
+        $('#popupSingleLogDelete').popup( "open");
     })
 
     $("#" + dialog_id).attr("data-icon", "delete");
@@ -163,6 +175,8 @@ function splitLogInformation(){
                 log_state = 'Reference';
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
+            else if(splitLogString[0].slice(0, 3) == 'cor')
+                log_state = 'Correction';
             else
                 log_state = 'Solution';
 
@@ -195,13 +209,15 @@ function addDivider(){
 
     var currentDate = '';
 
-    $('.data_divider').each(function(){
-        var splitLogString = $(this).text().split(',');
-        var log_start_time = extractTimeFromLogName(splitLogString[0]);
+    $('#logs_list .data_divider').each(function(){
+
+        var splitLogString = $(this).text();
+
+        var log_start_time = extractTimeFromLogName(splitLogString);
         var date = log_start_time.split(' ');
 
         if(currentDate != date[1])
-            $(this).text(date[1]);
+            $(this).find('span').text(date[1]);
        else
             $(this).remove();
 
@@ -221,18 +237,37 @@ function registerDownloadLogHandler(){
 }
 
 function registerDeleteLogHandler(){
+
+    delete_day_log = false;
+
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
-        $(this).parent().remove();
+        var log_parse = log_to_delete.split('_');
 
-        console.log("Delete log: " + log_to_delete);
-        socket.emit("delete log", {"name": log_to_delete});
-        socket.emit("get available space");
+            if(log_parse[0] == 'rov')
+                var log_state = 'rover';
+            else if(log_parse[0] == 'ref')
+                var log_state = 'reference';
+            else if(log_parse[0] == 'bas')
+                var log_state = 'base';
+            else
+                var log_state = 'solution';
 
-        if($('.log_string').length == '0') {
-            $('.empty_logs').css('display', 'block');
-        }
+        var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
+
+        $(this).parent().index('#logs_list .log_string');
+        $('#popupSingleLogDelete').find( "#delete_log_index").val($(this).parent().find('.log_string').index('.log_string'));
+        $('#popupSingleLogDelete').find( "#delete_log_title").val(log_to_delete);
+        $('.current_delete_log_title').text(log_state);
+        $('.current_delete_log_date').text(log_date);
+
+        $('#popupSingleLogDelete').popup( "open");
     });
+
+    $('.full_log_delete').click(function(){
+        $('#popupLogDelete').popup( "open");
+        $('#popupLogDelete').find( "#delete_index").val($(this).parent().index('.data_divider'));
+    })
 }
 
 $(document).on("pageinit", "#config_page", function() {
@@ -521,8 +556,6 @@ $(document).on("pageinit", "#config_page", function() {
         var config_name = $("#config_select").val();
         var config_to_send = GetConfigToSend();
 
-        // console.log(config_to_send);
-
         console.groupCollapsed('Sending config ' + config_name + ' to save:');
             jQuery.each(config_to_send, function(i, val) {
                 console.groupCollapsed(val['parameter']);
@@ -601,12 +634,86 @@ $(document).on("click", ".logs_page", function() {
 });
 
 $(document).on("pageinit", "#logs_page", function() {
-
+    
     var interval_timer = "";
     var timeout_timer = "";
 
-    socket.on("available logs", function(msg) {
+    $('.delete-single-log').click(function(){
+        var delete_title = $(this).parent().find('#delete_log_title').val();
+        var delete_index = $(this).parent().find('#delete_log_index').val();
 
+        if($( "#logs_list .log_string" ).eq(delete_index).parent().next().hasClass('data_divider') && $( "#logs_list .log_string" ).eq(delete_index).parent().prev().hasClass('data_divider') || (typeof $( "#logs_list .log_string" ).eq(delete_index).parent().next().attr('class') == "undefined"))
+            $( "#logs_list .log_string" ).eq(delete_index).parent().prev().remove();
+
+        $( "#logs_list .log_string" ).eq(delete_index).parent().remove();
+
+        if(typeof $( "#logs_list .log_string" ).eq(delete_index).attr('id') != "undefined"){
+            var next_log = $( "#logs_list .log_string" ).eq(delete_index).attr('id').slice(6);
+
+            var log_parse = next_log.split('_');
+
+            if(log_parse[0] == 'rov')
+                var log_state = 'rover';
+            else if(log_parse[0] == 'ref')
+                var log_state = 'reference';
+            else if(log_parse[0] == 'bas')
+                var log_state = 'base';
+            else
+                var log_state = 'solution';
+
+            var log_date = log_parse[1].substr(8, 2) + ':' + log_parse[1].substr(10, 2) + ' ' + log_parse[1].substr(6, 2) + '.' + log_parse[1].substr(4, 2) + '.' + log_parse[1].substr(0, 4);
+
+            $('#popupSingleLogDelete').find( "#delete_log_title").val(next_log);
+            $('.current_delete_log_title').text(log_state);
+            $('.current_delete_log_date').text(log_date);
+        }
+        else{
+             $('#popupSingleLogDelete').popup( "close");
+        }
+
+        console.log("Delete log: " + delete_title);
+
+        socket.emit("delete log", {"name": delete_title});
+        socket.emit("get available space");
+
+        if($('.log_string').length == '0') {
+            $('.no_logs').css('display', 'block');
+            socket.emit("get logs list");
+            socket.emit("get available space");
+        }
+    })
+
+    $('.delete-day-log').click(function(){
+
+        var log_group = $( ".data_divider" ).eq($(this).parent().find('#delete_index').val());
+
+        log_group.nextUntil('.data_divider').each(function(){
+            $(this).addClass('log_to_delete');
+        });
+
+        $('.log_to_delete').each(function(){
+            var log_to_delete = $(this).find('.log_string').attr('id').slice(6);
+            $(this).remove();
+
+            socket.emit("delete log", {"name": log_to_delete});
+        });
+
+        log_group.remove();
+
+        if($('.log_string').length == '0') {
+            $('.no_logs').css('display', 'block');
+            socket.emit("get logs list");
+            socket.emit("get available space");
+        }
+        
+        socket.emit("get available space");
+
+        $('#popupLogDelete').popup( "close");
+    })
+
+
+    socket.on("available logs", function(msg) {
+        
         var to_append = "";
 
         console.groupCollapsed("Received logs:");
@@ -620,7 +727,7 @@ $(document).on("pageinit", "#logs_page", function() {
                 console.log('is_being_converted: ' + log['is_being_converted']);
             console.groupEnd();
 
-            to_append += "<li data-role='list-divider' class='data_divider'>" + log['name'] + " </li>";
+            to_append += "<li data-role='list-divider' class='data_divider' style='position:relative;'><span>" + log['name'] + "</span><a href='#' class='ui-btn ui-icon-delete ui-btn-icon-notext full_log_delete' style='position:absolute;top:-1px;right:-1px;height:100%;width: calc(2.5em - 2px);'></a></li>";
             to_append += "<li><a href='#' id='/logs/" +  log['name'] + "' class='log_string'>";
             to_append += "<h2>" + log['name'] + "," + log['size'] + "," + log['format'] + "," + log['is_being_converted'] + "</h2>";
             to_append += "<p class='log_conversion_status_string'></p>";
@@ -655,7 +762,6 @@ $(document).on("pageinit", "#logs_page", function() {
             $('.empty_logs').css('display', 'none');
             $('.no_logs').css('display', 'none');
         }
-            // $('.empty_logs').css('display', 'none');
 
     });
 
