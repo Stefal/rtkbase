@@ -284,7 +284,7 @@ class Str2StrController:
         # terminate the stream
 
         if self.started:
-            self.child.kill(signal.SIGINT)
+            self.child.kill(signal.SIGUSR2)
             try:
                 self.child.wait()
             except pexpect.ExceptionPexpect:
