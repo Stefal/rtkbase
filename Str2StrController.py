@@ -22,6 +22,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import signal
 import pexpect
 from glob import glob
 
@@ -283,13 +284,14 @@ class Str2StrController:
         # terminate the stream
 
         if self.started:
-            if self.child.terminate():
-                self.started = False
-                return 1
-            else:
-                # something went wrong
-                print("Could not terminate str2str")
-                return -1
+            self.child.kill(signal.SIGINT)
+            try:
+                self.child.wait()
+            except pexpect.ExceptionPexpect:
+                print("Str2str already down")
+
+            self.started = False
+            return 1
 
         # str2str already stopped
         return 2

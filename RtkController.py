@@ -21,9 +21,10 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
+import signal
 import pexpect
 from threading import Semaphore, Thread
-import time
 
 # This module automates working with RTKRCV directly
 # You can get sat levels, current status, start and restart the software
@@ -103,16 +104,7 @@ class RtkController:
         if self.launched:
             self.semaphore.acquire()
 
-            self.child.send("shutdown\r\n")
-
-            a = self.child.expect([":", pexpect.EOF, "error"])
-
-            if a > 0:
-                print("Stop error")
-                r = -1
-            else:
-                self.child.send("y\r\n")
-                r = 1
+            self.child.kill(signal.SIGUSR2)
 
             # wait for rtkrcv to shutdown
             try:
@@ -122,9 +114,10 @@ class RtkController:
 
             if self.child.isalive():
                 r = -1
+            else:
+                r = 1
 
             self.semaphore.release()
-
             self.launched = False
 
             return r
