@@ -172,7 +172,7 @@ function Chart() {
 
         // msg object contains satellite data for rover in {"name0": "level0", "name1": "level1"} format
 
-        // we want to display the top 10 results
+        // we want to display the top 20 results
         var number_of_satellites = 20;
 
         // graph has a list of datasets. rover sat values are in the first one
