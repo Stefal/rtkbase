@@ -15,8 +15,8 @@
 # set SBAS 1-3 channels
 !UBX CFG-GNSS 0 32 32 1 1 1 3 0 1 0 1 1
 
-# set Galileo 0 channels off
-!UBX CFG-GNSS 0 32 32 1 2 0 0 0 0 0 0 1
+# set Galileo 0-8 channels
+!UBX CFG-GNSS 0 32 32 1 2 0 8 0 1 0 1 1
 
 # set BeiDou 8-16 channels off
 !UBX CFG-GNSS 0 32 32 1 3 8 16 0 0 0 1 1
@@ -25,7 +25,7 @@
 !UBX CFG-GNSS 0 32 32 1 4 0 8 0 0 0 1 1
 
 # set QZSS 0-3 channels
-!UBX CFG-GNSS 0 32 32 1 5 0 3 0 1 0 1 1
+!UBX CFG-GNSS 0 32 32 1 5 0 0 0 1 0 0 1
 
 # set GLONASS 8-14 channels
 !UBX CFG-GNSS 0 32 32 1 6 8 14 0 1 0 1 1
