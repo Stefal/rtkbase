@@ -317,7 +317,7 @@ function showBase(msg){
 	var prefixArr = ['out'];
 	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
     var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
-    var optionsArr = ['1002', '1006', '1008', '1010', '1019', '1020', '1107', '1117', '1127'];
+    var optionsArr = ['1002', '1006', '1008', '1010', '1019', '1020', '1107', '1117', '1127','1077','1087','1097','1045'];
 
     console.groupCollapsed("Received current base config:");
     // clean prev versions
