@@ -148,7 +148,7 @@ class Str2StrController:
         # default parameters here are Reach standards
 
         def_parameters = [
-            "ttyMFD1",
+            "ttyACM0",
             "230400",
             "8",
             "n",
