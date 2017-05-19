@@ -140,6 +140,8 @@ class RtkController:
             self.semaphore.release()
             self.started = True
 
+	    self.restart()
+	    print("Restart")
             return 1
 
         # already started
