@@ -33,17 +33,18 @@ import signal
 import sys
 
 from RTKLIB import RTKLIB
-from port import changeBaudrateTo230400
+from port import changeBaudrateTo115200
 from reach_tools import reach_tools, provisioner
 
 print("Installing all required packages")
-provisioner.provision_reach()
+#provisioner.provision_reach()
 
-import reach_bluetooth.bluetoothctl
-import reach_bluetooth.tcp_bridge
+#import reach_bluetooth.bluetoothctl
+#import reach_bluetooth.tcp_bridge
 
 from threading import Thread
-from flask import Flask, render_template, session, request, send_file
+from flask import Flask, render_template, session, request, send_file, flash, redirect, abort
+
 from flask.ext.socketio import SocketIO, emit, disconnect
 from subprocess import check_output
 
@@ -56,12 +57,14 @@ app.config["UPLOAD_FOLDER"] = "../logs"
 socketio = SocketIO(app)
 
 # bluetooth init
-bluetoothctl = reach_bluetooth.bluetoothctl.Bluetoothctl()
-bluetooth_bridge = reach_bluetooth.tcp_bridge.TCPtoRFCOMMBridge()
-bluetooth_bridge.start()
+print("bluetooth was here")
+#bluetoothctl = reach_bluetooth.bluetoothctl.Bluetoothctl()
+#bluetooth_bridge = reach_bluetooth.tcp_bridge.TCPtoRFCOMMBridge()
+#bluetooth_bridge.start()
 
-# configure Ublox for 230400 baudrate!
-changeBaudrateTo230400()
+# configure Ublox for 115200 baudrate!
+print("ublox baud")
+changeBaudrateTo115200()
 rtk = RTKLIB(socketio)
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
@@ -70,56 +73,79 @@ rtk = RTKLIB(socketio)
 @socketio.on("start bluetooth scan", namespace="/test")
 def start_bluetooth_scan():
     print("Starting bluetooth scan")
-    bluetoothctl.start_scan()
-    socketio.emit("bluetooth scan started", namespace="/test")
+#    bluetoothctl.start_scan()
+#    socketio.emit("bluetooth scan started", namespace="/test")
 
 @socketio.on("get discoverable bluetooth devices", namespace="/test")
 def send_available_bluetooth_devices():
     print("Sending available bluetooth devices")
-    devices = bluetoothctl.get_discoverable_devices()
-    print(devices)
-    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
+#    devices = bluetoothctl.get_discoverable_devices()
+#    print(devices)
+#    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
 @socketio.on("get paired bluetooth devices", namespace="/test")
 def send_paired_bluetooth_devices():
     print("Sending paired bluetooth devices")
-    devices = bluetoothctl.get_paired_devices()
-    print(devices)
-    socketio.emit("paired bluetooth devices", devices, namespace="/test")
+#    devices = bluetoothctl.get_paired_devices()
+#    print(devices)
+#    socketio.emit("paired bluetooth devices", devices, namespace="/test")
 
 @socketio.on("pair bluetooth device", namespace="/test")
 def pair_bluetooth_device(device):
     print("Pairing device " + str(device))
-    print("Pairing OK == " + str(bluetoothctl.pair(device["mac_address"])))
-    devices = bluetoothctl.get_paired_devices()
+#    print("Pairing OK == " + str(bluetoothctl.pair(device["mac_address"])))
+#    devices = bluetoothctl.get_paired_devices()
     print("Updating paired devices: ")
-    print(devices)
-    socketio.emit("paired bluetooth devices", devices, namespace="/test")
-    devices = bluetoothctl.get_discoverable_devices()
-    print(devices)
-    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
+#    print(devices)
+#    socketio.emit("paired bluetooth devices", devices, namespace="/test")
+#    devices = bluetoothctl.get_discoverable_devices()
+#    print(devices)
+#    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
 @socketio.on("remove paired device", namespace="/test")
 def remove_paired_device(device):
     print("Removing paired device " + str(device))
-    print("Removed OK == " + str(bluetoothctl.remove(device["mac_address"])))
-    devices = bluetoothctl.get_paired_devices()
+#    print("Removed OK == " + str(bluetoothctl.remove(device["mac_address"])))
+#    devices = bluetoothctl.get_paired_devices()
     print("Updating paired devices: ")
-    print(devices)
-    socketio.emit("paired bluetooth devices", devices, namespace="/test")
-    devices = bluetoothctl.get_discoverable_devices()
-    print(devices)
-    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
+#    print(devices)
+#    socketio.emit("paired bluetooth devices", devices, namespace="/test")
+#    devices = bluetoothctl.get_discoverable_devices()
+#    print(devices)
+#    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
 
-@app.route("/")
+#@app.route("/")
+#def index():
+#    rtk.logm.updateAvailableLogs()
+#    return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
+
+@app.route('/')
 def index():
-    rtk.logm.updateAvailableLogs()
-    return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        rtk.logm.updateAvailableLogs()
+	return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
 
 @app.route("/logs/download/<path:log_name>")
 def downloadLog(log_name):
     full_log_path = rtk.logm.log_path + "/" + log_name
     return send_file(full_log_path, as_attachment = True)
+
+@app.route('/login', methods=['POST'])
+def do_admin_login():
+    if request.form['password'] == 'password' and request.form['username'] == 'admin':
+        session['logged_in'] = True
+    else:
+        flash('wrong password!')
+    return index()
+
+#@app.route("/logout")
+#def logout():
+#    print("logging out")
+#    session['logged_in'] = False
+#    return index()
+
 
 #### Handle connect/disconnect events ####
 
@@ -265,25 +291,35 @@ def resetConfig(json):
 def updateReachView():
     print("Got signal to update!!!")
     print("Server interrupted by user to update!!")
-    rtk.shutdown()
-    bluetooth_bridge.stop()
-    socketio.server.stop()
-    os.execl("/home/reach/ReachView/update.sh", "", str(os.getpid()))
+#    rtk.shutdown()
+#    bluetooth_bridge.stop()
+#    socketio.server.stop()
+#    os.execl("/home/reach/update.sh", "", str(os.getpid()))
 
 #### Device hardware functions ####
 
 @socketio.on("reboot device", namespace="/test")
 def rebootReach():
     print("Rebooting...")
+    rtk.shutdown()
+    socketio.server.stop()
     check_output("reboot")
+
+@socketio.on("shutdown device", namespace="/test")
+def shutdownReach():
+    print("Shutdown...")
+    rtk.shutdown()
+    socketio.server.stop()
+    check_output(["shutdown", "now"])
 
 @socketio.on("turn off wi-fi", namespace="/test")
 def turnOffWiFi():
     print("Turning off wi-fi")
-    check_output("rfkill block wlan", shell = True)
+#    check_output("rfkill block wlan", shell = True)
 
 if __name__ == "__main__":
     try:
+        app.secret_key = os.urandom(12)
         socketio.run(app, host = "0.0.0.0", port = 80)
 
     except KeyboardInterrupt:
@@ -291,7 +327,7 @@ if __name__ == "__main__":
 
         # clean up broadcast and blink threads
         rtk.server_not_interrupted = False
-        rtk.led.blinker_not_interrupted = False
+#        rtk.led.blinker_not_interrupted = False
         rtk.waiting_for_single = False
 
         if rtk.coordinate_thread is not None:
@@ -300,6 +336,6 @@ if __name__ == "__main__":
         if rtk.satellite_thread is not None:
             rtk.satellite_thread.join()
 
-        if rtk.led.blinker_thread is not None:
-            rtk.led.blinker_thread.join()
+#        if rtk.led.blinker_thread is not None:
+#            rtk.led.blinker_thread.join()
 
