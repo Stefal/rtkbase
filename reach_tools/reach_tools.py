@@ -41,56 +41,62 @@ def getImageVersion():
 def getNetworkStatus():
 
     # get Wi-Fi mode, Master or Managed
-    cmd = ["configure_edison", "--showWiFiMode"]
-    cmd = " ".join(cmd)
-    mode = subprocess.check_output(cmd, shell = True).strip()
+#    cmd = ["configure_edison", "--showWiFiMode"]
+#    cmd = " ".join(cmd)
+#    mode = subprocess.check_output(cmd, shell = True).strip()
 
-    ssid = "empty"
-    ip_address = "empty"
+#    mode = "Managed"
+#    ssid = "empty"
+#    ip_address = "empty"
 
-    if mode == "Managed":
+    mode = "Master"
+    ssid = "RTK_test"
+    ip_address = "192.168.43.1"
+
+#    if mode == "Managed":
         # we are in managed, client mode
         # we can extract all information from "wpa_cli status"
 
-        cmd = ["wpa_cli", "status"]
-        cmd = " ".join(cmd)
-        out = subprocess.check_output(cmd, shell = True)
+#        cmd = ["wpa_cli", "status"]
+#        cmd = " ".join(cmd)
+#        out = subprocess.check_output(cmd, shell = True)
 
-        out = out.split("\n")
+#        out = out.split("\n")
 
-        for line in out:
-            if "ssid=" in line:
-                ssid = line[5:]
-            if "ip_address=" in line:
-                ip_address = line[11:]
+#        for line in out:
+#            if "ssid=" in line:
+#                ssid = line[5:]
+#            if "ip_address=" in line:
+#                ip_address = line[11:]
 
-    if mode == "Master":
+#    if mode == "Master":
         # we are in master, AP mode
         # we can extract all info from "configure_edison"
         # with differnet parameters
 
         # example of the output {"hostname": "reach", "ssid": "reach:ec:e8", "default_ssid": "edison_ap"}
-        cmd = ["configure_edison", "--showNames"]
-        cmd = " ".join(cmd)
-        out = subprocess.check_output(cmd, shell = True)
+#        cmd = ["configure_edison", "--showNames"]
+#        cmd = " ".join(cmd)
+#        out = subprocess.check_output(cmd, shell = True)
 
-        anchor = '"ssid": "'
+#        anchor = '"ssid": "'
 
-        ssid_start_position = out.find(anchor) + len(anchor)
-        ssid_stop_position = out.find('"', ssid_start_position)
+#        ssid_start_position = out.find(anchor) + len(anchor)
+#        ssid_stop_position = out.find('"', ssid_start_position)
 
-        ssid = out[ssid_start_position:ssid_stop_position]
+#        ssid = out[ssid_start_position:ssid_stop_position]
 
-        cmd = ["configure_edison", "--showWiFiIP"]
-        cmd = " ".join(cmd)
-        ip_address = subprocess.check_output(cmd, shell = True).strip()
+#        cmd = ["configure_edison", "--showWiFiIP"]
+#        cmd = " ".join(cmd)
+#        ip_address = subprocess.check_output(cmd, shell = True).strip()
 
     return {"mode": mode, "ssid": ssid, "ip_address": ip_address}
 
 def getAppVersion():
     # Extract git tag as software version
-    git_tag_cmd = "git describe --tags"
-    app_version = subprocess.check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
+#    git_tag_cmd = "git describe --tags"
+#    app_version = subprocess.check_output([git_tag_cmd], shell = True, cwd = "/home/reach")
+    app_version = 1.0
 
     return app_version
 
@@ -106,7 +112,7 @@ def getSystemStatus():
 
 def getAvailableSerialPorts():
 
-    possible_ports_ports_to_use = ["ttyMFD2", "ttyUSB0"]
+    possible_ports_ports_to_use = ["ttyACM0", "ttyUSB0"]
     serial_ports_to_use = [port for port in possible_ports_ports_to_use if os.path.exists("/dev/" + port)]
 
     return serial_ports_to_use
