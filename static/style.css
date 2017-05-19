@@ -64,7 +64,7 @@ li.nav_log_container{
 	color:red;
 	display:none;
 }
-.network_container, .rinex_version_container, .update_buttons_container, .image_version_container, .reboot_button_container, .bluetooth_container{
+.network_container, .rinex_version_container, .update_buttons_container, .image_version_container, .reboot_button_container, .shutdown_button_container, .bluetooth_container{
 	margin-bottom:1em;
 }
 .rinex_version_container > p{
