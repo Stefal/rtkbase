@@ -33,15 +33,16 @@ def br230400():
     sh(cmd)
 
 # change baudrate to 230400 from any previous baudrates
-def changeBaudrateTo230400():
+def changeBaudrateTo115200():
     # typical baudrate values
-    br = ["4800", "9600", "19200", "38400", "57600", "115200", "230400"]
-    cmd = ["stty", "-F", "/dev/ttyMFD1"]
+#    br = ["4800", "9600", "19200", "38400", "57600", "115200", "230400"]
+    br = ["4800", "9600", "19200", "38400", "57600", "115200"]
+    cmd = ["stty", "-F", "/dev/ttyACM0"]
 
     for rate in br:
         cmd.append(str(rate))
         cmd_line = " ".join(cmd)
         sh(cmd_line)
 
-        br230400()
-        cmd.pop()
+#        br230400()
+#        cmd.pop()
