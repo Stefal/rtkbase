@@ -54,10 +54,11 @@ def update_system_time(date, time):
     print(time)
     # busybox date cmd can use a following format
     # YYYY.MM.DD-hh:mm:ss
-    printable_date = ".".join(str(x) for x in date)
+    # real date -s needs YYYY-MM-DD hh:mm:ss
+    printable_date = "-".join(str(x) for x in date)
     printable_time = ":".join(str(x) for x in time)
 
-    datetime_string = printable_date + "-" + printable_time
+    datetime_string = printable_date + " " + printable_time
     cmd = ["date", "-s", datetime_string]
     out = subprocess.check_output(cmd)
 
