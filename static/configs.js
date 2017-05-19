@@ -22,7 +22,7 @@ function checkInputSelects(i, method){ //inp OR out OR log
 				append += '<div class="additional' + method + i + ' additional_general"><input type="text" id="device' + method + i + '" data-clear-btn="true" placeholder="Device (required)" class="config_form_field required_field"><input type="text" id="baudrate' + method + i + '" data-clear-btn="true" placeholder="Baudrate (required)" class="config_form_field required_field"></div>';
 			}
 			else{
-				var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
+				var serialArr = {'ttyACM0':'UART', 'ttyUSB0':'USB'};
 
 				var splitArr = [];
 
@@ -35,7 +35,7 @@ function checkInputSelects(i, method){ //inp OR out OR log
 					splitArr.push(serialOption[1]);
 				});
 
-				var baudrateValue = (splitArr[0] == 'ttyMFD2') ? '57600' : '115200';
+				var baudrateValue = (splitArr[0] == 'ttyACM0') ? '57600' : '115200';
 
 				append += '<div class="additional' + method + i + ' additional_general"><select name="select-native-1" id="device' + method + i + '" class="config_form_field">';
 
@@ -185,7 +185,7 @@ function defaultStringToInputs(i, method){
 	switch ($('#' + method + 'str' + i + '-type_entry').val()){
 		case "serial":
 			var splitVal = correctVal.split(':');
-			var serialArr = {'ttyMFD2':'UART', 'ttyUSB0':'USB'};
+			var serialArr = {'ttyACM0':'UART', 'ttyUSB0':'USB'};
 			var currentSerialOption = (serialArr[splitVal['0']]) ? serialArr[splitVal['0']] : splitVal['0'];
 			$('.additional' + method + i + ' #device' + method + i).val(splitVal['0']);
 			$('.additional' + method + i + ' #device' + method + i).parent().find('span.config_form_field').text(currentSerialOption);
@@ -481,7 +481,7 @@ function showBase(msg){
 
 		var method = $(this).parent().parent().parent().attr('class').substr(10, 3);
 
-		if($(this).val() == 'ttyMFD2'){
+		if($(this).val() == 'ttyACM0'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
 		}
 		else if($(this).val() == 'ttyUSB0'){
@@ -720,7 +720,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 		var method = $(this).parent().parent().parent().attr('class').substr(10, 3);
 		var numb = $(this).parent().parent().parent().attr('class').substr(13, 1);
 
-		if($(this).val() == 'ttyMFD2'){
+		if($(this).val() == 'ttyACM0'){
 			$('#baudrate' + $(this).attr('id').substr(6)).val('57600');
 		}
 		else if($(this).val() == 'ttyUSB0'){
