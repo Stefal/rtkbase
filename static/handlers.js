@@ -892,6 +892,15 @@ $(document).on("pageinit", "#settings", function() {
         return false;
     });
 
+    $(document).on("click", "#shut", function(e) {
+        console.log("Sending message for shutdown");
+        socket.emit("shutdown device");
+        console.log('shutting down reach');
+        $('#shutdown_warning').text('Will now shutdown, please, close the app.');
+
+        return false;
+    });
+
     $(document).on("click", "#turn_off_wifi", function(e) {
         console.log("Sending message for turning off wifi");
         socket.emit("turn off wi-fi");
