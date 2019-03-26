@@ -1,0 +1,13 @@
+[Unit]
+Description=RTKBase Ntrip
+#After=network-online.target
+#Wants=network-online.target
+Requires=str2str_tcp.service
+
+[Service]
+Type=forking
+#User=basegnss
+ExecStart=/home/basegnss/centipede/run_cast.sh in_tcp out_caster
+
+[Install]
+WantedBy=multi-user.target

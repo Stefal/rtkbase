@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+#Various functions to check the lan state.
+#Need more tests on Rpi cards with wifi connections as str2str was not able to connect to a ntrip caster if started before the wifi is up.
+#It is not used on my Orange pi zero and its wired LAN.
 
 uart='/dev/ttyS1'
 iface='enp0s3'
