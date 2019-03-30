@@ -7,7 +7,7 @@ Requires=str2str_tcp.service
 [Service]
 Type=forking
 #User=basegnss
-ExecStart=/home/basegnss/rtkbase/run_cast.sh in_tcp out_caster
+ExecStart={user_home}/rtkbase/run_cast.sh in_tcp out_caster
 
 [Install]
 WantedBy=multi-user.target
