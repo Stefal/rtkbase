@@ -33,7 +33,6 @@ receiver=Ublox_neo-m8t				#receiver model
 rtcm_msg='1004,1005,1019,1042,1045,1046,1077,1097,1107,1127'
 
 logdir=$BASEDIR/log				#log directory
-datadir=$BASEDIR/data				#gnss data directory
 level=0						#trace level (0: no trace)
 
 in_serial="serial://${serial_input}"
