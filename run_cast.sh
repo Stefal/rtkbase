@@ -7,7 +7,7 @@
 
 # NTRIP caster program
 BASEDIR=$(dirname "$0")
-cast=str2str
+cast=/usr/local/bin/str2str
 
 # General options
 position='47.034 -1.251 36.4'			#base coordinates: lat long height
