@@ -25,12 +25,12 @@ file_overlap_time=30				#file overlap time in seconds
 tcp_port=5015
 
 # NTRIP caster options
-svr_addr=rtk2go.com				#ntrip caster url
+svr_addr=caster.centipede.fr	#ntrip caster url
 svr_port=2101					#ntrip caster port
-svr_pwd=BETATEST				#ntrip caster password
+svr_pwd=none    				#ntrip caster password
 mnt_name=Your_mount_name			#Mount name
 receiver=Ublox_neo-m8t				#receiver model
-rtcm_msg='1004,1005,1019,1042,1045,1046,1077,1097,1107,1127'
+rtcm_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127'
 
 logdir=$BASEDIR/log				#log directory
 level=0						#trace level (0: no trace)
