@@ -7,7 +7,7 @@ Requires=str2str_tcp.service ntp.service
 [Service]
 Type=simple
 #User=basegnss
-ExecStart=/home/basegnss/rtkbase/run_cast.sh in_tcp out_file
+ExecStart={user_home}/rtkbase/run_cast.sh in_tcp out_file
 
 [Install]
 WantedBy=multi-user.target
