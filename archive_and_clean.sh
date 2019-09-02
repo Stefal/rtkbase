@@ -1,4 +1,5 @@
 #!/bin/bash
+#This script should be run from a crontab
 
 BASEDIR=$(dirname "$0")
 datadir=$BASEDIR/data
