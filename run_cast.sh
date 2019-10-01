@@ -4,8 +4,8 @@
 # You can read the RTKLIB manual for more str2str informations:
 # https://github.com/tomojitakasu/RTKLIB
 
-
-source ./settings.conf
+BASEDIR=$(dirname "$0")
+source ${BASEDIR}/settings.conf   #import settings
 
 
 in_serial="serial://${serial_input}"
