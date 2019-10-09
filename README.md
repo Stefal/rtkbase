@@ -55,8 +55,17 @@ Some bash scripts for a simple gnss base station
 
    The main parameters you should edit are `com_port`, `position`, and the NTRIP section if you send the stream to a caster.
 
-+ Do a quick test with ``./run_cast.sh in_serial out_tcp``   (you should see some data "10972 B   17117 bps (0) /dev/ttyS1 (1) waiting...")
-
++ Do a quick test with ``./run_cast.sh in_serial out_tcp`` you should see some data like this:
+   ```
+   2019/10/09 15:42:53 [CW---]      14020 B   19776 bps (0) /dev/ttyS1 (1) waiting...
+   2019/10/09 15:42:58 [CW---]      26244 B   19558 bps (0) /dev/ttyS1 (1) waiting...
+   2019/10/09 15:43:03 [CW---]      37956 B   19289 bps (0) /dev/ttyS1 (1) waiting...
+   2019/10/09 15:43:08 [CW---]      49684 B   19551 bps (0) /dev/ttyS1 (1) waiting...
+   2019/10/09 15:43:13 [CW---]      61488 B   17232 bps (0) /dev/ttyS1 (1) waiting...
+   2019/10/09 15:43:18 [CW---]      73076 B   17646 bps (0) /dev/ttyS1 (1) waiting...
+   ```
+   Stop the stream with ``sudo killall str2str``
+   
 + If everything is ok, you can run ``sudo ./copy_unit.sh`` to copy unit files for systemd
 
 + Then you can enable these services to autostart during boot:  
