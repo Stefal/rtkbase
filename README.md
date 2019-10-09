@@ -55,7 +55,7 @@ Some bash scripts for a simple gnss base station
 
    The main parameters you should edit are `com_port`, `position`, and the NTRIP section if you send the stream to a caster.
 
-+ Do a quick test with ``./run_cast.sh in_serial out_tcp`` you should see some data like this:
++ Do a quick test with ``$ ./run_cast.sh in_serial out_tcp`` you should see some data like this:
    ```
    2019/10/09 15:42:53 [CW---]      14020 B   19776 bps (0) /dev/ttyS1 (1) waiting...
    2019/10/09 15:42:58 [CW---]      26244 B   19558 bps (0) /dev/ttyS1 (1) waiting...
