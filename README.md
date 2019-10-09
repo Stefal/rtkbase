@@ -11,7 +11,7 @@ Some bash scripts for a simple gnss base station
 - Check which tty your receiver is connected to
 - Edit settings.conf
 - Do a quick test with ``./run_cast.sh in_serial out_tcp``   (you should see some data "10972 B   17117 bps (0) /dev/ttyS1 (1) waiting...")
-- If everything is ok, you can run ``./copy_unit.sh`` to copy unit files for systemd
+- If everything is ok, you can run ``sudo ./copy_unit.sh`` to copy unit files for systemd
 - Then you can enable these services to autostart:  
 ``sudo systemctl enable str2str_tcp.service``  <-- mandatory  
 ``sudo systemctl enable str2str_file.service`` <-- log data locally  
