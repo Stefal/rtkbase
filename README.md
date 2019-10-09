@@ -10,11 +10,19 @@ Some bash scripts for a simple gnss base station
 
 + clone [RTKlib](https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3)
 
-   ``git clone https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3``
+   ```
+   cd ~
+   git clone https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3
+   ```
 
 + compile and install str2str:
 
    Edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
+   
+   ```
+   cd RTKLIB/app/str2str/gcc
+   nano makefile
+   ```
    
    For an Orange Pi Zero SBC, i use:
    
@@ -27,13 +35,21 @@ Some bash scripts for a simple gnss base station
        sudo make install
    ```
 
-+ clone this repository
++ clone this repository:
 
-   ``git clone https://github.com/Stefal/rtkbase.git``
+   ```
+   cd ~
+   git clone https://github.com/Stefal/rtkbase.git
+   ```
    
 + Check which tty your receiver is connected to
 
 + Edit settings.conf:
+
+   ```
+   cd rtkbase
+   nano settings.conf
+   ```
 
    The main parameters you should edit are `com_port`, `position`, and the NTRIP section if you send the stream to a caster.
 
