@@ -1,8 +1,11 @@
 #!/bin/bash
 #
-# Script to add the user path and copy unit services to the correct location.
+# Script to add the user name and user path in unit file
+# then copy these services to the correct location.
 
-for file_path in $(pwd)/unit/*.service
+BASEDIR=$(dirname "$0")
+
+for file_path in $(pwd)/${BASEDIR}/unit/*.service
 do
     file_name=$(basename ${file_path})
     echo copying ${file_name}
