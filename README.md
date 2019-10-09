@@ -31,8 +31,8 @@ Some bash scripts for a simple gnss base station
    Then you can compile and install str2str:
    
    ```  
-       make
-       sudo make install
+   make
+   sudo make install
    ```
 
 + clone this repository:
