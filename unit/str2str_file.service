@@ -5,7 +5,7 @@ Requires=str2str_tcp.service ntp.service
 [Service]
 Type=forking
 User={user}
-ExecStart={user_home}/rtkbase/run_cast.sh in_tcp out_file
+ExecStart={script_path}/run_cast.sh in_tcp out_file
 
 [Install]
 WantedBy=multi-user.target
