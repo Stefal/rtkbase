@@ -2,11 +2,15 @@
 
 Some bash scripts for a simple gnss base station
 
-## Usage: 
+## Installation: 
 
-+ Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart.
++ Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...)
 
-+ Set your gnss receiver to output raw data
++ Set your gnss receiver to output raw data. If you need to use U-center from another computer, you can use `socat`:
+
+   ``sudo socat tcp-listen:128,reuseaddr /dev/ttyS1,b115200,raw,echo=0``
+   
+   Change the ttyS1 and 115200 value if needed. Then you can use a network connection in U-center with the base station ip address and the port n°128.
 
 + clone [RTKlib](https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3)
 
@@ -41,8 +45,6 @@ Some bash scripts for a simple gnss base station
    cd ~
    git clone https://github.com/Stefal/rtkbase.git
    ```
-   
-+ Check which tty your receiver is connected to
 
 + Edit settings.conf:
 
