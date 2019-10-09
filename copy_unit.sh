@@ -9,8 +9,7 @@ for file_path in $(pwd)/${BASEDIR}/unit/*.service
 do
     file_name=$(basename ${file_path})
     echo copying ${file_name}
-    sed -e 's|{user_home}|'"${HOME}"'|' ${file_path} > /etc/systemd/system/${file_name}
-    sed -e 's|{user}|'"${USER}"'|' ${file_path} > /etc/systemd/system/${file_name}
+    sed -e 's|{user_home}|'"${HOME}"'|' -e 's|{user}|'"${USER}"'|' ${file_path} > /etc/systemd/system/${file_name}
 done
 
 systemctl daemon-reload
