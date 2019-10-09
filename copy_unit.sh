@@ -5,11 +5,11 @@
 
 BASEDIR=$(dirname "$0")
 
-for file_path in $(pwd)/${BASEDIR}/unit/*.service
+for file_path in ${BASEDIR}/unit/*.service
 do
     file_name=$(basename ${file_path})
     echo copying ${file_name}
-    sed -e 's|{user_home}|'"${HOME}"'|' -e 's|{user}|'"${USER}"'|' ${file_path} > /etc/systemd/system/${file_name}
+    sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"${USER}"'|' ${file_path} > /etc/systemd/system/${file_name}
 done
 
 systemctl daemon-reload
