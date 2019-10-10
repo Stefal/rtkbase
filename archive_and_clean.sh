@@ -2,7 +2,7 @@
 #This script should be run from a crontab
 
 BASEDIR=$(dirname "$0")
-datadir=$BASEDIR/data
+source ${BASEDIR}/settings.conf
 cd ${datadir}
 
 #archive and compress previous day's gnss data.
