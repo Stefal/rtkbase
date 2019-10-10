@@ -1,6 +1,6 @@
 #!/bin/bash
 #This script should be run from a crontab
-#You can customize archive_name and archive_duration in settings.conf
+#You can customize archive_name and archive_rotate in settings.conf
 
 BASEDIR=$(dirname "$0")
 source ${BASEDIR}/settings.conf
