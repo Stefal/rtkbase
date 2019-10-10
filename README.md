@@ -86,3 +86,10 @@ Some bash scripts for a simple gnss base station
 
   ``$ sudo systemctl start str2str_file.service``  
   ``$ sudo systemctl start str2str_file.service``  
+  
++ If you use `str2str_file` to log the data inside the base station, you may want to compress these data and delete the too old archives. For these 2 tasks, you can use `archive_and_clean.sh`. The default settings compress the previous day data and delete all archives older than 30 days. Edit your crontab with ``$ crontab -e`` and add these lines:
+   ```
+   SHELL=/bin/bash
+   0 4 * * * /home/YOUR_USER_NAME/PATH_TO_RTKBASE/archive_and_clean.sh
+   ```
+   Cron will run this script everyday at 4H00.
