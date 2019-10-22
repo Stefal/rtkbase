@@ -40,7 +40,8 @@ export UBX_MON_VER_POLL="0A 04 00 00"
 export UBX_CFG_CFG_REVERTDEFAULT="06 09 0D 00 FF FF 00 00 00 00 00 00 FF FF 00 00 17"
 export UBX_CFG_CFG_SAVE="06 09 0D 00 00 00 00 00 FF FF 00 00 00 00 00 00 17"
 ZED_F9P_MOD="00004d4f443d5a45442d4639500000000000000000000000000000000000"
-NEO_M8T-0_MOD="00004d4f443d4e454f2d4d38542d30000000000000000000000000000000"
+NEO_M8T_0_MOD="00004d4f443d4e454f2d4d38542d30000000000000000000000000000000"
+
 #counts number of sent messages up to the set number of retries
 #anything sent into the counter should fail with exit code 1 and pass with exit code 0
 send_counter ()
@@ -81,19 +82,19 @@ elif [[ ${dev_mon_ver} =~ .*${ZED_F9P_MOD}.* ]]  && [[ ${file_mon_ver} =~ .*${ZE
 then
   echo "Firmware mismatch but product match!"
   echo "Product is ZED-F9P"
-  if [ $FORCE == '-force' ]
+  if [[ ${FORCE} == '--force' ]]
   then
     echo "Trying to send the settings..."
   else
-    echo "You can add -FORCE on the commande line to send the settings"
+    echo "You can add --force on the commande line to send the settings anyway."
     return 1
   fi
 
-elif [[ ${dev_mon_ver} =~ .*${NEO_M8T-0_MOD}.* ]]  && [[ ${file_mon_ver} =~ .*${NEO_M8T-0_MOD}.* ]]
+elif [[ ${dev_mon_ver} =~ .*${NEO_M8T_0_MOD}.* ]]  && [[ ${file_mon_ver} =~ .*${NEO_M8T_0_MOD}.* ]]
 then
   echo "Firmware mismatch but product match!"
   echo "Product is NEO-M8T-0"
-  if [ $FORCE == '-force' ]
+  if [[ $FORCE == '--force' ]]
   then
     echo "Trying to send the settings..."
   else
