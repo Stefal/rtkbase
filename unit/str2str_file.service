@@ -1,6 +1,6 @@
 [Unit]
 Description=RTKBase File - Log data
-Requires=str2str_tcp.service ntp.service
+Requires=str2str_tcp.service systemd-timesyncd.service
 
 [Service]
 Type=forking
