@@ -1,0 +1,11 @@
+The U-Blox_ZED-F9P_rtkbase.txt config file is based on default settings with these modifications:
+
+- UART1 sets to 115200 bauds
+- RXM-RAWX enabled
+- RXM-SFRBX enabled
+- NAV-PVT enabled
+- NAV-SAT enabled
+- NAV-SIG enabled
+- NMEA on USB out disabled
+- NMEA on UART1 out disabled
+
