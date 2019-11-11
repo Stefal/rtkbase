@@ -44,13 +44,13 @@ from threading import Semaphore, Thread
 class RTKLIB:
 
     # we will save RTKLIB state here for later loading
-    state_file = "/home/reach/.reach/rtk_state"
+    state_file = "/home/pi/.reach/rtk_state"
     # if the state file is not available, these settings are loaded
     default_state = {
         "base": {
             "base_position": [],
             "gps_cmd_file": "GPS_1Hz.cmd",
-            "input_stream": "serial://ttyACM0:115200:8:n:1:off#ubx",
+            "input_stream": "tcpcli://127.0.0.1:5015#ubx",
             "output_stream": "tcpsvr://:9000#rtcm3",
             "rtcm3_messages": [
                 "1002",
@@ -75,10 +75,10 @@ class RTKLIB:
 	print(log_path)
 
         if rtklib_path is None:
-            rtklib_path = "/home/reach/RTKLIB"
+            rtklib_path = "/home/pi/RTKLIB"
 
         if log_path is None:
-            log_path = "/home/reach/logs"
+            log_path = "/home/pi/logs"
 
         # default state for RTKLIB is "rover single"
         self.state = "rover"
@@ -130,7 +130,7 @@ class RTKLIB:
             # wait for gps time
 ##            print("Time is not synced by NTP")
 #            self.updateLED("orange,off")
-        gps_time.set_gps_time("/dev/ttyACM0", 115200)
+#        gps_time.set_gps_time("/dev/ttyACM0", 115200)
 
         print("Time is synced by GPS!")
 
@@ -291,6 +291,7 @@ class RTKLIB:
 
         print("RTKLIB 7 Base mode launched")
 
+
         self.semaphore.release()
 
     def shutdownBase(self):
@@ -320,18 +321,40 @@ class RTKLIB:
 
         print("RTKLIB 9 Attempting to start str2str...")
 
-        if not self.rtkc.started:
-            res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
+        
+        res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
 
-            if res < 0:
-                print("str2str start failed")
-            elif res == 1:
-                print("str2str start successful")
-            elif res == 2:
-                print("str2str already started")
-        else:
-            print("Can't start str2str with rtkrcv still running!!!!")
+        if res < 0:
+            print("str2str start failed")
+        elif res == 1:
+            print("str2str start successful")
+        elif res == 2:
+            print("str2str already started")
+        
+        res3 = self.rtkc.launch()
+        res2 = self.rtkc.start()
 
+        if res2 == -1:
+            print("rtkrcv start failed")
+        elif res2 == 1:
+            print("rtkrcv start successful")
+            print("Starting coordinate and satellite broadcast")
+        elif res2 == 2:
+            print("rtkrcv already started")
+
+        # start fresh data broadcast
+
+        self.server_not_interrupted = True
+
+        if self.satellite_thread is None:
+            self.satellite_thread = Thread(target = self.broadcastSatellites)
+            self.satellite_thread.start()
+
+        if self.coordinate_thread is None:
+            self.coordinate_thread = Thread(target = self.broadcastCoordinates)
+            self.coordinate_thread.start()
+
+        
         self.saveState()
 
 #        if self.enable_led:
@@ -348,6 +371,7 @@ class RTKLIB:
         print("RTKLIB 10 Attempting to stop str2str...")
 
         res = self.s2sc.stop()
+        res2 = self.rtkc.stop()
 
         if res == -1:
             print("str2str stop failed")

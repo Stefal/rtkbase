@@ -26,7 +26,7 @@ import subprocess
 
 def getImageVersion():
 
-    image_version_file = "/home/reach/.reach/image_version"
+    image_version_file = "/home/pi/.reach/image_version"
 
     try:
         with open(image_version_file, "r") as f:
@@ -118,7 +118,7 @@ def getAvailableSerialPorts():
     return serial_ports_to_use
 
 def getLogsSize():
-    logs_path = "/home/reach/logs/"
+    logs_path = "/home/pi/logs/"
     size_in_bytes = sum(os.path.getsize(logs_path + f) for f in os.listdir(logs_path) if os.path.isfile(logs_path + f))
     return size_in_bytes/(1024*1024)
 

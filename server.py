@@ -320,7 +320,7 @@ def turnOffWiFi():
 if __name__ == "__main__":
     try:
         app.secret_key = os.urandom(12)
-        socketio.run(app, host = "0.0.0.0", port = 80)
+        socketio.run(app, host = "0.0.0.0", port = 8080)
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
