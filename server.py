@@ -45,7 +45,7 @@ print("Installing all required packages")
 from threading import Thread
 from flask import Flask, render_template, session, request, send_file, flash, redirect, abort
 
-from flask.ext.socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO, emit, disconnect
 from subprocess import check_output
 
 app = Flask(__name__)
