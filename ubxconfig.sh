@@ -98,7 +98,7 @@ then
   then
     echo "Trying to send the settings..."
   else
-    echo "You can add -FORCE on the commande line to send the settings"
+    echo "You can add --force on the commande line to send the settings"
     return 1
   fi
 
