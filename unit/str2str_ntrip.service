@@ -8,6 +8,8 @@ Requires=str2str_tcp.service
 Type=forking
 #User=basegnss
 ExecStart={script_path}/run_cast.sh in_tcp out_caster
+Restart=on-failure
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target

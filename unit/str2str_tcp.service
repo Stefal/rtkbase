@@ -8,6 +8,9 @@ Requires=network-online.target
 Type=forking
 #User=basegnss
 ExecStart={script_path}/run_cast.sh in_serial out_tcp
+Restart=on-failure
+RestartSec=30
+
 
 [Install]
 WantedBy=multi-user.target

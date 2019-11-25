@@ -6,6 +6,9 @@ Requires=str2str_tcp.service systemd-timesyncd.service
 Type=forking
 User={user}
 ExecStart={script_path}/run_cast.sh in_tcp out_file
+Restart=on-failure
+RestartSec=30
+
 
 [Install]
 WantedBy=multi-user.target
