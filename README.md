@@ -95,7 +95,7 @@ Some bash scripts for a simple gnss base station
 + You can start the services right now (ntrip and/or file), str2str_tcp.service will autostart as it is a dependency :
 
   ``$ sudo systemctl start str2str_file.service``  
-  ``$ sudo systemctl start str2str_file.service``  
+  ``$ sudo systemctl start str2str_ntrip.service``  
   
 + If you use `str2str_file` to log the data inside the base station, you may want to compress these data and delete the too old archives. For these 2 tasks, you can use `archive_and_clean.sh`. The default settings compress the previous day data and delete all archives older than 30 days. Edit your crontab with ``$ crontab -e`` and add these lines:
    ```
