@@ -16,7 +16,7 @@ Some bash scripts for a simple gnss base station
 
    ```
    $ cd ~
-   $ git clone -b rtklib_2.4.3 https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3
+   $ git clone -b rtklib_2.4.3 https://github.com/tomojitakasu/RTKLIB/rtklib_2.4.3
    ```
 
 + compile and install str2str:
