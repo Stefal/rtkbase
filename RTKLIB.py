@@ -44,7 +44,7 @@ from threading import Semaphore, Thread
 class RTKLIB:
 
     # we will save RTKLIB state here for later loading
-    state_file = "/home/pi/.reach/rtk_state"
+    state_file = "/home/stephane/.reach/rtk_state"
     # if the state file is not available, these settings are loaded
     default_state = {
         "base": {
@@ -75,10 +75,10 @@ class RTKLIB:
         print(log_path)
 
         if rtklib_path is None:
-            rtklib_path = "/home/pi/RTKLIB"
+            rtklib_path = "/home/stephane/gnss_venv/RTKLIB"
 
         if log_path is None:
-            log_path = "/home/pi/logs"
+            log_path = "/home/stephane/gnss_venv/logs"
 
         # default state for RTKLIB is "rover single"
         self.state = "rover"
@@ -787,7 +787,9 @@ class RTKLIB:
         elif isinstance(input, list):
             return [self.byteify(element) for element in input]
         elif isinstance(input, str):
-            return input.encode('utf-8')
+            #no need to convert to utf-8 anymore with Python v3.x
+            #return input.encode('utf-8')
+            return input
         else:
             return input
 
@@ -833,7 +835,7 @@ class RTKLIB:
         json_state = self.getState()
 
         print("RTKLIB 22 Now loading the state printed above... ")
-#	print(str(json_state))
+        #print(str(json_state))
         # first, we restore the base state, because no matter what we end up doing,
         # we need to restore base state
 
