@@ -304,9 +304,9 @@ class ConfigManager:
 
         try:
             copy(default_config_value, self.config_path)
-        except IOError, e:
+        except IOError as e:
             print("Error resetting config " + config_name + " to default. Error: " + e.filename + " - " + e.strerror)
-        except Error as e:
+        except OSError as e:
             print('Error: %s' % e)
 
     def deleteConfig(self, config_name):
@@ -316,7 +316,7 @@ class ConfigManager:
 
         try:
             os.remove(config_name)
-        except OSError, e:
+        except OSError as e:
             print ("Error: " + e.filename + " - " + e.strerror)
 
     def readItemFromConfig(self, property, from_file):

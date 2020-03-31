@@ -125,7 +125,7 @@ def index():
         return render_template('login.html')
     else:
         rtk.logm.updateAvailableLogs()
-	return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
+    return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
 
 @app.route("/logs/download/<path:log_name>")
 def downloadLog(log_name):

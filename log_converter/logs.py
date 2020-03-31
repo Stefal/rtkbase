@@ -43,7 +43,7 @@ class LogMetadata:
 
         self.start_timestamp = 0
         self.stop_timestamp = 0
-        self.navigation_messages = {msg_type: 0 for msg_type in self.message_names.keys()}
+        self.navigation_messages = {msg_type: 0 for msg_type in list(self.message_names.keys())}
 
         self.extractDataFromString(convbin_output)
 
@@ -72,7 +72,7 @@ class LogMetadata:
 
         valid_messages = 0
 
-        for msg_type, msg_count in self.navigation_messages.items():
+        for msg_type, msg_count in list(self.navigation_messages.items()):
             if msg_type is not "Errors":
                 valid_messages += int(msg_count)
 
@@ -80,7 +80,7 @@ class LogMetadata:
 
     def formValidMessagesString(self):
 
-        correct_order = self.message_names.keys()
+        correct_order = list(self.message_names.keys())
 
         to_print = "Messages inside: "
 
@@ -97,7 +97,7 @@ class LogMetadata:
         # 2016/01/08 09:35:02-01/08 11:24:58: O=32977 N=31 G=41 E=2
 
         data_list = data_string.split(" ")
-        data_list = filter(None, data_list)
+        data_list = [_f for _f in data_list if _f]
 
         # first 3 parts mark the time properties
         # the next elemets show message counts
@@ -137,7 +137,7 @@ class LogMetadata:
         # example string(split into a list by spaces)
         # O=32977 N=31 G=41 E=2
 
-        msg_dictionary = {msg_type[0]: msg_type for msg_type in self.message_names.keys()}
+        msg_dictionary = {msg_type[0]: msg_type for msg_type in list(self.message_names.keys())}
 
         for entry in data_list:
             split_entry = entry.split("=")

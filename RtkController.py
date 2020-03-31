@@ -140,8 +140,8 @@ class RtkController:
             self.semaphore.release()
             self.started = True
 
-	    self.restart()
-	    print("Restart")
+            self.restart()
+            print("Restart")
             return 1
 
         # already started
@@ -247,7 +247,7 @@ class RtkController:
             return -1
 
         obs = self.child.before.split("\r\n")
-        obs = filter(None, obs)
+        obs = [_f for _f in obs if _f]
 
         matching_strings = [s for s in obs if "SAT" in s]
 

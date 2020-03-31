@@ -22,7 +22,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 import pexpect
-from logs import Log, LogMetadata
+from .logs import Log, LogMetadata
 
 class Convbin:
 

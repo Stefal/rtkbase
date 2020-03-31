@@ -27,7 +27,7 @@ import serial
 import binascii
 import ctypes
 import subprocess
-import reach_tools
+from . import reach_tools
 
 def hexify(char_list):
     """ transform a char list into a list of int values"""
