@@ -65,7 +65,7 @@ class RTKLIB:
             "current_config": "reach_single_default.conf"
         },
         "started": "no",
-        "state": "rover"
+        "state": "base"
     }
 
     def __init__(self, socketio, rtklib_path = None, enable_led = True, log_path = None):
