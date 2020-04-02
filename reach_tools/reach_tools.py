@@ -127,7 +127,7 @@ def getFreeSpace(logs_path):
     free = space.f_bavail * space.f_frsize / 1024000
     total = space.f_blocks * space.f_frsize / 1024000
 
-    used_by_logs = getLogsSize()
+    used_by_logs = getLogsSize(logs_path)
     total_for_logs = free + used_by_logs
     percentage = (float(used_by_logs)/float(total_for_logs)) * 100
     total_for_logs_gb = float(total_for_logs) / 1024.0
