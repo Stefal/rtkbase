@@ -216,7 +216,7 @@ class RtkController:
             self.semaphore.release()
             return -1
 
-        status = self.child.before.split("\r\n")
+        status = self.child.before.decode().split("\r\n")
 
         if status != {}:
             for line in status:
@@ -246,7 +246,7 @@ class RtkController:
             self.semaphore.release()
             return -1
 
-        obs = self.child.before.split("\r\n")
+        obs = self.child.before.decode().split("\r\n")
         obs = [_f for _f in obs if _f]
 
         matching_strings = [s for s in obs if "SAT" in s]
