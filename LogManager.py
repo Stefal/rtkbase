@@ -150,7 +150,7 @@ class LogManager():
         print("Getting RINEX version from system settings")
         version = "3.01"
         try:
-            with open("/home/reach/.reach/rinex_version", "r") as f:
+            with open(os.path.join(os.path.expanduser("~"), ".reach/rinex_version"), "r") as f:
                 version = f.readline().rstrip("\n")
         except (IOError, OSError):
             print("No such file detected, defaulting to 3.01")
@@ -161,6 +161,6 @@ class LogManager():
         # write RINEX version to system file
         print("Writing new RINEX version to system file")
 
-        with open("/home/reach/.reach/rinex_version", "w") as f:
+        with open(os.path.join(os.path.expanduser("~"), ".reach/rinex_version"), "w") as f:
             f.write(version)
 
