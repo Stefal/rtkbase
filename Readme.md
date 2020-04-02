@@ -1,12 +1,13 @@
 ### What is GPSView?
 
-GPSView is a fork of Emlid's ReadhView.
+GPSView is a fork of Emlid's ReachView.
 
 GPSView is a web-interface for RTKLIB hosted on u-blox M8T (and maybe other) receivers and non-Intel Edison SBCs.
 
 ### Running/testing/debugging instructions
 
 At the moment GPSView has been tested on an Orange Pi Zero running Armbian 5.27. There is a lot of setup that is not documented yet.
+GPSView works with Python 3
 
 GPSView is started on device power up.
 

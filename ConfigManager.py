@@ -151,14 +151,14 @@ class Config:
     def parseBluetoothEntries(self, config_dict):
         # check if anything is set as a tcpsvr with path :8143
         # and change it to bluetooth
-        entries_with_bt_port = {k: v for (k, v) in config_dict.iteritems() if v["value"] == "localhost:8143"}
+        entries_with_bt_port = {k: v for (k, v) in config_dict.items() if v["value"] == "localhost:8143"}
 
         for entry in entries_with_bt_port.keys():
             # can be log or out or in
             io_field = entries_with_bt_port[entry]["parameter"].split("-")[0]
 
             # find the corresponding io type
-            io_type_entries = {k: v for (k, v) in config_dict.iteritems() if io_field + "-type" in v["parameter"]}
+            io_type_entries = {k: v for (k, v) in config_dict.items() if io_field + "-type" in v["parameter"]}
 
             for key in io_type_entries.keys():
                 config_dict[key]["value"] = "bluetooth"
@@ -304,9 +304,9 @@ class ConfigManager:
 
         try:
             copy(default_config_value, self.config_path)
-        except IOError, e:
+        except IOError as e:
             print("Error resetting config " + config_name + " to default. Error: " + e.filename + " - " + e.strerror)
-        except Error as e:
+        except OSError as e:
             print('Error: %s' % e)
 
     def deleteConfig(self, config_name):
@@ -316,7 +316,7 @@ class ConfigManager:
 
         try:
             os.remove(config_name)
-        except OSError, e:
+        except OSError as e:
             print ("Error: " + e.filename + " - " + e.strerror)
 
     def readItemFromConfig(self, property, from_file):

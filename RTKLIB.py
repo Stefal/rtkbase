@@ -44,7 +44,7 @@ from threading import Semaphore, Thread
 class RTKLIB:
 
     # we will save RTKLIB state here for later loading
-    state_file = "/home/pi/.reach/rtk_state"
+    state_file = "/home/stephane/.reach/rtk_state"
     # if the state file is not available, these settings are loaded
     default_state = {
         "base": {
@@ -65,20 +65,20 @@ class RTKLIB:
             "current_config": "reach_single_default.conf"
         },
         "started": "no",
-        "state": "rover"
+        "state": "base"
     }
 
     def __init__(self, socketio, rtklib_path = None, enable_led = True, log_path = None):
 
-	print("RTKLIB 1")
-	print(rtklib_path)
-	print(log_path)
+        print("RTKLIB 1")
+        print(rtklib_path)
+        print(log_path)
 
         if rtklib_path is None:
-            rtklib_path = "/home/pi/RTKLIB"
+            rtklib_path = "/home/stephane/gnss_venv/RTKLIB"
 
         if log_path is None:
-            log_path = "/home/pi/logs"
+            log_path = "/home/stephane/gnss_venv/logs"
 
         # default state for RTKLIB is "rover single"
         self.state = "rover"
@@ -124,7 +124,7 @@ class RTKLIB:
     def setCorrectTime(self):
         # determine if we have ntp service ready or we need gps time
 
-	print("RTKLIB 2 GPS time sync")
+        print("RTKLIB 2 GPS time sync")
 
 ##        if not gps_time.time_synchronised_by_ntp():
             # wait for gps time
@@ -147,13 +147,13 @@ class RTKLIB:
 
         self.semaphore.acquire()
         print("RTKLIB 3 Attempting to launch rtkrcv...")
-	print(config_name)
+        print(config_name)
 
         if config_name == None:
-	    print("launch none")
+            print("launch none")
             res = self.rtkc.launch()
         else:
-	    print("launch" + config_name)
+            print("launch" + config_name)
             res = self.rtkc.launch(config_name)
 
         if res < 0:
@@ -515,7 +515,7 @@ class RTKLIB:
     def shutdown(self):
         # shutdown whatever mode we are in. stop broadcast threads
 
-	print("RTKLIB 17 Shutting down")
+        print("RTKLIB 17 Shutting down")
 
         # clean up broadcast and blink threads
         self.server_not_interrupted = False
@@ -712,7 +712,7 @@ class RTKLIB:
         self.socketio.emit("log conversion start", start_package, namespace="/test")
         try:
             log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path, self.logm.getRINEXVersion())
-        except ValueError, IndexError:
+        except (ValueError, IndexError):
             print("Conversion canceled")
             conversion_result_package["conversion_status"] = "Conversion canceled, downloading raw log"
             self.socketio.emit("log conversion results", conversion_result_package, namespace="/test")
@@ -783,11 +783,13 @@ class RTKLIB:
     def byteify(self, input):
         # thanks to Mark Amery from StackOverflow for this awesome function
         if isinstance(input, dict):
-            return {self.byteify(key): self.byteify(value) for key, value in input.iteritems()}
+            return {self.byteify(key): self.byteify(value) for key, value in input.items()}
         elif isinstance(input, list):
             return [self.byteify(element) for element in input]
-        elif isinstance(input, unicode):
-            return input.encode('utf-8')
+        elif isinstance(input, str):
+            #no need to convert to utf-8 anymore with Python v3.x
+            #return input.encode('utf-8')
+            return input
         else:
             return input
 
@@ -833,7 +835,7 @@ class RTKLIB:
         json_state = self.getState()
 
         print("RTKLIB 22 Now loading the state printed above... ")
-#	print(str(json_state))
+        #print(str(json_state))
         # first, we restore the base state, because no matter what we end up doing,
         # we need to restore base state
 
@@ -870,8 +872,8 @@ class RTKLIB:
         # send current state to every connecting browser
 
         state = self.getState()
-	print("RTKLIB 22a")
-	print(str(state))
+        print("RTKLIB 22a")
+        print(str(state))
         self.conm.updateAvailableConfigs()
         state["available_configs"] = self.conm.available_configs
 

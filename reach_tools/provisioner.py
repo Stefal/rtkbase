@@ -26,7 +26,7 @@
 import pip
 import subprocess
 import os
-import reach_tools
+from . import reach_tools
 import imp
 import shutil
 

@@ -31,7 +31,7 @@ def getImageVersion():
     try:
         with open(image_version_file, "r") as f:
             image_version = f.readline().rstrip("\n")
-    except IOError, OSError:
+    except (IOError, OSError):
         print("Could not find version file inside system")
         print("This is image v1.0")
         image_version = "v1.0"

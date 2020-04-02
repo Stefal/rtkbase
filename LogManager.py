@@ -124,7 +124,7 @@ class LogManager():
             if not any(log_file.endswith(ext) for ext in extensions_not_to_delete):
                 try:
                     os.remove(log_file)
-                except OSError, e:
+                except OSError as e:
                     print ("Error: " + e.filename + " - " + e.strerror)
 
     def deleteLog(self, log_filename):
@@ -136,13 +136,13 @@ class LogManager():
         print("Deleting log " + log_name + extension)
         try:
             os.remove(self.log_path + "/" + log_name + extension)
-        except OSError, e:
+        except OSError as e:
             print ("Error: " + e.filename + " - " + e.strerror)
 
         print("Deleting log " + log_name + ".zip")
         try:
             os.remove(self.log_path + "/" + log_name + ".zip")
-        except OSError, e:
+        except OSError as e:
             print ("Error: " + e.filename + " - " + e.strerror)
 
     def getRINEXVersion(self):
@@ -152,7 +152,7 @@ class LogManager():
         try:
             with open("/home/reach/.reach/rinex_version", "r") as f:
                 version = f.readline().rstrip("\n")
-        except IOError, OSError:
+        except (IOError, OSError):
             print("No such file detected, defaulting to 3.01")
 
         return version
