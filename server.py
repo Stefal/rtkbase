@@ -60,14 +60,17 @@ path_to_rtklib = os.path.join(os.path.expanduser("~"), "gnss_venv/RTKLIB")
 socketio = SocketIO(app)
 
 # bluetooth init
-print("bluetooth was here")
+#print("bluetooth was here")
 #bluetoothctl = reach_bluetooth.bluetoothctl.Bluetoothctl()
 #bluetooth_bridge = reach_bluetooth.tcp_bridge.TCPtoRFCOMMBridge()
 #bluetooth_bridge.start()
 
 # configure Ublox for 115200 baudrate!
-print("ublox baud")
-changeBaudrateTo115200()
+#print("ublox baud")
+#changeBaudrateTo115200()
+
+
+
 rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, enable_led=False, log_path=path_to_logs)
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base

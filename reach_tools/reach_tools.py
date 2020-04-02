@@ -117,13 +117,13 @@ def getAvailableSerialPorts():
 
     return serial_ports_to_use
 
-def getLogsSize():
-    logs_path = "/home/pi/logs/"
+def getLogsSize(logs_path):
+    #logs_path = "/home/pi/logs/"
     size_in_bytes = sum(os.path.getsize(logs_path + f) for f in os.listdir(logs_path) if os.path.isfile(logs_path + f))
     return size_in_bytes/(1024*1024)
 
-def getFreeSpace():
-    space = os.statvfs("/home")
+def getFreeSpace(logs_path):
+    space = os.statvfs(os.path.expanduser("~"))
     free = space.f_bavail * space.f_frsize / 1024000
     total = space.f_blocks * space.f_frsize / 1024000
 

@@ -82,7 +82,7 @@ class RTKLIB:
             log_path = "/home/stephane/gnss_venv/logs"
 
         # default state for RTKLIB is "rover single"
-        self.state = "rover"
+        self.state = "base"
 
         # we need this to broadcast stuff
         self.socketio = socketio
