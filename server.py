@@ -54,6 +54,9 @@ app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 app.config["UPLOAD_FOLDER"] = "../logs"
 
+path_to_logs = os.path.join(os.path.dirname(os.path.realpath(__file__)), "logs")
+path_to_rtklib = os.path.join(os.path.expanduser("~"), "gnss_venv/RTKLIB")
+
 socketio = SocketIO(app)
 
 # bluetooth init
@@ -65,7 +68,7 @@ print("bluetooth was here")
 # configure Ublox for 115200 baudrate!
 print("ublox baud")
 changeBaudrateTo115200()
-rtk = RTKLIB(socketio)
+rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, enable_led=False, log_path=path_to_logs)
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -189,11 +192,11 @@ def stopRtkrcv():
 #### str2str launch/shutdown handling ####
 
 @socketio.on("launch base", namespace="/test")
-def startBase():
+def launchBase():
     rtk.launchBase()
 
 @socketio.on("shutdown base", namespace="/test")
-def stopBase():
+def shutdownBase():
     rtk.shutdownBase()
 
 #### str2str start/stop handling ####
@@ -235,7 +238,7 @@ def writeConfigBase(json):
 
 @socketio.on("get available space", namespace="/test")
 def getAvailableSpace():
-    rtk.socketio.emit("available space", reach_tools.getFreeSpace(), namespace="/test")
+    rtk.socketio.emit("available space", reach_tools.getFreeSpace(path_to_logs), namespace="/test")
 
 #### Delete log button handler ####
 
@@ -275,7 +278,7 @@ def writeRINEXVersion(json):
 
 #### Delete config ####
 @socketio.on("delete config", namespace="/test")
-def deleteLog(json):
+def deleteConfig(json):
     log_name = json.get("name")
     raw_log_path = rtk.logm.log_path + "/" + log_name
     rtk.deleteConfig(json.get("name"))

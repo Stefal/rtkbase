@@ -44,7 +44,7 @@ from threading import Semaphore, Thread
 class RTKLIB:
 
     # we will save RTKLIB state here for later loading
-    state_file = "/home/stephane/.reach/rtk_state"
+    state_file = os.path.join(os.path.expanduser("~"), ".reach/rtk_state")
     # if the state file is not available, these settings are loaded
     default_state = {
         "base": {
@@ -75,9 +75,10 @@ class RTKLIB:
         print(log_path)
 
         if rtklib_path is None:
-            rtklib_path = "/home/stephane/gnss_venv/RTKLIB"
+            rtklib_path = os.path.join(os.path.expanduser("~"), "RTKLIB")
 
         if log_path is None:
+            #TODO find a better default location
             log_path = "/home/stephane/gnss_venv/logs"
 
         # default state for RTKLIB is "rover single"
