@@ -79,7 +79,9 @@ class RTKLIB:
 
         if log_path is None:
             #TODO find a better default location
-            log_path = "/home/stephane/gnss_venv/logs"
+            self.log_path = "/home/stephane/gnss_venv/logs"
+        else:
+            self.log_path = log_path
 
         # default state for RTKLIB is "rover single"
         self.state = "base"
@@ -95,7 +97,7 @@ class RTKLIB:
         self.s2sc = Str2StrController(rtklib_path)
 
         # take care of serving logs
-        self.logm = LogManager(rtklib_path, log_path)
+        self.logm = LogManager(rtklib_path, self.log_path)
 
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()
@@ -874,14 +876,19 @@ class RTKLIB:
 
         state = self.getState()
         print("RTKLIB 22a")
-        print(str(state))
+        #print(str(state))
         self.conm.updateAvailableConfigs()
         state["available_configs"] = self.conm.available_configs
 
         state["system_time_correct"] = self.system_time_correct
+        state["log_path"] = str(self.log_path)
 
         print("Available configs to send: ")
         print(str(state["available_configs"]))
+
+        print("Full state: ")
+        for key in state:
+            print("{} : {}".format(key, state[key]))
 
         self.socketio.emit("current state", state, namespace = "/test")
 
