@@ -53,17 +53,17 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path (required)" class="config_form_field required_field"></div>').trigger("create");
 			if(method == 'log'){
 				if(i == 1){
-					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
+					$('#pathlog1').val(log_path + '/rov_%Y%m%d%h%M.ubx');
 					$('#pathlog1').attr('type', 'hidden');
 					$('#pathlog1').parent().css({'visibility':'hidden', 'border':'none'});
 				}
 				else if(i == 2){
-					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
+					$('#pathlog2').val(log_path + '/ref_%Y%m%d%h%M.rtcm3');
 					$('#pathlog2').attr('type', 'hidden');
 					$('#pathlog2').parent().css({'visibility':'hidden', 'border':'none'});
 				}
 				else if(i == 3){
-					$('#pathlog3').val('/home/reach/logs/cor_%Y%m%d%h%M.rtcm3');
+					$('#pathlog3').val(log_path + '/cor_%Y%m%d%h%M.rtcm3');
 					$('#pathlog3').attr('type', 'hidden');
 					$('#pathlog3').parent().css({'visibility':'hidden', 'border':'none'});
 				}
@@ -71,18 +71,18 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			else if(method == 'out'){
 				if(i == 1){
 					// $('#pathout1').val('/home/reach/logs/sol1_%Y%m%d%h%M.pos');
-					$('#pathout1').val('/home/reach/logs/sol1_%Y%m%d%h%M.' + $('#outstr1-format_entry').val());
+					$('#pathout1').val(log_path + '/sol1_%Y%m%d%h%M.' + $('#outstr1-format_entry').val());
 					$('#pathout1').attr('type', 'hidden');
 					$('#pathout1').parent().css({'visibility':'hidden', 'border':'none'});
 				}
 				else if(i == 2){
 					// $('#pathout2').val('/home/reach/logs/sol2_%Y%m%d%h%M.pos');
-					$('#pathout2').val('/home/reach/logs/sol2_%Y%m%d%h%M.' + $('#outstr2-format_entry').val());
+					$('#pathout2').val(log_path + '/sol2_%Y%m%d%h%M.' + $('#outstr2-format_entry').val());
 					$('#pathout2').attr('type', 'hidden');
 					$('#pathout2').parent().css({'visibility':'hidden', 'border':'none'});
 				}
 				else if(i == ''){
-					$('#pathout').val('file:///home/reach/logs/bas_%Y%m%d%h%M.rtcm3#rtcm3');
+					$('#pathout').val('file://' + log_path + '/bas_%Y%m%d%h%M.rtcm3#rtcm3');
 					$('#pathout').attr('type', 'hidden');
 					$('#pathout').parent().css({'visibility':'hidden', 'border':'none'});
 				}
@@ -705,12 +705,12 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
 	$(document).on("change", '#outstr1-format_entry', function() {
 		if($('#outstr1-type_entry').val() == 'file')
-			$('#outstr1-path_entry').val('/home/reach/logs/sol1_%Y%m%d%h%M.' + $(this).val());
+			$('#outstr1-path_entry').val(log_path + '/sol1_%Y%m%d%h%M.' + $(this).val());
 	})
 
 	$(document).on("change", '#outstr2-format_entry', function() {
 		if($('#outstr2-type_entry').val() == 'file')
-			$('#outstr2-path_entry').val('/home/reach/logs/sol2_%Y%m%d%h%M.' + $(this).val());
+			$('#outstr2-path_entry').val(log_path + '/sol2_%Y%m%d%h%M.' + $(this).val());
 	})
 
 	$(document).on("change", '.additional_general select', function() {

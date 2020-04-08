@@ -28,6 +28,7 @@ var defaultConfigs = ['reach_single_default.conf', 'reach_kinematic_default.conf
 var isActive = true;
 lastBaseMsg = new Object();
 numOfRepetition = 0;
+var log_path = ""; //a little dirty way to use log_path where needed
 
 // ############################### MAIN ###############################
 
@@ -105,6 +106,7 @@ $(document).ready(function () {
                 }     
             }
         console.groupEnd();
+        log_path = msg.log_path;
         // add current configs to the dropdown menu
 
         var select_options = $("#config_select");
