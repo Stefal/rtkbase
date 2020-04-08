@@ -23,8 +23,10 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
-from gevent import monkey
-monkey.patch_all()
+#from gevent import monkey
+#monkey.patch_all()
+import eventlet
+eventlet.monkey_patch()
 
 import time
 import json
