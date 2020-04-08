@@ -325,38 +325,16 @@ class RTKLIB:
         print("RTKLIB 9 Attempting to start str2str...")
 
         
-        res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
-
-        if res < 0:
-            print("str2str start failed")
-        elif res == 1:
-            print("str2str start successful")
-        elif res == 2:
-            print("str2str already started")
-        
-        res3 = self.rtkc.launch()
-        res2 = self.rtkc.start()
-
-        if res2 == -1:
-            print("rtkrcv start failed")
-        elif res2 == 1:
-            print("rtkrcv start successful")
-            print("Starting coordinate and satellite broadcast")
-        elif res2 == 2:
-            print("rtkrcv already started")
-
-        # start fresh data broadcast
-
-        self.server_not_interrupted = True
-
-        if self.satellite_thread is None:
-            self.satellite_thread = Thread(target = self.broadcastSatellites)
-            self.satellite_thread.start()
-
-        if self.coordinate_thread is None:
-            self.coordinate_thread = Thread(target = self.broadcastCoordinates)
-            self.coordinate_thread.start()
-
+        if not self.rtkc.started:
+            res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
+            if res < 0:
+                print("str2str start failed")
+            elif res == 1:
+                print("str2str start successful")
+            elif res == 2:
+                print("str2str already started")
+        else:
+            print("Can't start str2str with rtkrcv still running!!!!")
         
         self.saveState()
 
