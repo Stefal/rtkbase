@@ -326,7 +326,6 @@ class RTKLIB:
 
         
         res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
-
         if res < 0:
             print("str2str start failed")
         elif res == 1:
@@ -334,18 +333,41 @@ class RTKLIB:
         elif res == 2:
             print("str2str already started")
         
-        res3 = self.rtkc.launch()
-        res2 = self.rtkc.start()
+        self.saveState()
 
-        if res2 == -1:
-            print("rtkrcv start failed")
+        #TODO need refactoring
+        #maybe a new method to launch/start rtkrcv outside
+        #startBase and startRover
+        #TODO launchRover and startRover send a config_name to rtkc
+        #I don't do this here :-/
+        print("RTKLIB 9a Attempting to launch rtkrcv...")
+
+        res2 = self.rtkc.launch()
+        
+        if res2 < 0:
+            print("rtkrcv launch failed")
         elif res2 == 1:
+            print("rtkrcv launch successful")
+        elif res2 == 2:
+            print("rtkrcv already launched")
+        
+        #TODO need refactoring
+        #maybe a new method to launch/start rtkrcv outside
+        #startBase and startRover
+        print("RTKLIB 9b Attempting to start rtkrcv...")
+        res3 = self.rtkc.start()
+
+        if res3 == -1:
+            print("rtkrcv start failed")
+        elif res3 == 1:
             print("rtkrcv start successful")
             print("Starting coordinate and satellite broadcast")
-        elif res2 == 2:
+        elif res3 == 2:
             print("rtkrcv already started")
 
         # start fresh data broadcast
+        #TODO the satellite and coordinate broadcast start
+        #when rtkrcv start failed
 
         self.server_not_interrupted = True
 
@@ -356,12 +378,6 @@ class RTKLIB:
         if self.coordinate_thread is None:
             self.coordinate_thread = Thread(target = self.broadcastCoordinates)
             self.coordinate_thread.start()
-
-        
-        self.saveState()
-
-#        if self.enable_led:
-#            self.updateLED()
 
         self.semaphore.release()
 
@@ -374,7 +390,7 @@ class RTKLIB:
         print("RTKLIB 10 Attempting to stop str2str...")
 
         res = self.s2sc.stop()
-        res2 = self.rtkc.stop()
+        
 
         if res == -1:
             print("str2str stop failed")
@@ -383,11 +399,29 @@ class RTKLIB:
         elif res == 2:
             print("str2str already stopped")
 
+        print("RTKLIB 10a Attempting to stop rtkrcv...")
+
+        res2 = self.rtkc.stop()
+        if res == -1:
+            print("rtkrcv stop failed")
+        elif res == 1:
+            print("rtkrcv stop successful")
+        elif res == 2:
+            print("rtkrcv already stopped")
+
+        print("RTKLIB 10b Attempting to stop satellite broadcasting...")
+
+        self.server_not_interrupted = False
+
+        if self.satellite_thread is not None:
+            self.satellite_thread.join()
+            self.satellite_thread = None
+
+        if self.coordinate_thread is not None:
+            self.coordinate_thread.join()
+            self.coordinate_thread = None
+
         self.saveState()
-
-#        if self.enable_led:
-#            self.updateLED()
-
         self.semaphore.release()
 
         return res

@@ -50,8 +50,8 @@ class Str2StrController:
         self.rtcm3_messages = ["1002", "1006", "1008", "1010", "1019", "1020"]
         self.base_position = [] # lat, lon, height
 
-        #self.setSerialStream() # input ublox serial
-        self.setTCPClientStream()
+        self.setSerialStream() # input ublox serial
+        #self.setTCPClientStream()
         self.setTCPServerStream(input = False) # output tcp server on port 9000
 
     def getAvailableReceiverCommandFiles(self):
@@ -178,7 +178,7 @@ class Str2StrController:
         if tcp_client_parameters is None:
             tcp_client_parameters = def_parameters
 
-        port = "tcpcli://" + ":".join(tcp_client_parameters)
+        port = "tcpcli://" + ":".join(tcp_server_parameters)
 
         self.setPort(port, input, format)
 
