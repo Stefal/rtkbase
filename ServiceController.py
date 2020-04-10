@@ -16,13 +16,8 @@ class ServiceController(object):
         return (self.unit.Unit.SubState).decode()
 
     def start(self):
-        try:
-            return self.unit.Unit.Start(b'replace')
-        except Exception as e:
-            return e
-
+        return self.unit.Unit.Start(b'replace')
+        
     def stop(self):
-        try:
-            return self.unit.Unit.Stop(b'replace')
-        except Exception as e:
-            return e
+        return self.unit.Unit.Stop(b'replace')
+        

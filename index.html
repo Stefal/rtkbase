@@ -312,6 +312,47 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                     </select>
                 </div>
                 <div class="ui-field-contain" id="config_buttons"></div>
+
+                <!-- main service display here -->
+                <div id="main_service_space">
+                    <form>
+                        <div class="ui-field-contain">
+                            <label for="main-switch">Main service</label>
+                            <select name="main-switch" id="main-switch" data-role="flipswitch">
+                                <option value="off">Off</option>
+                                <option value="on">On</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ntrip service display here -->
+                <div id=ntrip_service_space>
+                    <form>
+                        <div class="ui-field-contain">
+                            <label for="ntrip-switch">Ntrip service</label>
+                            <select name="ntrip-switch" id="ntrip-switch" data-role="flipswitch">
+                                <option value="off">Off</option>
+                                <option value="on">On</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- log to file service display here -->
+                <div id=file_service_space>
+                    <form>
+                        <div class="ui-field-contain">
+                            <label for="file-switch">Log to file service</label>
+                            <select name="file-switch" id="file-switch" data-role="flipswitch">
+                                <option value="off">Off</option>
+                                <option value="on">On</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- settings for base/rover mode here -->
                 <div id="config_form_column_space"></div>
             </div>
         </form>

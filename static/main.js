@@ -191,6 +191,75 @@ $(document).ready(function () {
 
     });
 
+    // ####################### HANDLE RTKBASE SERVICES    #######################
+
+    socket.on("services status", function(msg) {
+        // gestion des services
+        var servicesStatus = JSON.parse(msg);
+        console.log("service status: " + servicesStatus);
+        
+
+        // ################ MAiN service Switch  ######################
+        console.log("REFRESHING  service switch");
+
+        
+        var switchDivElt = document.querySelector("#main-switch").parentElement;
+        // set the switch to on/off depending of the service status
+        if (servicesStatus[0].active === true) {
+            switchDivElt.classList.add("ui-flipswitch-active");
+        } else {
+            switchDivElt.classList.remove("ui-flipswitch-active");
+        }
+        
+        // event for switching on/off service on user mouse click
+        //TODO When the switch changes its position, this event seems attached before
+        //the switch finish its transition, then fire another event.
+        $( "#main_service_space" ).one("change", "select", function(e) {
+            var switchStatus = e.target.value;
+            //console.log(" e : " + e);
+            console.log("Main SwitchStatus : " + switchStatus);
+            socket.emit("services switch", {"name" : "main", "active" : switchStatus});
+            
+        })
+
+        // ####################  NTRIP service Switch #########################
+
+        var switchDivElt = document.querySelector("#ntrip-switch").parentElement;
+        // set the switch to on/off depending of the service status
+        if (servicesStatus[1].active === true) {
+            switchDivElt.classList.add("ui-flipswitch-active");
+        } else {
+            switchDivElt.classList.remove("ui-flipswitch-active");
+        }
+
+        // event for switching on/off ntrip service on user mouse click
+        $( "#ntrip_service_space" ).one("change", "select", function(e) {
+            var switchStatus = e.target.value;
+            //console.log(" e : " + e);
+            console.log("Ntrip SwitchStatus : " + switchStatus);
+            socket.emit("services switch", {"name" : "ntrip", "active" : switchStatus});
+        })
+    
+        // ####################  LOG service Switch #########################
+
+        var switchDivElt = document.querySelector("#file-switch").parentElement;
+        // set the switch to on/off depending of the service status
+        if (servicesStatus[1].active === true) {
+            switchDivElt.classList.add("ui-flipswitch-active");
+        } else {
+            switchDivElt.classList.remove("ui-flipswitch-active");
+        }
+
+        // event for switching on/off file service on user mouse click
+        $( "#file_service_space" ).one("change", "select", function(e) {
+            var switchStatus = e.target.value;
+            //console.log(" e : " + e);
+            console.log("Ntrip SwitchStatus : " + switchStatus);
+            socket.emit("services switch", {"name" : "file", "active" : switchStatus});
+        })
+
+    })
+
     socket.on("system time corrected", function(msg) {
         $('.warning_footer h1').text("Reach time synced with GPS!");
         setTimeout(function(){$('.warning_footer').slideUp()}, 5000);

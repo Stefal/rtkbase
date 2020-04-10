@@ -37,6 +37,7 @@ import sys
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo115200
 from reach_tools import reach_tools, provisioner
+from ServiceController import ServiceController
 
 print("Installing all required packages")
 #provisioner.provision_reach()
@@ -74,6 +75,9 @@ socketio = SocketIO(app)
 
 
 rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, enable_led=False, log_path=path_to_logs)
+services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
+                 {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
+                 {"service_unit" : "str2str_file.service", "name" : "file"},]
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -325,8 +329,50 @@ def turnOffWiFi():
     print("Turning off wi-fi")
 #    check_output("rfkill block wlan", shell = True)
 
+#### Systemd Services functions ####
+
+def load_units(services):
+    #load unit service before getting status
+    for service in services:
+        service["unit"] = ServiceController(service["service_unit"])
+    return services
+
+
+@socketio.on("get services status", namespace="/test")
+def getServicesStatus():
+    print("Getting services status")
+    
+    for service in services_list:
+        service["active"] = service["unit"].isActive()
+
+    services_status = []
+    for service in services_list: 
+        services_status.append({key:service[key] for key in service if key != 'unit'})
+    
+    print(services_status)
+    socketio.emit("services status", json.dumps(services_status), namespace="/test")
+
+@socketio.on("services switch", namespace="/test")
+def switchService(json):
+    print("Received service to switch", json)
+    try:
+        for service in services_list:
+            if json["name"] == service["name"] and json["active"] == "on":
+                print("Trying to start service {}".format(service["name"]))
+                service["unit"].start()
+            elif json["name"] == service["name"] and json["active"] == "off":
+                print("Trying to stop service {}".format(service["name"]))
+                service["unit"].stop()
+
+    except Exception as e:
+        print(e)
+    finally:
+        time.sleep(2)
+        getServicesStatus()
+
 if __name__ == "__main__":
     try:
+        services_list = load_units(services_list)
         app.secret_key = os.urandom(12)
         socketio.run(app, host = "0.0.0.0", port = 8080)
 

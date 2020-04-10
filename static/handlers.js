@@ -633,6 +633,11 @@ $(document).on("click", ".logs_page", function() {
     socket.emit("get available space");
 });
 
+$(document).on("pageshow", "#config_page", function() {
+    socket.emit("get services status");
+});
+
+
 $(document).on("pageinit", "#logs_page", function() {
     
     var interval_timer = "";
