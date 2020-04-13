@@ -21,3 +21,5 @@ class ServiceController(object):
     def stop(self):
         return self.unit.Unit.Stop(b'replace')
         
+
+# TODO gestion service actif/inactif  (pas démarré/stoppé)
