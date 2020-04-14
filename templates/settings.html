@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+
+  <div id="main_service_space" class="form-group row">
+    <label for="main-switch" class="col-sm-2 col-form-label col-form-label-lg">Main service</label>
+    <input id="main-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+  </div>
+  <div id="ntrip_service_space" class="form-group row">
+    <label for="ntrip-switch" class="col-sm-2 col-form-label col-form-label-lg">Ntrip service</label>
+    <input id="ntrip-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+  </div>
+  <div id="file_service_space" class="form-group row">
+    <label for="file-switch" class="col-sm-2 col-form-label col-form-label-lg">File service</label>
+    <input id="file-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+  </div>
+
+<h3>Parameters: </h3>
+
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+{{super()}}
+<script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}" charset="utf-8"></script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+<div id="bar-chart"></div>
+
+<div class="ui-grid-b">
+    <div class="ui-block-a" id="lat_block">
+        <div class="ui-bar">
+            <b>Lat: </b><span id="lat_value"></span>
+        </div>
+    </div>
+    <div class="ui-block-b" id="lon_block">
+        <div class="ui-bar">
+            <b>Lon: </b><span id="lon_value"></span>
+        </div>
+    </div>
+    <div class="ui-block-c" id="height_block">
+        <div class="ui-bar">
+            <b>Height: </b><span id="height_value"></span>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script type="text/javascript" src="{{ url_for('static', filename='status.js') }}" charset="utf-8"></script>
+{% endblock %}

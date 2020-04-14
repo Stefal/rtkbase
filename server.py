@@ -39,20 +39,21 @@ from port import changeBaudrateTo115200
 from reach_tools import reach_tools, provisioner
 from ServiceController import ServiceController
 
-print("Installing all required packages")
+#print("Installing all required packages")
 #provisioner.provision_reach()
 
 #import reach_bluetooth.bluetoothctl
 #import reach_bluetooth.tcp_bridge
 
 from threading import Thread
+from flask_bootstrap import Bootstrap
 from flask import Flask, render_template, session, request, send_file, flash, redirect, abort
 
 from flask_socketio import SocketIO, emit, disconnect
 from subprocess import check_output
 
 app = Flask(__name__)
-app.template_folder = "."
+#app.template_folder = "."
 app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 app.config["UPLOAD_FOLDER"] = "../logs"
@@ -61,6 +62,7 @@ path_to_logs = os.path.join(os.path.dirname(os.path.realpath(__file__)), "logs")
 path_to_rtklib = os.path.join(os.path.expanduser("~"), "gnss_venv/RTKLIB")
 
 socketio = SocketIO(app)
+bootstrap = Bootstrap(app)
 
 # bluetooth init
 #print("bluetooth was here")
@@ -131,13 +133,28 @@ def remove_paired_device(device):
 #    rtk.logm.updateAvailableLogs()
 #    return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
 
-@app.route('/')
+"""
 def index():
     #if not session.get('logged_in'):
     #    return render_template('login.html')
     #else:
     rtk.logm.updateAvailableLogs()
     return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
+"""
+
+@app.route('/')
+@app.route('/index')
+@app.route('/status')
+def status_page():
+    return render_template("status.html")
+
+@app.route('/settings')
+def settings_page():
+    return render_template("settings.html")
+
+@app.route('/logs')
+def logs_page():
+    return render_template("logs.html")
 
 @app.route("/logs/download/<path:log_name>")
 def downloadLog(log_name):
