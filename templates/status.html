@@ -5,23 +5,13 @@
 <div class="container">
 <div id="bar-chart"></div>
 
-<div class="ui-grid-b">
-    <div class="ui-block-a" id="lat_block">
-        <div class="ui-bar">
-            <b>Lat: </b><span id="lat_value"></span>
-        </div>
-    </div>
-    <div class="ui-block-b" id="lon_block">
-        <div class="ui-bar">
-            <b>Lon: </b><span id="lon_value"></span>
-        </div>
-    </div>
-    <div class="ui-block-c" id="height_block">
-        <div class="ui-bar">
-            <b>Height: </b><span id="height_value"></span>
-        </div>
-    </div>
+<div class="row">
+    <div class="col py-3 border bg-light"><b>Longitude: </b><span id="lon_value"></span></div>
+    <div class="col py-3 border bg-light"><b>Latitude: </b><span id="lat_value"></span></div>
+    <div class="col py-3 border bg-light"><b>Height: </b><span id="height_value"></span></div>
 </div>
+
+
 </div>
 {% endblock %}
 

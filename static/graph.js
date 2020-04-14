@@ -396,10 +396,6 @@ function Chart() {
 }
 
 function updateCoordinateGrid(msg) {
-        // status
-        $("#status_value").html("<span>" + msg['solution status'] + "</span>");
-        $("#mode_value").html("<span>" + msg['positioning mode'] + "</span>");
-
         // coordinates
         var coordinates = (typeof(msg['pos llh single (deg,m) rover']) == 'undefined') ? '000' : msg['pos llh single (deg,m) rover'].split(',');
 
@@ -407,7 +403,7 @@ function updateCoordinateGrid(msg) {
         var lon_value = coordinates[1].substring(0, 11) + Array(11 - coordinates[1].substring(0, 11).length + 1).join(" ");
         var height_value = coordinates[2].substring(0, 11) + Array(11 - coordinates[2].substring(0, 11).length + 1 + 2).join(" ");
 
-        $("#lat_value").html("<span style='white-space:pre;'>" + lat_value + "</span>");
-        $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
-        $("#height_value").html("<span style='white-space:pre;'>" + height_value + "  " + "</span>");
+        $("#lat_value").html("<span>" + lat_value + " °" + "</span>");
+        $("#lon_value").html("<span>" + lon_value + " °" + "</span>");
+        $("#height_value").html("<span>" + height_value + "m" + "</span>");
 }
