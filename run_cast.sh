@@ -5,7 +5,7 @@
 # https://github.com/tomojitakasu/RTKLIB
 
 BASEDIR=$(dirname "$0")
-source ${BASEDIR}/settings.conf   #import settings
+source <( grep = ${BASEDIR}/settings.conf )  #import settings
 
 
 in_serial="serial://${serial_input}"
