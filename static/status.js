@@ -29,11 +29,6 @@ $(document).ready(function () {
         }
     });
 
-    //$(document).on("pagebeforeshow", "#status_page", function() {
-    //    setTimeout(function(){chart.resize();}, 500);
-    //});
-
-
     var msg_status = {
             "lat" : "0",
             "lon" : "0",
@@ -43,6 +38,32 @@ $(document).ready(function () {
         };
 
     updateCoordinateGrid(msg_status)
+
+    // ####################### MAP ####################################################
+
+
+    var map = L.map('map').setView({lon: 0, lat: 0}, 2);
+
+    L.tileLayer('http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a> ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> ',
+        tileSize: 256,
+        
+    }).addTo(map);
+
+    // Add marker
+    var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
+
+    // Move map view with marker location
+    locMark.addEventListener("move", function() {
+        const reduceBounds = map.getBounds().pad(-0.4);
+        if (reduceBounds.contains(locMark.getLatLng()) != true) {
+            console.log("location marker is outside the bound, moving the map");
+            map.flyTo(locMark.getLatLng(), 20);
+        }
+    });
+
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
     socket.on("satellite broadcast rover", function(msg) {
@@ -59,12 +80,12 @@ $(document).ready(function () {
     socket.on("satellite broadcast base", function(msg) {
         // check if the browser tab and app tab are active
         
-            console.groupCollapsed('Base satellite msg received:');
-                for (var k in msg)
-                    console.log(k + ':' + msg[k]);
-            console.groupEnd();
+        console.groupCollapsed('Base satellite msg received:');
+            for (var k in msg)
+                console.log(k + ':' + msg[k]);
+        console.groupEnd();
 
-            chart.baseUpdate(msg);
+        chart.baseUpdate(msg);
     });
 
     // ####################### HANDLE COORDINATE MESSAGES #######################
@@ -72,13 +93,21 @@ $(document).ready(function () {
     socket.on("coordinate broadcast", function(msg) {
         // check if the browser tab and app tab
         
+        console.groupCollapsed('Coordinate msg received:');
+            for (var k in msg)
+                console.log(k + ':' + msg[k]);
+        console.groupEnd();
 
-            console.groupCollapsed('Coordinate msg received:');
-                for (var k in msg)
-                    console.log(k + ':' + msg[k]);
-            console.groupEnd();
+        updateCoordinateGrid(msg);
 
-            updateCoordinateGrid(msg);
+        //update map marker position
+        // TODO refactoring with the same instructions in graph.js
+        var coordinates = (typeof(msg['pos llh single (deg,m) rover']) == 'undefined') ? '000' : msg['pos llh single (deg,m) rover'].split(',');
+
+        var lat_value = coordinates[0].substring(0, 11) + Array(11 - coordinates[0].substring(0, 11).length + 1).join(" ");
+        var lon_value = coordinates[1].substring(0, 11) + Array(11 - coordinates[1].substring(0, 11).length + 1).join(" ");
+
+        locMark.setLatLng({lng: Number(lon_value), lat: Number(lat_value)});
     });
 
     socket.on("current config rover", function(msg) {
