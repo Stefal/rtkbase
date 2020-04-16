@@ -255,26 +255,15 @@ class RTKLIB:
 
         self.semaphore.acquire()
         
-        print("RTKLIB 10 Attempting to stop str2str...")
-
-        res = self.s2sc.stop()
-        
-
-        if res == -1:
-            print("str2str stop failed")
-        elif res == 1:
-            print("str2str stop successful")
-        elif res == 2:
-            print("str2str already stopped")
 
         print("RTKLIB 10a Attempting to stop rtkrcv...")
 
         res2 = self.rtkc.stop()
-        if res == -1:
+        if res2 == -1:
             print("rtkrcv stop failed")
-        elif res == 1:
+        elif res2 == 1:
             print("rtkrcv stop successful")
-        elif res == 2:
+        elif res2 == 2:
             print("rtkrcv already stopped")
 
         print("RTKLIB 10b Attempting to stop satellite broadcasting...")
@@ -292,7 +281,7 @@ class RTKLIB:
         self.saveState()
         self.semaphore.release()
 
-        return res
+        return res2
 
     def readConfigBase(self):
 

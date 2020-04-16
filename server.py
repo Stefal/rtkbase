@@ -188,25 +188,6 @@ def getAvailableLogs():
     print("Updated logs list is " + str(rtk.logm.available_logs))
     rtk.socketio.emit("available logs", rtk.logm.available_logs, namespace="/test")
 
-#### rtkrcv launch/shutdown signal handling ####
-@socketio.on("launch rover", namespace="/test")
-def launchRover():
-    rtk.launchRover()
-
-@socketio.on("shutdown rover", namespace="/test")
-def shutdownRover():
-    rtk.shutdownRover()
-
-#### rtkrcv start/stop signal handling ####
-
-@socketio.on("start rover", namespace="/test")
-def startRover():
-    rtk.startRover()
-
-@socketio.on("stop rover", namespace="/test")
-def stopRtkrcv():
-    rtk.stopRover()
-
 #### str2str launch/shutdown handling ####
 
 @socketio.on("launch base", namespace="/test")
@@ -226,31 +207,6 @@ def startBase():
 @socketio.on("stop base", namespace="/test")
 def stopBase():
     rtk.stopBase()
-
-#### rtkrcv config handling ####
-
-@socketio.on("read config rover", namespace="/test")
-def readConfigRover(json):
-    rtk.readConfigRover(json)
-
-@socketio.on("write config rover", namespace="/test")
-def writeConfigRover(json):
-    rtk.writeConfigRover(json)
-
-@socketio.on("write and load config rover", namespace="/test")
-def writeAndLoadConfig(json):
-    rtk.writeConfigRover(json)
-    rtk.loadConfigRover(json.get("config_file_name", None))
-
-#### str2str config handling ####
-
-@socketio.on("read config base", namespace="/test")
-def readConfigBase(json):
-    rtk.readConfigBase()
-
-@socketio.on("write and load config base", namespace="/test")
-def writeConfigBase(json):
-    rtk.writeConfigBase(json)
 
 #### Free space handler
 
@@ -293,18 +249,6 @@ def readRINEXVersion():
 def writeRINEXVersion(json):
     rinex_version = json.get("version")
     rtk.logm.setRINEXVersion(rinex_version)
-
-#### Delete config ####
-@socketio.on("delete config", namespace="/test")
-def deleteConfig(json):
-    log_name = json.get("name")
-    raw_log_path = rtk.logm.log_path + "/" + log_name
-    rtk.deleteConfig(json.get("name"))
-
-#### Reset config to default ####
-@socketio.on("reset config", namespace="/test")
-def resetConfig(json):
-    rtk.resetConfigToDefault(json.get("name"))
 
 #### Update ReachView ####
 
