@@ -47,31 +47,33 @@ class LogManager():
 
         print("Getting a list of available logs")
         for log in glob(self.log_path + "/*"):
-            if not log.endswith(".zip"):
-                log_name = os.path.basename(log)
-                # get size in bytes and convert to MB
-                log_size = self.getLogSize(log)
+        
+            log_name = os.path.basename(log)
+            # get size in bytes and convert to MB
+            log_size = self.getLogSize(log)
 
-                potential_zip_path = os.path.splitext(log)[0] + ".zip"
+            potential_zip_path = os.path.splitext(log)[0] + ".zip"
 
-                log_format = self.getLogFormat(log)
-                is_being_converted = True if log == self.log_being_converted else False
+            log_format = self.getLogFormat(log)
+            is_being_converted = True if log == self.log_being_converted else False
 
-                self.available_logs.append({
-                    "name": log_name,
-                    "size": log_size,
-                    "format": log_format,
-                    "is_being_converted": is_being_converted
-                })
+            self.available_logs.append({
+                "name": log_name,
+                "size": log_size,
+                "format": log_format,
+                "is_being_converted": is_being_converted
+            })
 
-                self.available_logs.sort(key = lambda date: date['name'], reverse = True)
-"""
+            self.available_logs.sort(key = lambda date: date['name'], reverse = True)
+
+        
+    """
     def getLogCompareString(self, log_name):
         name_without_extension = os.path.splitext(log_name)[0]
         print("log name: ", log_name)
         log_type, log_date = name_without_extension.split("_")
         return log_date + log_type[0:2]
-"""
+    """
     def getLogSize(self, log_path):
         size = os.path.getsize(log_path) / (1024 * 1024.0)
         return "{0:.2f}".format(size)
