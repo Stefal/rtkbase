@@ -29,7 +29,7 @@ from log_converter import convbin
 
 class LogManager():
 
-    supported_solution_formats = ["llh", "xyz", "enu", "nmea", "erb"]
+    supported_solution_formats = ["llh", "xyz", "enu", "nmea", "erb", "zip", "bz2", "tar", "tag"]
 
     def __init__(self, rtklib_path, log_path):
 
@@ -64,13 +64,14 @@ class LogManager():
                     "is_being_converted": is_being_converted
                 })
 
-                self.available_logs.sort(key = lambda log: self.getLogCompareString(log["name"]), reverse = True)
-
+                self.available_logs.sort(key = lambda date: date['name'], reverse = True)
+"""
     def getLogCompareString(self, log_name):
         name_without_extension = os.path.splitext(log_name)[0]
+        print("log name: ", log_name)
         log_type, log_date = name_without_extension.split("_")
         return log_date + log_type[0:2]
-
+"""
     def getLogSize(self, log_path):
         size = os.path.getsize(log_path) / (1024 * 1024.0)
         return "{0:.2f}".format(size)
