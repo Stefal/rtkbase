@@ -386,7 +386,7 @@ class RTKLIB:
     def stopBase(self):
 
         self.semaphore.acquire()
-
+        
         print("RTKLIB 10 Attempting to stop str2str...")
 
         res = self.s2sc.stop()
@@ -926,91 +926,6 @@ class RTKLIB:
 
         self.socketio.emit("current state", state, namespace = "/test")
 
-#    def updateLED(self, pattern = None):
-        # this forms a distinctive and informative blink pattern showing following info:
-        # network_status/rtk_mode/started?/solution_status
-        # network: self-hosted AP or connected? green/blue
-        # rtk mode: rover or base? blue/magenta
-        # started: yes or no? green/red
-        # solution status: -, single, float, fix? red/cyan/yellow/green
-
-#        blink_pattern = []
-#        delay = 0.5
-
-        # get wi-fi connection status for the first signal
-
-#        cmd = ["configure_edison", "--showWiFiMode"]
-#        cmd = " ".join(cmd)
-
-#        proc = Popen(cmd, stdout = PIPE, shell = True, bufsize = 2048)
-#        out = proc.communicate()
-
-#        out = out[0].split("\n")[0]
-
-#        if out == "Master":
-#            blink_pattern.append("green")
-#        elif out == "Managed":
-#            blink_pattern.append("blue")
-
-#        if self.state == "base":
-
-#            blink_pattern.append("magenta")
-
-#            if self.s2sc.started:
-                # we have a started base
-#                blink_pattern.append("green")
-#            else:
-                # we have a stopped base
-#                blink_pattern.append("red")
-
-            # for now, the base doesn't have solution
-#            blink_pattern.append("off")
-
-#        elif self.state == "rover":
-
-#            blink_pattern.append("blue")
-
-#            if self.rtkc.started:
-                # we have a started rover
-
-#                blink_pattern.append("green")
-
-#                status_pattern_dict = {
-#                    "fix": "green,off",
-#                    "float": "yellow,off",
-#                    "single": "cyan,off",
-#                    "-": "read,off"
-#                }
-
-                # we need to acquire RtkController in case it's currently updating info dict
-#                self.rtkc.semaphore.acquire()
-#                current_rover_solutuon_status = self.rtkc.info.get("solution_status", "")
-#                self.rtkc.semaphore.release()
-
-                # if we don't know this status, we just pass
-#                blink_pattern.append(status_pattern_dict.get(current_rover_solutuon_status, "off"))
-#            else:
-                # we have a stopped rover
-#                blink_pattern.append("red")
-                # we are not started, meaning no status just yet
-#                blink_pattern.append("off")
-
-        # sync color for better comprehension
-#        blink_pattern.append("white")
-
-        # concatenate all that into one big string
-#        blink_pattern = ",off,".join(blink_pattern) + ",off"
-
-#        if pattern is not None:
-#            blink_pattern = pattern
-
-#        if blink_pattern:
-            # check blink_pattern contains something new
-#            if blink_pattern != self.led.current_blink_pattern:
-                # if we decided we need a new pattern, then start blinking it
-#                self.led.startBlinker(blink_pattern, delay)
-
-    # thread workers for broadcasing rtkrcv status
 
     # this function reads satellite levels from an exisiting rtkrcv instance
     # and emits them to the connected browser as messages
@@ -1024,10 +939,10 @@ class RTKLIB:
 
 #            if count % 10 == 0:
             print("Sending sat rover levels:\n" + str(self.rtkc.obs_rover))
-            print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
+            #print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
 
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
-            self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
+            #self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
             count += 1
             time.sleep(1)
 
