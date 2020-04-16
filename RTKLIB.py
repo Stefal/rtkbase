@@ -64,7 +64,7 @@ class RTKLIB:
         "rover": {
             "current_config": "reach_single_default.conf"
         },
-        "started": "no",
+        "started": "yes",
         "state": "base"
     }
 
@@ -143,140 +143,8 @@ class RTKLIB:
         self.loadState()
         self.socketio.emit("system state reloaded", {}, namespace="/test")
 
-    def launchRover(self, config_name = None):
-        # config_name may be a name, or a full path
-        # if the parameter contains "/", then we consider it a full path
-        # else, we will be looking for it one directory higher than the rtkrcv bin
-
-        self.semaphore.acquire()
-        print("RTKLIB 3 Attempting to launch rtkrcv...")
-        print(config_name)
-
-        if config_name == None:
-            print("launch none")
-            res = self.rtkc.launch()
-        else:
-            print("launch" + config_name)
-            res = self.rtkc.launch(config_name)
-
-        if res < 0:
-            print("rtkrcv launch failed")
-        elif res == 1:
-            print("rtkrcv launch successful")
-            self.state = "rover"
-        elif res == 2:
-            print("rtkrcv already launched")
-            self.state = "rover"
-
-        self.saveState()
-
-#        if self.enable_led:
-#            self.updateLED()
-
-        print("Rover mode launched")
-
-        self.semaphore.release()
-
-        return res
-
-    def shutdownRover(self):
-
-        self.stopRover()
-
-        self.semaphore.acquire()
-        print("RTKLIB 4 Attempting rtkrcv shutdown")
-
-        res = self.rtkc.shutdown()
-
-        if res < 0:
-            print("rtkrcv shutdown failed")
-        elif res == 1:
-            print("rtkrcv shutdown successful")
-            self.state = "inactive"
-        elif res == 2:
-            print("rtkrcv already shutdown")
-            self.state = "inactive"
-
-        self.saveState()
-
-#        if self.enable_led:
-#            self.updateLED()
-
-        print("Rover mode shutdown")
-
-        self.semaphore.release()
-
-        return res
-
-    def startRover(self):
-
-        self.semaphore.acquire()
-        print("RTKLIB 5 Attempting to start rtkrcv...")
-
-        res = self.rtkc.start()
-
-        if res == -1:
-            print("rtkrcv start failed")
-        elif res == 1:
-            print("rtkrcv start successful")
-            print("Starting coordinate and satellite broadcast")
-        elif res == 2:
-            print("rtkrcv already started")
-
-        # start fresh data broadcast
-
-        self.server_not_interrupted = True
-
-        if self.satellite_thread is None:
-            self.satellite_thread = Thread(target = self.broadcastSatellites)
-            self.satellite_thread.start()
-
-        if self.coordinate_thread is None:
-            self.coordinate_thread = Thread(target = self.broadcastCoordinates)
-            self.coordinate_thread.start()
-
-        self.saveState()
-
-#        if self.enable_led:
-#            self.updateLED()
-
-        self.semaphore.release()
-
-        return res
-
-    def stopRover(self):
-
-        self.semaphore.acquire()
-        print("RTKLIB 6 Attempting to stop RTKLIB...")
-
-        res = self.rtkc.stop()
-
-        if res == -1:
-            print("rtkrcv stop failed")
-        elif res == 1:
-            print("rtkrcv stop successful")
-        elif res == 2:
-            print("rtkrcv already stopped")
-
-        self.server_not_interrupted = False
-
-        if self.satellite_thread is not None:
-            self.satellite_thread.join()
-            self.satellite_thread = None
-
-        if self.coordinate_thread is not None:
-            self.coordinate_thread.join()
-            self.coordinate_thread = None
-
-        self.saveState()
-
-#        if self.enable_led:
-#            self.updateLED()
-
-        self.semaphore.release()
-
-        return res
-
+    
+    
     def launchBase(self):
         # due to the way str2str works, we can't really separate launch and start
         # all the configuration goes to startBase() function
@@ -287,7 +155,7 @@ class RTKLIB:
 
         self.state = "base"
 
-        self.saveState()
+        #self.saveState()
 
 #        if self.enable_led:
 #            self.updateLED()
@@ -321,7 +189,7 @@ class RTKLIB:
     def startBase(self, rtcm3_messages = None, base_position = None, gps_cmd_file = None):
 
         self.semaphore.acquire()
-
+        """
         print("RTKLIB 9 Attempting to start str2str...")
 
         
@@ -334,7 +202,7 @@ class RTKLIB:
             print("str2str already started")
         
         self.saveState()
-
+        """
         #TODO need refactoring
         #maybe a new method to launch/start rtkrcv outside
         #startBase and startRover
@@ -381,32 +249,21 @@ class RTKLIB:
 
         self.semaphore.release()
 
-        return res
+        return res3
 
     def stopBase(self):
 
         self.semaphore.acquire()
-
-        print("RTKLIB 10 Attempting to stop str2str...")
-
-        res = self.s2sc.stop()
         
-
-        if res == -1:
-            print("str2str stop failed")
-        elif res == 1:
-            print("str2str stop successful")
-        elif res == 2:
-            print("str2str already stopped")
 
         print("RTKLIB 10a Attempting to stop rtkrcv...")
 
         res2 = self.rtkc.stop()
-        if res == -1:
+        if res2 == -1:
             print("rtkrcv stop failed")
-        elif res == 1:
+        elif res2 == 1:
             print("rtkrcv stop successful")
-        elif res == 2:
+        elif res2 == 2:
             print("rtkrcv already stopped")
 
         print("RTKLIB 10b Attempting to stop satellite broadcasting...")
@@ -424,7 +281,7 @@ class RTKLIB:
         self.saveState()
         self.semaphore.release()
 
-        return res
+        return res2
 
     def readConfigBase(self):
 
@@ -462,93 +319,6 @@ class RTKLIB:
 
         return res
 
-    def writeConfigRover(self, config):
-        # config dict must include config_name field
-
-        self.semaphore.acquire()
-
-        if "config_file_name" not in config:
-            config_file = None
-        else:
-            config_file = config["config_file_name"]
-
-        print("RTKLIB 13 Got signal to write rover config to file " + config_file)
-
-        self.conm.writeConfig(config_file, config)
-
-        self.conm.updateAvailableConfigs()
-
-        # send available configs to the browser
-        self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
-
-        self.semaphore.release()
-
-    def loadConfigRover(self, config_file = None):
-        # we might want to write the config, but dont need to load it every time
-
-        self.semaphore.acquire()
-
-        if config_file == None:
-            config_file == self.conm.default_rover_config
-
-        print("RTKLIB 14 Loading config " + config_file)
-
-        # loading config to rtkrcv
-        if self.rtkc.loadConfig(config_file) < 0:
-            print("ERROR: failed to load config!!!")
-            print("abort load")
-            self.semaphore.release()
-
-            return -1
-
-        print("load successful!")
-        print("Now we need to restart rtkrcv for the changes to take effect")
-
-        if self.rtkc.started:
-            print("rtkrcv is already started, we need to do a simple restart!")
-
-            res = self.rtkc.restart()
-
-            if res == 3:
-                print("Restart successful")
-                print(config_file + " config loaded")
-            elif res == 1:
-                print("rtkrcv started instead of restart")
-            elif res < 1:
-                print("ERROR: rtkrcv restart failed")
-
-            self.semaphore.release()
-
-            self.saveState()
-
-            return res
-        else:
-            print("We were not started before, so we need to perform a full start")
-
-            self.semaphore.release()
-
-            return self.startRover()
-
-    def readConfigRover(self, config):
-
-        self.semaphore.acquire()
-
-        if "config_file_name" not in config:
-            config_file = None
-        else:
-            config_file = config["config_file_name"]
-
-        print("RTKLIB 16 Got signal to read the rover config by the name " + str(config_file))
-        print("Sending rover config " + str(config_file))
-
-        # read from file
-        self.conm.readConfig(config_file)
-
-        # send to the browser
-        self.socketio.emit("current config rover", self.conm.buffered_config.items, namespace="/test")
-
-        self.semaphore.release()
-
     def shutdown(self):
         # shutdown whatever mode we are in. stop broadcast threads
 
@@ -567,9 +337,8 @@ class RTKLIB:
 #        if self.led.blinker_thread is not None:
 #            self.led.blinker_thread.join()
 
-        # shutdown base or rover
-        if self.state == "rover":
-            return self.shutdownRover()
+        # shutdown base
+
         elif self.state == "base":
             return self.shutdownBase()
 
@@ -582,20 +351,6 @@ class RTKLIB:
         print("RTKLIB 18 Got signal to delete config " + config_name)
 
         self.conm.deleteConfig(config_name)
-
-        self.conm.updateAvailableConfigs()
-
-        # send available configs to the browser
-        self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
-
-        print(self.conm.available_configs)
-
-    def resetConfigToDefault(self, config_name):
-        # pass reset config to conm
-
-        print("RTKLIB 19 Got signal to reset config " + config_name)
-
-        self.conm.resetConfigToDefault(config_name)
 
         self.conm.updateAvailableConfigs()
 
@@ -876,32 +631,11 @@ class RTKLIB:
         # first, we restore the base state, because no matter what we end up doing,
         # we need to restore base state
 
-        self.s2sc.input_stream = json_state["base"]["input_stream"]
-        self.s2sc.output_stream = json_state["base"]["output_stream"]
-        self.s2sc.rtcm3_messages = json_state["base"]["rtcm3_messages"]
-        self.s2sc.base_position = json_state["base"]["base_position"]
-        self.s2sc.gps_cmd_file = json_state["base"]["gps_cmd_file"]
-
-        if json_state["state"] == "rover":
-            saved_config = json_state["rover"]["current_config"]
-
-            if saved_config == "":
-                saved_config = None
-
-            self.launchRover(saved_config)
-
-            if json_state["started"] == "yes":
-                self.startRover()
-
-        elif json_state["state"] == "base":
+        if json_state["state"] == "base":
             self.launchBase()
 
             if json_state["started"] == "yes":
                 self.startBase()
-
-        else:
-            # in case we are inactive
-            self.launchRover()
 
         print(str(json_state["state"]) + " state loaded")
 
@@ -926,91 +660,6 @@ class RTKLIB:
 
         self.socketio.emit("current state", state, namespace = "/test")
 
-#    def updateLED(self, pattern = None):
-        # this forms a distinctive and informative blink pattern showing following info:
-        # network_status/rtk_mode/started?/solution_status
-        # network: self-hosted AP or connected? green/blue
-        # rtk mode: rover or base? blue/magenta
-        # started: yes or no? green/red
-        # solution status: -, single, float, fix? red/cyan/yellow/green
-
-#        blink_pattern = []
-#        delay = 0.5
-
-        # get wi-fi connection status for the first signal
-
-#        cmd = ["configure_edison", "--showWiFiMode"]
-#        cmd = " ".join(cmd)
-
-#        proc = Popen(cmd, stdout = PIPE, shell = True, bufsize = 2048)
-#        out = proc.communicate()
-
-#        out = out[0].split("\n")[0]
-
-#        if out == "Master":
-#            blink_pattern.append("green")
-#        elif out == "Managed":
-#            blink_pattern.append("blue")
-
-#        if self.state == "base":
-
-#            blink_pattern.append("magenta")
-
-#            if self.s2sc.started:
-                # we have a started base
-#                blink_pattern.append("green")
-#            else:
-                # we have a stopped base
-#                blink_pattern.append("red")
-
-            # for now, the base doesn't have solution
-#            blink_pattern.append("off")
-
-#        elif self.state == "rover":
-
-#            blink_pattern.append("blue")
-
-#            if self.rtkc.started:
-                # we have a started rover
-
-#                blink_pattern.append("green")
-
-#                status_pattern_dict = {
-#                    "fix": "green,off",
-#                    "float": "yellow,off",
-#                    "single": "cyan,off",
-#                    "-": "read,off"
-#                }
-
-                # we need to acquire RtkController in case it's currently updating info dict
-#                self.rtkc.semaphore.acquire()
-#                current_rover_solutuon_status = self.rtkc.info.get("solution_status", "")
-#                self.rtkc.semaphore.release()
-
-                # if we don't know this status, we just pass
-#                blink_pattern.append(status_pattern_dict.get(current_rover_solutuon_status, "off"))
-#            else:
-                # we have a stopped rover
-#                blink_pattern.append("red")
-                # we are not started, meaning no status just yet
-#                blink_pattern.append("off")
-
-        # sync color for better comprehension
-#        blink_pattern.append("white")
-
-        # concatenate all that into one big string
-#        blink_pattern = ",off,".join(blink_pattern) + ",off"
-
-#        if pattern is not None:
-#            blink_pattern = pattern
-
-#        if blink_pattern:
-            # check blink_pattern contains something new
-#            if blink_pattern != self.led.current_blink_pattern:
-                # if we decided we need a new pattern, then start blinking it
-#                self.led.startBlinker(blink_pattern, delay)
-
-    # thread workers for broadcasing rtkrcv status
 
     # this function reads satellite levels from an exisiting rtkrcv instance
     # and emits them to the connected browser as messages
@@ -1024,10 +673,10 @@ class RTKLIB:
 
 #            if count % 10 == 0:
             print("Sending sat rover levels:\n" + str(self.rtkc.obs_rover))
-            print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
+            #print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
 
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
-            self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
+            #self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
             count += 1
             time.sleep(1)
 
