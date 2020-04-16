@@ -65,6 +65,12 @@ class LogManager():
             })
 
             self.available_logs.sort(key = lambda date: date['name'], reverse = True)
+        
+        #Adding an id to each log
+        id = 0
+        for log in self.available_logs:
+            log['id'] = id
+            id += 1
 
         
     """
@@ -82,10 +88,12 @@ class LogManager():
         file_path, extension = os.path.splitext(log_path)
         extension = extension[1:]
 
+        """
+        # removed because a zip file is not necesseraly RINEX
         potential_zip_path = file_path + ".zip"
         if os.path.isfile(potential_zip_path):
             return "RINEX"
-
+        """
         if (extension in self.supported_solution_formats or
                     extension in self.convbin.supported_log_formats):
             return extension.upper()
