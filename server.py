@@ -38,6 +38,7 @@ from RTKLIB import RTKLIB
 from port import changeBaudrateTo115200
 from reach_tools import reach_tools, provisioner
 from ServiceController import ServiceController
+from RTKBaseConfigManager import RTKBaseConfigManager
 
 #print("Installing all required packages")
 #provisioner.provision_reach()
@@ -54,7 +55,7 @@ from subprocess import check_output
 
 app = Flask(__name__)
 #app.template_folder = "."
-app.debug = False
+app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 app.config["UPLOAD_FOLDER"] = "../logs"
 
@@ -64,22 +65,12 @@ path_to_rtklib = os.path.join(os.path.expanduser("~"), "gnss_venv/RTKLIB")
 socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
-# bluetooth init
-#print("bluetooth was here")
-#bluetoothctl = reach_bluetooth.bluetoothctl.Bluetoothctl()
-#bluetooth_bridge = reach_bluetooth.tcp_bridge.TCPtoRFCOMMBridge()
-#bluetooth_bridge.start()
-
-# configure Ublox for 115200 baudrate!
-#print("ublox baud")
-#changeBaudrateTo115200()
-
-
-
 rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, enable_led=False, log_path=path_to_logs)
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
+
+rtkbaseconfig = RTKBaseConfigManager("../rtkbase/settings.conf")
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -150,7 +141,8 @@ def status_page():
 
 @app.route('/settings')
 def settings_page():
-    return render_template("settings.html")
+    data = rtkbaseconfig.get_ordered_settings()
+    return render_template("settings.html", data = data)
 
 @app.route('/logs')
 def logs_page():
