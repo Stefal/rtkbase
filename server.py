@@ -233,6 +233,8 @@ def getAvailableSpace():
 @socketio.on("delete log", namespace="/test")
 def deleteLog(json):
     rtk.logm.deleteLog(json.get("name"))
+    # Sending the the new available logs
+    getAvailableLogs()
 
 #### Download and convert log handlers ####
 

@@ -141,20 +141,22 @@ class LogManager():
     def deleteLog(self, log_filename):
         # try to delete log if it exists
 
-        log_name, extension = os.path.splitext(log_filename)
+        #log_name, extension = os.path.splitext(log_filename)
 
         # try to delete raw log
-        print("Deleting log " + log_name + extension)
+        print("Deleting log " + log_filename)
         try:
-            os.remove(self.log_path + "/" + log_name + extension)
+            os.remove(os.path.join(self.log_path, log_filename))
         except OSError as e:
-            print ("Error: " + e.filename + " - " + e.strerror)
+            print ("Error: " + e.log_filename + " - " + e.strerror)
 
+        """
         print("Deleting log " + log_name + ".zip")
         try:
             os.remove(self.log_path + "/" + log_name + ".zip")
         except OSError as e:
             print ("Error: " + e.filename + " - " + e.strerror)
+        """
 
     def getRINEXVersion(self):
         # read RINEX version from system file

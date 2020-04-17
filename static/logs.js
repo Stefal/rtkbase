@@ -35,10 +35,23 @@ window.operateEvents = {
         alert('Editing: \n' + row.name)
     },
     'click #log_delete': function (e, value, row, index) {
-        alert('Do you really want to delete: \n' + row.name)
+        //alert('Do you really want to delete: \n' + row.name);
+        const answer = confirm('Do you really want to delete: \n' + row.name);
+        if (answer === true) {
+            socket.emit("delete log", row);
+        }
     }
+    // trying to use bootstrap modal with no luck
+    //    $('#deleteModal').modal();
+    //    socket.emit("delete log", row);
+    //}
 };
-  
+
+$('#confirm-delete-button').on("click", function (){
+    console.log(("delete button clicked"));
+    
+    // do something
+});
 
 $(document).ready(function () {
 
@@ -61,8 +74,12 @@ $(document).ready(function () {
     });
 
        // ################" TABLE ##########################"
+
+    
     
     socket.on('available logs', function(msg){
+        console.log("New log list available");
+        
         var actionDownloadElt = document.createElement("a");
         actionDownloadElt.href = "#";
         actionDownloadElt.setAttribute("title", "download");
@@ -92,7 +109,8 @@ $(document).ready(function () {
         var actionDeleteElt = document.createElement("a");
         actionDeleteElt.href = "#";
         actionDeleteElt.setAttribute("title", "delete");
-        actionDeleteElt.setAttribute("id", "log_delete")
+        actionDeleteElt.setAttribute("id", "log_delete");
+        actionDeleteElt.setAttribute("data-toggle", "modal")
         actionDeleteElt.classList.add("mx-1");
             var deleteImg = document.createElement("img");
             deleteImg.setAttribute("src", "../static/images/trash.svg");
@@ -102,6 +120,8 @@ $(document).ready(function () {
             deleteImg.setAttribute("height", "25");
         actionDeleteElt.appendChild(deleteImg);
 
+       
+        
         // Adding icons for file's actions
         for (log of msg) {
             actionDownloadElt.href = "/logs/download/" + log.name
@@ -110,8 +130,17 @@ $(document).ready(function () {
         }
 
         // Updating the table content
+        $('#logtable').bootstrapTable('removeAll');
+        
+        
+        
         $('#logtable').bootstrapTable('load', msg);
+        var zz = $('#logtable').bootstrapTable('getData');
+        console.log(" table data : ");
+        console.log(zz);
         })
+
+        
 
  
     
