@@ -59,13 +59,14 @@ app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 app.config["UPLOAD_FOLDER"] = "../logs"
 
-path_to_logs = os.path.join(os.path.dirname(os.path.realpath(__file__)), "logs")
+#path_to_gnss_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), "logs")
+path_to_gnss_log = "/home/stephane/gnss_venv/rtkbase/data/"
 path_to_rtklib = os.path.join(os.path.expanduser("~"), "gnss_venv/RTKLIB")
 
 socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
-rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, enable_led=False, log_path=path_to_logs)
+rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, enable_led=False, log_path=path_to_gnss_log)
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
@@ -212,7 +213,7 @@ def stopBase():
 
 @socketio.on("get available space", namespace="/test")
 def getAvailableSpace():
-    rtk.socketio.emit("available space", reach_tools.getFreeSpace(path_to_logs), namespace="/test")
+    rtk.socketio.emit("available space", reach_tools.getFreeSpace(path_to_gnss_log), namespace="/test")
 
 #### Delete log button handler ####
 
