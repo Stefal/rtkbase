@@ -48,7 +48,8 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 
 from threading import Thread
 from flask_bootstrap import Bootstrap
-from flask import Flask, render_template, session, request, send_file, flash, redirect, abort
+from flask import Flask, render_template, session, request, flash
+from flask import send_file, send_from_directory, safe_join, redirect, abort
 
 from flask_socketio import SocketIO, emit, disconnect
 from subprocess import check_output
@@ -58,6 +59,7 @@ app = Flask(__name__)
 app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 app.config["UPLOAD_FOLDER"] = "../logs"
+app.config["DOWNLOAD_FOLDER"] = "../rtkbase/data"
 
 #path_to_gnss_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), "logs")
 path_to_gnss_log = "/home/stephane/gnss_venv/rtkbase/data/"
@@ -151,9 +153,20 @@ def logs_page():
 
 @app.route("/logs/download/<path:log_name>")
 def downloadLog(log_name):
-    full_log_path = rtk.logm.log_path + "/" + log_name
-    return send_file(full_log_path, as_attachment = True)
+    try:
+        full_log_path = rtk.logm.log_path + "/" + log_name
+        return send_file(full_log_path, as_attachment = True)
+    except FileNotFoundError:
+        abort(404)
 
+"""
+@app.route("/logs/download/<log_name>")
+def downloadLog(log_name):
+    try:
+        return send_from_directory(app.config["DOWNLOAD_FOLDER"], filename=log_name, as_attachment=True)
+    except FileNotFoundError:
+        abort(404)
+"""
 @app.route('/login', methods=['POST'])
 def do_admin_login():
     if request.form['password'] == 'password' and request.form['username'] == 'admin':

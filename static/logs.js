@@ -31,9 +31,6 @@ function actionFormatter (value,row,index) {
 }
 
 window.operateEvents = {
-    'click #log_download': function (e, value, row, index) {
-      alert('Do you really want to download: \n' + row.name)
-    },
     'click #log_edit': function (e, value, row, index) {
         alert('Editing: \n' + row.name)
     },
@@ -107,6 +104,8 @@ $(document).ready(function () {
 
         // Adding icons for file's actions
         for (log of msg) {
+            actionDownloadElt.href = "/logs/download/" + log.name
+            //some download examples : https://pythonise.com/series/learning-flask/sending-files-with-flask
             log['actions'] = actionDownloadElt.outerHTML + actionEditElt.outerHTML + actionDeleteElt.outerHTML;
         }
 
