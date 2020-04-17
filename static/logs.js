@@ -1,30 +1,3 @@
-/*
-$('#logtable').bootstrapTable({
-    columns: [{
-                field: 'id',
-                title: 'item id'
-                },
-                {
-                field: 'name',
-                title: 'file name'
-                },
-                {
-                    field: 'size',
-                    title: 'file size'
-                },
-                {
-                    field: 'format',
-                    title: 'type'
-                },
-                {
-                    field: 'actions',
-                    title: 'mlk',
-                    formatter : function(formatting)
-                    }
-            }],
-    
-});
-*/
 function actionFormatter (value,row,index) {
     
     return value
@@ -35,22 +8,14 @@ window.operateEvents = {
         alert('Editing: \n' + row.name)
     },
     'click #log_delete': function (e, value, row, index) {
-        //alert('Do you really want to delete: \n' + row.name);
-        const answer = confirm('Do you really want to delete: \n' + row.name);
-        if (answer === true) {
-            socket.emit("delete log", row);
-        }
+        document.querySelector('#filename').textContent = row.name;
+        $('#deleteModal').modal();
+        $('#confirm-delete-button').data.row = row;
     }
-    // trying to use bootstrap modal with no luck
-    //    $('#deleteModal').modal();
-    //    socket.emit("delete log", row);
-    //}
 };
 
 $('#confirm-delete-button').on("click", function (){
-    console.log(("delete button clicked"));
-    
-    // do something
+    socket.emit("delete log", $('#confirm-delete-button').data.row);
 });
 
 $(document).ready(function () {
@@ -81,7 +46,7 @@ $(document).ready(function () {
         console.log("New log list available");
         
         var actionDownloadElt = document.createElement("a");
-        actionDownloadElt.href = "#";
+        actionDownloadElt.href = "#deleteModal";
         actionDownloadElt.setAttribute("title", "download");
         actionDownloadElt.setAttribute("id", "log_download")
         actionDownloadElt.classList.add("mx-1");
@@ -131,8 +96,6 @@ $(document).ready(function () {
 
         // Updating the table content
         $('#logtable').bootstrapTable('removeAll');
-        
-        
         
         $('#logtable').bootstrapTable('load', msg);
         var zz = $('#logtable').bootstrapTable('getData');
