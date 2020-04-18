@@ -41,14 +41,40 @@
         
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
-          <button id="confirm-delete-button" type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+          <button id="confirm-delete-button" type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
         </div>
         
       </div>
     </div>
   </div>
 
+<!-- The edit Modal dialog box-->
+<div class="modal" id="editModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Edit</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body text-center ">
+          Coming soon....
+          <p id="filename" class="font-weight-bold"></p>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer mx-auto">
+          <button id="edit-button" type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}

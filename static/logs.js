@@ -11,6 +11,10 @@ window.operateEvents = {
         document.querySelector('#filename').textContent = row.name;
         $('#deleteModal').modal();
         $('#confirm-delete-button').data.row = row;
+    },
+    'click #log_edit': function(e, value, row, index) {
+        document.querySelector('#filename').textContent = row.name;
+        $('#editModal').modal();
     }
 };
 
