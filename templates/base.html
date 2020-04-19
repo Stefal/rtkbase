@@ -18,19 +18,13 @@
     {% endblock %}
   </head>
   <body>
-    <nav class="navbar navbar-expand-sm navbar-light bg-light">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <div class="navbar-nav nav-pills nav-fill">
-                {{ render_nav_item('status_page', 'Status') }}
-                {{ render_nav_item('settings_page', 'Settings') }}
-                {{ render_nav_item('logs_page', 'Logs') }}
-            </div>
-        </div>
-    </nav>
+    <div class="container">
+      <ul class="nav nav-pills nav-justified bg-light">
+        <li class="nav-item">{{ render_nav_item('status_page', 'Status') }}</li>
+        <li class="nav-item">{{ render_nav_item('settings_page', 'Settings') }}</li>
+        <li class="nav-item">{{ render_nav_item('logs_page', 'Logs') }}</li>
+      </ul>
+    </div>
     <!-- Your page content -->
     {% block content %}{% endblock %}
 
