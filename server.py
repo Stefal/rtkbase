@@ -294,14 +294,14 @@ def updateReachView():
 #### Device hardware functions ####
 
 @socketio.on("reboot device", namespace="/test")
-def rebootReach():
+def rebootRtkbase():
     print("Rebooting...")
     rtk.shutdown()
     socketio.stop()
     check_output("reboot")
 
 @socketio.on("shutdown device", namespace="/test")
-def shutdownReach():
+def shutdownRtkbase():
     print("Shutdown...")
     rtk.shutdown()
     socketio.stop()
