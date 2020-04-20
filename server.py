@@ -78,50 +78,6 @@ rtkbaseconfig = RTKBaseConfigManager("../rtkbase/settings.conf")
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
 
-@socketio.on("start bluetooth scan", namespace="/test")
-def start_bluetooth_scan():
-    print("Starting bluetooth scan")
-#    bluetoothctl.start_scan()
-#    socketio.emit("bluetooth scan started", namespace="/test")
-
-@socketio.on("get discoverable bluetooth devices", namespace="/test")
-def send_available_bluetooth_devices():
-    print("Sending available bluetooth devices")
-#    devices = bluetoothctl.get_discoverable_devices()
-#    print(devices)
-#    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
-
-@socketio.on("get paired bluetooth devices", namespace="/test")
-def send_paired_bluetooth_devices():
-    print("Sending paired bluetooth devices")
-#    devices = bluetoothctl.get_paired_devices()
-#    print(devices)
-#    socketio.emit("paired bluetooth devices", devices, namespace="/test")
-
-@socketio.on("pair bluetooth device", namespace="/test")
-def pair_bluetooth_device(device):
-    print("Pairing device " + str(device))
-#    print("Pairing OK == " + str(bluetoothctl.pair(device["mac_address"])))
-#    devices = bluetoothctl.get_paired_devices()
-    print("Updating paired devices: ")
-#    print(devices)
-#    socketio.emit("paired bluetooth devices", devices, namespace="/test")
-#    devices = bluetoothctl.get_discoverable_devices()
-#    print(devices)
-#    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
-
-@socketio.on("remove paired device", namespace="/test")
-def remove_paired_device(device):
-    print("Removing paired device " + str(device))
-#    print("Removed OK == " + str(bluetoothctl.remove(device["mac_address"])))
-#    devices = bluetoothctl.get_paired_devices()
-    print("Updating paired devices: ")
-#    print(devices)
-#    socketio.emit("paired bluetooth devices", devices, namespace="/test")
-#    devices = bluetoothctl.get_discoverable_devices()
-#    print(devices)
-#    socketio.emit("discoverable bluetooth devices", devices, namespace="/test")
-
 #@app.route("/")
 #def index():
 #    rtk.logm.updateAvailableLogs()
