@@ -56,7 +56,7 @@ class RTKBaseConfigManager:
             self.config[section][setting] = value
             if write_file:
                 self.write_file()
-        except (NoSectionError, KeyError, NoOptionError) as e:
+        except Exception as e:
             print(e)
             return False
 

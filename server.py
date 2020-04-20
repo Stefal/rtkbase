@@ -59,6 +59,7 @@ from subprocess import check_output
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
+from werkzeug.urls import url_parse
 
 allowed_users = {
     'admin': 'admin',
@@ -129,9 +130,6 @@ def index():
 def load_user(id):
     return User(id)
 
-need_auth=True
-
-
 @app.route('/')
 @app.route('/index')
 @app.route('/status')
@@ -176,12 +174,16 @@ def login_page():
     if loginform.validate_on_submit():
         user = User('admin')
         password = loginform.password.data
-        if user.check_password(password):
-            login_user(user, remember=loginform.remember_me.data)
-            return redirect(url_for('status_page'))
-        else:
-            abort(401)
+        if not user.check_password(password):
+            return abort(401)
+        
+        login_user(user, remember=loginform.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('status_page')
 
+        return redirect(next_page)
+        
     return render_template('login.html', title='Sign In', form=loginform)
 
 @app.route('/logout')
