@@ -104,6 +104,12 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 def update_password(config_object):
+    """
+        Check in settings.conf if web_password entry contains a value
+        If yes, this function will generate a new hash for it and
+        remove the web_password value
+        :param config_object: a RTKBaseConfigManager instance
+    """
     new_password = config_object.get("general", "web_password")
     if new_password is not "":
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
@@ -167,7 +173,6 @@ def downloadLog(log_name):
 """
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    
     if current_user.is_authenticated:
         return redirect(url_for('status_page'))
     loginform = LoginForm()
@@ -190,13 +195,6 @@ def login_page():
 def logout():
     logout_user()
     return redirect(url_for('login_page'))
-
-#@app.route("/logout")
-#def logout():
-#    print("logging out")
-#    session['logged_in'] = False
-#    return index()
-
 
 #### Handle connect/disconnect events ####
 
@@ -357,9 +355,12 @@ def switchService(json):
 
 if __name__ == "__main__":
     try:
+        #check if a new password is defined in settings.conf
         update_password(rtkbaseconfig)
+        #check if authentification is required
         if not rtkbaseconfig.get_web_authentification():
             app.config["LOGIN_DISABLED"] = True
+        #load services status managed with systemd
         services_list = load_units(services_list)
         app.secret_key = os.urandom(12)
         socketio.run(app, host = "0.0.0.0", port = 8080)
