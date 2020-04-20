@@ -48,11 +48,22 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 
 from threading import Thread
 from flask_bootstrap import Bootstrap
-from flask import Flask, render_template, session, request, flash
+from flask import Flask, render_template, session, request, flash, url_for
 from flask import send_file, send_from_directory, safe_join, redirect, abort
-
+from flask_wtf import FlaskForm
+from wtforms import PasswordField, BooleanField, SubmitField
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
+from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_socketio import SocketIO, emit, disconnect
 from subprocess import check_output
+
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
+from werkzeug.urls import url_parse
+
+allowed_users = {
+    'admin': 'admin',
+}
 
 app = Flask(__name__)
 #app.template_folder = "."
@@ -60,11 +71,14 @@ app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 app.config["UPLOAD_FOLDER"] = "../logs"
 app.config["DOWNLOAD_FOLDER"] = "../rtkbase/data"
+app.config["LOGIN_DISABLED"] = False
 
 #path_to_gnss_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), "logs")
 path_to_gnss_log = "/home/stephane/gnss_venv/rtkbase/data/"
 path_to_rtklib = os.path.join(os.path.expanduser("~"), "gnss_venv/RTKLIB")
 
+login=LoginManager(app)
+login.login_view = 'login_page'
 socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
@@ -74,6 +88,33 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
 
 rtkbaseconfig = RTKBaseConfigManager("../rtkbase/settings.conf")
+
+class User(UserMixin):
+    def __init__(self, username):
+        self.id=username
+        self.password_hash = rtkbaseconfig.get("general", "web_password_hash")
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+class LoginForm(FlaskForm):
+    #username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Please enter the password:', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Sign In')
+
+def update_password(config_object):
+    """
+        Check in settings.conf if web_password entry contains a value
+        If yes, this function will generate a new hash for it and
+        remove the web_password value
+        :param config_object: a RTKBaseConfigManager instance
+    """
+    new_password = config_object.get("general", "web_password")
+    if new_password is not "":
+        config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
+        config_object.update_setting("general", "web_password", "")
+        
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -91,23 +132,30 @@ def index():
     rtk.logm.updateAvailableLogs()
     return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
 """
+@login.user_loader
+def load_user(id):
+    return User(id)
 
 @app.route('/')
 @app.route('/index')
 @app.route('/status')
+@login_required
 def status_page():
     return render_template("status.html")
 
 @app.route('/settings')
+@login_required
 def settings_page():
     data = rtkbaseconfig.get_ordered_settings()
     return render_template("settings.html", data = data)
 
 @app.route('/logs')
+@login_required
 def logs_page():
     return render_template("logs.html")
 
 @app.route("/logs/download/<path:log_name>")
+@login_required
 def downloadLog(log_name):
     try:
         full_log_path = rtk.logm.log_path + "/" + log_name
@@ -123,20 +171,30 @@ def downloadLog(log_name):
     except FileNotFoundError:
         abort(404)
 """
-@app.route('/login', methods=['POST'])
-def do_admin_login():
-    if request.form['password'] == 'password' and request.form['username'] == 'admin':
-        session['logged_in'] = True
-    else:
-        flash('wrong password!')
-    return index()
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    if current_user.is_authenticated:
+        return redirect(url_for('status_page'))
+    loginform = LoginForm()
+    if loginform.validate_on_submit():
+        user = User('admin')
+        password = loginform.password.data
+        if not user.check_password(password):
+            return abort(401)
+        
+        login_user(user, remember=loginform.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('status_page')
 
-#@app.route("/logout")
-#def logout():
-#    print("logging out")
-#    session['logged_in'] = False
-#    return index()
+        return redirect(next_page)
+        
+    return render_template('login.html', title='Sign In', form=loginform)
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login_page'))
 
 #### Handle connect/disconnect events ####
 
@@ -297,6 +355,12 @@ def switchService(json):
 
 if __name__ == "__main__":
     try:
+        #check if a new password is defined in settings.conf
+        update_password(rtkbaseconfig)
+        #check if authentification is required
+        if not rtkbaseconfig.get_web_authentification():
+            app.config["LOGIN_DISABLED"] = True
+        #load services status managed with systemd
         services_list = load_units(services_list)
         app.secret_key = os.urandom(12)
         socketio.run(app, host = "0.0.0.0", port = 8080)
