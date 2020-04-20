@@ -1,6 +1,6 @@
-### What is GPSView?
+### What is RTKBaseView?
 
-GPSView is a fork of Emlid's ReachView.
+RTKBaseView is a heavily modified fork of Emlid's ReachView for working with [RTKBase](https://github.com/Stefal/rtkbase).
 
 GPSView is a web-interface for RTKLIB hosted on u-blox M8T (and maybe other) receivers and non-Intel Edison SBCs.
 
