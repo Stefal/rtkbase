@@ -231,12 +231,12 @@ class Config:
 
 class ConfigManager:
 
-    def __init__(self, rtklib_path):
+    def __init__(self, rtklib_path, config_path):
 
-        self.config_path = rtklib_path + "/app/rtkrcv/"
+        self.config_path = config_path
 
-        self.default_rover_config = "reach_single_default.conf"
-        self.default_base_config = "reach_base_default.conf"
+        self.default_rover_config = "rtkbase_single_default.conf"
+        self.default_base_config = "rtkbase_base_default.conf"
 
         self.available_configs = []
         self.updateAvailableConfigs()
@@ -244,7 +244,7 @@ class ConfigManager:
         # create a buffer for keeping config data
         # read default one into buffer
 
-        self.buffered_config = Config(self.config_path + self.default_rover_config)
+        self.buffered_config = Config(os.path.join(self.config_path, self.default_rover_config))
 
     def updateAvailableConfigs(self):
 

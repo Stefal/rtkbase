@@ -62,13 +62,13 @@ class RTKLIB:
             ]
         },
         "rover": {
-            "current_config": "reach_single_default.conf"
+            "current_config": "rtkbase_single_default.conf"
         },
         "started": "yes",
         "state": "base"
     }
 
-    def __init__(self, socketio, rtklib_path = None, enable_led = True, log_path = None):
+    def __init__(self, socketio, rtklib_path = None, config_path=None, enable_led = True, log_path = None):
 
         print("RTKLIB 1")
         print(rtklib_path)
@@ -76,6 +76,11 @@ class RTKLIB:
 
         if rtklib_path is None:
             rtklib_path = os.path.join(os.path.expanduser("~"), "RTKLIB")
+        
+        if config_path is None:
+            self.config_path = os.path.join(os.path.dirname(__file__), "rtklib_configs")
+        else:
+            self.config_path = config_path
 
         if log_path is None:
             #TODO find a better default location
@@ -90,8 +95,8 @@ class RTKLIB:
         self.socketio = socketio
 
         # these are necessary to handle rover mode
-        self.rtkc = RtkController(rtklib_path)
-        self.conm = ConfigManager(rtklib_path)
+        self.rtkc = RtkController(rtklib_path, self.config_path)
+        self.conm = ConfigManager(rtklib_path, self.config_path)
 
         # this one handles base settings
         self.s2sc = Str2StrController(rtklib_path)

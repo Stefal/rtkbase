@@ -21,6 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import time
 import signal
 import pexpect
@@ -31,10 +32,10 @@ from threading import Semaphore, Thread
 
 class RtkController:
 
-    def __init__(self, rtklib_path):
+    def __init__(self, rtklib_path, config_path):
 
         self.bin_path = rtklib_path + "/app/rtkrcv/gcc"
-        self.config_path = rtklib_path + "/app/rtkrcv"
+        self.config_path = config_path
 
         self.child = 0
 
@@ -70,7 +71,7 @@ class RtkController:
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
 
         if config_name is None:
-            config_name = "reach_single_default.conf"
+            config_name = "rtkbase_single_default.conf"
 
         if not self.launched:
 
@@ -79,7 +80,7 @@ class RtkController:
             if "/" in config_name:
                 spawn_command = self.bin_path + "/rtkrcv -o " + config_name
             else:
-                spawn_command = self.bin_path + "/rtkrcv -o " + self.config_path + "/" + config_name
+                spawn_command = self.bin_path + "/rtkrcv -o " + os.path.join(self.config_path, config_name)
 
             self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
 
