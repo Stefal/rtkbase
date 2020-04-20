@@ -43,6 +43,27 @@ class RTKBaseConfigManager:
         ordered_settings['file'] = self.get_file_settings()
         return ordered_settings
 
+    def get(self, *args, **kwargs):
+        return self.config.get(*args, **kwargs)
+
+    def update_setting(self, section, setting, value, write_file=True):
+        #check if the setting exists
+        try:
+            self.config[section][setting] = value
+            if write_file:
+                self.write_file()
+        except (NoSectionError, KeyError, NoOptionError) as e:
+            print(e)
+            return False
+
+    def write_file(self):
+        with open(self.settings_path, "w") as configfile:
+            self.config.write(configfile, space_around_delimiters=False)
+
+
+
+
+
 
 
 

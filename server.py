@@ -54,6 +54,9 @@ from flask import send_file, send_from_directory, safe_join, redirect, abort
 from flask_socketio import SocketIO, emit, disconnect
 from subprocess import check_output
 
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
+
 app = Flask(__name__)
 #app.template_folder = "."
 app.debug = True
@@ -74,6 +77,13 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
 
 rtkbaseconfig = RTKBaseConfigManager("../rtkbase/settings.conf")
+
+def update_password(config_object):
+    new_password = config_object.get("general", "web_password")
+    if new_password is not "":
+        config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
+        config_object.update_setting("general", "web_password", "")
+        
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -297,6 +307,7 @@ def switchService(json):
 
 if __name__ == "__main__":
     try:
+        update_password(rtkbaseconfig)
         services_list = load_units(services_list)
         app.secret_key = os.urandom(12)
         socketio.run(app, host = "0.0.0.0", port = 8080)
