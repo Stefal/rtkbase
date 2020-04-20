@@ -1,13 +1,8 @@
 Flask==1.1.1
 Flask-SocketIO==4.2.1
-gevent==1.4.0
-gevent-websocket==0.10.1
-greenlet==0.4.15
-itsdangerous==1.1.0
-Jinja2==2.10.3
-MarkupSafe==1.1.1
+eventlet==0.25.2
+Bootstrap-Flask==1.2.0
 pexpect==4.7.0
 pyserial==3.4
-python-engineio==3.10.0
-python-socketio==4.3.1
-Werkzeug==0.16.0
+pystemd==0.7.0
+
