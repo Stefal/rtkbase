@@ -47,23 +47,6 @@ class RTKLIB:
     state_file = os.path.join(os.path.expanduser("~"), ".reach/rtk_state")
     # if the state file is not available, these settings are loaded
     default_state = {
-        "base": {
-            "base_position": [],
-            "gps_cmd_file": "GPS_1Hz.cmd",
-            "input_stream": "tcpcli://127.0.0.1:5015#ubx",
-            "output_stream": "tcpsvr://:9000#rtcm3",
-            "rtcm3_messages": [
-                "1002",
-                "1006",
-                "1008",
-                "1010",
-                "1019",
-                "1020"
-            ]
-        },
-        "rover": {
-            "current_config": "rtkbase_single_default.conf"
-        },
         "started": "yes",
         "state": "base"
     }
@@ -598,7 +581,7 @@ class RTKLIB:
             f = open(self.state_file, "r")
         except IOError:
             # can't find the file, let's create a new one with default state
-            print("Could not find existing state, Launching default single rover mode...")
+            print("Could not find existing state, Launching default mode...")
 
             return self.default_state
         else:
@@ -609,7 +592,7 @@ class RTKLIB:
                 json_state = json.load(f)
             except ValueError:
                 # could not properly decode current state
-                print("Could not decode json state. Launching single rover mode as default...")
+                print("Could not decode json state. Launching default mode...")
                 f.close()
 
                 return self.default_state
