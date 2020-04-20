@@ -297,14 +297,14 @@ def updateReachView():
 def rebootReach():
     print("Rebooting...")
     rtk.shutdown()
-    socketio.server.stop()
+    socketio.stop()
     check_output("reboot")
 
 @socketio.on("shutdown device", namespace="/test")
 def shutdownReach():
     print("Shutdown...")
     rtk.shutdown()
-    socketio.server.stop()
+    socketio.stop()
     check_output(["shutdown", "now"])
 
 @socketio.on("turn off wi-fi", namespace="/test")
