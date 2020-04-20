@@ -43,6 +43,10 @@ class RTKBaseConfigManager:
         ordered_settings['file'] = self.get_file_settings()
         return ordered_settings
 
+    def get_web_authentification(self):
+        return self.config.getboolean("general", "web_authentification")
+
+
     def get(self, *args, **kwargs):
         return self.config.get(*args, **kwargs)
 
