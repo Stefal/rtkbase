@@ -2,21 +2,14 @@
 
 RTKBaseView is a heavily modified fork of Emlid's ReachView for working with [RTKBase](https://github.com/Stefal/rtkbase).
 
-GPSView is a web-interface for RTKLIB hosted on u-blox M8T (and maybe other) receivers and non-Intel Edison SBCs.
+RTKBaseView is a web-interface for RTKLIB hosted on u-blox M8T/F9P (and maybe other) receivers and non-Intel Edison SBCs.
 
 ### Running/testing/debugging instructions
 
-At the moment GPSView has been tested on an Orange Pi Zero running Armbian 5.27. There is a lot of setup that is not documented yet.
-GPSView works with Python 3
+At the moment RTKBaseView has been tested on an Orange Pi Zero running Armbian Buster 5.4.28. 
+RTKBaseView works with Python 3
 
-GPSView is started on device power up.
-
-To disable that, disable systemd service **reach-setup.service** with:  --> FixMe
-`systemctl disable reach-setup.service` --> FixMe
-
-You can launch GPSView by running `sudo ./server.py` from the app directory at `/home/reach`.
-
-It depends on the RTKLIB repository in the same directory, so you can substitute it with another version, as long as the directory structure stays the same and default configuration files are present.
+You can launch RTKBaseView by running `sudo ./server.py` from the web_app directory.
 
 ### Reporting bugs and requesting features
 
@@ -29,4 +22,5 @@ Fork this project and play to your hearts content...
 ### Authors
 
 ReachView is created by Egor Fedorov and Danil Kramorov working at [Emlid](https://emlid.com/).
-GPSView has been heavily modified from the above code to allow it to run on other platforms. The Orange Pi Zero is only an example, other SBC's can be used as well.
+GPSView has been heavily modified from the above code to allow it to run on other platforms by [GPSFan](https://github.com/GPSFan/ReachView). The Orange Pi Zero is only an example, other SBC's can be used as well.
+RTKBaseView is created by [Stefal](https://github.com/Stefal/rtkbase)
