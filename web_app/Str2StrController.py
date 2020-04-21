@@ -34,7 +34,7 @@ class Str2StrController:
 
     def __init__(self, rtklib_path):
 
-        self.bin_path = rtklib_path + "/app/str2str/gcc"
+        self.bin_path = rtklib_path
 
         self.gps_cmd_file_path = rtklib_path + "/app/rtkrcv"
         self.gps_cmd_file = "GPS_10Hz.cmd"

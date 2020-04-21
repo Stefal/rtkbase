@@ -67,7 +67,7 @@ class RTKLIB:
 
         if log_path is None:
             #TODO find a better default location
-            self.log_path = "/home/stephane/gnss_venv/logs"
+            self.log_path = "../data"
         else:
             self.log_path = log_path
 

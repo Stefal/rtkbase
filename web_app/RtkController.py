@@ -34,7 +34,7 @@ class RtkController:
 
     def __init__(self, rtklib_path, config_path):
 
-        self.bin_path = rtklib_path + "/app/rtkrcv/gcc"
+        self.bin_path = rtklib_path
         self.config_path = config_path
 
         self.child = 0
