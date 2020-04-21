@@ -4,7 +4,6 @@ Description=RTKBase Web Server
 #Wants=network-online.target
 
 [Service]
-Type=forking
 User=root
 ExecStart=python3 {script_path}/web_app/server.py
 Restart=on-failure
