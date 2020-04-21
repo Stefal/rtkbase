@@ -88,7 +88,7 @@ $(document).ready(function () {
         //TODO When the switch changes its position, this event seems attached before
         //the switch finish its transition, then fire another event.
         $( "#main-switch" ).one("change", function(e) {
-            var switchStatus = e.target.value;
+            var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("Main SwitchStatus : " + switchStatus);
             socket.emit("services switch", {"name" : "main", "active" : switchStatus});
@@ -110,7 +110,7 @@ $(document).ready(function () {
         //TODO When the switch changes its position, this event seems attached before
         //the switch finish its transition, then fire another event.
         $( "#ntrip-switch" ).one("change", function(e) {
-            var switchStatus = e.target.value;
+            var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("Ntrip SwitchStatus : " + switchStatus);
             socket.emit("services switch", {"name" : "ntrip", "active" : switchStatus});
@@ -132,7 +132,7 @@ $(document).ready(function () {
         //TODO When the switch changes its position, this event seems attached before
         //the switch finish its transition, then fire another event.
         $( "#file-switch" ).one("change", function(e) {
-            var switchStatus = e.target.value;
+            var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("File SwitchStatus : " + switchStatus);
             socket.emit("services switch", {"name" : "file", "active" : switchStatus});

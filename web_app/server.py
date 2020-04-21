@@ -337,10 +337,10 @@ def switchService(json):
     print("Received service to switch", json)
     try:
         for service in services_list:
-            if json["name"] == service["name"] and json["active"] == "on":
+            if json["name"] == service["name"] and json["active"] == "true":
                 print("Trying to start service {}".format(service["name"]))
                 service["unit"].start()
-            elif json["name"] == service["name"] and json["active"] == "off":
+            elif json["name"] == service["name"] and json["active"] == "false":
                 print("Trying to stop service {}".format(service["name"]))
                 service["unit"].stop()
 
