@@ -84,7 +84,7 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
 
-rtkbaseconfig = RTKBaseConfigManager("../settings.conf")
+rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf"))
 
 class User(UserMixin):
     def __init__(self, username):
