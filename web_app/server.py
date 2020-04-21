@@ -65,8 +65,8 @@ app = Flask(__name__)
 #app.template_folder = "."
 app.debug = True
 app.config["SECRET_KEY"] = "secret!"
-app.config["UPLOAD_FOLDER"] = "../logs"
-app.config["DOWNLOAD_FOLDER"] = "../data"
+app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
+app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
 
 #path_to_gnss_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), "logs")
@@ -79,7 +79,7 @@ login.login_view = 'login_page'
 socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
-rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib)
+rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD_FOLDER"])
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
