@@ -2,7 +2,7 @@
 BASEDIR=$(dirname "$0")
 #dependency
 apt-get update 
-apt-get install -y git build-essential python3-pip python3-dev libsystemd-dev dos2unix
+apt-get install -y git build-essential python3-pip python3-dev python3-setuptools libsystemd-dev dos2unix
 #Get Rtklib 2.4.3 repository
 sudo -u $(logname) git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
 #Install Rtklib app
