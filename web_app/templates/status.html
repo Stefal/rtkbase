@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+   crossorigin=""/>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+<div id="bar-chart"></div>
+
+<div class="row">
+    <div class="col py-3 border bg-light"><b>Longitude: </b><span id="lon_value"></span></div>
+    <div class="col py-3 border bg-light"><b>Latitude: </b><span id="lat_value"></span></div>
+    <div class="col py-3 border bg-light"><b>Height: </b><span id="height_value"></span></div>
+</div>
+
+<div id="map" style="height: 420px; margin-top: 2em; margin-bottom: 2em;">
+    
+</div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+   integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+   crossorigin=""></script>
+<script type="text/javascript" src="{{ url_for('static', filename='status.js') }}" charset="utf-8"></script>
+
+{% endblock %}

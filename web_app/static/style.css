@@ -1,0 +1,194 @@
+li.nav_log_container{
+	position:relative;
+	padding-right:38.5px
+}
+.nav_log_container .settings{
+	position:absolute;
+	right:5px;
+	top:0;
+	width:32.5px;
+	height:33.5px;
+	padding:0px;
+	z-index: 10;
+}
+.loader{
+	text-align:center;
+	position:absolute;
+	top:33.5px;
+	width:100%;
+	height:100%;
+	z-index:1000;
+	background:rgba(0,0,0,0.3);
+}
+.loader img{
+	position:relative;
+	top:10%;
+}
+.hidden_buttons{
+	display:inline-block;
+}
+.hidden_buttons > ul{
+	padding-left: 0;
+}
+.hidden_buttons > ul > li{
+	list-style:none;
+	position:relative
+}
+.hidden_buttons .hidden_list{
+	list-style:none;
+	position:absolute;
+	left:-200%;
+	z-index:2000;
+	display:none;
+	background:#F9F9F9;
+	border: 1px solid #ddd;
+	padding-left:5px;
+}
+.hidden_buttons .hidden_list li a{
+	width:calc( 100% - 39px);
+}
+.hidden_buttons .hidden_list li a#reset_config_button{
+	z-index:999;
+}
+#popupDelete > div, #popupLogin > div{
+	padding:0px 10px;
+	width:200px;
+}
+#popupLogin div .conf_tail{
+	position:relative;
+	top:15px;
+	font-weight: bold;
+	width:15px;
+}
+#popupLogin div .space_alert{
+	color:red;
+	display:none;
+}
+.network_container, .rinex_version_container, .update_buttons_container, .image_version_container, .reboot_button_container, .shutdown_button_container, .bluetooth_container{
+	margin-bottom:1em;
+}
+.rinex_version_container > p{
+	display:inline-block;
+	float:left;
+	padding-right:20px;
+	position:relative;
+	top:5px;
+}
+.rinex_version_container > div{
+	float:left;
+}
+.update_buttons_container .update_warning{
+	clear:both;
+}
+.update_buttons_container #update_button{
+	float:left;
+}
+.update_buttons_container .connect{
+	color:red;
+	font-size:12px;
+}
+.update_buttons_container .load_update{
+	height:44px;
+	float:left;
+	position:relative;
+	display:none;
+}
+.update_buttons_container .load_update img{
+	height:54px;
+}
+.update_buttons_container .load_update p{
+	position:absolute;
+	top:0px;
+	left:0px;
+	color:red;
+	width:54px;
+	text-align:center;
+}
+.log_string{
+	white-space: normal;
+}
+.no_logs{
+	display: none;
+}
+.log_conversion_status_string{
+	white-space: normal;
+	width:85%;
+}
+.load_update span{
+	color:green;
+	position:relative;
+	top:20px;
+}
+.select_hidder{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	z-index:50;
+}
+.advanced-settings{
+	display:none;
+}
+.ui-listview .log_format{
+    position: absolute;
+    bottom: 1em;
+    right: 3.333em;
+    margin: 0;
+    text-align: right;
+}
+.warning_footer{
+	display: none;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+.warning_footer h1.ui-title{
+	overflow: visible;
+	white-space: normal;
+}
+#device_list, #paired_device_list{
+	clear: both;
+}
+#bluetooth_scan{
+	float: left;
+}
+.bluetooth_container img{
+	height: 34px;
+	padding: 10px 5px;
+	display: none;
+}
+#paired_device_list li a.ui-btn-icon-right:after, #device_list li a.ui-btn-icon-right:after{
+	content: none;
+}
+.ui-listview > li p{
+	overflow: visible;
+	white-space: normal;
+}
+#ui-bar-space{
+	display: none;
+}
+.progress-bar input[type=number], .ui-slider-handle {
+    display: none;
+}  
+.progress-bar .ui-slider-track {
+    margin: 0px;
+}
+.ui-slider.ui-mini{
+	margin-bottom: 20px;
+}
+.ui-slider-track.ui-mini{
+	height: 30px;
+}
+.ui-slider-track.ui-state-disabled{
+	opacity: 1;
+}
+@media only screen and (max-width:760px){
+    .ui-listview > li h2{
+        font-size: 0.75em;
+    }
+    .ui-listview > li p{
+        font-size: 0.5em;
+    }
+}

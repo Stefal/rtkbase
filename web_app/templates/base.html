@@ -1,0 +1,42 @@
+{% from 'bootstrap/nav.html' import render_nav_item %}
+<!doctype html>
+<html lang="en">
+  <head>
+    {% block head %}
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% block styles %}
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+    {{ bootstrap.load_css() }}
+
+    {% endblock %}
+
+    <title>RTKBase</title>
+    {% endblock %}
+  </head>
+  <body>
+    <div class="container">
+      <ul class="nav nav-pills nav-justified bg-light">
+        <li class="nav-item">{{ render_nav_item('status_page', 'Status') }}</li>
+        <li class="nav-item">{{ render_nav_item('settings_page', 'Settings') }}</li>
+        <li class="nav-item">{{ render_nav_item('logs_page', 'Logs') }}</li>
+      </ul>
+    </div>
+    <!-- Your page content -->
+    {% block content %}{% endblock %}
+
+    {% block scripts %}
+    <!-- Optional JavaScript -->
+    {{ bootstrap.load_js() }}
+        <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='d3.v3.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+        <!--<script type="text/javascript" src="{{ url_for('static', filename='configs.js') }}" charset="utf-8"></script>-->
+        <script type="text/javascript" src="{{ url_for('static', filename='graph.js') }}" charset="utf-8"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='handlers.js') }}" charset="utf-8"></script>
+    {% endblock %}
+  </body>
+</html>

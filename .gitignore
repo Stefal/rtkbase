@@ -1,0 +1,5 @@
+*.pyc
+*~
+rtkrcv.nav
+.vscode/settings.json
+/logs/*
