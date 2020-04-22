@@ -107,6 +107,7 @@ then
 else
 return 1
 fi
+return 1
 }
 
 send_ubx ()
