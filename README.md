@@ -19,7 +19,7 @@ Some bash scripts for a simple gnss base station
    
 + Edit settings.conf as explained below and reboot
 
-+ Open a web browser to `http://ip_of_your_sbc:8080`
++ Open a web browser to `http://ip_of_your_sbc:8080`. Default password is `admin`.
 
 ## Installation: 
 
