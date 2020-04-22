@@ -16,6 +16,9 @@ $(document).ready(function () {
     //console.log("main.js Asking for service status");
     //socket.emit("get services status");
 
+    //Ask server for starting rtkrcv or we won't have any data
+    socket.emit("start base");
+
     socket.on('disconnect', function(){
         console.log('disconnected');
     });
@@ -67,8 +70,9 @@ $(document).ready(function () {
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
     socket.on("satellite broadcast rover", function(msg) {
-        // check if the browser tab and app tab are active
-
+            //Tell the server we are still here
+            socket.emit("on graph");
+            
             console.groupCollapsed('Rover satellite msg received:');
                 for (var k in msg)
                     console.log(k + ':' + msg[k]);

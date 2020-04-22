@@ -34,6 +34,7 @@ import os
 import signal
 import sys
 
+from threading import Thread
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo115200
 from reach_tools import reach_tools, provisioner
@@ -63,7 +64,7 @@ from werkzeug.urls import url_parse
 
 app = Flask(__name__)
 #app.template_folder = "."
-app.debug = False
+app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
@@ -85,6 +86,8 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
 
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf"))
+#Delay before rtkrcv will stop if no user is on status.html page
+rtkcv_standby_delay = 600
 
 class User(UserMixin):
     def __init__(self, username):
@@ -112,7 +115,17 @@ def update_password(config_object):
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
         config_object.update_setting("general", "web_password", "")
         
+def manager():
 
+    while True:
+        if rtk.sleep_count > rtkcv_standby_delay and rtk.state is not "inactive":
+            rtk.stopBase()
+            rtk.sleep_count = 0
+        elif rtk.sleep_count > 10:
+            print("Je voudrais bien arrêter, mais rtk.state est : ", rtk.state)
+
+        time.sleep(1)
+        
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
 
@@ -233,6 +246,9 @@ def startBase():
 def stopBase():
     rtk.stopBase()
 
+@socketio.on("on graph", namespace="/test")
+def continueBase():
+    rtk.sleep_count = 0
 #### Free space handler
 
 @socketio.on("get available space", namespace="/test")
@@ -359,6 +375,10 @@ if __name__ == "__main__":
             app.config["LOGIN_DISABLED"] = True
         #load services status managed with systemd
         services_list = load_units(services_list)
+        #Start a "manager" thread
+        manager_thread = Thread(target=manager, daemon=True)
+        manager_thread.start()
+
         app.secret_key = os.urandom(12)
         socketio.run(app, host = "0.0.0.0", port = 8080)
 
