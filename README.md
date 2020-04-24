@@ -12,7 +12,7 @@ Some bash scripts for a simple gnss base station
 
    ```
    $ cd ~
-   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/dev-install.sh
+   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/dev-install.sh
    $ chmod +x dev-install.sh
    $ sudo ./dev-install.sh
    ```
