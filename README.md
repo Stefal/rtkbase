@@ -12,9 +12,9 @@ Some bash scripts for a simple gnss base station
 
    ```
    $ cd ~
-   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/install.sh
-   $ chmod +x install.sh
-   $ sudo ./install.sh
+   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/dev-install.sh
+   $ chmod +x dev-install.sh
+   $ sudo ./dev-install.sh
    ```
    
 + Edit settings.conf as explained below and reboot

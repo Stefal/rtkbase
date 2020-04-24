@@ -155,6 +155,7 @@ def update_rtkbase(update_url):
     tar.extractall("/var/tmp")
 
     #launch update script
+    rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
     # script_path = os.path.join("/tmp", primary_folder, script_name)
     # script_path install --update (need to now the path to rtkbase)
 

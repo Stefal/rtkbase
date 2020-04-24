@@ -1,5 +1,7 @@
 #!/bin/bash
-BASEDIR=$(dirname "$0")
+
+### USE THIS SCRIPT IF YOU WANT TO INSTALL RTKBASE FROM THE GIT REPO ###
+
 #dependency
 apt-get update 
 apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix
