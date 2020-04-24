@@ -138,7 +138,7 @@ def update_rtkbase(update_url):
     """
     import tarfile
     #Download update
-    update_archive = "/tmp/rtkbase_update.tar.gz"
+    update_archive = "/var/tmp/rtkbase_update.tar.gz"
     response = urllib.request.urlopen(update_url)
     with open(update_archive, "wb") as f:
         for chunk in response:
@@ -152,7 +152,7 @@ def update_rtkbase(update_url):
             break
     
     #Extract archive
-    tar.extractall("/tmp")
+    tar.extractall("/var/tmp")
 
     #launch update script
     # script_path = os.path.join("/tmp", primary_folder, script_name)
