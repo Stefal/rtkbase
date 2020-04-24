@@ -33,6 +33,7 @@ import json
 import os
 import signal
 import sys
+import urllib
 
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo115200
@@ -112,6 +113,54 @@ def update_password(config_object):
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
         config_object.update_setting("general", "web_password", "")
         
+def check_update(source_url = None, current_release = None):
+    """
+        check if an update exists
+    """
+    try:
+        source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases/latest"
+        current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+        response = urllib.request.urlopen(source_url)
+        response = json.loads(response.read())
+        latest_release = response["tag_name"].strip("v")
+        
+        if latest_release > current_release:
+            return {"new_release" : latest_release, "url" : response["tarball_url"]}
+        else:
+            return None
+    except Exception as e:
+        print("Check update error: ", e)
+        return None
+       
+def update_rtkbase(update_url):
+    """
+        download and update rtkbase
+    """
+    import tarfile
+    #Download update
+    update_archive = "/tmp/rtkbase_update.tar.gz"
+    response = urllib.request.urlopen(update_url)
+    with open(update_archive, "wb") as f:
+        for chunk in response:
+            f.write(chunk)
+
+    #Get the "root" folder in the archive
+    tar = tarfile.open(update_archive)
+    for tarinfo in tar:
+        if tarinfo.isdir():
+            primary_folder = tarinfo.name
+            break
+    
+    #Extract archive
+    tar.extractall("/tmp")
+
+    #launch update script
+    # script_path = os.path.join("/tmp", primary_folder, script_name)
+    # script_path install --update (need to now the path to rtkbase)
+
+
+
+
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
