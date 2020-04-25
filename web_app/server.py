@@ -66,6 +66,7 @@ app = Flask(__name__)
 #app.template_folder = "."
 app.debug = False
 app.config["SECRET_KEY"] = "secret!"
+#TODO take theses paths from settings.conf
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
@@ -156,8 +157,8 @@ def update_rtkbase(update_url):
 
     #launch update script
     rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-    # script_path = os.path.join("/tmp", primary_folder, script_name)
-    # script_path install --update (need to now the path to rtkbase)
+    script_path = os.path.join("/var/tmp/", primary_folder, "rtkbase_update.sh")
+    os.execl(script_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1])
 
 
 
