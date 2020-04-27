@@ -115,21 +115,24 @@ def update_password(config_object):
         config_object.update_setting("general", "web_password", "")
 
 @socketio.on("check update", namespace="/test")
-def check_update(source_url = None, current_release = None):
+def check_update(source_url = None, current_release = None, prerelease=False):
     """
         check if an update exists
     """
-    try:
-        source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases/latest"
-        current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+    new_release = None
+    source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
+    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+    
+    try:    
         response = urllib.request.urlopen(source_url)
         response = json.loads(response.read())
-        latest_release = response["tag_name"].strip("v")
-        
-        if latest_release > current_release:
-            new_release = {"new_release" : latest_release, "url" : response["tarball_url"]}
-        else:
-            new_release = None
+        for release in response:
+            if release.get("prerelease") == prerelease:
+                latest_release = release["tag_name"].strip("v").strip('alpha').strip('beta')
+                if latest_release > current_release:
+                    new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
+                break
+             
     except Exception as e:
         print("Check update error: ", e)
         new_release = None
@@ -165,6 +168,7 @@ def update_rtkbase():
     tar.extractall("/var/tmp")
 
     #launch update script
+    rtk.shutdownBase()
     rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
     script_path = os.path.join("/var/tmp/", primary_folder, "rtkbase_update.sh")
     os.execl(script_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1])
