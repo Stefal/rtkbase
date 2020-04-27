@@ -113,7 +113,8 @@ def update_password(config_object):
     if new_password is not "":
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
         config_object.update_setting("general", "web_password", "")
-        
+
+@socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None):
     """
         check if an update exists
@@ -126,17 +127,25 @@ def check_update(source_url = None, current_release = None):
         latest_release = response["tag_name"].strip("v")
         
         if latest_release > current_release:
-            return {"new_release" : latest_release, "url" : response["tarball_url"]}
+            new_release = {"new_release" : latest_release, "url" : response["tarball_url"]}
         else:
-            return None
+            new_release = None
     except Exception as e:
         print("Check update error: ", e)
-        return None
-       
-def update_rtkbase(update_url):
+        new_release = None
+    socketio.emit("new release", new_release, namespace="/test")
+    return new_release
+
+@socketio.on("update rtkbase", namespace="/test")       
+def update_rtkbase():
     """
         download and update rtkbase
     """
+    #Check if an update is available
+    update_url = check_update().get("url")
+    if update_url is None:
+        return
+
     import tarfile
     #Download update
     update_archive = "/var/tmp/rtkbase_update.tar.gz"
