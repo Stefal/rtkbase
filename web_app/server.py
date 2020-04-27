@@ -65,7 +65,7 @@ from werkzeug.urls import url_parse
 
 app = Flask(__name__)
 #app.template_folder = "."
-app.debug = True
+app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 #TODO take theses paths from settings.conf
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
@@ -130,11 +130,11 @@ def manager():
         time.sleep(1)
 
 @socketio.on("check update", namespace="/test")
-def check_update(source_url = None, current_release = None, prerelease=False):
+def check_update(source_url = None, current_release = None, prerelease=True):
     """
         check if an update exists
     """
-    new_release = None
+    new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v").strip('alpha').strip('beta')
     
@@ -150,7 +150,7 @@ def check_update(source_url = None, current_release = None, prerelease=False):
              
     except Exception as e:
         print("Check update error: ", e)
-        new_release = None
+        
     socketio.emit("new release", new_release, namespace="/test")
     return new_release
 
