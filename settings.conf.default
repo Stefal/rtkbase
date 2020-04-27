@@ -2,7 +2,7 @@
 
 [general]
 # Version
-version=2.0.0-alpha.02
+version=2.0.0-alpha.03
 # NTRIP caster program
 BASEDIR=$(dirname "$0")
 #path to the caster application
