@@ -2,16 +2,39 @@ from configparser import ConfigParser
 
 class RTKBaseConfigManager:
     """ A class to easily access the settings from RTKBase settings.conf """
-    def __init__(self, settings_path):
-        """ :param settings_path: path to the settings file """
-        self.settings_path = settings_path
-        self.config = self.parseconfig(settings_path)
+
+    def __init__(self, default_settings_path, user_settings_path):
+        """ 
+            :param default_settings_path: path to the default settings file 
+            :param user_settings_path: path to the user settings file 
+        """
+        self.user_settings_path = user_settings_path
+        self.config = self.merge_default_and_user(default_settings_path, user_settings_path)
+
+    def merge_default_and_user(self, default, user):
+        """
+            After a software update if there is some new entries in the default settings file,
+            we need to add them to the user settings file. This function will do this: It loads
+            the default settings then overwrite the existing values from the user settings. Then
+            the function write these settings on disk.
+
+            :param default: path to the default settings file 
+            :param user: path to the user settings file
+            :return: the new config object
+        """
+        config = ConfigParser(interpolation=None)
+        config.read(default)
+        #if there is no existing user settings file, config.read return
+        #an empty object.
+        config.read(user)
+        self.write_file(config)
+        return config
+
 
     def parseconfig(self, settings_path):
         config = ConfigParser(interpolation=None)
         config.read(settings_path)
         return config
-
 
     def listvalues(self):
         """
@@ -68,7 +91,6 @@ class RTKBaseConfigManager:
         """
         return self.config.getboolean("general", "web_authentification")
 
-
     def get(self, *args, **kwargs):
         """a wrapper around configparser.get()"""
         return self.config.get(*args, **kwargs)
@@ -90,12 +112,15 @@ class RTKBaseConfigManager:
             print(e)
             return False
 
-    def write_file(self):
+    def write_file(self, settings=None):
         """
             write on disk the settings to the config file
         """
-        with open(self.settings_path, "w") as configfile:
-            self.config.write(configfile, space_around_delimiters=False)
+        if settings is None:
+            settings = self.config
+
+        with open(self.user_settings_path, "w") as configfile:
+            settings.write(configfile, space_around_delimiters=False)
 
 
 

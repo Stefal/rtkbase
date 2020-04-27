@@ -33,6 +33,7 @@ import json
 import os
 import signal
 import sys
+import urllib
 
 from threading import Thread
 from RTKLIB import RTKLIB
@@ -66,6 +67,7 @@ app = Flask(__name__)
 #app.template_folder = "."
 app.debug = True
 app.config["SECRET_KEY"] = "secret!"
+#TODO take theses paths from settings.conf
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
@@ -85,9 +87,11 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
 
-rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf"))
+
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
+
+rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
 
 class User(UserMixin):
     def __init__(self, username):
@@ -123,9 +127,67 @@ def manager():
             rtk.sleep_count = 0
         elif rtk.sleep_count > 10:
             print("Je voudrais bien arrêter, mais rtk.state est : ", rtk.state)
-
         time.sleep(1)
-        
+
+@socketio.on("check update", namespace="/test")
+def check_update(source_url = None, current_release = None, prerelease=False):
+    """
+        check if an update exists
+    """
+    new_release = None
+    source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
+    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+    
+    try:    
+        response = urllib.request.urlopen(source_url)
+        response = json.loads(response.read())
+        for release in response:
+            if release.get("prerelease") == prerelease:
+                latest_release = release["tag_name"].strip("v").strip('alpha').strip('beta')
+                if latest_release > current_release:
+                    new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
+                break
+             
+    except Exception as e:
+        print("Check update error: ", e)
+        new_release = None
+    socketio.emit("new release", new_release, namespace="/test")
+    return new_release
+
+@socketio.on("update rtkbase", namespace="/test")       
+def update_rtkbase():
+    """
+        download and update rtkbase
+    """
+    #Check if an update is available
+    update_url = check_update().get("url")
+    if update_url is None:
+        return
+
+    import tarfile
+    #Download update
+    update_archive = "/var/tmp/rtkbase_update.tar.gz"
+    response = urllib.request.urlopen(update_url)
+    with open(update_archive, "wb") as f:
+        for chunk in response:
+            f.write(chunk)
+
+    #Get the "root" folder in the archive
+    tar = tarfile.open(update_archive)
+    for tarinfo in tar:
+        if tarinfo.isdir():
+            primary_folder = tarinfo.name
+            break
+    
+    #Extract archive
+    tar.extractall("/var/tmp")
+
+    #launch update script
+    rtk.shutdownBase()
+    rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
+    script_path = os.path.join("/var/tmp/", primary_folder, "rtkbase_update.sh")
+    os.execl(script_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1])
+
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
 

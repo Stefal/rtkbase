@@ -3,3 +3,4 @@
 rtkrcv.nav
 .vscode/settings.json
 /logs/*
+settings.conf

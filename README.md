@@ -12,14 +12,14 @@ Some bash scripts for a simple gnss base station
 
    ```
    $ cd ~
-   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/install.sh
-   $ chmod +x install.sh
-   $ sudo ./install.sh
+   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/dev-install.sh
+   $ chmod +x dev-install.sh
+   $ sudo ./dev-install.sh
    ```
    
 + Edit settings.conf as explained below and reboot
 
-+ Open a web browser to `http://ip_of_your_sbc:8080`
++ Open a web browser to `http://ip_of_your_sbc:8080`. Default password is `admin`.
 
 ## Installation: 
 
