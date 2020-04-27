@@ -149,8 +149,35 @@ printf "%02X " "$SUM"
 printf "%02X\n" "$FLETCHER"
 }
 
+str2strStop ()
+{
+#check if str2str running
+if (systemctl -q is-active str2str_tcp.service)
+    then
+    echo "Str2str is still running > Stopping..."
+    systemctl stop str2str_tcp.service &&
+    echo "Ok"
+    else
+    echo "Str2str is not still running."
+fi
+}
+str2strStart ()
+{
+#check if str2str running
+if (systemctl -q is-active str2str_tcp.service)
+    then
+    echo "Str2str is still running"
+    else
+    echo "Str2str is not still running > Start..."
+    systemctl start str2str_tcp.service &&
+    echo "Ok"
+fi
+}
+
 main ()
 {
+#check if str2str running
+str2strStop
 #validate the GPS device and .txt file
 if [[ -c $GPS ]] && [[ -f $CONFIG && -s $CONFIG && $CONFIG == *.txt ]]
 then
@@ -222,5 +249,8 @@ fi
 
 #run
 main $CONFIG
+
+#Start Str2str
+str2strStart
 
 exit $ERROR_COUNTER
