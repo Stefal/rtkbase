@@ -136,7 +136,7 @@ def check_update(source_url = None, current_release = None, prerelease=False):
     """
     new_release = None
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
-    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v").strip('alpha').strip('beta')
     
     try:    
         response = urllib.request.urlopen(source_url)
