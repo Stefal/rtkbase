@@ -23,10 +23,10 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
-#from gevent import monkey
-#monkey.patch_all()
-import eventlet
-eventlet.monkey_patch()
+from gevent import monkey
+monkey.patch_all()
+#import eventlet
+#eventlet.monkey_patch()
 
 import time
 import json
@@ -35,6 +35,7 @@ import signal
 import sys
 import urllib
 
+from threading import Thread
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo115200
 from reach_tools import reach_tools, provisioner
@@ -86,6 +87,10 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},]
 
+
+#Delay before rtkrcv will stop if no user is on status.html page
+rtkcv_standby_delay = 600
+
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
 
 class User(UserMixin):
@@ -114,29 +119,51 @@ def update_password(config_object):
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
         config_object.update_setting("general", "web_password", "")
         
-def check_update(source_url = None, current_release = None):
+def manager():
+
+    while True:
+        if rtk.sleep_count > rtkcv_standby_delay and rtk.state is not "inactive":
+            rtk.stopBase()
+            rtk.sleep_count = 0
+        elif rtk.sleep_count > 10:
+            print("Je voudrais bien arrêter, mais rtk.state est : ", rtk.state)
+        time.sleep(1)
+
+@socketio.on("check update", namespace="/test")
+def check_update(source_url = None, current_release = None, prerelease=True):
     """
         check if an update exists
     """
-    try:
-        source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases/latest"
-        current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+    new_release = {}
+    source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
+    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v").strip('alpha').strip('beta')
+    
+    try:    
         response = urllib.request.urlopen(source_url)
         response = json.loads(response.read())
-        latest_release = response["tag_name"].strip("v")
-        
-        if latest_release > current_release:
-            return {"new_release" : latest_release, "url" : response["tarball_url"]}
-        else:
-            return None
+        for release in response:
+            if release.get("prerelease") == prerelease:
+                latest_release = release["tag_name"].strip("v").strip('alpha').strip('beta')
+                if latest_release > current_release:
+                    new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
+                break
+             
     except Exception as e:
         print("Check update error: ", e)
-        return None
-       
-def update_rtkbase(update_url):
+        
+    socketio.emit("new release", new_release, namespace="/test")
+    return new_release
+
+@socketio.on("update rtkbase", namespace="/test")       
+def update_rtkbase():
     """
         download and update rtkbase
     """
+    #Check if an update is available
+    update_url = check_update().get("url")
+    if update_url is None:
+        return
+
     import tarfile
     #Download update
     update_archive = "/var/tmp/rtkbase_update.tar.gz"
@@ -156,13 +183,10 @@ def update_rtkbase(update_url):
     tar.extractall("/var/tmp")
 
     #launch update script
+    rtk.shutdownBase()
     rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
     script_path = os.path.join("/var/tmp/", primary_folder, "rtkbase_update.sh")
     os.execl(script_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1])
-
-
-
-
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -284,6 +308,9 @@ def startBase():
 def stopBase():
     rtk.stopBase()
 
+@socketio.on("on graph", namespace="/test")
+def continueBase():
+    rtk.sleep_count = 0
 #### Free space handler
 
 @socketio.on("get available space", namespace="/test")
@@ -410,6 +437,10 @@ if __name__ == "__main__":
             app.config["LOGIN_DISABLED"] = True
         #load services status managed with systemd
         services_list = load_units(services_list)
+        #Start a "manager" thread
+        manager_thread = Thread(target=manager, daemon=True)
+        manager_thread.start()
+
         app.secret_key = os.urandom(12)
         socketio.run(app, host = "0.0.0.0", port = 8080)
 

@@ -47,7 +47,7 @@ class RTKLIB:
     state_file = os.path.join(os.path.expanduser("~"), ".reach/rtk_state")
     # if the state file is not available, these settings are loaded
     default_state = {
-        "started": "yes",
+        "started": "no",
         "state": "base"
     }
 
@@ -71,6 +71,10 @@ class RTKLIB:
         else:
             self.log_path = log_path
 
+        # This value should stay below the timeout value or the Satellite/Coordinate broadcast
+        # thread will stop
+        self.sleep_count = 0
+        
         # default state for RTKLIB is "rover single"
         self.state = "base"
 
@@ -165,11 +169,7 @@ class RTKLIB:
 
         self.state = "inactive"
 
-        self.saveState()
-
-#        if self.enable_led:
-#            self.updateLED()
-
+        
         print("RTKLIB 8 Base mode shutdown")
 
         self.semaphore.release()
@@ -266,10 +266,21 @@ class RTKLIB:
             self.coordinate_thread.join()
             self.coordinate_thread = None
 
-        self.saveState()
+        print("RTKLIB 10c Attempting rtkrcv shutdown")
+
+        res = self.rtkc.shutdown()
+
+        if res < 0:
+            print("rtkrcv shutdown failed")
+        elif res == 1:
+            print("rtkrcv shutdown successful")
+            self.state = "inactive"
+        elif res == 2:
+            print("rtkrcv already shutdown")
+            self.state = "inactive"
         self.semaphore.release()
 
-        return res2
+        return res
 
     def readConfigBase(self):
 
@@ -666,7 +677,9 @@ class RTKLIB:
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
             #self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
             count += 1
+            self.sleep_count +=1
             time.sleep(1)
+        #print("exiting satellite broadcast")
 
     # this function reads current rtklib status, coordinates and obs count
     def broadcastCoordinates(self):
@@ -688,3 +701,4 @@ class RTKLIB:
 
             count += 1
             time.sleep(1)
+        #print("exiting coordinate broadcast")
