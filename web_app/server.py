@@ -425,7 +425,7 @@ def switchService(json):
     except Exception as e:
         print(e)
     finally:
-        time.sleep(3)
+        time.sleep(5)
         getServicesStatus()
 
 if __name__ == "__main__":
