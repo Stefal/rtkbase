@@ -38,6 +38,7 @@ out_file="file://${datadir}/${file_name}::T::S=${file_rotate_time} -f ${file_ove
       ret=$?
       if [ ${ret} -eq 0 ]
       then
+        mkdir -p ${datadir}
         ${cast} -in ${!1} -out ${out_file} &
       fi
       ;;
