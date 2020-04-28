@@ -52,6 +52,7 @@ from threading import Thread
 from flask_bootstrap import Bootstrap
 from flask import Flask, render_template, session, request, flash, url_for
 from flask import send_file, send_from_directory, safe_join, redirect, abort
+from flask import g
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField, SubmitField
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
@@ -204,6 +205,11 @@ def index():
     rtk.logm.updateAvailableLogs()
     return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
 """
+
+@app.before_request
+def inject_release():
+    g.version = rtkbaseconfig.get("general", "version")
+
 @login.user_loader
 def load_user(id):
     return User(id)

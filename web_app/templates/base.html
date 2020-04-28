@@ -1,6 +1,6 @@
 {% from 'bootstrap/nav.html' import render_nav_item %}
 <!doctype html>
-<html lang="en">
+<html lang="en" style="position:relative; min-height: 100%;">
   <head>
     {% block head %}
     <!-- Required meta tags -->
@@ -17,7 +17,7 @@
     <title>RTKBase</title>
     {% endblock %}
   </head>
-  <body>
+  <body style="min-height: 100vh; display:flex; flex-direction: column;">
     <div class="container">
       <ul class="nav nav-pills nav-justified bg-light">
         <li class="nav-item">{{ render_nav_item('status_page', 'Status') }}</li>
@@ -26,7 +26,12 @@
       </ul>
     </div>
     <!-- Your page content -->
+    <main style="flex-grow: 1;">
     {% block content %}{% endblock %}
+  </main>
+    <footer style="flex-grow: 0; display: block;"></footer>
+      <div class="container text-center bg-light"><span class="text-muted small">RTKBase v{{ g.version }}</span></div>
+    </footer>
 
     {% block scripts %}
     <!-- Optional JavaScript -->
