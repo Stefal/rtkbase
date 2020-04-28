@@ -19,7 +19,7 @@ out_file="file://${datadir}/${file_name}::T::S=${file_rotate_time} -f ${file_ove
 # start NTRIP caster
 
 
-    mkdir -p ${logdir} ${datadir}
+    mkdir -p ${logdir}
     
     case "$2" in
       out_tcp)
