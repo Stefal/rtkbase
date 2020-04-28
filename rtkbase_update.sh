@@ -20,6 +20,6 @@ cp -rf ${destination_directory}
 #sudo reboot now
 
 #if a reboot isn't needed
-#sudo systemctl restart rtkbase_web.service
+sudo systemctl restart rtkbase_web.service
 
 

@@ -2,7 +2,7 @@
 
 Some bash scripts for a simple gnss base station
 
-## Partial automated installation
+## Partial automated installation (for developper)
 
 + Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...)
 
@@ -12,9 +12,9 @@ Some bash scripts for a simple gnss base station
 
    ```
    $ cd ~
-   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/dev-install.sh
-   $ chmod +x dev-install.sh
-   $ sudo ./dev-install.sh
+   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
+   $ chmod +x install.sh
+   $ sudo ./install.sh --from-github
    ```
    
 + Edit settings.conf as explained below and reboot
