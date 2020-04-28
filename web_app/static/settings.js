@@ -148,7 +148,29 @@ $(document).ready(function () {
         $('#start_button').removeClass('ui-disabled');
     })
 
-    // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
+
+    // ####################### HANDLE UPDATE #######################
+    $('#check_update_button').on("click", function (){
+        socket.emit("check update");
+    });
+
+    socket.on("new release", function(msg) {
+        // open modal box asking for starting update
+        response = JSON.parse(msg);
+        console.log(response);
+        if (response.new_release) {
+            $("#updateModal .modal-title").text("Update available!");
+            $("#updateModal .modal-body").text("Do you want to install v" + response['new_release'] + "?");
+            $("#updateModal .modal-body").append("<br>It will take a few minutes.");
+            $("#update-button").removeAttr("disabled");
+            $('#updateModal').modal();
+        } else {
+            $("#updateModal .modal-title").text("No Update available!");
+            $("#updateModal .modal-body").text("We're working on it. Come back later!");
+        }
+        
+    })
+    
 
     // ####################### HANDLE COORDINATE MESSAGES #######################
 

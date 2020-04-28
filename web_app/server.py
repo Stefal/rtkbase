@@ -152,7 +152,7 @@ def check_update(source_url = None, current_release = None, prerelease=True):
     except Exception as e:
         print("Check update error: ", e)
         
-    socketio.emit("new release", new_release, namespace="/test")
+    socketio.emit("new release", json.dumps(new_release), namespace="/test")
     return new_release
 
 @socketio.on("update rtkbase", namespace="/test")       

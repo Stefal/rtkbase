@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-
+<h4>Services:</h4>
   <div id="main_service_space" class="form-group row">
     <div class="col">
     <label for="main-switch" class="col-4 col-form-label col-form-label-lg">Main service</label>
@@ -62,8 +62,41 @@
             </div>
         {% endfor %}
     </form>
-
 </div>
+<div id="other_settings" class="container">
+    <h4> Other Settings:</h4>
+    <div class="form-group-row">
+        <div class="col">
+            <span class="col-4">Rtkbase release {{ g.version }} </span>
+            <button id="check_update_button" class="btn btn-secondary" type="button">Check update</button>
+        </div>
+    </div>
+</div>
+<!-- The update  Modal dialog box-->
+<div class="modal" id="updateModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Update</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body text-center ">          
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer mx-auto">
+          <button id="update-button" type="button" class="btn btn-success" disabled>Update</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 
