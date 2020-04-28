@@ -14,7 +14,7 @@ Some bash scripts for a simple gnss base station
    $ cd ~
    $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
    $ chmod +x install.sh
-   $ sudo ./install.sh --from-github
+   $ sudo ./install.sh --from-repo
    ```
    
 + Edit settings.conf as explained below and reboot
