@@ -23,11 +23,10 @@ install_rtklib() {
 }
 
 install_rtkbase() {
-    if [ "$1" == "--from-github" ]
+    if [ "$1" == "--from-repo" ]
     then
         #Get rtkbase repository
         sudo -u $(logname) git clone -b web_gui --single-branch https://github.com/stefal/rtkbase.git
-        echo "get from github"
     elif [ "$1" == "--release" ]
     then
         #Get rtkbase latest release
@@ -49,13 +48,13 @@ install_rtkbase() {
 }
 
 main() {
-    if [ "$1" == "--release" ] || [ "$1" == "--from-github" ]
+    if [ "$1" == "--release" ] || [ "$1" == "--from-repo" ]
     then
         install_dependency
         install_rtklib
         install_rtkbase $1
     else
-        echo "Wrong parameter: Please use --release or --from-github"
+        echo "Wrong parameter: Please use --release or --from-repo"
     fi
 }
 
