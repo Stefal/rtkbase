@@ -15,7 +15,8 @@ cp -r ${destination_directory}/!({data_dir}) /var/tmp/rtkbase.old
 #copy new release to destination
 cp -rf ${destination_directory}
 
-
+#delete the line version= in settings.conf
+sed -i '/version=/d' ${destination_directory}
 #if a reboot is needed
 #sudo reboot now
 
