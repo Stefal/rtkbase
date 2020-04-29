@@ -23,17 +23,17 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
-from gevent import monkey
-monkey.patch_all()
-#import eventlet
-#eventlet.monkey_patch()
+#from gevent import monkey
+#monkey.patch_all()
+import eventlet
+eventlet.monkey_patch()
 
 import time
 import json
 import os
 import signal
 import sys
-import urllib
+import requests
 
 from threading import Thread
 from RTKLIB import RTKLIB
@@ -140,8 +140,8 @@ def check_update(source_url = None, current_release = None, prerelease=True, emi
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v").strip('alpha').strip('beta')
     
     try:    
-        response = urllib.request.urlopen(source_url)
-        response = json.loads(response.read())
+        response = requests.get(source_url)
+        response = response.json()
         for release in response:
             if release.get("prerelease") == prerelease:
                 latest_release = release["tag_name"].strip("v").strip('alpha').strip('beta')
@@ -170,10 +170,12 @@ def update_rtkbase():
     import tarfile
     #Download update
     update_archive = "/var/tmp/rtkbase_update.tar.gz"
-    response = urllib.request.urlopen(update_url)
-    with open(update_archive, "wb") as f:
-        for chunk in response:
-            f.write(chunk)
+    try:
+        response = requests.get(update_url)
+        with open(update_archive, "wb") as f:
+            f.write(response.content)
+    except Exception as e:
+        print("Error: Can't download update - ", e)
 
     #Get the "root" folder in the archive
     tar = tarfile.open(update_archive)
