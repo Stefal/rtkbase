@@ -150,6 +150,7 @@ $(document).ready(function () {
 
 
     // ####################### HANDLE UPDATE #######################
+
     $('#check_update_button').on("click", function (){
         socket.emit("check update");
     });
@@ -167,10 +168,11 @@ $(document).ready(function () {
         } else {
             $("#updateModal .modal-title").text("No Update available!");
             $("#updateModal .modal-body").text("We're working on it. Come back later!");
+            $('#updateModal').modal();
         }
         
     })
-    
+
 
     // ####################### HANDLE COORDINATE MESSAGES #######################
 
