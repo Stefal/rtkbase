@@ -185,8 +185,9 @@ def update_rtkbase():
     #launch update script
     rtk.shutdownBase()
     rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-    script_path = os.path.join("/var/tmp/", primary_folder, "rtkbase_update.sh")
-    os.execl(script_path, "unused arg0", rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1])
+    source_path = os.path.join("/var/tmp/", primary_folder)
+    script_path = os.path.join(source_path, "rtkbase_update.sh")
+    os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1])
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser

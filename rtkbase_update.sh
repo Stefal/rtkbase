@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ### THIS SCRIPT SHOULD NOT BE RUN MANUALLY ###
-
-destination_directory=$1
-data_dir=$2
+source_directory=$1
+destination_directory=$2
+data_dir=$3
 
 echo "remove existing rtkbase.old directory"
 rm -rf /var/tmp/rtkbase.old
@@ -16,7 +16,7 @@ shopt -s extglob
 cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 
 echo "copy new release to destination"
-cp -rfp * ${destination_directory}
+cp -rfp ${source_directory}/. ${destination_directory}
 
 echo "delete the line version= in settings.conf"
 sed -i '/version=/d' ${destination_directory}/settings.conf
