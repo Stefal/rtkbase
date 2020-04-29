@@ -163,7 +163,7 @@ $(document).ready(function () {
             $("#updateModal .modal-title").text("Update available!");
             $("#updateModal .modal-body").text("Do you want to install v" + response['new_release'] + "?");
             $("#updateModal .modal-body").append("<br>It will take a few minutes.");
-            $("#update-button").removeAttr("disabled");
+            $("#start-update-button").removeAttr("disabled");
             $('#updateModal').modal();
         } else {
             $("#updateModal .modal-title").text("No Update available!");
@@ -173,6 +173,14 @@ $(document).ready(function () {
         
     })
 
+    $("#start-update-button").on("click", function () {
+        //$("#updateModal .modal-title").text(("Installing update"));
+        socket.emit("update rtkbase");
+        $("#updateModal .modal-body").text("Please Wait...and refresh this page in a few minutes");
+        $(this).prop("disabled", true);
+        $(this).html('<span class="spinner-border spinner-border-sm"></span> Updating...');
+        $("#cancel-button").prop("disabled", true);
+    })
 
     // ####################### HANDLE COORDINATE MESSAGES #######################
 

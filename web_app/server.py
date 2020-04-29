@@ -116,14 +116,14 @@ def update_password(config_object):
         :param config_object: a RTKBaseConfigManager instance
     """
     new_password = config_object.get("general", "web_password")
-    if new_password is not "":
+    if new_password != "":
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
         config_object.update_setting("general", "web_password", "")
         
 def manager():
 
     while True:
-        if rtk.sleep_count > rtkcv_standby_delay and rtk.state is not "inactive":
+        if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
             rtk.stopBase()
             rtk.sleep_count = 0
         elif rtk.sleep_count > 10:
@@ -131,7 +131,7 @@ def manager():
         time.sleep(1)
 
 @socketio.on("check update", namespace="/test")
-def check_update(source_url = None, current_release = None, prerelease=True):
+def check_update(source_url = None, current_release = None, prerelease=True, emit = True):
     """
         check if an update exists
     """
@@ -152,7 +152,9 @@ def check_update(source_url = None, current_release = None, prerelease=True):
     except Exception as e:
         print("Check update error: ", e)
         
-    socketio.emit("new release", json.dumps(new_release), namespace="/test")
+    if emit:
+        socketio.emit("new release", json.dumps(new_release), namespace="/test")
+
     return new_release
 
 @socketio.on("update rtkbase", namespace="/test")       
@@ -161,7 +163,7 @@ def update_rtkbase():
         download and update rtkbase
     """
     #Check if an update is available
-    update_url = check_update().get("url")
+    update_url = check_update(emit=False).get("url")
     if update_url is None:
         return
 
