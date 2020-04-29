@@ -121,7 +121,7 @@ def manager():
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
             rtk.stopBase()
             rtk.sleep_count = 0
-        elif rtk.sleep_count > 10:
+        elif rtk.sleep_count > rtkcv_standby_delay:
             print("Je voudrais bien arrêter, mais rtk.state est : ", rtk.state)
         time.sleep(1)
 
@@ -137,7 +137,6 @@ def check_update(source_url = None, current_release = None, prerelease=True, emi
     try:    
         response = requests.get(source_url)
         response = response.json()
-        print(response)
         for release in response:
             if release.get("prerelease") & prerelease or release.get("prerelease") == False:
                 latest_release = release["tag_name"].strip("v").strip('-alpha').strip('-beta')
