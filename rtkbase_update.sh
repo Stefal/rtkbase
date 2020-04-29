@@ -10,13 +10,16 @@ rm -rf /var/tmp/rtkbase.old
 mkdir /var/tmp/rtkbase.old
 
 #copy rtkbase to rtkbase.old except /data directory
-cp -r ${destination_directory}/!({data_dir}) /var/tmp/rtkbase.old
+#'shopt -s extglob' is needed for using (!pattern) exclusion pattern
+#from inside a script
+shopt -s extglob
+cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 
 #copy new release to destination
-cp -rf ${destination_directory}
+cp -rf . ${destination_directory}
 
 #delete the line version= in settings.conf
-sed -i '/version=/d' ${destination_directory}
+sed -i '/version=/d' ${destination_directory}/settings.conf
 #if a reboot is needed
 #sudo reboot now
 
