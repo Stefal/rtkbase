@@ -1,6 +1,7 @@
 *.pyc
 *~
 rtkrcv.nav
-.vscode/settings.json
+.vscode/*
 /logs/*
 settings.conf
+/data/*
