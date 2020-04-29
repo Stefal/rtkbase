@@ -1,3 +1,4 @@
+import os
 from configparser import ConfigParser
 
 class RTKBaseConfigManager:
@@ -10,6 +11,8 @@ class RTKBaseConfigManager:
         """
         self.user_settings_path = user_settings_path
         self.config = self.merge_default_and_user(default_settings_path, user_settings_path)
+        self.expand_path()
+        self.write_file(self.config)
 
     def merge_default_and_user(self, default, user):
         """
@@ -27,7 +30,6 @@ class RTKBaseConfigManager:
         #if there is no existing user settings file, config.read return
         #an empty object.
         config.read(user)
-        self.write_file(config)
         return config
 
 
@@ -35,6 +37,22 @@ class RTKBaseConfigManager:
         config = ConfigParser(interpolation=None)
         config.read(settings_path)
         return config
+
+    def expand_path(self):
+        """
+            get the paths and convert $BASEDIR to the real path
+        """
+        datadir = self.config.get("local_storage", "datadir")
+        if "$BASEDIR" in datadir:
+            exp_datadir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", datadir.strip("$BASEDIR/")))
+            self.update_setting("local_storage", "datadir", exp_datadir)
+        
+        logdir = self.config.get("log", "logdir")
+        if "$BASEDIR" in logdir:
+            exp_logdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", logdir.strip("$BASEDIR/")))
+            self.update_setting("log", "logdir", exp_logdir)
+
+
 
     def listvalues(self):
         """
@@ -98,10 +116,10 @@ class RTKBaseConfigManager:
     def update_setting(self, section, setting, value, write_file=True):
         """
             Update a setting in the config file and write the file (default)
-        :param section: the section in the config file
-        :param setting: the setting (like a key in a dict)
-        :param value: the new value for the setting
-        :param write_file: write the file or not
+            :param section: the section in the config file
+            :param setting: the setting (like a key in a dict)
+            :param value: the new value for the setting
+            :param write_file: write the file or not
         """
         #check if the setting exists
         try:

@@ -65,17 +65,12 @@ from werkzeug.security import check_password_hash
 from werkzeug.urls import url_parse
 
 app = Flask(__name__)
-#app.template_folder = "."
 app.debug = False
 app.config["SECRET_KEY"] = "secret!"
-#TODO take theses paths from settings.conf
-app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
+#app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
 
-#path_to_gnss_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), "logs")
-#path_to_gnss_log = "/home/stephane/gnss_venv/rtkbase/data/"
-#path_to_rtklib = os.path.join(os.path.expanduser("~"), "gnss_venv/RTKLIB")
 path_to_rtklib = "/usr/local/bin"
 
 login=LoginManager(app)
@@ -137,14 +132,15 @@ def check_update(source_url = None, current_release = None, prerelease=True, emi
     """
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
-    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v").strip('alpha').strip('beta')
+    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v").strip('-alpha').strip('-beta')
     
     try:    
         response = requests.get(source_url)
         response = response.json()
+        print(response)
         for release in response:
-            if release.get("prerelease") == prerelease:
-                latest_release = release["tag_name"].strip("v").strip('alpha').strip('beta')
+            if release.get("prerelease") & prerelease or release.get("prerelease") == False:
+                latest_release = release["tag_name"].strip("v").strip('-alpha').strip('-beta')
                 if latest_release > current_release:
                     new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
                 break
@@ -154,7 +150,7 @@ def check_update(source_url = None, current_release = None, prerelease=True, emi
         
     if emit:
         socketio.emit("new release", json.dumps(new_release), namespace="/test")
-
+    print
     return new_release
 
 @socketio.on("update rtkbase", namespace="/test")       
@@ -445,6 +441,8 @@ if __name__ == "__main__":
         #check if authentification is required
         if not rtkbaseconfig.get_web_authentification():
             app.config["LOGIN_DISABLED"] = True
+        #get data path
+        app.config["DOWNLOAD_FOLDER"] = rtkbaseconfig.get("local_storage", "datadir")
         #load services status managed with systemd
         services_list = load_units(services_list)
         #Start a "manager" thread
