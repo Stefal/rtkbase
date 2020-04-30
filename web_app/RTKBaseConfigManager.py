@@ -109,6 +109,17 @@ class RTKBaseConfigManager:
         """
         return self.config.getboolean("general", "web_authentification")
 
+    def get_secret_key(self):
+        """
+            Return the flask secret key, or generate a new one if it doesn't exists
+        """
+        SECRET_KEY = self.config.get("general", "FLASK_SECRET_KEY", fallback='None')
+        if SECRET_KEY is 'None':
+            SECRET_KEY = str(os.urandom(48))
+            self.update_setting("general", "FLASK_SECRET_KEY", SECRET_KEY)
+        
+        return SECRET_KEY
+
     def get(self, *args, **kwargs):
         """a wrapper around configparser.get()"""
         return self.config.get(*args, **kwargs)

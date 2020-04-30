@@ -449,7 +449,7 @@ if __name__ == "__main__":
         manager_thread = Thread(target=manager, daemon=True)
         manager_thread.start()
 
-        app.secret_key = os.urandom(12)
+        app.secret_key = rtkbaseconfig.get_secret_key()
         socketio.run(app, host = "0.0.0.0", port = 8080)
 
     except KeyboardInterrupt:
