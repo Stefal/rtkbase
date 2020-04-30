@@ -65,14 +65,19 @@
 </div>
 <div id="other_settings" class="container">
     <h4> Other Settings:</h4>
-    <div class="form-group-row">
-        <div class="col">
-            <span class="col-4">Rtkbase release {{ g.version }} </span>
+    <div class="row py-1">
+        <div class="col-sm-4">
+            <span class="col-sm-3">Rtkbase {{ g.version }}</span>
+        </div>
+        <div class="col-sm-8">
             <button id="check_update_button" class="btn btn-secondary" type="button">Check update</button>
         </div>
     </div>
-    <div class="form-group-row">
-      <div class="col">
+    <div class="row py-1">
+      <div class="col-sm-4">
+        <span class="col-sm-3">Power:</span>
+      </div>
+      <div class="col-sm-8">
           <button id="reboot-button" class="btn btn-secondary" type="button">Reboot</button>
           <button id="shutdown-button" class="btn btn-secondary" type="button">Shutdown</button>
       </div>
