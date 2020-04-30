@@ -12,6 +12,9 @@ class ServiceController(object):
     def isActive(self):
         if self.unit.Unit.ActiveState == b'active':
             return True
+        elif self.unit.Unit.ActiveState == b'activating':
+            #TODO manage this transitionnal state differently
+            return True
         else:
             return False
     
