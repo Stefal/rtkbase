@@ -378,14 +378,16 @@ def updateReachView():
 def rebootRtkbase():
     print("Rebooting...")
     rtk.shutdown()
-    socketio.stop()
+    #socketio.stop() hang. I disabled it
+    #socketio.stop()
     check_output("reboot")
 
 @socketio.on("shutdown device", namespace="/test")
 def shutdownRtkbase():
     print("Shutdown...")
     rtk.shutdown()
-    socketio.stop()
+    #socketio.stop() hang. I disabled it
+    #socketio.stop()
     check_output(["shutdown", "now"])
 
 @socketio.on("turn off wi-fi", namespace="/test")

@@ -182,7 +182,20 @@ $(document).ready(function () {
         $("#cancel-button").prop("disabled", true);
     })
 
-    // ####################### HANDLE COORDINATE MESSAGES #######################
+    // ####################### HANDLE REBOOT SHUTDOWN #######################
+
+    $("#reboot-button").on("click", function() {
+        $("#rebootModal").modal();
+    })
+    $("#confirm-reboot-button").on("click", function() {
+        socket.emit("reboot device");
+    })
+    $("#shutdown-button").on("click", function() {
+        $("#shutdownModal").modal();
+    })
+    $("#confirm-shutdown-button").on("click", function() {
+        socket.emit("shutdown device");
+    })
 
     // end of document.ready
 });
