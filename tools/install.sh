@@ -4,7 +4,7 @@
 
 install_dependency() {
     apt-get update 
-    apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix
+    apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev libffi-dev bc dos2unix 
 }
 
 install_rtklib() {
@@ -36,6 +36,7 @@ install_rtkbase() {
 
     #as we need to run the web server as root, we need to install the requirements with
     #the same user
+    python3 -m pip install --upgrade pip setuptools wheel
     python3 -m pip install -r rtkbase/web_app/requirements.txt
     #when we will be able to launch the web server without root, we will use
     #sudo -u $(logname) python3 -m pip install -r requirements.txt --user
