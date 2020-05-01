@@ -36,8 +36,8 @@ install_rtkbase() {
 
     #as we need to run the web server as root, we need to install the requirements with
     #the same user
-    python3 -m pip install --upgrade pip setuptools wheel
-    python3 -m pip install -r rtkbase/web_app/requirements.txt
+    python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
+    python3 -m pip install -r rtkbase/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
     #when we will be able to launch the web server without root, we will use
     #sudo -u $(logname) python3 -m pip install -r requirements.txt --user
     #Install unit files
