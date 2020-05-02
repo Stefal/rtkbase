@@ -2,6 +2,8 @@
 
 ### RTKBASE INSTALLATION SCRIPT ###
 
+declare -a detected_gnss
+
 install_dependency() {
     apt-get update 
     apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix
@@ -43,8 +45,24 @@ install_rtkbase() {
     rtkbase/copy_unit.sh
     systemctl enable rtkbase_web.service
     systemctl daemon-reload
-    #systemctl enable rtkbase_web.service
-    #systemctl enable rtkbase_web.service
+    systemctl start rtkbase_web.service
+}
+
+detect_usb_gnss() {
+    #This function put the (USB) detected gnss receiver informations in detected_gnss
+    #If there are several receiver, only the last one will be present in the variable
+    for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+
+        syspath="${sysdevpath%/dev}"
+        devname="$(udevadm info -q name -p $syspath)"
+        if [[ "$devname" == "bus/"* ]]; then continue; fi
+        eval "$(udevadm info -q property --export -p $syspath)"
+        if [[ -z "$ID_SERIAL" ]]; then continue; fi
+        if [[ "$ID_SERIAL" =~ ^(U-blox|skytraq)$ ]]; then continue; fi
+        detected_gnss[0]=$devname
+        detected_gnss[1]=$ID_SERIAL
+    done
+
 }
 
 main() {
@@ -53,6 +71,12 @@ main() {
         install_dependency
         install_rtklib
         install_rtkbase $1
+        #if a gnss receiver is detected, write the com port in settings.conf
+        if [[ ${#detected_gnss[*]} -eq 2 ]]
+        then
+            sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${destination_directory}/settings.conf
+            $ sed -i 's/maxmemory.*/maxmemory 26gb/' /some/file/some/where.txt
+
     else
         echo "Wrong parameter: Please use --release or --from-repo"
     fi
