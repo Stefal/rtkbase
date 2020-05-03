@@ -89,7 +89,7 @@ main() {
         then
             echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
             sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${destination_directory}/settings.conf
-            $ sed -i 's/maxmemory.*/maxmemory 26gb/' /some/file/some/where.txt
+        fi
 
     else
         echo "Wrong parameter: Please use --release or --from-repo"
