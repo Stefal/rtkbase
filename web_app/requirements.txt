@@ -1,12 +1,13 @@
-Flask==1.1.1
-Flask-SocketIO==4.2.1
-eventlet==0.25.2
-Bootstrap-Flask==1.2.0
-Flask-WTF==0.14.3
-Flask-Login==0.5.0
-pexpect==4.7.0
-pyOpenSSL==19.1.0
-pyserial==3.4
-pystemd==0.7.0
-requests==2.23.0
+cryptography
+Flask
+Flask-SocketIO
+eventlet
+Bootstrap-Flask
+Flask-WTF
+Flask-Login
+pexpect
+pyOpenSSL
+pyserial
+pystemd
+requests
 
