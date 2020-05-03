@@ -1,6 +1,8 @@
 # rtkbase
 
-Some bash scripts for a simple gnss base station
+Some bash scripts for a simple gnss base station and a web frontend.
+
+![Main Screen](/images/web_status.jpg)
 
 ## Partial automated installation (for developper)
 
