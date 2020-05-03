@@ -4,12 +4,18 @@
 
 declare -a detected_gnss
 
-install_dependency() {
+install_dependencies() {
+    echo '################################'
+    echo 'INSTALLING DEPENDENCIES'
+    echo '################################'
     apt-get update 
     apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix
 }
 
 install_rtklib() {
+    echo '################################'
+    echo 'INSTALLING RTKLIB'
+    echo '################################'
     #Get Rtklib 2.4.3 repository
     sudo -u $(logname) git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
     #Install Rtklib app
@@ -25,6 +31,9 @@ install_rtklib() {
 }
 
 install_rtkbase() {
+    echo '################################'
+    echo 'INSTALLING RTKBASE'
+    echo '################################'
     if [ "$1" == "--from-repo" ]
     then
         #Get rtkbase repository
@@ -49,6 +58,9 @@ install_rtkbase() {
 }
 
 detect_usb_gnss() {
+    echo '################################'
+    echo 'GNSS RECEIVER DETECTION'
+    echo '################################'
     #This function put the (USB) detected gnss receiver informations in detected_gnss
     #If there are several receiver, only the last one will be present in the variable
     for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
@@ -68,12 +80,13 @@ detect_usb_gnss() {
 main() {
     if [ "$1" == "--release" ] || [ "$1" == "--from-repo" ]
     then
-        install_dependency
+        install_dependencies
         install_rtklib
         install_rtkbase $1
         #if a gnss receiver is detected, write the com port in settings.conf
         if [[ ${#detected_gnss[*]} -eq 2 ]]
         then
+            echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
             sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${destination_directory}/settings.conf
             $ sed -i 's/maxmemory.*/maxmemory 26gb/' /some/file/some/where.txt
 
