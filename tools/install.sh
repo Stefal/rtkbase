@@ -85,10 +85,18 @@ main() {
         install_rtklib
         install_rtkbase $1
         #if a gnss receiver is detected, write the com port in settings.conf
+        detect_usb_gnss
         if [[ ${#detected_gnss[*]} -eq 2 ]]
         then
             echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
-            sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${destination_directory}/settings.conf
+            if [[ -f "rtkbase/settings.conf"]]  #check if settings.conf exists
+            then
+                #inject the com port inside settings.conf
+                sudo -u $(logname) sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${destination_directory}/settings.conf
+            else
+                #create settings.conf with only the com_port setting
+                printf "[main]\ncom_port='"${detected_gnss[0]}"'\n" > rtkbase/settings.conf
+            fi
         fi
 
     else
