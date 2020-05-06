@@ -2,7 +2,7 @@
 
 Some bash scripts for a simple gnss base station and a web frontend.
 
-|<img src="/images/web_status.png" alt="status" width="200"/>|<img src="/images/web_settings.png" alt="settings" width="200"/>|<img src="/images/web_logs.png" alt="logs" width="200"/>|
+|<img src="/images/web_status.png" alt="status" width="250"/>|<img src="/images/web_settings.png" alt="settings" width="250"/>|<img src="/images/web_logs.png" alt="logs" width="250"/>|
 
 
 ## Partial automated installation (for developper)
