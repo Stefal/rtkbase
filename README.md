@@ -2,7 +2,8 @@
 
 Some bash scripts for a simple gnss base station and a web frontend.
 
-![Main Screen](/images/web_status.jpg)
+|<img src="/images/web_status.png" alt="status" width="200"/>|<img src="/images/web_settings.png" alt="settings" width="200"/>|<img src="/images/web_logs.png" alt="logs" width="200"/>|
+
 
 ## Partial automated installation (for developper)
 
