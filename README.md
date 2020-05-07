@@ -2,8 +2,17 @@
 
 Some bash scripts for a simple gnss base station and a web frontend.
 
+### FrontEnd:
 |<img src="/images/web_status.png" alt="status" width="250"/>|<img src="/images/web_settings.png" alt="settings" width="250"/>|<img src="/images/web_logs.png" alt="logs" width="250"/>|
+### Base example:
+<img src="/images/base_f9p.jpg" alt="status" width="450"/>
++ Enclosure: GentleBOX JE-200
 
++ SBC: Orange Pi Zero (256MB)
+
++ Gnss Receiver: U-Blox F9P (from Drotek)
+
++ Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
 
 ## Partial automated installation (for developper)
 
