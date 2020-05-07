@@ -16,39 +16,37 @@ out_tcp="tcpsvr://:${tcp_port}"
 out_file="file://${datadir}/${file_name}::T::S=${file_rotate_time} -f ${file_overlap_time}"
 out_rtcm_svr="tcpsvr://:${rtcm_svr_port}#rtcm3 -msg ${rtcm_svr_msg} -p ${position}"
 
-# start NTRIP caster
-
-
-    mkdir -p ${logdir}
+mkdir -p ${logdir}
     
-    case "$2" in
-      out_tcp)
-      #echo ${cast} -in ${!1} -out $out_tcp
-      ${cast} -in ${!1} -out ${out_tcp} &
-      ;;
+  case "$2" in
+    out_tcp)
+    #echo ${cast} -in ${!1} -out $out_tcp
+    # What is this ${!1} ? It's variable indirection
+    ${cast} -in ${!1} -out ${out_tcp} &
+    ;;
 
-    out_caster)
-      #echo ${cast} -in ${!1} -out $out_caster
-      ${cast} -in ${!1} -out ${out_caster} &
-      ;;
+  out_caster)
+    #echo ${cast} -in ${!1} -out $out_caster
+    ${cast} -in ${!1} -out ${out_caster} &
+    ;;
 
-    out_rtcm_svr)
-    echo ${cast} -in ${!1} -out $out_rtcm_svr
-      ${cast} -in ${!1} -out ${out_rtcm_svr} &
-      ;;
+  out_rtcm_svr)
+    #echo ${cast} -in ${!1} -out $out_rtcm_svr
+    ${cast} -in ${!1} -out ${out_rtcm_svr} &
+    ;;
 
-    out_file)
-      #echo ${cast} -in ${!1} -out $out_caster
-      ${BASEDIR}/check_timesync.sh  #wait for a correct date/time before starting to write files
-      ret=$?
-      if [ ${ret} -eq 0 ]
-      then
-        mkdir -p ${datadir}
-        ${cast} -in ${!1} -out ${out_file} &
-      fi
-      ;;
-      
-    esac
+  out_file)
+    #echo ${cast} -in ${!1} -out $out_caster
+    ${BASEDIR}/check_timesync.sh  #wait for a correct date/time before starting to write files
+    ret=$?
+    if [ ${ret} -eq 0 ]
+    then
+      mkdir -p ${datadir}
+      ${cast} -in ${!1} -out ${out_file} &
+    fi
+    ;;
+    
+  esac
 
 
 
