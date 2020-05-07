@@ -81,7 +81,9 @@ bootstrap = Bootstrap(app)
 rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD_FOLDER"])
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
-                 {"service_unit" : "str2str_file.service", "name" : "file"},]
+                 {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
+                 {"service_unit" : "str2str_file.service", "name" : "file"},
+                 ]
 
 
 #Delay before rtkrcv will stop if no user is on status.html page
