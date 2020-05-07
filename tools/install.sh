@@ -78,12 +78,24 @@ detect_usb_gnss() {
 
 }
 
+add_crontab() {
+    echo '################################'
+    echo 'ADDING CRONTAB'
+    echo '################################'
+
+    #script from https://stackoverflow.com/questions/610839/how-can-i-programmatically-create-a-new-cron-job
+    #I've added '-r' to sort because SHELL=/bin/bash should stay before "0 4 * * ..."
+    (crontab -u $(logname) -l ; echo 'SHELL=/bin/bash') | sort -r | uniq - | crontab -u $(logname) -
+    (crontab -u $(logname) -l ; echo "0 4 * * * $(eval echo ~$(logname)/rtkbase/archive_and_clean.sh)" | sort -r | uniq - | crontab -u $(logname) -
+}
+
 main() {
     if [ "$1" == "--release" ] || [ "$1" == "--from-repo" ]
     then
         install_dependencies
         install_rtklib
         install_rtkbase $1
+        add_crontab
         #if a gnss receiver is detected, write the com port in settings.conf
         detect_usb_gnss
         if [[ ${#detected_gnss[*]} -eq 2 ]]
@@ -94,14 +106,21 @@ main() {
                 #inject the com port inside settings.conf
                 sudo -u $(logname) sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${destination_directory}/settings.conf
             else
-                #create settings.conf with only the com_port setting
-                sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\n" > rtkbase/settings.conf
+                #create settings.conf with the com_port setting and the format
+                sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'" > rtkbase/settings.conf
             fi
         fi
+        #if the receiver is a U-Blox, launch the set_f9p.sh. This script will reset the F9P and flash it with the corrects settings for rtkbase
+                if [[ ${detected_gnss[1]} =~ 'u-blox']]
+                then
+                    rtkbase/tool/set_f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
+                fi
 
     else
         echo "Wrong parameter: Please use --release or --from-repo"
+        exit 1
     fi
 }
 
 main $1
+exit 0
