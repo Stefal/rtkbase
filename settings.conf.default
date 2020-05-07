@@ -64,7 +64,7 @@ mnt_name=Your_mount_name
 
 rtcm_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127'
 
-[rtcm]
+[rtcm_svr]
 
 # RTCM server options
 

@@ -90,6 +90,15 @@ class RTKBaseConfigManager:
             ordered_file.append({key : self.config.get('local_storage', key)})
         return ordered_file
 
+    def get_rtcm_svr_settings(self):
+        """
+            Get a subset of the settings from the file section in an ordered object       
+        """
+        ordered_rtcm_svr = []
+        for key in ("rtcm_svr_port", "rtcm_svr_msg"):
+            ordered_rtcm_svr.append({key : self.config.get('rtcm_svr', key)})
+        return ordered_rtcm_svr
+
     def get_ordered_settings(self):
         """
             Get a subset of the main, ntrip and file sections from the settings file
@@ -99,6 +108,7 @@ class RTKBaseConfigManager:
         ordered_settings['main'] = self.get_main_settings()
         ordered_settings['ntrip'] = self.get_ntrip_settings()
         ordered_settings['file'] = self.get_file_settings()
+        ordered_settings['rtcm_svr'] = self.get_rtcm_svr_settings()
         return ordered_settings
 
     def get_web_authentification(self):

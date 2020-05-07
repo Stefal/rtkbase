@@ -3,13 +3,14 @@
 {% block content %}
 <div class="container">
 <h4>Services:</h4>
+<!-- ######## Main Service ########-->
   <div id="main_service_space" class="form-group row">
     <div class="col">
     <label for="main-switch" class="col-4 col-form-label col-form-label-lg">Main service</label>
     <input id="main-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#main_service_options" aria-expanded="false" aria-controls="main_service_options">Options</button>
+    </div>
   </div>
-</div>
         <form id="main_service_options" class="collapse">
             {% for setting in data.main %}
                 <div class="form-group row">
@@ -23,13 +24,14 @@
             {% endfor %}
         </form>
 
+<!-- ######## Ntrip Service ########-->
   <div id="ntrip_service_space" class="form-group row">
     <div class="col">
     <label for="ntrip-switch" class="col-4 col-form-label col-form-label-lg">Ntrip service</label>
     <input id="ntrip-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#ntrip_service_options" aria-expanded="false" aria-controls="ntrip_service_options">Options</button>
+    </div>
   </div>
-</div>
     <form id="ntrip_service_options" class="collapse">
         {% for setting in data.ntrip %}
             <div class="form-group row">
@@ -43,6 +45,28 @@
         {% endfor %}
     </form>
 
+  <!-- ######## RTCM Service ########-->
+  <div id="rtcm_svr__service_space" class="form-group row">
+    <div class="col">
+    <label for="rtcm_svr-switch" class="col-4 col-form-label col-form-label-lg">Rtcm server service</label>
+    <input id="rtcm_svr-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#rtcm_svr_service_options" aria-expanded="false" aria-controls="rtcm_svr_service_options">Options</button>
+    </div>
+  </div>
+    <form id="rtcm_svr_service_options" class="collapse">
+        {% for setting in data.rtcm_svr %}
+            <div class="form-group row">
+            {% for key, value in setting.items() %}
+                <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
+                <div class="col-sm-9">
+                    <input id="{{ key }}" type="text" class="form-control" value="{{ value|e }}" readonly>
+                </div>
+            {% endfor %}
+            </div>
+        {% endfor %}
+    </form>
+
+  <!-- ######## File Service ########-->
   <div id="file_service_space" class="form-group row">
       <div class="col">
     <label for="file-switch" class="col-4 col-form-label col-form-label-lg">File service</label>
