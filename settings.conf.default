@@ -39,7 +39,7 @@ tcp_port=5015
 #gnss data storage directory
 datadir=$BASEDIR/data
 #gnss data filename	    
-file_name="%Y-%m-%d-%h:%M:%S-GNSS-1.ubx"
+file_name="%Y-%m-%d-%h:%M:%S-GNSS-1"
 #file rotate time in hour
 file_rotate_time=24
 #file overlap time in seconds
