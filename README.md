@@ -5,7 +5,8 @@ Some bash scripts for a simple gnss base station and a web frontend.
 ### FrontEnd:
 |<img src="/images/web_status.png" alt="status" width="250"/>|<img src="/images/web_settings.png" alt="settings" width="250"/>|<img src="/images/web_logs.png" alt="logs" width="250"/>|
 ### Base example:
-<img src="/images/base_f9p.jpg" alt="status" width="450"/>
+<img src="/images/base_f9p.jpg" alt="status" width="550"/>
+
 + Enclosure: GentleBOX JE-200
 
 + SBC: Orange Pi Zero (256MB)
