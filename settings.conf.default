@@ -26,7 +26,6 @@ com_port_settings='115200:8:n:1'
 receiver=Ublox_ZED-F9P
 #gnss receiver format
 receiver_format='ubx'
-serial_input="${com_port}:${com_port_settings}#${receiver_format}"
 
 # TCP options
 #tcp port for RAW stream
