@@ -1,0 +1,16 @@
+[Unit]
+Description=RTKBase rtcm server
+#After=network-online.target
+#Wants=network-online.target
+Requires=network-online.target
+
+[Service]
+Type=forking
+#User=basegnss
+ExecStart={script_path}/run_cast.sh in_tcp out_rtcm_svr
+Restart=on-failure
+RestartSec=30
+
+
+[Install]
+WantedBy=multi-user.target
