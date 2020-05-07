@@ -78,12 +78,24 @@ detect_usb_gnss() {
 
 }
 
+add_crontab() {
+    echo '################################'
+    echo 'ADDING CRONTAB'
+    echo '################################'
+
+    #script from https://stackoverflow.com/questions/610839/how-can-i-programmatically-create-a-new-cron-job
+    #I've added '-r' to sort because SHELL=/bin/bash should stay before "0 4 * * ..."
+    (crontab -u $(logname) -l ; echo 'SHELL=/bin/bash') | sort -r | uniq - | crontab -u $(logname) -
+    (crontab -u $(logname) -l ; echo "0 4 * * * $(eval echo ~$(logname)/rtkbase/archive_and_clean.sh)" | sort -r | uniq - | crontab -u $(logname) -
+}
+
 main() {
     if [ "$1" == "--release" ] || [ "$1" == "--from-repo" ]
     then
         install_dependencies
         install_rtklib
         install_rtkbase $1
+        add_crontab
         #if a gnss receiver is detected, write the com port in settings.conf
         detect_usb_gnss
         if [[ ${#detected_gnss[*]} -eq 2 ]]
