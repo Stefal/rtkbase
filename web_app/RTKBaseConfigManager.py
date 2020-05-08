@@ -4,6 +4,9 @@ from configparser import ConfigParser
 class RTKBaseConfigManager:
     """ A class to easily access the settings from RTKBase settings.conf """
 
+    NON_QUOTED_KEYS = ("basedir", "web_authentification", "web_password_hash",
+                     "flask_secret_key", "archive_name",)
+
     def __init__(self, default_settings_path, user_settings_path):
         """ 
             :param default_settings_path: path to the default settings file 
@@ -146,7 +149,9 @@ class RTKBaseConfigManager:
             :param value: the new value for the setting
             :param write_file: write the file or not
         """
-        #check if the setting exists
+        #Add single quotes around the value
+        if setting not in self.NON_QUOTED_KEYS:
+            value = "'" + value + "'"
         try:
             self.config[section][setting] = value
             if write_file:
