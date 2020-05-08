@@ -227,7 +227,15 @@ def status_page():
 @login_required
 def settings_page():
     data = rtkbaseconfig.get_ordered_settings()
-    return render_template("settings.html", data = data)
+    main_settings = rtkbaseconfig.get_main_settings()
+    ntrip_settings = rtkbaseconfig.get_ntrip_settings()
+    file_settings = rtkbaseconfig.get_file_settings()
+    rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
+
+    return render_template("settings.html", main_settings = main_settings,
+                                            ntrip_settings = ntrip_settings,
+                                            file_settings = file_settings,
+                                            rtcm_svr_settings = rtcm_svr_settings)
 
 @app.route('/logs')
 @login_required

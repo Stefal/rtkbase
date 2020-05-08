@@ -12,7 +12,7 @@
     </div>
   </div>
         <form id="main_service_options" class="collapse">
-            {% for setting in data.main %}
+            {% for setting in main_settings %}
                 <div class="form-group row">
                 {% for key, value in setting.items() %}
                     <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
@@ -33,7 +33,7 @@
     </div>
   </div>
     <form id="ntrip_service_options" class="collapse">
-        {% for setting in data.ntrip %}
+        {% for setting in ntrip_settings %}
             <div class="form-group row">
             {% for key, value in setting.items() %}
                 <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
@@ -54,7 +54,7 @@
     </div>
   </div>
     <form id="rtcm_svr_service_options" class="collapse">
-        {% for setting in data.rtcm_svr %}
+        {% for setting in rtcm_svr_settings %}
             <div class="form-group row">
             {% for key, value in setting.items() %}
                 <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
@@ -75,7 +75,7 @@
   </div>
   </div>
     <form id="file_service_options" class="collapse">
-        {% for setting in data.file %}
+        {% for setting in file_settings %}
             <div class="form-group row">
             {% for key, value in setting.items() %}
                 <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
