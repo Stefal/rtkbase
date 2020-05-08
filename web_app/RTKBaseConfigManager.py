@@ -86,7 +86,7 @@ class RTKBaseConfigManager:
             Get a subset of the settings from the file section in an ordered object       
         """
         ordered_file = []
-        for key in ("datadir", "file_name", "file_rotate_time", "file_overlap_time", "archive_name", "archive_rotate"):
+        for key in ("datadir", "file_name", "file_rotate_time", "file_overlap_time", "archive_rotate"):
             ordered_file.append({key : self.config.get('local_storage', key)})
         return ordered_file
 
