@@ -65,38 +65,42 @@ class RTKBaseConfigManager:
 
     def get_main_settings(self):
         """
-            Get a subset of the settings from the main section in an ordered object       
+            Get a subset of the settings from the main section in an ordered object
+            and remove the single quote.      
         """
         ordered_main = []
         for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_format", "tcp_port"):
-            ordered_main.append({key : self.config.get('main', key)})
+            ordered_main.append({key : self.config.get('main', key).strip("'")})
         return ordered_main
 
     def get_ntrip_settings(self):
         """
-            Get a subset of the settings from the ntrip section in an ordered object       
+            Get a subset of the settings from the ntrip section in an ordered object
+            and remove the single quote.    
         """
         ordered_ntrip = []
         for key in ("svr_addr", "svr_port", "svr_pwd", "mnt_name", "rtcm_msg"):
-            ordered_ntrip.append({key : self.config.get('ntrip', key)})
+            ordered_ntrip.append({key : self.config.get('ntrip', key).strip("'")})
         return ordered_ntrip
     
     def get_file_settings(self):
         """
-            Get a subset of the settings from the file section in an ordered object       
+            Get a subset of the settings from the file section in an ordered object
+            and remove the single quote.       
         """
         ordered_file = []
         for key in ("datadir", "file_name", "file_rotate_time", "file_overlap_time", "archive_rotate"):
-            ordered_file.append({key : self.config.get('local_storage', key)})
+            ordered_file.append({key : self.config.get('local_storage', key).strip("'")})
         return ordered_file
 
     def get_rtcm_svr_settings(self):
         """
-            Get a subset of the settings from the file section in an ordered object       
+            Get a subset of the settings from the file section in an ordered object
+            and remove the single quote.       
         """
         ordered_rtcm_svr = []
         for key in ("rtcm_svr_port", "rtcm_svr_msg"):
-            ordered_rtcm_svr.append({key : self.config.get('rtcm_svr', key)})
+            ordered_rtcm_svr.append({key : self.config.get('rtcm_svr', key).strip("'")})
         return ordered_rtcm_svr
 
     def get_ordered_settings(self):
