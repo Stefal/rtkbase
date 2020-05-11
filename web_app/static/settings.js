@@ -52,6 +52,12 @@ $(document).ready(function () {
         console.log('disconnected');
     });
 
+    //Enable "Save" button when form value is changed
+    $("form").on('input', 'input, select', function() {
+        console.log("change detected")
+          $(this).closest("form").find("button").removeAttr("disabled");
+        });
+
     // Send saved settings to back-end
     $("form").submit(function(e) {
         var formdata = $( this ).serializeArray();
