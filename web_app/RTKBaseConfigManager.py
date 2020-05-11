@@ -71,7 +71,7 @@ class RTKBaseConfigManager:
             Get a subset of the settings from the main section in an ordered object
             and remove the single quote.      
         """
-        ordered_main = []
+        ordered_main = [{"source_section" : "main"}]
         for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_format", "tcp_port"):
             ordered_main.append({key : self.config.get('main', key).strip("'")})
         return ordered_main
@@ -81,7 +81,7 @@ class RTKBaseConfigManager:
             Get a subset of the settings from the ntrip section in an ordered object
             and remove the single quote.    
         """
-        ordered_ntrip = []
+        ordered_ntrip = [{"source_section" : "ntrip"}]
         for key in ("svr_addr", "svr_port", "svr_pwd", "mnt_name", "rtcm_msg"):
             ordered_ntrip.append({key : self.config.get('ntrip', key).strip("'")})
         return ordered_ntrip
@@ -91,7 +91,7 @@ class RTKBaseConfigManager:
             Get a subset of the settings from the file section in an ordered object
             and remove the single quote.       
         """
-        ordered_file = []
+        ordered_file = [{"source_section" : "local_storage"}]
         for key in ("datadir", "file_name", "file_rotate_time", "file_overlap_time", "archive_rotate"):
             ordered_file.append({key : self.config.get('local_storage', key).strip("'")})
         return ordered_file
@@ -101,7 +101,7 @@ class RTKBaseConfigManager:
             Get a subset of the settings from the file section in an ordered object
             and remove the single quote.       
         """
-        ordered_rtcm_svr = []
+        ordered_rtcm_svr = [{"source_section" : "rtcm_svr"}]
         for key in ("rtcm_svr_port", "rtcm_svr_msg"):
             ordered_rtcm_svr.append({key : self.config.get('rtcm_svr', key).strip("'")})
         return ordered_rtcm_svr

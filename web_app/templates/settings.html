@@ -8,20 +8,23 @@
     <div class="col">
     <label for="main-switch" class="col-4 col-form-label col-form-label-lg">Main service</label>
     <input id="main-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#main_service_options" aria-expanded="false" aria-controls="main_service_options">Options</button>
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ main_settings[0].source_section }}" aria-expanded="false" aria-controls="main_service_options">Options</button>
     </div>
   </div>
-        <form id="main_service_options" class="collapse">
+        <form id="{{ main_settings.pop(0).source_section }}" class="collapse">
             {% for setting in main_settings %}
                 <div class="form-group row">
                 {% for key, value in setting.items() %}
                     <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
                     <div class="col-sm-9">
-                        <input id="{{ key }}" type="text" class="form-control" value="{{ value|e }}" readonly>
+                        <input id="{{ key }}" type="text" name="{{ key }}" class="form-control" value="{{ value|e }}">
                     </div>
                 {% endfor %}
                 </div>
             {% endfor %}
+            <div class="clearfix">
+              <button type="submit" class="btn btn-primary float-right">Save</button>
+            </div>
         </form>
 
 <!-- ######## Ntrip Service ########-->
@@ -29,41 +32,47 @@
     <div class="col">
     <label for="ntrip-switch" class="col-4 col-form-label col-form-label-lg">Ntrip service</label>
     <input id="ntrip-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#ntrip_service_options" aria-expanded="false" aria-controls="ntrip_service_options">Options</button>
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip_settings[0].source_section }}" aria-expanded="false" aria-controls="ntrip_service_options">Options</button>
     </div>
   </div>
-    <form id="ntrip_service_options" class="collapse">
+    <form id="{{ ntrip_settings.pop(0).source_section }}" class="collapse">
         {% for setting in ntrip_settings %}
             <div class="form-group row">
             {% for key, value in setting.items() %}
                 <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
                 <div class="col-sm-9">
-                    <input id="{{ key }}" type="text" class="form-control" value="{{ value|e }}" readonly>
+                    <input id="{{ key }}" type="text" name="{{ key }}" class="form-control" value="{{ value|e }}">
                 </div>
             {% endfor %}
             </div>
         {% endfor %}
+        <div class="clearfix">
+          <button type="submit" class="btn btn-primary float-right">Save</button>
+        </div>
     </form>
 
   <!-- ######## RTCM Service ########-->
-  <div id="rtcm_svr__service_space" class="form-group row">
+  <div id="rtcm_svr_service_space" class="form-group row">
     <div class="col">
     <label for="rtcm_svr-switch" class="col-4 col-form-label col-form-label-lg">Rtcm server service</label>
     <input id="rtcm_svr-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#rtcm_svr_service_options" aria-expanded="false" aria-controls="rtcm_svr_service_options">Options</button>
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_svr_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_svr_service_options">Options</button>
     </div>
   </div>
-    <form id="rtcm_svr_service_options" class="collapse">
+    <form id="{{ rtcm_svr_settings.pop(0).source_section }}" class="collapse" action=''>
         {% for setting in rtcm_svr_settings %}
             <div class="form-group row">
             {% for key, value in setting.items() %}
                 <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
                 <div class="col-sm-9">
-                    <input id="{{ key }}" type="text" class="form-control" value="{{ value|e }}" readonly>
+                    <input id="{{ key }}" type="text" name="{{ key }}" class="form-control" value="{{ value|e }}" >
                 </div>
             {% endfor %}
             </div>
         {% endfor %}
+        <div class="clearfix">
+        <button type="submit" class="btn btn-primary float-right">Save</button>
+      </div>
     </form>
 
   <!-- ######## File Service ########-->
@@ -71,20 +80,23 @@
       <div class="col">
     <label for="file-switch" class="col-4 col-form-label col-form-label-lg">File service</label>
     <input id="file-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#file_service_options" aria-expanded="false" aria-controls="file_service_options">Options</button>
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ file_settings[0].source_section }}" aria-expanded="false" aria-controls="file_service_options">Options</button>
   </div>
   </div>
-    <form id="file_service_options" class="collapse">
+    <form id="{{ file_settings.pop(0).source_section }}" class="collapse">
         {% for setting in file_settings %}
             <div class="form-group row">
             {% for key, value in setting.items() %}
                 <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
                 <div class="col-sm-9">
-                    <input id="{{ key }}" type="text" class="form-control" value="{{ value|e }}" readonly>
+                    <input id="{{ key }}" type="text" name="{{ key }}" class="form-control" value="{{ value|e }}">
                 </div>
             {% endfor %}
             </div>
         {% endfor %}
+        <div class="clearfix">
+          <button type="submit" class="btn btn-primary float-right">Save</button>
+        </div>
     </form>
 </div>
 <div id="system_settings" class="container">

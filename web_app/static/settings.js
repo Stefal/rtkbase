@@ -52,17 +52,14 @@ $(document).ready(function () {
         console.log('disconnected');
     });
 
-    // Current active tab
-
-
-
-
-    // ####################### HANDLE REACH MODES, START AND STOP MESSAGES #######################
-
-    // handle data broadcast
-
-   
-
+    // Send saved settings to back-end
+    $("form").submit(function(e) {
+        var formdata = $( this ).serializeArray();
+      formdata.push({"source_form" : e.currentTarget.id});
+      socket.emit("form data", formdata);
+      e.preventDefault();
+      });
+    
     // ####################### HANDLE RTKBASE SERVICES    #######################
 
     socket.on("services status", function(msg) {
