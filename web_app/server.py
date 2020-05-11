@@ -112,10 +112,10 @@ def update_password(config_object):
         remove the web_password value
         :param config_object: a RTKBaseConfigManager instance
     """
-    new_password = config_object.get("general", "web_password")
+    new_password = config_object.get("general", "new_web_password")
     if new_password != "":
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
-        config_object.update_setting("general", "web_password", "")
+        config_object.update_setting("general", "new_web_password", "")
         
 def manager():
 

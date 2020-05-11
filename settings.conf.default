@@ -11,7 +11,7 @@ cast=/usr/local/bin/str2str
 web_authentification=true
 #enter here your new password for web gui 
 #(it will be erased during the next web server start)
-web_password=
+new_web_password=
 #don't touch this one
 web_password_hash=pbkdf2:sha256:150000$kWdEE8eU$d30b1a75e5cf898684bad60b47a45a8058b6c33535560be005b6e0110b947cf6
 
