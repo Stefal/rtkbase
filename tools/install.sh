@@ -41,7 +41,7 @@ install_rtkbase() {
     elif [ "$1" == "--release" ]
     then
         #Get rtkbase latest release
-        sudo -u $(logname) wget -O https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz rtkbase.tar.gz
+        sudo -u $(logname) wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
         sudo -u $(logname) tar -xvf rtkbase.tar.gz
     fi
 
