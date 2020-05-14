@@ -9,20 +9,20 @@ export DEVICE_SPEED=$2
 export CONFIG=$3
 
 set_F9P() {
-    if [[ $(python3 ubxtool -p MON-VER) =~ 'ZED-F9P' ]]
+    if [[ $(python3 ${BASEDIR}/ubxtool -p MON-VER) =~ 'ZED-F9P' ]]
     then
         echo 'U-Blox ZED-F9P detected'
         echo 'Resetting ZED-F9P to default settings'
-        python3 ubxtool -p RESET
+        python3 ${BASEDIR}/ubxtool -p RESET
         sleep 5
         #Now the default speed is 38400. Change it to 115200
         #It is unuseful for a Usb connexion but needed with a UART.
         echo 'Set UART Baudrate....'
-        python3 ubxtool -s 38400 CFG-UART1-BAUDRATE,115200
+        python3 ${BASEDIR}/ubxtool -s 38400 -z CFG-UART1-BAUDRATE,115200
 
         echo 'Sending settings....'
         while read setting; do
-            python3 ubxtool -s 115200 -z $setting
+            python3 ${BASEDIR}/ubxtool -s 115200 -z $setting
         done <${CONFIG}
         echo 'Done'
     fi

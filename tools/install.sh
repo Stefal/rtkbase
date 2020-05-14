@@ -86,7 +86,7 @@ add_crontab() {
     #script from https://stackoverflow.com/questions/610839/how-can-i-programmatically-create-a-new-cron-job
     #I've added '-r' to sort because SHELL=/bin/bash should stay before "0 4 * * ..."
     (crontab -u $(logname) -l ; echo 'SHELL=/bin/bash') | sort -r | uniq - | crontab -u $(logname) -
-    (crontab -u $(logname) -l ; echo "0 4 * * * $(eval echo ~$(logname)/rtkbase/archive_and_clean.sh)" | sort -r | uniq - | crontab -u $(logname) -
+    (crontab -u $(logname) -l ; echo "0 4 * * * $(eval echo ~$(logname)/rtkbase/archive_and_clean.sh)") | sort -r | uniq - | crontab -u $(logname) -
 }
 
 main() {
@@ -111,9 +111,9 @@ main() {
             fi
         fi
         #if the receiver is a U-Blox, launch the set_f9p.sh. This script will reset the F9P and flash it with the corrects settings for rtkbase
-                if [[ ${detected_gnss[1]} =~ 'u-blox']]
+                if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
                 then
-                    rtkbase/tool/set_f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
+                    rtkbase/tools/set_f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
                 fi
 
     else
