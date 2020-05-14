@@ -110,10 +110,10 @@ main() {
                 sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'" > rtkbase/settings.conf
             fi
         fi
-        #if the receiver is a U-Blox, launch the set_f9p.sh. This script will reset the F9P and flash it with the corrects settings for rtkbase
+        #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and flash it with the corrects settings for rtkbase
                 if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
                 then
-                    rtkbase/tools/set_f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
+                    rtkbase/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
                 fi
 
     else
