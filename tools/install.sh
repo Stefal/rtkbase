@@ -41,7 +41,7 @@ install_rtkbase() {
     elif [ "$1" == "--release" ]
     then
         #Get rtkbase latest release
-        sudo -u $(logname) wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz
+        sudo -u $(logname) wget -O https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz rtkbase.tar.gz
         sudo -u $(logname) tar -xvf rtkbase.tar.gz
     fi
 
@@ -104,7 +104,7 @@ main() {
             if [[ -f "rtkbase/settings.conf" ]]  #check if settings.conf exists
             then
                 #inject the com port inside settings.conf
-                sudo -u $(logname) sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${destination_directory}/settings.conf
+                sudo -u $(logname) sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ rtkbase/settings.conf
             else
                 #create settings.conf with the com_port setting and the format
                 sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'" > rtkbase/settings.conf
