@@ -25,6 +25,8 @@
 
 {% block scripts %}
 {{super()}}
+<script type="text/javascript" src="{{ url_for('static', filename='/lib/d3.v3.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='graph.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='/lib/leaflet.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='status.js') }}" charset="utf-8"></script>
 

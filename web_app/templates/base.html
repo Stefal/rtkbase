@@ -9,8 +9,7 @@
 
     {% block styles %}
     <!-- Bootstrap CSS -->
-    {{ bootstrap.load_css() }}
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='/lib/bootstrap.min.css') }}">
     {% endblock %}
 
     <title>RTKBase</title>
@@ -34,11 +33,10 @@
 
     {% block scripts %}
     <!-- Optional JavaScript -->
-    {{ bootstrap.load_js() }}
-        <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='/lib/d3.v3.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='/lib/jquery-3.5.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='/lib/bootstrap.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='/lib/popper.min.js') }}"></script>        
         <script type="text/javascript" src="{{ url_for('static', filename='/lib/socket.io.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='graph.js') }}" charset="utf-8"></script>
     {% endblock %}
   </body>
 </html>
