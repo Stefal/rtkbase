@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block styles %}
-<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
-
+<link rel="stylesheet" href="{{ url_for('static', filename='/lib/bootstrap-table.min.css') }}">
 {{super()}}
 {% endblock %}
 
@@ -79,7 +78,7 @@
 
 {% block scripts %}
 {{super()}}
-<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='/lib/bootstrap-table.min.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='logs.js') }}" charset="utf-8"></script>
 
 {% endblock %}

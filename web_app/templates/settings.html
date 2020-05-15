@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='/lib/bootstrap4-toggle.min.css') }}">
+
+{% endblock %}
+
 {% block content %}
 <div class="container">
 <h4>Services:</h4>
@@ -290,5 +296,6 @@
 
 {% block scripts %}
 {{super()}}
+<script type="text/javascript" src="{{ url_for('static', filename='/lib/bootstrap4-toggle.min.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}" charset="utf-8"></script>
 {% endblock %}
