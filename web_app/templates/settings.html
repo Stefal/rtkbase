@@ -11,21 +11,65 @@
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ main_settings[0].source_section }}" aria-expanded="false" aria-controls="main_service_options">Options</button>
     </div>
   </div>
-        <form id="{{ main_settings.pop(0).source_section }}" class="collapse">
-            {% for setting in main_settings %}
-                <div class="form-group row">
-                {% for key, value in setting.items() %}
-                    <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
-                    <div class="col-sm-9">
-                        <input id="{{ key }}" type="text" name="{{ key }}" class="form-control" value="{{ value|e }}">
-                    </div>
-                {% endfor %}
-                </div>
-            {% endfor %}
-            <div class="clearfix">
-              <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
-            </div>
-        </form>
+      <form id="{{ main_settings.pop(0).source_section }}" class="collapse was-validated">
+
+        <div class="form-group row">
+        <label for="position" class="col-sm-3 col-form-label">Base coordinates: </label>
+        <div class="col-sm-9">
+            <input id="position" type="text" name="position" class="form-control" value="{{ main_settings[0].position }}" title="your antenna coordinates: latitude longitude elevation" pattern="-?\d{1,3}\.\d+[\s]-?\d{1,3}\.\d+[\s][-+]?[0-9]+\.[0-9]" required>
+            <div class="invalid-feedback">your antenna's coordinates: latitude longitude elevation</div>
+        </div>
+    </div>
+    <div class="form-group row">
+
+        <label for="com_port" class="col-sm-3 col-form-label">Com port: </label>
+        <div class="col-sm-9">
+            <input id="com_port" type="text" name="com_port" class="form-control" value="{{ main_settings[1].com_port }}" title="Gnss receiver com port (without /dev/)" pattern="\w+[^|><\/\s]*" required>
+            <div class="invalid-feedback">Gnss receiver com port (without /dev/)</div>
+        </div>
+    </div>
+    <div class="form-group row">
+
+        <label for="com_port_settings" class="col-sm-3 col-form-label">Com port settings: </label>
+        <div class="col-sm-9">
+            <input id="com_port_settings" type="text" name="com_port_settings" class="form-control" value="{{ main_settings[2].com_port_settings }}" title="Com port settings: baudrate:data bits:parity:stop bits:flow control" pattern="\w[^|><\/]*" required>
+            <div class="invalid-feedback">Com port settings: baudrate:data bits:parity:stop bits:flow control</div>
+        </div>
+    </div>
+    <div class="form-group row">
+
+        <label for="receiver" class="col-sm-3 col-form-label">Receiver type: </label>
+        <div class="col-sm-9">
+            <input id="receiver" type="text" name="receiver" class="form-control" value="{{ main_settings[3].receiver }}" title="Gnss receiver Brand and model" pattern="\w[^|><\/\s]*" required >
+            <div class="invalid-feedback">Gnss receiver brand and model</div>
+
+        </div>
+    </div>
+    <div class="form-group row">
+
+        <label for="receiver_format" class="col-sm-3 col-form-label">Receiver format: </label>
+        <div class="col-sm-9">
+            <input id="receiver_format" type="text" name="receiver_format" class="form-control" value="{{ main_settings[4].receiver_format }}" title="Gnss receiver format (ubx,sqt,tersus,...)" pattern="\w[^|><\/]*" required>
+            <div class="invalid-feedback">Gnss receiver format (ubx,sqt,tersus,...)</div>
+
+        </div>
+
+    </div>
+
+    <div class="form-group row">
+
+        <label for="tcp_port" class="col-sm-3 col-form-label">Tcp port: </label>
+        <div class="col-sm-9">
+            <input id="tcp_port" type="text" name="tcp_port" class="form-control" value="{{ main_settings[5].tcp_port }}" title="local tcp port" pattern="[0-9]{4,5}" required>
+            <div class="invalid-feedback">Local tcp port</div>
+
+        </div>
+
+    </div>
+          <div class="clearfix">
+            <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+          </div>
+      </form>
 
 <!-- ######## Ntrip Service ########-->
   <div id="ntrip_service_space" class="form-group row">
@@ -35,17 +79,44 @@
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip_settings[0].source_section }}" aria-expanded="false" aria-controls="ntrip_service_options">Options</button>
     </div>
   </div>
-    <form id="{{ ntrip_settings.pop(0).source_section }}" class="collapse">
-        {% for setting in ntrip_settings %}
-            <div class="form-group row">
-            {% for key, value in setting.items() %}
-                <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
-                <div class="col-sm-9">
-                    <input id="{{ key }}" type="text" name="{{ key }}" class="form-control" value="{{ value|e }}">
-                </div>
-            {% endfor %}
-            </div>
-        {% endfor %}
+    <form id="{{ ntrip_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="svr_addr" class="col-sm-3 col-form-label">Caster address: </label>
+        <div class="col-sm-9">
+            <input id="svr_addr" type="text" name="svr_addr" class="form-control" value="{{ ntrip_settings[0].svr_addr }}" title="caster url address" pattern="\w+[^|><\s]*" required>
+            <div class="invalid-feedback">Caster url address</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="svr_port" class="col-sm-3 col-form-label">Caster port: </label>
+        <div class="col-sm-9">
+            <input id="svr_port" type="text" name="svr_port" class="form-control" value="{{ ntrip_settings[1].svr_port }}" title="caster port" pattern="[0-9]{4,5}" required>
+            <div class="invalid-feedback">Caster port</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="svr_pwd" class="col-sm-3 col-form-label">Caster password: </label>
+        <div class="col-sm-9">
+            <input id="svr_pwd" type="password" name="svr_pwd" class="form-control" value="{{ ntrip_settings[2].svr_pwd }}" title="caster password" required>
+            <div class="invalid-feedback">Caster password</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="mnt_name" class="col-sm-3 col-form-label">Mount name: </label>
+        <div class="col-sm-9">
+            <input id="mnt_name" type="text" name="mnt_name" class="form-control" value="{{ ntrip_settings[3].mnt_name }}" title="Mount name" pattern="\w+[^|><\/\s]*" required>
+            <div class="invalid-feedback">Mount name</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_msg" class="col-sm-3 col-form-label">Rtcm messages: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_msg" type="text" name="rtcm_msg" class="form-control" value="{{ ntrip_settings[4].rtcm_msg }}" title="rtcm messages list" pattern="\w+[^|><\/\s]*" required>
+            <div class="invalid-feedback">Rtcm messages list</div>
+        </div>
+      </div>
+      
+
         <div class="clearfix">
           <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
         </div>
@@ -59,17 +130,22 @@
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_svr_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_svr_service_options">Options</button>
     </div>
   </div>
-    <form id="{{ rtcm_svr_settings.pop(0).source_section }}" class="collapse" action=''>
-        {% for setting in rtcm_svr_settings %}
-            <div class="form-group row">
-            {% for key, value in setting.items() %}
-                <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
-                <div class="col-sm-9">
-                    <input id="{{ key }}" type="text" name="{{ key }}" class="form-control" value="{{ value|e }}" >
-                </div>
-            {% endfor %}
-            </div>
-        {% endfor %}
+    <form id="{{ rtcm_svr_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="rtcm_svr_port" class="col-sm-3 col-form-label">Rtcm server port: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_svr_port" type="text" name="rtcm_svr_port" class="form-control" value="{{ rtcm_svr_settings[0].rtcm_svr_port }}" title="rtcm server port" pattern="[0-9]{4,5}" required>
+            <div class="invalid-feedback">Rtcm server port</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_svr_msg" class="col-sm-3 col-form-label">Rtcm server messages: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_svr_msg" type="text" name="rtcm_svr_msg" class="form-control" value="{{ rtcm_svr_settings[1].rtcm_svr_msg }}" title="Rtcm server messages list" pattern="[0-9,]+" required>
+            <div class="invalid-feedback">Rtcm server messages list</div>
+        </div>
+      </div>
+        
         <div class="clearfix">
         <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
       </div>
@@ -83,17 +159,42 @@
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ file_settings[0].source_section }}" aria-expanded="false" aria-controls="file_service_options">Options</button>
   </div>
   </div>
-    <form id="{{ file_settings.pop(0).source_section }}" class="collapse">
-        {% for setting in file_settings %}
-            <div class="form-group row">
-            {% for key, value in setting.items() %}
-                <label for="{{ key }}" class="col-sm-3 col-form-label">{{ key }}: </label>
-                <div class="col-sm-9">
-                    <input id="{{ key }}" type="text" name="{{ key }}" class="form-control" value="{{ value|e }}">
-                </div>
-            {% endfor %}
-            </div>
-        {% endfor %}
+    <form id="{{ file_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="datadir" class="col-sm-3 col-form-label">Data directory: </label>
+        <div class="col-sm-9">
+            <input id="datadir" type="text" name="datadir" class="form-control" value="{{ file_settings[0].datadir }}" title="Path to data directory" pattern=".+[^|\s]" required>
+            <div class="invalid-feedback">Rtcm server port</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="file_name" class="col-sm-3 col-form-label">File name: </label>
+        <div class="col-sm-9">
+            <input id="file_name" type="text" name="file_name" class="form-control" value="{{ file_settings[1].file_name }}" title="File name construction" pattern=".+[^|\s]" required>
+            <div class="invalid-feedback">File name construction</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="file_rotate_time" class="col-sm-3 col-form-label">File rotation time: </label>
+        <div class="col-sm-9">
+            <input id="file_rotate_time" type="text" name="file_rotate_time" class="form-control" value="{{ file_settings[2].file_rotate_time }}" title="File rotation time (in hours)" pattern=".+[^|\s]" required>
+            <div class="invalid-feedback">File rotation time (in hour)</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="file_overlap_time" class="col-sm-3 col-form-label">File overlap time: </label>
+        <div class="col-sm-9">
+            <input id="file_overlap_time" type="text" name="file_overlap_time" class="form-control" value="{{ file_settings[3].file_overlap_time }}" title="File overlap time (in seconds)" pattern=".+[^|\s]" required>
+            <div class="invalid-feedback">File rotation time (in seconds)</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="archive_rotate" class="col-sm-3 col-form-label">Archive duration: </label>
+        <div class="col-sm-9">
+            <input id="archive_rotate" type="text" name="archive_rotate" class="form-control" value="{{ file_settings[4].archive_rotate }}" title="Archive duration before deletion (in days)" pattern=".+[^|\s]" required>
+            <div class="invalid-feedback">Archive duration before deletion (in days)</div>
+        </div>
+      </div>
         <div class="clearfix">
           <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
         </div>
