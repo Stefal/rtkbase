@@ -117,7 +117,7 @@
       <div class="form-group row">
         <label for="rtcm_msg" class="col-sm-3 col-form-label">Rtcm messages: </label>
         <div class="col-sm-9">
-            <input id="rtcm_msg" type="text" name="rtcm_msg" class="form-control" value="{{ ntrip_settings[4].rtcm_msg }}" title="rtcm messages list" pattern="\w+[^|><\/\s]*" required>
+            <input id="rtcm_msg" type="text" name="rtcm_msg" class="form-control" value="{{ ntrip_settings[4].rtcm_msg }}" title="rtcm messages list" pattern="[0-9,]+" required>
             <div class="invalid-feedback">Rtcm messages list</div>
         </div>
       </div>
@@ -183,21 +183,21 @@
       <div class="form-group row">
         <label for="file_rotate_time" class="col-sm-3 col-form-label">File rotation time: </label>
         <div class="col-sm-9">
-            <input id="file_rotate_time" type="text" name="file_rotate_time" class="form-control" value="{{ file_settings[2].file_rotate_time }}" title="File rotation time (in hours)" pattern=".+[^|\s]" required>
+            <input id="file_rotate_time" type="text" name="file_rotate_time" class="form-control" value="{{ file_settings[2].file_rotate_time }}" title="File rotation time (in hours)" pattern="\d+\.?\d*" required>
             <div class="invalid-feedback">File rotation time (in hour)</div>
         </div>
       </div>
       <div class="form-group row">
         <label for="file_overlap_time" class="col-sm-3 col-form-label">File overlap time: </label>
         <div class="col-sm-9">
-            <input id="file_overlap_time" type="text" name="file_overlap_time" class="form-control" value="{{ file_settings[3].file_overlap_time }}" title="File overlap time (in seconds)" pattern=".+[^|\s]" required>
+            <input id="file_overlap_time" type="text" name="file_overlap_time" class="form-control" value="{{ file_settings[3].file_overlap_time }}" title="File overlap time (in seconds)" pattern="\d+" required>
             <div class="invalid-feedback">File rotation time (in seconds)</div>
         </div>
       </div>
       <div class="form-group row">
         <label for="archive_rotate" class="col-sm-3 col-form-label">Archive duration: </label>
         <div class="col-sm-9">
-            <input id="archive_rotate" type="text" name="archive_rotate" class="form-control" value="{{ file_settings[4].archive_rotate }}" title="Archive duration before deletion (in days)" pattern=".+[^|\s]" required>
+            <input id="archive_rotate" type="text" name="archive_rotate" class="form-control" value="{{ file_settings[4].archive_rotate }}" title="Archive duration before deletion (in days)" pattern="\d+" required>
             <div class="invalid-feedback">Archive duration before deletion (in days)</div>
         </div>
       </div>
