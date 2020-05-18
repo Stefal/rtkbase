@@ -412,9 +412,30 @@ def load_units(services):
         service["unit"] = ServiceController(service["service_unit"])
     return services
 
+def restartServices(restart_services_list):
+    """
+    Restart already running services
+    """
+    #Update status
+    for service in services_list:
+        service["active"] = service["unit"].isActive()
+
+    #Restart running services
+    for restart_service in restart_services_list:
+        for service in services_list:
+            if service["name"] == restart_service and service["active"] is True:
+                print("Restarting service: ", service["name"])
+                service["unit"].restart()
+    
+    #refresh service status
+    getServicesStatus()
 
 @socketio.on("get services status", namespace="/test")
 def getServicesStatus():
+    """
+    services_list is global
+    """
+
     print("Getting services status")
     
     for service in services_list:
@@ -426,6 +447,7 @@ def getServicesStatus():
     
     print(services_status)
     socketio.emit("services status", json.dumps(services_status), namespace="/test")
+    return services_status
 
 @socketio.on("services switch", namespace="/test")
 def switchService(json):
@@ -455,6 +477,16 @@ def update_settings(json):
         print("value: ", form_input.get("value"))
         rtkbaseconfig.update_setting(source_section, form_input.get("name"), form_input.get("value"), write_file=False)
     rtkbaseconfig.write_file()
+
+    #Restart service if needed
+    if source_section == "main":
+        restartServices(("main", "ntrip", "rtcm_svr", "file"))
+    elif source_section == "ntrip":
+        restartServices(("ntrip",))
+    elif source_section == "rtcm_svr":
+        restartServices(("rtcm_svr",))
+    elif source_section == "local_storage":
+        restartServices(("file",))
 
 if __name__ == "__main__":
     try:

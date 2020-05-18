@@ -29,3 +29,5 @@ class ServiceController(object):
         self.manager.Manager.DisableUnitFiles(self.unit.Unit.Names, False)
         return self.unit.Unit.Stop(b'replace')
         
+    def restart(self):
+        return self.unit.Unit.Restart(b'replace')
