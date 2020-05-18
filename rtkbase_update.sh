@@ -4,6 +4,7 @@
 source_directory=$1
 destination_directory=$2
 data_dir=$3
+old_version=$4
 
 echo "remove existing rtkbase.old directory"
 rm -rf /var/tmp/rtkbase.old
