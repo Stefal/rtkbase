@@ -222,27 +222,32 @@
         <span class="col-sm-3">Change Password:</span>
       </div>
       <div class="col-sm-8"> 
-        <form id="change_password">        
+        <form id="change_password">  
+          <!--
           <div class="form-group row">
             <label for="cur_pwd" class="col-sm-3 col-form-label">Current: </label>
-            <div class="col-sm-5">
+            <div class="col-sm-9">
                 <input id="cur_pwd" type="password" name="cur_pwd" class="form-control" title="current password" required>
                 <div class="invalid-feedback">Current password</div>
             </div>
           </div>
+          -->      
           <div class="form-group row">
-            <label for="new_pwd" class="col-sm-3 col-form-label">New: </label>
-            <div class="col-sm-5">
-                <input id="new_pwd" type="password" name="new_pwd" class="form-control" title="new password" required>
+            <label for="new_password" class="col-sm-3 col-form-label">New: </label>
+            <div class="col-sm-9">
+                <input id="new_password" type="password" name="new_password" class="form-control" title="new password" required>
                 <div class="invalid-feedback">New password</div>
             </div>
           </div>
           <div class="form-group row">
             <label for="confirm_password" class="col-sm-3 col-form-label">Confirm: </label>
-            <div class="col-sm-5">
+            <div class="col-sm-9">
                 <input id="confirm_password" type="password" name="confirm_password" class="form-control" title="confirm password" required>
                 <div class="invalid-feedback">Confirm password</div>
             </div>
+          </div>
+          <div class="clearfix">
+            <button type="submit" class="btn btn-primary float-right" disabled>Change password</button>
           </div>
         </form>
       </div>
@@ -281,6 +286,26 @@
     </div>
   </div>
 
+  
+  <!-- The Paswword is changed Modal dialog box-->
+<div class="modal" id="passwordChangedModal">
+  <div class="modal-dialog">
+    <div class="modal-content">     
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Password Update</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>       
+      <!-- Modal body -->
+      <div class="modal-body text-center ">The password was updated successfuly
+      </div>       
+      <!-- Modal footer -->
+      <div class="modal-footer mx-auto">
+        <a href="{{ url_for('logout') }}" class="btn btn-success" role="button">Log out</a>
+      </div>      
+    </div>
+  </div>
+</div>
   <!-- The reboot  Modal dialog box-->
 <div class="modal" id="rebootModal">
   <div class="modal-dialog">

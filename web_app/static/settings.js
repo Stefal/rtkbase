@@ -21,10 +21,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
-// ####################### HANDLE WINDOW FOCUS/UNFOCUS #######################
-
-
-
 
 // ############################### MAIN ###############################
 
@@ -189,11 +185,11 @@ $(document).ready(function () {
             $("#updateModal .modal-body").text("Do you want to install v" + response['new_release'] + "?");
             $("#updateModal .modal-body").append("<br>It will take a few minutes.");
             $("#start-update-button").removeAttr("disabled");
-            $('#updateModal').modal();
+            $("#updateModal").modal();
         } else {
             $("#updateModal .modal-title").text("No Update available!");
             $("#updateModal .modal-body").text("We're working on it. Come back later!");
-            $('#updateModal').modal();
+            $("#updateModal").modal();
         }
         
     })
@@ -205,6 +201,31 @@ $(document).ready(function () {
         $(this).prop("disabled", true);
         $(this).html('<span class="spinner-border spinner-border-sm"></span> Updating...');
         $("#cancel-button").prop("disabled", true);
+    })
+
+    // ####################### HANDLE CHANGING PASSWORD #######################
+
+    document.getElementById('change_password').addEventListener("input", function(e) {
+        pwd_check(this);
+    })
+    
+    function pwd_check(input) {
+        var new_pwd = document.getElementById('new_password');
+        var confirm_pwd = document.getElementById('confirm_password');
+        if (confirm_pwd.value != new_pwd.value) {
+            confirm_pwd.setCustomValidity('Password Must be Matching.');
+        } else {
+            // input is valid -- reset the error message
+            new_pwd.setCustomValidity('');
+            confirm_pwd.setCustomValidity('');
+    
+        }
+    }
+
+
+    socket.on("password updated", function() {
+        //open modal box for logout
+        $("#passwordChangedModal").modal();
     })
 
     // ####################### HANDLE REBOOT SHUTDOWN #######################

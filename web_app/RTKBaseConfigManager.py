@@ -4,7 +4,7 @@ from configparser import ConfigParser
 class RTKBaseConfigManager:
     """ A class to easily access the settings from RTKBase settings.conf """
 
-    NON_QUOTED_KEYS = ("basedir", "web_authentification", "web_password_hash",
+    NON_QUOTED_KEYS = ("basedir", "web_authentification", "new_web_password", "web_password_hash",
                      "flask_secret_key", "archive_name",)
 
     def __init__(self, default_settings_path, user_settings_path):

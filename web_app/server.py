@@ -65,7 +65,7 @@ from werkzeug.security import check_password_hash
 from werkzeug.urls import url_parse
 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
@@ -473,21 +473,30 @@ def update_settings(json):
     print("received settings form", json)
     source_section = json.pop().get("source_form")
     print("section: ", source_section)
-    for form_input in json:
-        print("name: ", form_input.get("name"))
-        print("value: ", form_input.get("value"))
-        rtkbaseconfig.update_setting(source_section, form_input.get("name"), form_input.get("value"), write_file=False)
-    rtkbaseconfig.write_file()
+    if source_section == "change_password":
+        if json[0].get("value") == json[1].get("value"):
+            rtkbaseconfig.update_setting("general", "new_web_password", json[0].get("value"))
+            update_password(rtkbaseconfig)
+            socketio.emit("password updated", namespace="/test")
 
-    #Restart service if needed
-    if source_section == "main":
-        restartServices(("main", "ntrip", "rtcm_svr", "file"))
-    elif source_section == "ntrip":
-        restartServices(("ntrip",))
-    elif source_section == "rtcm_svr":
-        restartServices(("rtcm_svr",))
-    elif source_section == "local_storage":
-        restartServices(("file",))
+        else:
+            print("ERREUR, MAUVAIS PASS")
+    else:
+        for form_input in json:
+            print("name: ", form_input.get("name"))
+            print("value: ", form_input.get("value"))
+            rtkbaseconfig.update_setting(source_section, form_input.get("name"), form_input.get("value"), write_file=False)
+        rtkbaseconfig.write_file()
+
+        #Restart service if needed
+        if source_section == "main":
+            restartServices(("main", "ntrip", "rtcm_svr", "file"))
+        elif source_section == "ntrip":
+            restartServices(("ntrip",))
+        elif source_section == "rtcm_svr":
+            restartServices(("rtcm_svr",))
+        elif source_section == "local_storage":
+            restartServices(("file",))
 
 if __name__ == "__main__":
     try:
