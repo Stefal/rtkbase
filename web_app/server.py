@@ -124,7 +124,7 @@ def manager():
             rtk.stopBase()
             rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
-            print("Je voudrais bien arrêter, mais rtk.state est : ", rtk.state)
+            print("I'd like to stop rtkrcv (sleep_count = {}), but rtk.state is: {}".format(rtk.sleep_count, rtk.state))
         time.sleep(1)
 
 @socketio.on("check update", namespace="/test")
