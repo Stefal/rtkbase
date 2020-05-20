@@ -141,10 +141,10 @@ def check_update(source_url = None, current_release = None, prerelease=True, emi
         response = response.json()
         for release in response:
             if release.get("prerelease") & prerelease or release.get("prerelease") == False:
-                latest_release = release["tag_name"].strip("v").strip('-alpha').strip('-beta')
-                if latest_release > current_release:
+                latest_release = release["tag_name"].strip("v").replace('-alpha', '').replace('-beta', '')
+                if latest_release > current_release and latest_release <= rtkbaseconfig.get("general", "checkpoint_version"):
                     new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
-                break
+                    break
              
     except Exception as e:
         print("Check update error: ", e)
@@ -189,7 +189,7 @@ def update_rtkbase():
     rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
     source_path = os.path.join("/var/tmp/", primary_folder)
     script_path = os.path.join(source_path, "rtkbase_update.sh")
-    current_release = rtkbaseconfig.get("general", "version").strip("v").strip('-alpha').strip('-beta')
+    current_release = rtkbaseconfig.get("general", "version").strip("v").replace('-alpha', '').replace('-beta', '')
     os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release)
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
