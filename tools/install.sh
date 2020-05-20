@@ -245,7 +245,7 @@ main() {
   for i in "${array[@]}"
   do
     if [ "$1" == "--help" ]           ; then man_help                        ;fi
-    if [ "$i" == "--dependencies" ]   ; then install_dependencie             ;fi
+    if [ "$i" == "--dependencies" ]   ; then install_dependencies            ;fi
     if [ "$i" == "--rtklib" ] 	      ; then install_rtklib                  ;fi
     if [ "$i" == "--rtkbase-release" ]; then install_rtkbase_from_release && \
 					     rtkbase_requirements            ;fi
