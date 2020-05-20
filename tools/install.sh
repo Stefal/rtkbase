@@ -187,11 +187,9 @@ detect_usb_gnss() {
     echo '################################'
     echo 'GNSS RECEIVER DETECTION'
     echo '################################'
-      if [ -d rtkbase ]
-      then 
-        #This function put the (USB) detected gnss receiver informations in detected_gnss
-        #If there are several receiver, only the last one will be present in the variable
-        for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+      #This function put the (USB) detected gnss receiver informations in detected_gnss
+      #If there are several receiver, only the last one will be present in the variable
+      for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
           syspath="${sysdevpath%/dev}"
           devname="$(udevadm info -q name -p $syspath)"
           if [[ "$devname" == "bus/"* ]]; then continue; fi
@@ -203,10 +201,7 @@ detect_usb_gnss() {
             detected_gnss[1]=$ID_SERIAL
             echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
           fi
-        done
-      else
-        echo 'RtkBase not installed, use option --rtkbase-release'
-      fi
+      done
 }
 
 flash_gnss(){
