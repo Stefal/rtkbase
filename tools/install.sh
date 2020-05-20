@@ -197,10 +197,12 @@ detect_usb_gnss() {
           if [[ "$devname" == "bus/"* ]]; then continue; fi
           eval "$(udevadm info -q property --export -p $syspath)"
           if [[ -z "$ID_SERIAL" ]]; then continue; fi
-          if [[ "$ID_SERIAL" =~ ^(U-blox|skytraq)$ ]]; then continue; fi
-          detected_gnss[0]=$devname
-          detected_gnss[1]=$ID_SERIAL
-          echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
+          if [[ "$ID_SERIAL" =~ ^(U-blox|skytraq)$ ]]
+          then
+            detected_gnss[0]=$devname
+            detected_gnss[1]=$ID_SERIAL
+            echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
+          fi
         done
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
