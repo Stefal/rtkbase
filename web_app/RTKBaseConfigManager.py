@@ -130,10 +130,10 @@ class RTKBaseConfigManager:
         """
             Return the flask secret key, or generate a new one if it doesn't exists
         """
-        SECRET_KEY = self.config.get("general", "FLASK_SECRET_KEY", fallback='None')
+        SECRET_KEY = self.config.get("general", "flask_secret_key", fallback='None')
         if SECRET_KEY is 'None':
             SECRET_KEY = str(os.urandom(48))
-            self.update_setting("general", "FLASK_SECRET_KEY", SECRET_KEY)
+            self.update_setting("general", "flask_secret_key", SECRET_KEY)
         
         return SECRET_KEY
 
