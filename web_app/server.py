@@ -205,7 +205,9 @@ def update_rtkbase():
 
 @app.before_request
 def inject_release():
-    """Insert the RTKBase release number as a global variable for Flask/Jinja"""
+    """
+        Insert the RTKBase release number as a global variable for Flask/Jinja
+    """
     g.version = rtkbaseconfig.get("general", "version")
 
 @login.user_loader
@@ -217,13 +219,17 @@ def load_user(id):
 @app.route('/status')
 @login_required
 def status_page():
-    """The status web page with the gnss satellites levels and a map"""
+    """
+        The status web page with the gnss satellites levels and a map
+    """
     return render_template("status.html")
 
 @app.route('/settings')
 @login_required
 def settings_page():
-    """The settings page where you can manage the various services, the parameters, update, power..."""
+    """
+        The settings page where you can manage the various services, the parameters, update, power...
+    """
     main_settings = rtkbaseconfig.get_main_settings()
     ntrip_settings = rtkbaseconfig.get_ntrip_settings()
     file_settings = rtkbaseconfig.get_file_settings()
@@ -237,7 +243,9 @@ def settings_page():
 @app.route('/logs')
 @login_required
 def logs_page():
-    """The data web pages where you can download/delete the raw gnss data"""
+    """
+        The data web pages where you can download/delete the raw gnss data
+    """
     return render_template("logs.html")
 
 @app.route("/logs/download/<path:log_name>")
@@ -250,14 +258,6 @@ def downloadLog(log_name):
     except FileNotFoundError:
         abort(404)
 
-"""
-@app.route("/logs/download/<log_name>")
-def downloadLog(log_name):
-    try:
-        return send_from_directory(app.config["DOWNLOAD_FOLDER"], filename=log_name, as_attachment=True)
-    except FileNotFoundError:
-        abort(404)
-"""
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     if current_user.is_authenticated:
@@ -398,9 +398,13 @@ def turnOffWiFi():
 def load_units(services):
     """
         load unit service before getting status
-        :param services: A list of systemd services name (dict)
-        :return services: The dict list updated with the pystemd ServiceController object
-        #TODO add examples
+        :param services: A list of systemd services (dict) containing a service_unit key:value
+        :return The dict list updated with the pystemd ServiceController object
+
+        example: 
+            services = [{"service_unit" : "str2str_tcp.service"}]
+            return will be [{"service_unit" : "str2str_tcp.service", "unit" : a pystemd object}]
+        
     """
     for service in services:
         service["unit"] = ServiceController(service["service_unit"])
@@ -408,7 +412,10 @@ def load_units(services):
 
 def restartServices(restart_services_list):
     """
-    Restart already running services
+        Restart already running services
+        This function will refresh all services status, then compare the global services_list and 
+        the restart_services_list to find the services we need to restart.
+        #TODO I don't really like this global services_list use.
     """
     #Update services status
     for service in services_list:
@@ -427,7 +434,8 @@ def restartServices(restart_services_list):
 @socketio.on("get services status", namespace="/test")
 def getServicesStatus():
     """
-    services_list is global
+        Get the status of services listed in services_list
+        (services_list is global)
     """
 
     print("Getting services status")
@@ -445,6 +453,13 @@ def getServicesStatus():
 
 @socketio.on("services switch", namespace="/test")
 def switchService(json):
+    """
+        Start or stop some systemd services
+        As a service could need some time to start or stop, there is a 5 seconds sleep
+        before refreshing the status.
+        param: json: A json var from the web front end containing one or more service
+        name with their new status.
+    """
     print("Received service to switch", json)
     try:
         for service in services_list:
@@ -463,6 +478,11 @@ def switchService(json):
 
 @socketio.on("form data", namespace="/test")
 def update_settings(json):
+    """
+        Get the form data from the web front end, and save theses values to settings.conf
+        Then restart the services which have a dependency with these parameters.
+        param json: A json variable containing the source fom and the new paramaters
+    """
     print("received settings form", json)
     source_section = json.pop().get("source_form")
     print("section: ", source_section)
