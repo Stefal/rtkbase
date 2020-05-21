@@ -89,9 +89,11 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
 
+#Get settings from settings.conf.default and settings.conf
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
 
 class User(UserMixin):
+    """ Class for user authentification """
     def __init__(self, username):
         self.id=username
         self.password_hash = rtkbaseconfig.get("general", "web_password_hash")
@@ -100,6 +102,7 @@ class User(UserMixin):
         return check_password_hash(self.password_hash, password)
 
 class LoginForm(FlaskForm):
+    """ Class for the loginform"""
     #username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Please enter the password:', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
@@ -118,7 +121,10 @@ def update_password(config_object):
         config_object.update_setting("general", "new_web_password", "")
         
 def manager():
-
+    """ This manager runs inside a thread
+        It checks how long rtkrcv is running since the last user leaves the
+        status web page, and stop rtkrcv when sleep_count reaches rtkrcv_standby delay
+    """
     while True:
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
             rtk.stopBase()
@@ -130,7 +136,12 @@ def manager():
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=True, emit = True):
     """
-        check if an update exists
+        Check if a RTKBase update exists
+        :param source_url: the url where we will try to find an update. It uses the github api.
+        :param current_release: The current RTKBase release
+        :param prerelease: True/False Get prerelease or not
+        :param emit: send the result to the web front end with socketio
+        :return The new release version inside a dict (release version and url for this release)
     """
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
@@ -157,7 +168,7 @@ def check_update(source_url = None, current_release = None, prerelease=True, emi
 @socketio.on("update rtkbase", namespace="/test")       
 def update_rtkbase():
     """
-        download and update rtkbase
+        Check if a RTKBase exists, download it and update rtkbase
     """
     #Check if an update is available
     update_url = check_update(emit=False).get("url")
@@ -192,25 +203,9 @@ def update_rtkbase():
     current_release = rtkbaseconfig.get("general", "version").strip("v").replace('-alpha', '').replace('-beta', '')
     os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release)
 
-# at this point we are ready to start rtk in 2 possible ways: rover and base
-# we choose what to do by getting messages from the browser
-
-#@app.route("/")
-#def index():
-#    rtk.logm.updateAvailableLogs()
-#    return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
-
-"""
-def index():
-    #if not session.get('logged_in'):
-    #    return render_template('login.html')
-    #else:
-    rtk.logm.updateAvailableLogs()
-    return render_template("index.html", logs = rtk.logm.available_logs, system_status = reach_tools.getSystemStatus())
-"""
-
 @app.before_request
 def inject_release():
+    """Insert the RTKBase release number as a global variable for Flask/Jinja"""
     g.version = rtkbaseconfig.get("general", "version")
 
 @login.user_loader
@@ -222,11 +217,13 @@ def load_user(id):
 @app.route('/status')
 @login_required
 def status_page():
+    """The status web page with the gnss satellites levels and a map"""
     return render_template("status.html")
 
 @app.route('/settings')
 @login_required
 def settings_page():
+    """The settings page where you can manage the various services, the parameters, update, power..."""
     main_settings = rtkbaseconfig.get_main_settings()
     ntrip_settings = rtkbaseconfig.get_ntrip_settings()
     file_settings = rtkbaseconfig.get_file_settings()
@@ -240,11 +237,13 @@ def settings_page():
 @app.route('/logs')
 @login_required
 def logs_page():
+    """The data web pages where you can download/delete the raw gnss data"""
     return render_template("logs.html")
 
 @app.route("/logs/download/<path:log_name>")
 @login_required
 def downloadLog(log_name):
+    """ Route for downloading raw gnss data"""
     try:
         full_log_path = rtk.logm.log_path + "/" + log_name
         return send_file(full_log_path, as_attachment = True)
@@ -371,17 +370,6 @@ def writeRINEXVersion(json):
     rinex_version = json.get("version")
     rtk.logm.setRINEXVersion(rinex_version)
 
-#### Update ReachView ####
-
-@socketio.on("update reachview", namespace="/test")
-def updateReachView():
-    print("Got signal to update!!!")
-    print("Server interrupted by user to update!!")
-#    rtk.shutdown()
-#    bluetooth_bridge.stop()
-#    socketio.server.stop()
-#    os.execl("/home/reach/update.sh", "", str(os.getpid()))
-
 #### Device hardware functions ####
 
 @socketio.on("reboot device", namespace="/test")
@@ -408,7 +396,12 @@ def turnOffWiFi():
 #### Systemd Services functions ####
 
 def load_units(services):
-    #load unit service before getting status
+    """
+        load unit service before getting status
+        :param services: A list of systemd services name (dict)
+        :return services: The dict list updated with the pystemd ServiceController object
+        #TODO add examples
+    """
     for service in services:
         service["unit"] = ServiceController(service["service_unit"])
     return services
@@ -417,7 +410,7 @@ def restartServices(restart_services_list):
     """
     Restart already running services
     """
-    #Update status
+    #Update services status
     for service in services_list:
         service["active"] = service["unit"].isActive()
 
