@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# This Flask app is a heavily modified version of Reachview
+# modified to be used as a front end for GNSS base
+# author: Stéphane Péneau
+# source: https://github.com/Stefal/rtkbase
+
 # ReachView code is placed under the GPL license.
 # Written by Egor Fedorov (egor.fedorov@emlid.com)
 # Copyright (c) 2015, Emlid Limited

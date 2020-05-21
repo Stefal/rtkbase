@@ -37,6 +37,9 @@ class RTKBaseConfigManager:
 
 
     def parseconfig(self, settings_path):
+        """
+            Parse the config file with interpolation=None or it will break run_cast.sh
+        """
         config = ConfigParser(interpolation=None)
         config.read(settings_path)
         return config
@@ -69,7 +72,7 @@ class RTKBaseConfigManager:
     def get_main_settings(self):
         """
             Get a subset of the settings from the main section in an ordered object
-            and remove the single quote.      
+            and remove the single quotes.      
         """
         ordered_main = [{"source_section" : "main"}]
         for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_format", "tcp_port"):
@@ -79,7 +82,7 @@ class RTKBaseConfigManager:
     def get_ntrip_settings(self):
         """
             Get a subset of the settings from the ntrip section in an ordered object
-            and remove the single quote.    
+            and remove the single quotes.    
         """
         ordered_ntrip = [{"source_section" : "ntrip"}]
         for key in ("svr_addr", "svr_port", "svr_pwd", "mnt_name", "rtcm_msg"):
@@ -89,7 +92,7 @@ class RTKBaseConfigManager:
     def get_file_settings(self):
         """
             Get a subset of the settings from the file section in an ordered object
-            and remove the single quote.       
+            and remove the single quotes.       
         """
         ordered_file = [{"source_section" : "local_storage"}]
         for key in ("datadir", "file_name", "file_rotate_time", "file_overlap_time", "archive_rotate"):
@@ -99,7 +102,7 @@ class RTKBaseConfigManager:
     def get_rtcm_svr_settings(self):
         """
             Get a subset of the settings from the file section in an ordered object
-            and remove the single quote.       
+            and remove the single quotes.       
         """
         ordered_rtcm_svr = [{"source_section" : "rtcm_svr"}]
         for key in ("rtcm_svr_port", "rtcm_svr_msg"):
@@ -138,12 +141,16 @@ class RTKBaseConfigManager:
         return SECRET_KEY
 
     def get(self, *args, **kwargs):
-        """a wrapper around configparser.get()"""
+        """
+            a wrapper around configparser.get()
+        """
         return self.config.get(*args, **kwargs)
 
     def update_setting(self, section, setting, value, write_file=True):
         """
             Update a setting in the config file and write the file (default)
+            If the setting is not in the NON_QUOTED_KEYS list, the method will
+            add single quotes
             :param section: the section in the config file
             :param setting: the setting (like a key in a dict)
             :param value: the new value for the setting
@@ -169,11 +176,3 @@ class RTKBaseConfigManager:
 
         with open(self.user_settings_path, "w") as configfile:
             settings.write(configfile, space_around_delimiters=False)
-
-
-
-
-
-
-
-

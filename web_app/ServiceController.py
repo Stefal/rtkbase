@@ -3,10 +3,16 @@ from pystemd.systemd1 import Unit
 from pystemd.systemd1 import Manager
 
 class ServiceController(object):
+    """
+        A simple wrapper around pystemd to manage systemd services
+    """
     
     manager = Manager(_autoload=True)
 
     def __init__(self, unit):
+        """
+            param: unit: a systemd unit name (ie str2str_tcp.service...)
+        """
         self.unit = Unit(bytes(unit, 'utf-8'), _autoload=True)
         
     def isActive(self):
