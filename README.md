@@ -9,7 +9,7 @@ Some bash scripts for a simple gnss base station and a web frontend.
 
 + Enclosure: GentleBOX JE-200
 
-+ SBC: Orange Pi Zero (256MB)
++ SBC: Orange Pi Zero (512MB)
 
 + Gnss Receiver: U-Blox F9P (from Drotek)
 
