@@ -17,17 +17,15 @@ Some bash scripts for a simple gnss base station and a web frontend.
 
 ## Automated installation (with a usb ZED-F9P):
 
-+ Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...)
-
-+ Set your gnss receiver to output raw data
++ Connect your gnss receiver to your raspberry pi/orange pi/.... with a usb cable.
 
 + Open a terminal and:
 
    ```
-   $ cd ~
-   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
-   $ chmod +x install.sh
-   $ sudo ./install.sh --all
+   cd ~
+   wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
+   chmod +x install.sh
+   sudo ./install.sh --all
    ```
 
 + Open a web browser to `http://ip_of_your_sbc:8080`. Default password is `admin`.
