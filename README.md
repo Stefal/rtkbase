@@ -15,7 +15,7 @@ Some bash scripts for a simple gnss base station and a web frontend.
 
 + Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
 
-## Partial automated installation (for developper)
+## Automated installation (with a usb ZED-F9P):
 
 + Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...)
 
@@ -27,10 +27,8 @@ Some bash scripts for a simple gnss base station and a web frontend.
    $ cd ~
    $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
    $ chmod +x install.sh
-   $ sudo ./install.sh --from-repo
+   $ sudo ./install.sh --all
    ```
-   
-+ Edit settings.conf as explained below and reboot
 
 + Open a web browser to `http://ip_of_your_sbc:8080`. Default password is `admin`.
 
