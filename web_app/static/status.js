@@ -47,10 +47,11 @@ $(document).ready(function () {
 
     var map = L.map('map').setView({lon: 0, lat: 0}, 2);
 
-    L.tileLayer('http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+    L.tileLayer('https://osm.vtech.fr/hot/{z}/{x}/{y}.png?uuid=2fc148f4-7018-4fd0-ac34-6b626cdc97a1', {
         maxZoom: 20,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a> ' +
-            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> ',
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> ' +
+            '| <a href="https://cloud.empreintedigitale.fr">Empreinte digitale</a>',
         tileSize: 256,
         
     }).addTo(map);
