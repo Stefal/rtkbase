@@ -660,7 +660,7 @@ class RTKLIB:
         self.socketio.emit("current state", state, namespace = "/test")
 
 
-    # this function reads satellite levels from an exisiting rtkrcv instance
+    # this function reads satellite levels from an existing rtkrcv instance
     # and emits them to the connected browser as messages
     def broadcastSatellites(self):
         count = 0
@@ -671,7 +671,7 @@ class RTKLIB:
             self.rtkc.getObs()
 
 #            if count % 10 == 0:
-            print("Sending sat rover levels:\n" + str(self.rtkc.obs_rover))
+            #print("Sending sat rover levels:\n" + str(self.rtkc.obs_rover))
             #print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
 
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
