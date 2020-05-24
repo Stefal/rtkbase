@@ -9,28 +9,24 @@ Some bash scripts for a simple gnss base station and a web frontend.
 
 + Enclosure: GentleBOX JE-200
 
-+ SBC: Orange Pi Zero (256MB)
++ SBC: Orange Pi Zero (512MB)
 
 + Gnss Receiver: U-Blox F9P (from Drotek)
 
 + Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
 
-## Partial automated installation (for developper)
+## Automated installation (with a usb ZED-F9P):
 
-+ Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...)
-
-+ Set your gnss receiver to output raw data
++ Connect your gnss receiver to your raspberry pi/orange pi/.... with a usb cable.
 
 + Open a terminal and:
 
    ```
-   $ cd ~
-   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
-   $ chmod +x install.sh
-   $ sudo ./install.sh --from-repo
+   cd ~
+   wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
+   chmod +x install.sh
+   sudo ./install.sh --all
    ```
-   
-+ Edit settings.conf as explained below and reboot
 
 + Open a web browser to `http://ip_of_your_sbc:8080`. Default password is `admin`.
 
