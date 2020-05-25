@@ -1,18 +1,24 @@
 # rtkbase
 
-Some bash scripts for a simple gnss base station and a web frontend.
+A web frontend with some bash scripts and services for a simple gnss base station.
 
 ### FrontEnd:
 |<img src="/images/web_status.png" alt="status" width="250"/>|<img src="/images/web_settings.png" alt="settings" width="250"/>|<img src="/images/web_logs.png" alt="logs" width="250"/>|
+
+Frontend's features are:
+
++ View the satellites signal levels
++ View the base location on a map
++ Start/stop various services (Sending data to a Ntrip caster, Rtcm server, Log raw data to files
++ Edit the services settings
++ Download/delete raw data
+
 ### Base example:
-<img src="/images/base_f9p.jpg" alt="status" width="550"/>
+<img src="/images/base_f9p.jpg" alt="status" width="550" />
 
 + Enclosure: GentleBOX JE-200
-
 + SBC: Orange Pi Zero (512MB)
-
 + Gnss Receiver: U-Blox F9P (from Drotek)
-
 + Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
 
 ## Automated installation (with a usb ZED-F9P):
