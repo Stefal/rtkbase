@@ -59,7 +59,7 @@ install_dependencies() {
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get update 
-      apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix
+      apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
 }
 
 install_rtklib() {
