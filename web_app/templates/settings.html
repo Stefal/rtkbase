@@ -22,7 +22,7 @@
         <div class="form-group row">
         <label for="position" class="col-sm-3 col-form-label">Base coordinates: </label>
         <div class="col-sm-9">
-            <input id="position" type="text" name="position" class="form-control" value="{{ main_settings[0].position }}" title="antenna coordinates: latitude longitude elevation" pattern="-?\d{1,3}\.\d+[\s]-?\d{1,3}\.\d+[\s][-+]?[0-9]+\.[0-9]" required>
+            <input id="position" type="text" name="position" class="form-control" value="{{ main_settings[0].position }}" title="antenna coordinates: latitude longitude elevation" pattern="-?\d{1,3}\.\d+[\s]-?\d{1,3}\.\d+[\s][-+]?\d+\.\d+" required>
             <div class="invalid-feedback">Antenna's coordinates: latitude longitude elevation</div>
         </div>
     </div>
