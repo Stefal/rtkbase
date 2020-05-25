@@ -149,6 +149,7 @@ RTKBase use some parts of others software:
 + [Flask SocketIO](https://github.com/miguelgrinberg/Flask-SocketIO) (MIT)
 + [Bootstrap](https://getbootstrap.com/) [Bootstrap Flask](https://github.com/greyli/bootstrap-flask) [Bootstrap 4 Toggle](https://gitbrent.github.io/bootstrap4-toggle/) [Bootstrap Table](https://bootstrap-table.com/) (MIT)
 + [wtforms](https://github.com/wtforms/wtforms/) (BSD-3-Clause) [Flask WTF](https://github.com/lepture/flask-wtf) (BSD)
++ [pystemd](https://github.com/facebookincubator/pystemd) (L-GPL 2.1)
 + [gpsd](https://gitlab.com/gpsd/gpsd) (BSD-2-Clause)
 
 RTKBase use OpenStreetMap tiles, courtesy of [Empreinte digitale](cloud.empreintedigitale.fr).
