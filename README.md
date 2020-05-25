@@ -27,7 +27,7 @@ Frontend's features are:
 
 + Open a terminal and:
 
-   ```
+   ```bash
    $ cd ~
    $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
    $ chmod +x install.sh
@@ -48,7 +48,7 @@ Frontend's features are:
 
 + clone [RTKlib](https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3)
 
-   ```
+   ```bash
    $ cd ~
    $ git clone -b rtklib_2.4.3 https://github.com/tomojitakasu/RTKLIB/rtklib_2.4.3
    ```
@@ -57,7 +57,7 @@ Frontend's features are:
 
    Edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
    
-   ```
+   ```bash
    $ cd RTKLIB/app/str2str/gcc
    $ nano makefile
    ```
@@ -68,21 +68,21 @@ Frontend's features are:
    
    Then you can compile and install str2str:
    
-   ```  
+   ```bash  
    $ make
    $ sudo make install
    ```
 
 + clone this repository:
 
-   ```
+   ```bash
    $ cd ~
    $ git clone https://github.com/Stefal/rtkbase.git
    ```
 
 + Edit settings.conf:
 
-   ```
+   ```bash
    $ cd rtkbase
    $ nano settings.conf
    ```
@@ -91,11 +91,11 @@ Frontend's features are:
 
 + If the U-blox gnss receiver is sets to its default settings (Raw output is disabled) you can permanently configure the receiver with `ubxconfig.sh`. For the ZED-F9P use
 
-   ```
+   ```bash
    $ ./ubxconfig.sh /dev/your_com_port receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
    ```
    This script will send the settings only if the firmware is the same release on the receiver and in the file. If your receiver use a more recent firmware, you can add the `--force` settings on the command line.
-   ```
+   ```bash
    $ ./ubxconfig.sh /dev/your_com_port receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt --force
    ```
    
@@ -110,13 +110,13 @@ Frontend's features are:
    ```
    Stop the stream with 
    
-   ```
+   ```bash
    $ sudo killall str2str
    ```
    
 + If everything is ok, you can copy the unit files for systemd with this script:
 
-   ```
+   ```bash
    $ sudo ./copy_unit.sh
    ```
 
@@ -132,7 +132,7 @@ Frontend's features are:
   ``$ sudo systemctl start str2str_ntrip.service``  
   
 + If you use `str2str_file` to log the data inside the base station, you may want to compress these data and delete the too old archives. For these 2 tasks, you can use `archive_and_clean.sh`. The default settings compress the previous day data and delete all archives older than 30 days. Edit your crontab with ``$ crontab -e`` and add these lines:
-   ```
+   ```bash
    SHELL=/bin/bash
    0 4 * * * /home/YOUR_USER_NAME/PATH_TO_RTKBASE/archive_and_clean.sh
    ```
