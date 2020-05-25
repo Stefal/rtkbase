@@ -35,7 +35,7 @@ Frontend's features are:
    ```
 
 + Go grab a coffee, it's gonna take a while.
-+ Open a web browser to `http://ip_of_your_sbc:8080`. Default password is `admin`.
++ Open a web browser to `http://ip_of_your_sbc`. Default password is `admin`.
 
 ## Installation: 
 
