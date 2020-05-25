@@ -28,10 +28,10 @@ Frontend's features are:
 + Open a terminal and:
 
    ```
-   cd ~
-   wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
-   chmod +x install.sh
-   sudo ./install.sh --all
+   $ cd ~
+   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
+   $ chmod +x install.sh
+   $ sudo ./install.sh --all
    ```
 
 + Open a web browser to `http://ip_of_your_sbc:8080`. Default password is `admin`.
