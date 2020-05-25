@@ -142,7 +142,7 @@ Frontend's features are:
 ## License:
 RTKBase is licensed under AGPL 3 (see LICENSE file).
 
-RTKBase use some parts of others software:
+RTKBase uses some parts of others software:
 + [RTKLIB](https://github.com/tomojitakasu/RTKLIB) (BSD-2-Clause)
 + [ReachView](https://github.com/emlid/ReachView) (GPL v3)
 + [Flask](https://palletsprojects.com/p/flask/) [Jinja](https://palletsprojects.com/p/jinja/) [Werkzeug](https://palletsprojects.com/p/werkzeug/) (BSD-3-Clause)
@@ -152,4 +152,4 @@ RTKBase use some parts of others software:
 + [pystemd](https://github.com/facebookincubator/pystemd) (L-GPL 2.1)
 + [gpsd](https://gitlab.com/gpsd/gpsd) (BSD-2-Clause)
 
-RTKBase use OpenStreetMap tiles, courtesy of [Empreinte digitale](cloud.empreintedigitale.fr).
+RTKBase uses [OpenStreetMap](https://www.openstreetmap.org) tiles, courtesy of [Empreinte digitale](cloud.empreintedigitale.fr).
