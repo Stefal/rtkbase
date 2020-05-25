@@ -162,7 +162,7 @@ install_unit_files() {
       if [ -d rtkbase ]
       then 
         #Install unit files
-        /home/$(logname)/rtkbase/copy_unit.sh
+        rtkbase/copy_unit.sh
         systemctl enable rtkbase_web.service
         systemctl daemon-reload
         systemctl start rtkbase_web.service
