@@ -1,6 +1,6 @@
-# rtkbase
+# RTKBase
 
-A web frontend with some bash scripts and services for a simple gnss base station.
+An easy to use and easy to install web frontend with some bash scripts and services for a simple gnss base station.
 
 ### FrontEnd:
 |<img src="/images/web_status.png" alt="status" width="250"/>|<img src="/images/web_settings.png" alt="settings" width="250"/>|<img src="/images/web_logs.png" alt="logs" width="250"/>|
@@ -34,7 +34,7 @@ Frontend's features are:
    $ sudo ./install.sh --all
    ```
 
-+ Go grab a coffee, it's gonna take a while.
++ Go grab a coffee, it's gonna take a while. The script will install the needed softwares, find your F9P receiver and set it to works as a base station.
 + Open a web browser to `http://ip_of_your_sbc`. Default password is `admin`.
 
 ## Installation: 
