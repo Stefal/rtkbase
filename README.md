@@ -138,3 +138,17 @@ Frontend's features are:
    0 4 * * * /home/YOUR_USER_NAME/PATH_TO_RTKBASE/archive_and_clean.sh
    ```
    Cron will run this script everyday at 4H00.
+
+## License:
+RTKBase is licensed under AGPL 3 (see LICENSE file).
+
+RTKBase use some parts of others software:
++ [RTKLIB](https://github.com/tomojitakasu/RTKLIB) (BSD-2-Clause)
++ [ReachView](https://github.com/emlid/ReachView) (GPL v3)
++ [Flask](https://palletsprojects.com/p/flask/) [Jinja](https://palletsprojects.com/p/jinja/) [Werkzeug](https://palletsprojects.com/p/werkzeug/) (BSD-3-Clause)
++ [FLask SocketIO](https://github.com/miguelgrinberg/Flask-SocketIO) (MIT)
++ [Bootstrap](https://getbootstrap.com/) [Bootstrap Flask](https://github.com/greyli/bootstrap-flask) [Bootstrap 4 Toggle](https://gitbrent.github.io/bootstrap4-toggle/) [Bootstrap Table](https://bootstrap-table.com/) (MIT)
++ [wtforms](https://github.com/wtforms/wtforms/) (BSD-3-Clause) [Flask WTF](https://github.com/lepture/flask-wtf) (BSD)
++ [gpsd](https://gitlab.com/gpsd/gpsd) (BSD-2-Clause)
+
+RTKBase use OpenStreetMap tiles, courtesy of [Empreinte digitale](cloud.empreintedigitale.fr).
