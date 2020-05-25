@@ -265,6 +265,10 @@ main() {
 					     flash_gnss                      ;fi
 
   done
+  echo '################################'
+  echo 'END OF INSTALLATION'
+  echo 'Open your browser to http://'$(hostname -I)
+  echo '################################'
 }
 
 main $@
