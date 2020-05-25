@@ -198,7 +198,7 @@ detect_usb_gnss() {
           if [[ "$devname" == "bus/"* ]]; then continue; fi
           eval "$(udevadm info -q property --export -p $syspath)"
           if [[ -z "$ID_SERIAL" ]]; then continue; fi
-          if [[ "$ID_SERIAL" =~ ^(U-blox|skytraq)$ ]]
+          if [[ "$ID_SERIAL" =~ (u-blox|skytraq) ]]
           then
             detected_gnss[0]=$devname
             detected_gnss[1]=$ID_SERIAL
