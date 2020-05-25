@@ -34,10 +34,10 @@ Frontend's features are:
    $ sudo ./install.sh --all
    ```
 
-+ Go grab a coffee, it's gonna take a while. The script will install the needed softwares, find your F9P receiver and set it to works as a base station.
++ Go grab a coffee, it's gonna take a while. The script will install the needed softwares, find your F9P receiver and set it to work as a base station.
 + Open a web browser to `http://ip_of_your_sbc`. Default password is `admin`.
 
-## Installation: 
+## Manual installation: 
 
 + Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...)
 
@@ -73,31 +73,13 @@ Frontend's features are:
    $ make
    $ sudo make install
    ```
++ Compile/install rtkrcv and convbin the same way as str2str
 
-+ clone this repository:
++ Clone this repository:
 
    ```bash
    $ cd ~
    $ git clone https://github.com/Stefal/rtkbase.git
-   ```
-
-+ Edit settings.conf:
-
-   ```bash
-   $ cd rtkbase
-   $ nano settings.conf
-   ```
-
-   The main parameters you should edit are `com_port`, `position`, and the NTRIP section if you send the stream to a caster.
-
-+ If the U-blox gnss receiver is sets to its default settings (Raw output is disabled) you can permanently configure the receiver with `ubxconfig.sh`. For the ZED-F9P use
-
-   ```bash
-   $ ./ubxconfig.sh /dev/your_com_port receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
-   ```
-   This script will send the settings only if the firmware is the same release on the receiver and in the file. If your receiver use a more recent firmware, you can add the `--force` settings on the command line.
-   ```bash
-   $ ./ubxconfig.sh /dev/your_com_port receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt --force
    ```
    
 + Do a quick test with ``$ ./run_cast.sh in_serial out_tcp`` you should see some data like this:
