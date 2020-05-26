@@ -134,4 +134,4 @@ RTKBase uses some parts of others software:
 + [pystemd](https://github.com/facebookincubator/pystemd) (L-GPL 2.1)
 + [gpsd](https://gitlab.com/gpsd/gpsd) (BSD-2-Clause)
 
-RTKBase uses [OpenStreetMap](https://www.openstreetmap.org) tiles, courtesy of [Empreinte digitale](cloud.empreintedigitale.fr).
+RTKBase uses [OpenStreetMap](https://www.openstreetmap.org) tiles, courtesy of [Empreinte digitale](https://cloud.empreintedigitale.fr).
