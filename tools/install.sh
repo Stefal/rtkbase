@@ -121,7 +121,7 @@ install_rtkbase_from_repo() {
 
 install_rtkbase_from_release() {
     echo '################################'
-    echo 'INSTALLING RTKBASE FROM REALEASE'
+    echo 'INSTALLING RTKBASE FROM RELEASE'
     echo '################################'
       if [ -d rtkbase ]
       then

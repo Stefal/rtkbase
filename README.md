@@ -39,82 +39,78 @@ Frontend's features are:
 
 ## Manual installation: 
 
-+ Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...)
+1. Install dependencies with `sudo ./install.sh --dependencies`, or do it manually with:
+   ```bash
+   $ sudo apt update
+   $ sudo apt install -y  git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
+   ```
 
-+ Set your gnss receiver to output raw data. If you need to use U-center from another computer, you can use `socat`:
+1. Install RTKLIB with `sudo ./install.sh --rtklib`, or:
+   + clone [RTKlib](https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3)
+
+      ```bash
+      $ cd ~
+      $ git clone -b rtklib_2.4.3 https://github.com/tomojitakasu/RTKLIB/rtklib_2.4.3
+      ```
+
+   + compile and install str2str:
+
+      Edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
+      
+      ```bash
+      $ cd RTKLIB/app/str2str/gcc
+      $ nano makefile
+      ```
+      
+      For an Orange Pi Zero SBC, i use:
+      
+      ``CTARGET = -mcpu=cortex-a7 -mfpu=neon-vfpv4 -funsafe-math-optimizations``
+      
+      Then you can compile and install str2str:
+      
+      ```bash  
+      $ make
+      $ sudo make install
+      ```
+   + Compile/install `rtkrcv` and `convbin` the same way as `str2str`.
+
+1. Get latest rtkbase release `sudo ./install.sh --rtkbase-release`, or:
+   ```bash
+   $ wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
+   $ tar -xvf rtkbase.tar.gz
+
+   ```
+   If you prefer, you can clone this repository to get the latest code.
+
+1. Install the rtkbase requirements:
+   ```bash
+   $ python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
+   $ python3 -m pip install -r rtkbase/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
+   $ python3 -m pip install rtkbase/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
+
+1. Install the systemd services with `sudo ./install.sh --unit-files`, or edit them (rtkbase/unit/) to replace the username, copy them to `/etc/systemd/system/` and enable only the web server:
+   ```bash
+   $ sudo systemctl daemon-reload
+   $ sudo systemctl enable rtkbase_web
+   ```
+
+1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox usb receiver, you can use `sudo ./install.sh --detect-usb-gnss`. Write down the result, you may need it later.
+
+1. Set your gnss receiver to output raw data.
+   
+   If it's a U-Blox ZED-F9P (usb), you can use `sudo ./install.sh -detect-usb-gnss --flash-gnss`
+
+   If it's a U-Blox ZED-F9P (uart), you can use `rtkbase/tools/set_zed-f9p.sh /dev/ttyS1 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt` (change the ttyS1 and 115200 value if needed)
+   
+   If you need to use a config tool from another computer (like U-center), you can use `socat`:
 
    ``$ sudo socat tcp-listen:128,reuseaddr /dev/ttyS1,b115200,raw,echo=0``
    
    Change the ttyS1 and 115200 value if needed. Then you can use a network connection in U-center with the base station ip address and the port n°128.
-
-+ clone [RTKlib](https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3)
-
-   ```bash
-   $ cd ~
-   $ git clone -b rtklib_2.4.3 https://github.com/tomojitakasu/RTKLIB/rtklib_2.4.3
-   ```
-
-+ compile and install str2str:
-
-   Edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
-   
-   ```bash
-   $ cd RTKLIB/app/str2str/gcc
-   $ nano makefile
-   ```
-   
-   For an Orange Pi Zero SBC, i use:
-   
-   ``CTARGET = -mcpu=cortex-a7 -mfpu=neon-vfpv4 -funsafe-math-optimizations``
-   
-   Then you can compile and install str2str:
-   
-   ```bash  
-   $ make
-   $ sudo make install
-   ```
-+ Compile/install rtkrcv and convbin the same way as str2str
-
-+ Clone this repository:
-
-   ```bash
-   $ cd ~
-   $ git clone https://github.com/Stefal/rtkbase.git
-   ```
-   
-+ Do a quick test with ``$ ./run_cast.sh in_serial out_tcp`` you should see some data like this:
-   ```
-   2019/10/09 15:42:53 [CW---]      14020 B   19776 bps (0) /dev/ttyS1 (1) waiting...
-   2019/10/09 15:42:58 [CW---]      26244 B   19558 bps (0) /dev/ttyS1 (1) waiting...
-   2019/10/09 15:43:03 [CW---]      37956 B   19289 bps (0) /dev/ttyS1 (1) waiting...
-   2019/10/09 15:43:08 [CW---]      49684 B   19551 bps (0) /dev/ttyS1 (1) waiting...
-   2019/10/09 15:43:13 [CW---]      61488 B   17232 bps (0) /dev/ttyS1 (1) waiting...
-   2019/10/09 15:43:18 [CW---]      73076 B   17646 bps (0) /dev/ttyS1 (1) waiting...
-   ```
-   Stop the stream with 
-   
-   ```bash
-   $ sudo killall str2str
-   ```
-   
-+ If everything is ok, you can copy the unit files for systemd with this script:
-
-   ```bash
-   $ sudo ./copy_unit.sh
-   ```
-
-+ Then you can enable these services to autostart during boot:  
-
-   ``$ sudo systemctl enable str2str_tcp.service``  <-- mandatory  
-   ``$ sudo systemctl enable str2str_file.service`` <-- log data locally  
-   ``$ sudo systemctl enable str2str_ntrip.service`` <-- send ntrip data to a caster
-   
-+ You can start the services right now (ntrip and/or file), str2str_tcp.service will autostart as it is a dependency :
-
-  ``$ sudo systemctl start str2str_file.service``  
-  ``$ sudo systemctl start str2str_ntrip.service``  
   
-+ If you use `str2str_file` to log the data inside the base station, you may want to compress these data and delete the too old archives. For these 2 tasks, you can use `archive_and_clean.sh`. The default settings compress the previous day data and delete all archives older than 30 days. Edit your crontab with ``$ crontab -e`` and add these lines:
+1. If you log the raw data inside the base station, you may want to compress these data and delete the too old archives. `archive_and_clean.sh` will do it for you. The default settings compress the previous day data and delete all archives older than 90 days. To automate these 2 tasks, you can use `sudo ./install.sh --crontab` or:
+
+   Edit your crontab with ``$ crontab -e`` and add these lines:
    ```bash
    SHELL=/bin/bash
    0 4 * * * /home/YOUR_USER_NAME/PATH_TO_RTKBASE/archive_and_clean.sh
