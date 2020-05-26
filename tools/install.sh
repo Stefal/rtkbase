@@ -166,6 +166,7 @@ install_unit_files() {
         systemctl enable rtkbase_web.service
         systemctl daemon-reload
         systemctl start rtkbase_web.service
+        systemctl start str2str_tcp.service
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
