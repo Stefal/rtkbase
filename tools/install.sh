@@ -263,7 +263,7 @@ main() {
 					     add_crontab                  && \
 					     detect_usb_gnss              && \
 					     flash_gnss                   && \
-               systemctl start str2str_tcp     ;fi
+					     systemctl start str2str_tcp     ;fi
 
   done
   echo '################################'
