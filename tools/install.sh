@@ -166,7 +166,6 @@ install_unit_files() {
         systemctl enable rtkbase_web.service
         systemctl daemon-reload
         systemctl start rtkbase_web.service
-        systemctl start str2str_tcp.service
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
@@ -263,7 +262,8 @@ main() {
 					     install_unit_files           && \
 					     add_crontab                  && \
 					     detect_usb_gnss              && \
-					     flash_gnss                      ;fi
+					     flash_gnss                   && \
+               systemctl start str2str_tcp     ;fi
 
   done
   echo '################################'
