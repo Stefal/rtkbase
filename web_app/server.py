@@ -150,14 +150,14 @@ def check_update(source_url = None, current_release = None, prerelease=True, emi
     """
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
-    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v").strip('-alpha').strip('-beta')
+    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
     
     try:    
         response = requests.get(source_url)
         response = response.json()
         for release in response:
             if release.get("prerelease") & prerelease or release.get("prerelease") == False:
-                latest_release = release["tag_name"].strip("v").replace('-alpha', '').replace('-beta', '')
+                latest_release = release["tag_name"].strip("v")
                 if latest_release > current_release and latest_release <= rtkbaseconfig.get("general", "checkpoint_version"):
                     new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
                     break
@@ -205,7 +205,7 @@ def update_rtkbase():
     rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
     source_path = os.path.join("/var/tmp/", primary_folder)
     script_path = os.path.join(source_path, "rtkbase_update.sh")
-    current_release = rtkbaseconfig.get("general", "version").strip("v").replace('-alpha', '').replace('-beta', '')
+    current_release = rtkbaseconfig.get("general", "version").strip("v")
     os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release)
 
 @app.before_request
