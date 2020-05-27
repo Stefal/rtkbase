@@ -9,7 +9,7 @@ Frontend's features are:
 
 + View the satellites signal levels
 + View the base location on a map
-+ Start/stop various services (Sending data to a Ntrip caster, Rtcm server, Log raw data to files
++ Start/stop various services (Sending data to a Ntrip caster, Rtcm server, Log raw data to files)
 + Edit the services settings
 + Download/delete raw data
 
@@ -36,7 +36,7 @@ Frontend's features are:
 
 + Go grab a coffee, it's gonna take a while. The script will install the needed softwares, and if you use a Usb-connected U-Blox ZED-F9P receiver, it'll be detected and set to work as a base station. If you don't use a F9P, you will have to configure your receiver manually (see step 7 in manual installation), and choose the correct port from the settings page.
 
-+ Open a web browser to `http://ip_of_your_sbc`. Default password is `admin`.
++ Open a web browser to `http://ip_of_your_sbc` (the script will try to show you this ip address). Default password is `admin`. The settings page allow you to enter your own settings for the base coordinates, ntrip credentials and so on...
 
 ## Manual installation: 
 
