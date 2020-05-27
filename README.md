@@ -1,9 +1,9 @@
 # RTKBase
 
-An easy to use and easy to install web frontend with some bash scripts and services for a simple gnss base station.
+### An easy to use and easy to install web frontend with some bash scripts and services for a simple gnss base station.
 
 ## FrontEnd:
-|<img src="/images/web_status.png" alt="status" width="250"/>|<img src="/images/web_settings.png" alt="settings" width="250"/>|<img src="/images/web_logs.png" alt="logs" width="250"/>|
+|<img src="./images/web_status.png" alt="status" width="250"/>|<img src="./images/web_settings.png" alt="settings" width="250"/>|<img src="./images/web_logs.png" alt="logs" width="250"/>|
 
 Frontend's features are:
 
@@ -14,13 +14,15 @@ Frontend's features are:
 + Download/delete raw data
 
 ## Base example:
-<img src="/images/base_f9p.jpg" alt="status" width="550" />
+<img src="./images/base_f9p.jpg" alt="status" width="550" />
 
 + Enclosure: GentleBOX JE-200
 + SBC: Orange Pi Zero (512MB)
 + Gnss Receiver: U-Blox F9P (from Drotek)
 + Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
 
+## Ready to flash release:
+If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases).
 ## Automated installation:
 
 + Connect your gnss receiver to your raspberry pi/orange pi/....
@@ -37,6 +39,13 @@ Frontend's features are:
 + Go grab a coffee, it's gonna take a while. The script will install the needed softwares, and if you use a Usb-connected U-Blox ZED-F9P receiver, it'll be detected and set to work as a base station. If you don't use a F9P, you will have to configure your receiver manually (see step 7 in manual installation), and choose the correct port from the settings page.
 
 + Open a web browser to `http://ip_of_your_sbc` (the script will try to show you this ip address). Default password is `admin`. The settings page allow you to enter your own settings for the base coordinates, ntrip credentials and so on...
+
+   <img src="./images/web_all_settings.png" alt="status" width="550" />
+
+   If you don't already know your base precise coordinates, it's time to read one of theses tutorial:
+   - [rtklibexplorer - Post-processing RTK - for single and dual frequency receivers](https://rtklibexplorer.wordpress.com/2020/02/05/rtklib-tips-for-using-a-cors-station-as-base/)
+   - [rtklibexplorer - PPP - for dual frequency receivers](https://rtklibexplorer.wordpress.com/2017/11/23/ppp-solutions-with-the-swiftnav-piksi-multi/)
+   - [Centipede documentation (in french)](https://jancelin.github.io/docs-centipedeRTK/docs/base/positionnement.html)
 
 ## Manual installation: 
 
