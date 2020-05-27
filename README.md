@@ -48,7 +48,57 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
    - [Centipede documentation (in french)](https://jancelin.github.io/docs-centipedeRTK/docs/base/positionnement.html)
 
 ## Manual installation: 
+The `install.sh` script can be use without the `--all` option to split the installation process into several differents steps:
+```bash
+   $ ./install.sh --help
+   ################################
+   RTKBASE INSTALLATION HELP
+   ################################
+   Bash scripts for install a simple gnss base station with a web frontend.
 
+
+
+   * Before install, connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart.
+   * Running install script with sudo
+
+         sudo ./install.sh
+
+   Options:
+         --all
+                           Install all dependencies, Rtklib, last release of Rtkbase, services,
+                           crontab jobs, detect your GNSS receiver and flash it.
+
+         --dependencies
+                           Install all dependencies like git build-essential python3-pip ...
+
+         --rtklib
+                           Clone RTKlib 2.4.3 from github and compile it.
+                           https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3
+
+         --rtkbase-release
+                           Get last release of RTKBASE:
+                           https://github.com/Stefal/rtkbase/releases
+
+         --rtkbase-repo
+                           Clone RTKBASE from github:
+                           https://github.com/Stefal/rtkbase/tree/web_gui
+
+         --unit-files
+                           Deploy services.
+
+         --crontab
+                           add crontab tools, every day logs are store
+
+
+         --detect-usb-gnss
+                           Detect your GNSS receiver.
+
+
+         --flash-gnss
+                           Flash your GNSS receiver.
+
+   ```
+So, if you really want it, let's go for a manual installation with some explanations:
 1. Install dependencies with `sudo ./install.sh --dependencies`, or do it manually with:
    ```bash
    $ sudo apt update
