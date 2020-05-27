@@ -2,7 +2,7 @@
 
 An easy to use and easy to install web frontend with some bash scripts and services for a simple gnss base station.
 
-### FrontEnd:
+## FrontEnd:
 |<img src="/images/web_status.png" alt="status" width="250"/>|<img src="/images/web_settings.png" alt="settings" width="250"/>|<img src="/images/web_logs.png" alt="logs" width="250"/>|
 
 Frontend's features are:
@@ -13,7 +13,7 @@ Frontend's features are:
 + Edit the services settings
 + Download/delete raw data
 
-### Base example:
+## Base example:
 <img src="/images/base_f9p.jpg" alt="status" width="550" />
 
 + Enclosure: GentleBOX JE-200
@@ -21,9 +21,9 @@ Frontend's features are:
 + Gnss Receiver: U-Blox F9P (from Drotek)
 + Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
 
-## Automated installation (with a usb ZED-F9P):
+## Automated installation:
 
-+ Connect your gnss receiver to your raspberry pi/orange pi/.... with a usb cable.
++ Connect your gnss receiver to your raspberry pi/orange pi/....
 
 + Open a terminal and:
 
@@ -34,7 +34,8 @@ Frontend's features are:
    $ sudo ./install.sh --all
    ```
 
-+ Go grab a coffee, it's gonna take a while. The script will install the needed softwares, find your F9P receiver and set it to work as a base station.
++ Go grab a coffee, it's gonna take a while. The script will install the needed softwares, and if you use a Usb-connected U-Blox ZED-F9P receiver, it'll be detected and set to work as a base station. If you don't use a F9P, you will have to configure your receiver manually (see step 7 in manual installation), and choose the correct port from the settings page.
+
 + Open a web browser to `http://ip_of_your_sbc`. Default password is `admin`.
 
 ## Manual installation: 
@@ -55,7 +56,7 @@ Frontend's features are:
 
    + compile and install str2str:
 
-      Edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
+      Optionnaly, you can edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
       
       ```bash
       $ cd RTKLIB/app/str2str/gcc
@@ -88,7 +89,7 @@ Frontend's features are:
    $ python3 -m pip install -r rtkbase/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
    $ python3 -m pip install rtkbase/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
 
-1. Install the systemd services with `sudo ./install.sh --unit-files`, or edit them (rtkbase/unit/) to replace the username, copy them to `/etc/systemd/system/` and enable only the web server:
+1. Install the systemd services with `sudo ./install.sh --unit-files`, or edit them (`rtkbase/unit/`) to replace the username, copy them to `/etc/systemd/system/` and enable only the web server:
    ```bash
    $ sudo systemctl daemon-reload
    $ sudo systemctl enable rtkbase_web
@@ -96,15 +97,23 @@ Frontend's features are:
 
 1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox usb receiver, you can use `sudo ./install.sh --detect-usb-gnss`. Write down the result, you may need it later.
 
-1. Set your gnss receiver to output raw data.
+1. If you didn't have already configure your gnss receiver you must set it to output raw data:
    
-   If it's a U-Blox ZED-F9P (usb), you can use `sudo ./install.sh -detect-usb-gnss --flash-gnss`
+   If it's a U-Blox ZED-F9P (usb), you can use 
+   ```bash
+   $ sudo ./install.sh -detect-usb-gnss --flash-gnss
+   ```
 
-   If it's a U-Blox ZED-F9P (uart), you can use `rtkbase/tools/set_zed-f9p.sh /dev/ttyS1 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt` (change the ttyS1 and 115200 value if needed)
-   
+   If it's a U-Blox ZED-F9P (uart), you can use this command (change the ttyS1 and 115200 value if needed)):
+   ```bash
+   $ rtkbase/tools/set_zed-f9p.sh /dev/ttyS1 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
+   ```
+     
    If you need to use a config tool from another computer (like U-center), you can use `socat`:
 
-   ``$ sudo socat tcp-listen:128,reuseaddr /dev/ttyS1,b115200,raw,echo=0``
+   ```bash
+   $ sudo socat tcp-listen:128,reuseaddr /dev/ttyS1,b115200,raw,echo=0
+   ```
    
    Change the ttyS1 and 115200 value if needed. Then you can use a network connection in U-center with the base station ip address and the port n°128.
   
