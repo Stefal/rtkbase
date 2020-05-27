@@ -51,7 +51,7 @@ man_help(){
     echo '                         Flash your GNSS receiver.'
     echo ''
     echo
-
+    exit 0
 }
 
 install_dependencies() {
