@@ -19,7 +19,7 @@ man_help(){
     echo 'Options:'
     echo '        --all'
     echo '                         Install all dependencies, Rtklib, last release of Rtkbase, services,'
-    echo '                         crontab jobs, detect your GNSS receiver and flash it.'
+    echo '                         crontab jobs, detect your GNSS receiver and configure it.'
     echo ''
     echo '        --dependencies'
     echo '                         Install all dependencies like git build-essential python3-pip ...'
@@ -47,8 +47,8 @@ man_help(){
     echo '                         Detect your GNSS receiver.'
     echo ''
     echo ''
-    echo '        --flash-gnss'
-    echo '                         Flash your GNSS receiver.'
+    echo '        --configure-gnss'
+    echo '                         Configure your GNSS receiver.'
     echo ''
     echo
     exit 0
@@ -207,9 +207,9 @@ detect_usb_gnss() {
       done
 }
 
-flash_gnss(){
+configure_gnss(){
     echo '################################'
-    echo 'FLASH GNSS RECEIVER'
+    echo 'CONFIGURE GNSS RECEIVER'
     echo '################################'
       if [ -d rtkbase ]
       then 
@@ -225,7 +225,7 @@ flash_gnss(){
             sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'" > rtkbase/settings.conf
           fi
         fi
-        #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and flash it with the corrects settings for rtkbase
+        #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
         then
           rtkbase/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
@@ -254,7 +254,7 @@ main() {
     if [ "$i" == "--unit-files" ]     ; then install_unit_files              ;fi
     if [ "$i" == "--crontab" ] 	      ; then add_crontab                     ;fi
     if [ "$i" == "--detect-usb-gnss" ]; then detect_usb_gnss                 ;fi
-    if [ "$i" == "--flash-gnss" ]     ; then flash_gnss                      ;fi
+    if [ "$i" == "--configure-gnss" ]     ; then configure_gnss                      ;fi
     if [ "$i" == "--all" ]            ; then install_dependencies         && \
 					     install_rtklib               && \
 					     install_rtkbase_from_release && \
@@ -262,7 +262,7 @@ main() {
 					     install_unit_files           && \
 					     add_crontab                  && \
 					     detect_usb_gnss              && \
-					     flash_gnss                   && \
+					     configure_gnss                   && \
 					     systemctl start str2str_tcp     ;fi
 
   done

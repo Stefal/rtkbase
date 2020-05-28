@@ -67,7 +67,7 @@ The `install.sh` script can be use without the `--all` option to split the insta
    Options:
          --all
                            Install all dependencies, Rtklib, last release of Rtkbase, services,
-                           crontab jobs, detect your GNSS receiver and flash it.
+                           crontab jobs, detect your GNSS receiver and configure it.
 
          --dependencies
                            Install all dependencies like git build-essential python3-pip ...
@@ -95,8 +95,8 @@ The `install.sh` script can be use without the `--all` option to split the insta
                            Detect your GNSS receiver.
 
 
-         --flash-gnss
-                           Flash your GNSS receiver.
+         --configure-gnss
+                           Configure your GNSS receiver.
 
    ```
 So, if you really want it, let's go for a manual installation with some explanations:
@@ -161,7 +161,7 @@ So, if you really want it, let's go for a manual installation with some explanat
    
    If it's a U-Blox ZED-F9P (usb), you can use 
    ```bash
-   $ sudo ./install.sh -detect-usb-gnss --flash-gnss
+   $ sudo ./install.sh -detect-usb-gnss --configure-gnss
    ```
 
    If it's a U-Blox ZED-F9P (uart), you can use this command (change the ttyS1 and 115200 value if needed)):
