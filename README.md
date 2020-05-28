@@ -23,7 +23,8 @@ Frontend's features are:
 
 ## Ready to flash release:
 If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases).
-## Automated installation:
+
+## Easy installation:
 
 + Connect your gnss receiver to your raspberry pi/orange pi/....
 
@@ -40,7 +41,7 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 
 + Open a web browser to `http://ip_of_your_sbc` (the script will try to show you this ip address). Default password is `admin`. The settings page allow you to enter your own settings for the base coordinates, ntrip credentials and so on...
 
-   <img src="./images/web_all_settings.png" alt="status" width="550" />
+   <img src="./images/web_all_settings.png" alt="all settings" width="600" />
 
    If you don't already know your base precise coordinates, it's time to read one of theses tutorial:
    - [rtklibexplorer - Post-processing RTK - for single and dual frequency receivers](https://rtklibexplorer.wordpress.com/2020/02/05/rtklib-tips-for-using-a-cors-station-as-base/)
@@ -184,6 +185,20 @@ So, if you really want it, let's go for a manual installation with some explanat
    0 4 * * * /home/YOUR_USER_NAME/PATH_TO_RTKBASE/archive_and_clean.sh
    ```
    Cron will run this script everyday at 4H00.
+
+1. Now you can start the web server service with `sudo systemctl start rtkbase_web` and open a web browser to your base station ip address.
+
+## How it works:
+RTKBase use several RTKLIB `str2str` instances started as systemd services.
++ `str2str_tcp.service` is the main instance. It is connected to the gnss receiver and broadcast the raw data on TCP for all the others services.
++ `str2str_ntrip.service` get the data from the main instance, convert the data to rtcm and stream them to a Ntrip caster.
++ `str2str_rtcm_svr.service` get the data from the main instance, convert the data to rtcm and stream them to clients
++ `str2str_file.service` get the data from the main instance, and log the data to files.
+
+<img src="./images/internal.png" alt="internal"/>
+
+The web gui is available when the `rtkbase_web` service is running.
+
 
 ## License:
 RTKBase is licensed under AGPL 3 (see LICENSE file).
