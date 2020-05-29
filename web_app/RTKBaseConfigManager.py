@@ -1,5 +1,6 @@
 import os
 from configparser import ConfigParser
+from secrets import token_urlsafe
 
 class RTKBaseConfigManager:
     """ A class to easily access the settings from RTKBase settings.conf """
@@ -135,7 +136,7 @@ class RTKBaseConfigManager:
         """
         SECRET_KEY = self.config.get("general", "flask_secret_key", fallback='None')
         if SECRET_KEY is 'None':
-            SECRET_KEY = str(os.urandom(48))
+            SECRET_KEY = token_urlsafe(48)
             self.update_setting("general", "flask_secret_key", SECRET_KEY)
         
         return SECRET_KEY
