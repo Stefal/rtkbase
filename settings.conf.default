@@ -25,13 +25,13 @@ com_port='ttyS1'
 #gnss receiver com port settings
 com_port_settings='115200:8:n:1'
 #receiver model
-receiver=Ublox_ZED-F9P
+receiver='Ublox_ZED-F9P'
 #gnss receiver format
 receiver_format='ubx'
 
 # TCP options
 #tcp port for RAW stream
-tcp_port=5015
+tcp_port='5015'
 
 [local_storage]
 
@@ -42,26 +42,26 @@ datadir=$BASEDIR/data
 #gnss data filename	    
 file_name='%Y-%m-%d-%h:%M:%S-GNSS-1'
 #file rotate time in hour
-file_rotate_time=24
+file_rotate_time='24'
 #file overlap time in seconds
-file_overlap_time=30
+file_overlap_time='30'
 #name for the compressed archive
 archive_name=$(date -d "-1 days" +"%Y-%m-%d_%S").tar.bz2
 #archives older than this value (in days) will be deleted by archive_and_clean.sh
-archive_rotate=90
+archive_rotate='90'
 
 [ntrip]
 
 # NTRIP caster options
 
 #ntrip caster url
-svr_addr=caster.centipede.fr
+svr_addr='caster.centipede.fr'
 #ntrip caster port
-svr_port=2101
+svr_port='2101'
 #ntrip caster password
-svr_pwd=none
+svr_pwd='none'
 #Mount name
-mnt_name=Your_mount_name
+mnt_name='Your_mount_name'
 
 rtcm_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127'
 
@@ -70,7 +70,7 @@ rtcm_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127'
 # RTCM server options
 
 #port for rtcm local use
-rtcm_svr_port=5016
+rtcm_svr_port='5016'
 #messages for rtcm local use
 rtcm_svr_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127'
 
