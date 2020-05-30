@@ -294,6 +294,7 @@ main() {
     if [ "$i" == "--rtkbase-repo" ]   ; then install_rtkbase_from_repo    && \
 					     rtkbase_requirements            ;fi
     if [ "$i" == "--unit-files" ]     ; then install_unit_files              ;fi
+    if [ "$i" == "--gpsd-chrony" ]    ; then install_gpsd-chrony             ;fi
     if [ "$i" == "--crontab" ] 	      ; then add_crontab                     ;fi
     if [ "$i" == "--detect-usb-gnss" ]; then detect_usb_gnss                 ;fi
     if [ "$i" == "--configure-gnss" ]     ; then configure_gnss                      ;fi
@@ -302,9 +303,10 @@ main() {
 					     install_rtkbase_from_release && \
 					     rtkbase_requirements         && \
 					     install_unit_files           && \
+					     install_gpsd-chrony          && \
 					     add_crontab                  && \
 					     detect_usb_gnss              && \
-					     configure_gnss                   && \
+					     configure_gnss               && \
 					     systemctl start str2str_tcp     ;fi
 
   done
