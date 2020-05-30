@@ -24,7 +24,7 @@ echo "delete the line version= in settings.conf"
 sed -i '/version=/d' ${destination_directory}/settings.conf
 
 #change rtkbase's content owner
-chown -R ${standard_user} ${destination_directory}
+chown -R ${standard_user}:${standard_user} ${destination_directory}
 
 #if a reboot is needed
 #sudo reboot now
