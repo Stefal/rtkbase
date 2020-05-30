@@ -5,6 +5,8 @@
 version=2.0.0-beta.32
 # Rtkbase upgrade mandatory "checkpoint"
 checkpoint_version=2.1.0
+# User who runs str2str_file service
+user=
 # NTRIP caster program
 BASEDIR=$(dirname "$0")
 #path to the caster application

@@ -90,12 +90,16 @@ install_rtklib() {
 rtkbase_repo(){
     #Get rtkbase repository
     sudo -u $(logname) git clone -b web_gui --single-branch https://github.com/stefal/rtkbase.git
+    sudo -u $(logname) sed -i s/user=.*/^user=$(logname)/ rtkbase/settings.conf
+
 }
 
 rtkbase_release(){
     #Get rtkbase latest release
     sudo -u $(logname) wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
     sudo -u $(logname) tar -xvf rtkbase.tar.gz
+    sudo -u $(logname) sed -i s/user=.*/^user=$(logname)/ rtkbase/settings.conf
+
 }
 
 install_rtkbase_from_repo() {
@@ -219,7 +223,7 @@ configure_gnss(){
           if [[ -f "rtkbase/settings.conf" ]]  #check if settings.conf exists
           then
             #inject the com port inside settings.conf
-            sudo -u $(logname) sed -i s/com_port=.*/com_port=\'${detected_gnss[0]}\'/ rtkbase/settings.conf
+            sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ rtkbase/settings.conf
           else
             #create settings.conf with the com_port setting and the format
             sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'" > rtkbase/settings.conf

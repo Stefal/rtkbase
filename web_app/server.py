@@ -206,7 +206,8 @@ def update_rtkbase():
     source_path = os.path.join("/var/tmp/", primary_folder)
     script_path = os.path.join(source_path, "rtkbase_update.sh")
     current_release = rtkbaseconfig.get("general", "version").strip("v")
-    os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release)
+    standard_user = rtkbaseconfig.get("general", "user")
+    os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
 
 @app.before_request
 def inject_release():

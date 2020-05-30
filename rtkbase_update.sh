@@ -5,6 +5,7 @@ source_directory=$1
 destination_directory=$2
 data_dir=$3
 old_version=$4
+standard_user=$5
 
 echo "remove existing rtkbase.old directory"
 rm -rf /var/tmp/rtkbase.old
@@ -21,6 +22,10 @@ cp -rfp ${source_directory}/. ${destination_directory}
 
 echo "delete the line version= in settings.conf"
 sed -i '/version=/d' ${destination_directory}/settings.conf
+
+#change rtkbase's content owner
+chown -R ${standard_user} ${destination_directory}
+
 #if a reboot is needed
 #sudo reboot now
 
