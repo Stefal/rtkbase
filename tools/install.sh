@@ -88,7 +88,7 @@ install_gpsd-chrony() {
       #disable hotplug
       sed -i s/^USBAUTO=.*/USBAUTO="false"/ /etc/default/gpsd
       #Setting correct input for gpsd
-      sed -i s/^DEVICES=.*/DEVICES='"tcp://127.0.0.1:5015"'/ /etc/default/gpsd
+      sed -i s/^DEVICES=.*/DEVICES='"tcp:\/\/127.0.0.1:5015"'/ /etc/default/gpsd
       #gpsd should alway run, in read only mode
       sed -i s/^GPSD_OPTIONS=.*/GPSD_OPTIONS='"-n -b"'/ /etc/default/gpsd
       #Overriding gpsd.service with custom dependency
