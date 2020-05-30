@@ -62,6 +62,44 @@ install_dependencies() {
       apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
 }
 
+install_gpsd-chrony() {
+    echo '################################'
+    echo 'CONFIGURING FOR USING GPSD + CHRONY'
+    echo '################################'
+      apt-get install chrony
+      #Disabling and masking systemd-timesyncd
+      systemctl stop systemd-timesyncd
+      systemctl disable systemd-timesyncd
+      systemctl mask systemd-timesyncd
+      #Adding GPS as source for chrony
+      grep -qxF '# set larger delay to allow the GPS' /etc/chrony/chrony.conf || echo '# set larger delay to allow the GPS source to overlap with the other sources and avoid the falseticker status
+' >> /etc/chrony/chrony.conf
+      grep -qxF 'refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2' /etc/chrony/chrony.conf || echo 'refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2' >> /etc/chrony/chrony.conf
+      #Overriding chrony.service with custom dependency
+      cp /lib/systemd/system/chrony.service /etc/systemd/system/chrony.service
+      sed -i s/^After=.*/After=gpsd.service/ /etc/systemd/system/chrony.service
+
+      #Adding backports repository to install a gpsd release that support the F9P
+      echo 'deb http://httpredir.debian.org/debian buster-backports main contrib' > /etc/apt/sources.list.d/backports.list
+      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+      apt-get update
+      apt-get -t buster-backports install gpsd -y
+      #disable hotplug
+      sed -i s/^USBAUTO=.*/USBAUTO="false"/ /etc/default/gpsd
+      #Setting correct input for gpsd
+      sed -i s/^DEVICES=.*/DEVICES="127.0.0.1:5015"/ /etc/default/gpsd
+      #gpsd should alway run, in read only mode
+      sed -i s/^GPSD_OPTIONS=.*/GPSD_OPTIONS="-n -b"/ /etc/default/gpsd
+      #Overriding gpsd.service with custom dependency
+      cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
+      sed -i s/^After=.*/After=str2str_tcp.service/ /etc/systemd/system/gpsd.service
+
+      #Reload systemd services and enable chrony and gpsd
+      systemctl daemon-reload
+      systemctl enable gpsd --now
+      systemctl enable chrony --now
+}
+
 install_rtklib() {
     echo '################################'
     echo 'INSTALLING RTKLIB'
