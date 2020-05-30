@@ -39,13 +39,14 @@ man_help(){
     echo '        --unit-files'
     echo '                         Deploy services.'
     echo ''
-    echo '        --crontab'
-    echo '                         add crontab tools, every day logs are store'
+    echo '        --gpsd-chrony'
+    echo '                         Install gpsd and chrony to set clock from the gnss receiver.'
     echo ''
+    echo '        --crontab'
+    echo '                         add crontab tools, every day logs are archived'
     echo ''
     echo '        --detect-usb-gnss'
     echo '                         Detect your GNSS receiver.'
-    echo ''
     echo ''
     echo '        --configure-gnss'
     echo '                         Configure your GNSS receiver.'
@@ -87,9 +88,9 @@ install_gpsd-chrony() {
       #disable hotplug
       sed -i s/^USBAUTO=.*/USBAUTO="false"/ /etc/default/gpsd
       #Setting correct input for gpsd
-      sed -i s/^DEVICES=.*/DEVICES="127.0.0.1:5015"/ /etc/default/gpsd
+      sed -i s/^DEVICES=.*/DEVICES='"tcp://127.0.0.1:5015"'/ /etc/default/gpsd
       #gpsd should alway run, in read only mode
-      sed -i s/^GPSD_OPTIONS=.*/GPSD_OPTIONS="-n -b"/ /etc/default/gpsd
+      sed -i s/^GPSD_OPTIONS=.*/GPSD_OPTIONS='"-n -b"'/ /etc/default/gpsd
       #Overriding gpsd.service with custom dependency
       cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
       sed -i s/^After=.*/After=str2str_tcp.service/ /etc/systemd/system/gpsd.service
