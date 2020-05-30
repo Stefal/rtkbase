@@ -23,6 +23,9 @@ class ServiceController(object):
             return True
         else:
             return False
+
+    def getUser(self):
+        return self.unit.Service.User.decode()
     
     def status(self):
         return (self.unit.Unit.SubState).decode()

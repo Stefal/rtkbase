@@ -416,6 +416,15 @@ def load_units(services):
         service["unit"] = ServiceController(service["service_unit"])
     return services
 
+def update_std_user(services):
+    """
+        check which user run str2str_file service and update settings.conf
+        :param services: A list of systemd services (dict) containing a service_unit key:value
+    """
+    service = next(x for x in services_list if x["name"] == "file")
+    user = service["unit"].getUser()
+    rtkbaseconfig.update_setting("general", "user", user)
+
 def restartServices(restart_services_list):
     """
         Restart already running services
@@ -528,6 +537,8 @@ if __name__ == "__main__":
         app.config["DOWNLOAD_FOLDER"] = rtkbaseconfig.get("local_storage", "datadir")
         #load services status managed with systemd
         services_list = load_units(services_list)
+        #Update standard user in settings.conf
+        update_std_user(services_list)
         #Start a "manager" thread
         manager_thread = Thread(target=manager, daemon=True)
         manager_thread.start()
