@@ -94,6 +94,7 @@ install_gpsd-chrony() {
       #Overriding gpsd.service with custom dependency
       cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
       sed -i s/^After=.*/After=str2str_tcp.service/ /etc/systemd/system/gpsd.service
+      sed -i /^After=.*/i BindsTo=str2str_tcp.service /etc/systemd/system/gpsd.service
 
       #Reload systemd services and enable chrony and gpsd
       systemctl daemon-reload
