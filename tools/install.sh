@@ -76,6 +76,9 @@ install_gpsd-chrony() {
       grep -qxF '# set larger delay to allow the GPS' /etc/chrony/chrony.conf || echo '# set larger delay to allow the GPS source to overlap with the other sources and avoid the falseticker status
 ' >> /etc/chrony/chrony.conf
       grep -qxF 'refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2' /etc/chrony/chrony.conf || echo 'refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2' >> /etc/chrony/chrony.conf
+      #Adding PPS as an optionnal source for chrony
+      grep -qxF 'refclock PPS /dev/pps0 refid PPS lock GPS' /etc/chrony/chrony.conf || echo '#refclock PPS /dev/pps0 refid PPS lock GPS' >> /etc/chrony/chrony.conf
+
       #Overriding chrony.service with custom dependency
       cp /lib/systemd/system/chrony.service /etc/systemd/system/chrony.service
       sed -i s/^After=.*/After=gpsd.service/ /etc/systemd/system/chrony.service
@@ -86,15 +89,17 @@ install_gpsd-chrony() {
       apt-get update
       apt-get -t buster-backports install gpsd -y
       #disable hotplug
-      sed -i s/^USBAUTO=.*/USBAUTO="false"/ /etc/default/gpsd
+      sed -i 's/^USBAUTO=.*/USBAUTO="false"/' /etc/default/gpsd
       #Setting correct input for gpsd
-      sed -i s/^DEVICES=.*/DEVICES='"tcp:\/\/127.0.0.1:5015"'/ /etc/default/gpsd
-      #gpsd should alway run, in read only mode
-      sed -i s/^GPSD_OPTIONS=.*/GPSD_OPTIONS='"-n -b"'/ /etc/default/gpsd
+      sed -i 's/^DEVICES=.*/DEVICES="tcp:\/\/127.0.0.1:5015"/' /etc/default/gpsd
+      #Adding example for using pps
+      sed -i '/^DEVICES=.*/a #DEVICES="tcp:\/\/127.0.0.1:5015 \/dev\/pps0"' /etc/default/gpsd
+      #gpsd should always run, in read only mode
+      sed -i 's/^GPSD_OPTIONS=.*/GPSD_OPTIONS="-n -b"/' /etc/default/gpsd
       #Overriding gpsd.service with custom dependency
       cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
-      sed -i s/^After=.*/After=str2str_tcp.service/ /etc/systemd/system/gpsd.service
-      sed -i /^After=.*/i BindsTo=str2str_tcp.service /etc/systemd/system/gpsd.service
+      sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
+      sed -i '/^After=.*/i BindsTo=str2str_tcp.service' /etc/systemd/system/gpsd.service
 
       #Reload systemd services and enable chrony and gpsd
       systemctl daemon-reload
