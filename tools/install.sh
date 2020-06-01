@@ -51,7 +51,8 @@ man_help(){
     echo '        --configure-gnss'
     echo '                         Configure your GNSS receiver.'
     echo ''
-    echo
+    echo '        --start-services'
+    echo '                         Start services (rtkbase_web, str2str_tcp, gpsd, chrony)'
     exit 0
 }
 
@@ -103,8 +104,8 @@ install_gpsd-chrony() {
 
       #Reload systemd services and enable chrony and gpsd
       systemctl daemon-reload
-      systemctl enable gpsd --now
-      systemctl enable chrony --now
+      systemctl enable gpsd
+      systemctl enable chrony
 }
 
 install_rtklib() {
@@ -214,7 +215,6 @@ install_unit_files() {
         rtkbase/copy_unit.sh
         systemctl enable rtkbase_web.service
         systemctl daemon-reload
-        systemctl start rtkbase_web.service
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
@@ -284,6 +284,14 @@ configure_gnss(){
       fi
 }
 
+start-services() {
+  systemctl daemon-reload
+  systemctl start rtkbase_web.service
+  systemctl start str2str_tcp.service
+  systemctl start gpsd.service
+  systemctl start chrony.service
+
+}
 main() {
   #display parameters
   echo 'Installation options: ' $@
@@ -304,7 +312,8 @@ main() {
     if [ "$i" == "--gpsd-chrony" ]    ; then install_gpsd-chrony             ;fi
     if [ "$i" == "--crontab" ] 	      ; then add_crontab                     ;fi
     if [ "$i" == "--detect-usb-gnss" ]; then detect_usb_gnss                 ;fi
-    if [ "$i" == "--configure-gnss" ]     ; then configure_gnss                      ;fi
+    if [ "$i" == "--configure-gnss" ] ; then configure_gnss                  ;fi
+    if [ "$i" == "--start-services" ] ; then start-services                  ;fi
     if [ "$i" == "--all" ]            ; then install_dependencies         && \
 					     install_rtklib               && \
 					     install_rtkbase_from_release && \
@@ -314,12 +323,11 @@ main() {
 					     add_crontab                  && \
 					     detect_usb_gnss              && \
 					     configure_gnss               && \
-					     systemctl start str2str_tcp     ;fi
-
+               start-services               ;fi
   done
   echo '################################'
   echo 'END OF INSTALLATION'
-  echo 'Open your browser to http://'$(hostname -I)
+  echo 'You can open your browser to http://'$(hostname -I)
   echo '################################'
 }
 
