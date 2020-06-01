@@ -64,7 +64,7 @@ install_dependencies() {
       apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
 }
 
-install_gpsd-chrony() {
+install_gpsd_chrony() {
     echo '################################'
     echo 'CONFIGURING FOR USING GPSD + CHRONY'
     echo '################################'
@@ -284,7 +284,7 @@ configure_gnss(){
       fi
 }
 
-start-services() {
+start_services() {
   systemctl daemon-reload
   systemctl start rtkbase_web.service
   systemctl start str2str_tcp.service
@@ -309,11 +309,11 @@ main() {
     if [ "$i" == "--rtkbase-repo" ]   ; then install_rtkbase_from_repo    && \
 					     rtkbase_requirements            ;fi
     if [ "$i" == "--unit-files" ]     ; then install_unit_files              ;fi
-    if [ "$i" == "--gpsd-chrony" ]    ; then install_gpsd-chrony             ;fi
+    if [ "$i" == "--gpsd-chrony" ]    ; then install_gpsd_chrony             ;fi
     if [ "$i" == "--crontab" ] 	      ; then add_crontab                     ;fi
     if [ "$i" == "--detect-usb-gnss" ]; then detect_usb_gnss                 ;fi
     if [ "$i" == "--configure-gnss" ] ; then configure_gnss                  ;fi
-    if [ "$i" == "--start-services" ] ; then start-services                  ;fi
+    if [ "$i" == "--start-services" ] ; then start_services                  ;fi
     if [ "$i" == "--all" ]            ; then install_dependencies         && \
 					     install_rtklib               && \
 					     install_rtkbase_from_release && \
@@ -323,7 +323,7 @@ main() {
 					     add_crontab                  && \
 					     detect_usb_gnss              && \
 					     configure_gnss               && \
-               start-services               ;fi
+               start_services               ;fi
   done
   echo '################################'
   echo 'END OF INSTALLATION'
