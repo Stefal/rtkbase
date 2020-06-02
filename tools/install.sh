@@ -84,13 +84,16 @@ install_gpsd_chrony() {
       cp /lib/systemd/system/chrony.service /etc/systemd/system/chrony.service
       sed -i s/^After=.*/After=gpsd.service/ /etc/systemd/system/chrony.service
 
-      #Adding backports repository to install a gpsd release that support the F9P
-      if lsb_release -c | grep -qE 'bionic|buster' && ! apt-cache policy | grep -qE 'buster-backports.* armhf'
+      #If needed, adding backports repository to install a gpsd release that support the F9P
+      if lsb_release -c | grep -qE 'bionic|buster'
       then
-        #Adding buster-backports
-        echo 'deb http://httpredir.debian.org/debian buster-backports main contrib' > /etc/apt/sources.list.d/backports.list
-        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-        apt-get update
+        if ! apt-cache policy | grep -qE 'buster-backports.* armhf'
+        then
+          #Adding buster-backports
+          echo 'deb http://httpredir.debian.org/debian buster-backports main contrib' > /etc/apt/sources.list.d/backports.list
+          apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+          apt-get update
+        fi
         apt-get -t buster-backports install gpsd -y
       else
         #We hope that the release is more recent than buster and provide gpsd 3.20 or >
