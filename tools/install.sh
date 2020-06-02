@@ -285,13 +285,18 @@ configure_gnss(){
         if [[ ${#detected_gnss[*]} -eq 2 ]]
         then
           echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
+          if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
+          then
+            gnss_format='#ubx'
+          fi
           if [[ -f "rtkbase/settings.conf" ]]  && grep -E "^com_port=.*" rtkbase/settings.conf #check if settings.conf exists
           then
-            #inject the com port inside settings.conf
+            #change the com port value inside settings.conf
             sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ rtkbase/settings.conf
           else
-            #create settings.conf with the com_port setting and the format
-            sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\n" > rtkbase/settings.conf
+            #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
+            #as it could start before the web server merge settings.conf.default and settings.conf
+            sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > rtkbase/settings.conf
           fi
         fi
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
