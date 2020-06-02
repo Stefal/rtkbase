@@ -65,38 +65,42 @@ The `install.sh` script can be use without the `--all` option to split the insta
          sudo ./install.sh
 
    Options:
-         --all
-                           Install all dependencies, Rtklib, last release of Rtkbase, services,
-                           crontab jobs, detect your GNSS receiver and configure it.
+        --all
+                         Install all dependencies, Rtklib, last release of Rtkbase, gpsd, chrony, services,
+                         crontab jobs, detect your GNSS receiver and configure it.
 
-         --dependencies
-                           Install all dependencies like git build-essential python3-pip ...
+        --dependencies
+                         Install all dependencies like git build-essential python3-pip ...
 
-         --rtklib
-                           Clone RTKlib 2.4.3 from github and compile it.
-                           https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3
+        --rtklib
+                         Clone RTKlib 2.4.3 from github and compile it.
+                         https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3
 
-         --rtkbase-release
-                           Get last release of RTKBASE:
-                           https://github.com/Stefal/rtkbase/releases
+        --rtkbase-release
+                         Get last release of RTKBASE:
+                         https://github.com/Stefal/rtkbase/releases
 
-         --rtkbase-repo
-                           Clone RTKBASE from github:
-                           https://github.com/Stefal/rtkbase/tree/web_gui
+        --rtkbase-repo
+                         Clone RTKBASE from github:
+                         https://github.com/Stefal/rtkbase/tree/web_gui
 
-         --unit-files
-                           Deploy services.
+        --unit-files
+                         Deploy services.
 
-         --crontab
-                           add crontab tools, every day logs are store
+        --gpsd-chrony
+                         Install gpsd and chrony to set clock from the gnss receiver.
 
+        --crontab
+                         add crontab tools, every day logs are archived
 
-         --detect-usb-gnss
-                           Detect your GNSS receiver.
+        --detect-usb-gnss
+                         Detect your GNSS receiver.
 
+        --configure-gnss
+                         Configure your GNSS receiver.
 
-         --configure-gnss
-                           Configure your GNSS receiver.
+        --start-services
+                         Start services (rtkbase_web, str2str_tcp, gpsd, chrony)
 
    ```
 So, if you really want it, let's go for a manual installation with some explanations:
@@ -149,10 +153,41 @@ So, if you really want it, let's go for a manual installation with some explanat
    $ python3 -m pip install -r rtkbase/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
    $ python3 -m pip install rtkbase/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
 
-1. Install the systemd services with `sudo ./install.sh --unit-files`, or edit them (`rtkbase/unit/`) to replace the username, copy them to `/etc/systemd/system/` and enable only the web server:
+1. Install the systemd services with `sudo ./install.sh --unit-files`, or edit them (`rtkbase/unit/`) to replace the username, copy them to `/etc/systemd/system/` then enable the web server and str2str_tcp:
    ```bash
    $ sudo systemctl daemon-reload
    $ sudo systemctl enable rtkbase_web
+   $ sudo systemctl enable str2str_tcp
+   ```
+1. Install and configure chrony and gpsd with `sudo ./install.sh --gpsd-chrony`, or:
+   + Install chrony with `sudo apt install chrony` then add this parameter in the chrony conf file (/etc/chrony/chrony.conf):
+   
+      ```refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2```
+   
+     Edit the chrony unit file. You should set `After=gpsd.service`
+   + Install a gpsd release >= 3.2 or it won't work with a F9P. Its conf file should contains:
+   ```
+      # Devices gpsd should collect to at boot time.
+      # They need to be read/writeable, either by user gpsd or the group dialout.
+      DEVICES="tcp://127.0.0.1:5015"
+
+      # Other options you want to pass to gpsd
+      GPSD_OPTIONS="-n -b"
+
+   ```
+   Edit the gpsd unit file. You should have someting like this in the "[Unit]" section: 
+   ```
+      [Unit]
+      Description=GPS (Global Positioning System) Daemon
+      Requires=gpsd.socket
+      BindsTo=str2str_tcp.service
+      After=str2str_tcp.service
+   ```
+   + Reload the services and enable them:
+   ```bash
+      $ sudo systemctl daemon-reload
+      $ sudo systemctl enable chrony
+      $ sudo systemctl enable gpsd
    ```
 
 1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox usb receiver, you can use `sudo ./install.sh --detect-usb-gnss`. Write down the result, you may need it later.
@@ -186,7 +221,15 @@ So, if you really want it, let's go for a manual installation with some explanat
    ```
    Cron will run this script everyday at 4H00.
 
-1. Now you can start the web server service with `sudo systemctl start rtkbase_web` and open a web browser to your base station ip address.
+1. Now you can start the services with `sudo ./install.sh --start-services`, or:
+   ```bash
+      $ sudo systemctl start rtkbase_web
+      $ sudo systemctl start str2str_tcp
+      $ sudo systemctl start gpsd
+      $ sudo systemctl start chrony
+   ```
+
+   Everything should be ready, now you can open a web browser to your base station ip address.
 
 ## How it works:
 RTKBase use several RTKLIB `str2str` instances started as systemd services.
