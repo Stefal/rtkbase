@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='/lib/bootstrap-table.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-table.min.css') }}">
 {{super()}}
 {% endblock %}
 
@@ -78,7 +78,7 @@
 
 {% block scripts %}
 {{super()}}
-<script type="text/javascript" src="{{ url_for('static', filename='/lib/bootstrap-table.min.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-table.min.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='logs.js') }}" charset="utf-8"></script>
 
 {% endblock %}
