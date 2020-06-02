@@ -245,8 +245,9 @@ add_crontab() {
       then 
         #script from https://stackoverflow.com/questions/610839/how-can-i-programmatically-create-a-new-cron-job
         #I've added '-r' to sort because SHELL=/bin/bash should stay before "0 4 * * ..."
-        (crontab -u $(logname) -l ; echo 'SHELL=/bin/bash') | sort -r | uniq - | crontab -u $(logname) -
-        (crontab -u $(logname) -l ; echo "0 4 * * * $(eval echo ~$(logname)/rtkbase/archive_and_clean.sh)") | sort -r | uniq - | crontab -u $(logname) -
+        crontabuser=$(logname)
+        (crontab -u ${crontabuser} -l ; echo 'SHELL=/bin/bash') | sort -r | uniq - | crontab -u ${crontabuser} -
+        (crontab -u ${crontabuser} -l ; echo "0 4 * * * $(eval echo ~$(logname)/rtkbase/archive_and_clean.sh)") | sort -r | uniq - | crontab -u ${crontabuser} -
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
