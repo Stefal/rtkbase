@@ -74,11 +74,11 @@ install_gpsd_chrony() {
       systemctl disable systemd-timesyncd
       systemctl mask systemd-timesyncd
       #Adding GPS as source for chrony
-      grep -qxF '# set larger delay to allow the GPS' /etc/chrony/chrony.conf || echo '# set larger delay to allow the GPS source to overlap with the other sources and avoid the falseticker status
+      grep -q 'set larger delay to allow the GPS' /etc/chrony/chrony.conf || echo '# set larger delay to allow the GPS source to overlap with the other sources and avoid the falseticker status
 ' >> /etc/chrony/chrony.conf
       grep -qxF 'refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2' /etc/chrony/chrony.conf || echo 'refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2' >> /etc/chrony/chrony.conf
       #Adding PPS as an optionnal source for chrony
-      grep -qxF 'refclock PPS /dev/pps0 refid PPS lock GPS' /etc/chrony/chrony.conf || echo '#refclock PPS /dev/pps0 refid PPS lock GPS' >> /etc/chrony/chrony.conf
+      grep -q 'refclock PPS /dev/pps0 refid PPS lock GPS' /etc/chrony/chrony.conf || echo '#refclock PPS /dev/pps0 refid PPS lock GPS' >> /etc/chrony/chrony.conf
 
       #Overriding chrony.service with custom dependency
       cp /lib/systemd/system/chrony.service /etc/systemd/system/chrony.service
