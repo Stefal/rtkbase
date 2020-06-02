@@ -315,7 +315,10 @@ start_services() {
   systemctl start str2str_tcp.service
   systemctl start gpsd.service
   systemctl start chrony.service
-
+  echo '################################'
+  echo 'END OF INSTALLATION'
+  echo 'You can open your browser to http://'$(hostname -I)
+  echo '################################'
 }
 main() {
   #display parameters
@@ -350,10 +353,6 @@ main() {
 					     configure_gnss               && \
                start_services               ;fi
   done
-  echo '################################'
-  echo 'END OF INSTALLATION'
-  echo 'You can open your browser to http://'$(hostname -I)
-  echo '################################'
 }
 
 main $@
