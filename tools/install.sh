@@ -61,7 +61,7 @@ install_dependencies() {
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get update 
-      apt-get install -y git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
+      apt-get install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
 }
 
 install_gpsd_chrony() {
@@ -85,10 +85,17 @@ install_gpsd_chrony() {
       sed -i s/^After=.*/After=gpsd.service/ /etc/systemd/system/chrony.service
 
       #Adding backports repository to install a gpsd release that support the F9P
-      echo 'deb http://httpredir.debian.org/debian buster-backports main contrib' > /etc/apt/sources.list.d/backports.list
-      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-      apt-get update
-      apt-get -t buster-backports install gpsd -y
+      if lsb_release -c | grep -qE 'bionic|buster' && ! apt-cache policy | grep -qE 'buster-backports.* armhf'
+      then
+        #Adding buster-backports
+        echo 'deb http://httpredir.debian.org/debian buster-backports main contrib' > /etc/apt/sources.list.d/backports.list
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+        apt-get update
+        apt-get -t buster-backports install gpsd -y
+      else
+        #We hope that the release is more recent than buster and provide gpsd 3.20 or >
+        apt-get install gpsd -y
+      fi
       #disable hotplug
       sed -i 's/^USBAUTO=.*/USBAUTO="false"/' /etc/default/gpsd
       #Setting correct input for gpsd
@@ -100,7 +107,14 @@ install_gpsd_chrony() {
       #Overriding gpsd.service with custom dependency
       cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
       sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
-      sed -i '/^After=.*/i BindsTo=str2str_tcp.service' /etc/systemd/system/gpsd.service
+      if grep -qxF '^BindsTo=' /etc/systemd/system/gpsd.service
+      then
+        #Change the BindsTo value
+        sed -i 's/^BindsTo=.*/BindsTo=str2str_tcp.service/' /etc/systemd/system/gpsd.service
+      else
+        #Add the BindsTo value
+        sed -i '/^After=.*/i BindsTo=str2str_tcp.service' /etc/systemd/system/gpsd.service
+      fi
 
       #Reload systemd services and enable chrony and gpsd
       systemctl daemon-reload
@@ -319,7 +333,7 @@ main() {
 					     install_rtkbase_from_release && \
 					     rtkbase_requirements         && \
 					     install_unit_files           && \
-					     install_gpsd-chrony          && \
+					     install_gpsd_chrony          && \
 					     add_crontab                  && \
 					     detect_usb_gnss              && \
 					     configure_gnss               && \
