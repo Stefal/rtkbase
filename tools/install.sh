@@ -123,6 +123,8 @@ install_gpsd_chrony() {
       systemctl daemon-reload
       systemctl enable gpsd
       systemctl enable chrony
+      #Enable chrony can fail but it works, so let's return 0 to not break the script.
+      return 0
 }
 
 install_rtklib() {
@@ -283,13 +285,13 @@ configure_gnss(){
         if [[ ${#detected_gnss[*]} -eq 2 ]]
         then
           echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
-          if [[ -f "rtkbase/settings.conf" ]]  #check if settings.conf exists
+          if [[ -f "rtkbase/settings.conf" ]]  && grep -E "^com_port=.*" rtkbase/settings.conf #check if settings.conf exists
           then
             #inject the com port inside settings.conf
             sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ rtkbase/settings.conf
           else
             #create settings.conf with the com_port setting and the format
-            sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'" > rtkbase/settings.conf
+            sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\n" > rtkbase/settings.conf
           fi
         fi
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
