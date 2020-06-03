@@ -117,7 +117,7 @@
       <div class="form-group row">
         <label for="rtcm_msg" class="col-sm-3 col-form-label">Rtcm messages: </label>
         <div class="col-sm-9">
-            <input id="rtcm_msg" type="text" name="rtcm_msg" class="form-control" value="{{ ntrip_settings[4].rtcm_msg }}" title="rtcm messages list" pattern="[0-9,()]+" required>
+            <input id="rtcm_msg" type="text" name="rtcm_msg" class="form-control" value="{{ ntrip_settings[4].rtcm_msg }}" title="rtcm messages list" pattern="[0-9,().]+" required>
             <div class="invalid-feedback">Rtcm messages list</div>
         </div>
       </div>
@@ -147,7 +147,7 @@
       <div class="form-group row">
         <label for="rtcm_svr_msg" class="col-sm-3 col-form-label">Rtcm server messages: </label>
         <div class="col-sm-9">
-            <input id="rtcm_svr_msg" type="text" name="rtcm_svr_msg" class="form-control" value="{{ rtcm_svr_settings[1].rtcm_svr_msg }}" title="Rtcm server messages list" pattern="[0-9,()]+" required>
+            <input id="rtcm_svr_msg" type="text" name="rtcm_svr_msg" class="form-control" value="{{ rtcm_svr_settings[1].rtcm_svr_msg }}" title="Rtcm server messages list" pattern="[0-9,().]+" required>
             <div class="invalid-feedback">Rtcm server messages list</div>
         </div>
       </div>
