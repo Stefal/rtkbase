@@ -310,11 +310,14 @@ configure_gnss(){
 }
 
 start_services() {
+  echo '################################'
+  echo 'STARTING SERVICES'
+  echo '################################'
   systemctl daemon-reload
   systemctl start rtkbase_web.service
   systemctl start str2str_tcp.service
-  systemctl start gpsd.service
-  systemctl start chrony.service
+  systemctl restart gpsd.service
+  systemctl restart chrony.service
   echo '################################'
   echo 'END OF INSTALLATION'
   echo 'You can open your browser to http://'$(hostname -I)
