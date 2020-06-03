@@ -287,7 +287,7 @@ configure_gnss(){
           echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
           if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
           then
-            gnss_format='#ubx'
+            gnss_format='ubx'
           fi
           if [[ -f "rtkbase/settings.conf" ]]  && grep -E "^com_port=.*" rtkbase/settings.conf #check if settings.conf exists
           then
