@@ -176,8 +176,8 @@
       <div class="form-group row">
         <label for="file_name" class="col-sm-3 col-form-label">File name: </label>
         <div class="col-sm-9">
-            <input id="file_name" type="text" name="file_name" class="form-control" value="{{ file_settings[1].file_name }}" title="File name construction" pattern="%Y-%m-%d-%h:%M:%S[^|><\s]*" required>
-            <div class="invalid-feedback">File name construction (should start with %Y-%m-%d-%h:%M:%S)</div>
+            <input id="file_name" type="text" name="file_name" class="form-control" value="{{ file_settings[1].file_name }}" title="File name construction" pattern="%Y-%m-%d_%h-%M-%S[^|><\s]*" required>
+            <div class="invalid-feedback">File name construction (should start with %Y-%m-%d_%h-%M-%S)</div>
         </div>
       </div>
       <div class="form-group row">
