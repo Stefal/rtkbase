@@ -6,7 +6,7 @@ Description=RTKBase Tcp
 
 [Service]
 Type=forking
-#User=basegnss
+User={user}
 ExecStart={script_path}/run_cast.sh in_serial out_tcp
 Restart=on-failure
 RestartSec=30
