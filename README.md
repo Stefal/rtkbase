@@ -88,10 +88,8 @@ The `install.sh` script can be use without the `--all` option to split the insta
                          Deploy services.
 
         --gpsd-chrony
-                         Install gpsd and chrony to set clock from the gnss receiver.
-
-        --crontab
-                         add crontab tools, every day logs are archived
+                         Install gpsd and chrony to set date and time
+                         from the gnss receiver.
 
         --detect-usb-gnss
                          Detect your GNSS receiver.
@@ -153,11 +151,15 @@ So, if you really want it, let's go for a manual installation with some explanat
    $ python3 -m pip install -r rtkbase/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
    $ python3 -m pip install rtkbase/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
 
-1. Install the systemd services with `sudo ./install.sh --unit-files`, or edit them (`rtkbase/unit/`) to replace the username, copy them to `/etc/systemd/system/` then enable the web server and str2str_tcp:
+1. Install the systemd services with `sudo ./install.sh --unit-files`, or do it manually with:
+   + Edit them (`rtkbase/unit/`) to replace `{user}` with your username.
+   + If you log the raw data inside the base station, you may want to compress these data and delete the too old archives. `archive_and_clean.sh` will do it for you. The default settings compress the previous day data and delete all archives older than 90 days. To automate these 2 tasks, enable the `rtkbase_archive.timer`. The default value runs the script everyday at 04H00.
+   + Copy these services to `/etc/systemd/system/` then enable the web server, str2str_tcp and rtkbase_archive.timer:
    ```bash
    $ sudo systemctl daemon-reload
    $ sudo systemctl enable rtkbase_web
    $ sudo systemctl enable str2str_tcp
+   $ sudo systemctl enable rtkbase_archive.timer
    ```
 1. Install and configure chrony and gpsd with `sudo ./install.sh --gpsd-chrony`, or:
    + Install chrony with `sudo apt install chrony` then add this parameter in the chrony conf file (/etc/chrony/chrony.conf):
