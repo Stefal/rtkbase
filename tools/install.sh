@@ -351,7 +351,6 @@ main() {
 					     rtkbase_requirements         && \
 					     install_unit_files           && \
 					     install_gpsd_chrony          && \
-					     add_crontab                  && \
 					     detect_usb_gnss              && \
 					     configure_gnss               && \
                start_services               ;fi

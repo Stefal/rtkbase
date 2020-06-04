@@ -5,7 +5,7 @@
 
 BASEDIR=$(dirname "$0")
 
-for file_path in ${BASEDIR}/unit/*.service
+for file_path in ${BASEDIR}/unit/*.service ${BASEDIR}/unit/*.timer
 do
     file_name=$(basename ${file_path})
     echo copying ${file_name}
