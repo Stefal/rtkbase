@@ -43,9 +43,6 @@ man_help(){
     echo '                         Install gpsd and chrony to set date and time'
     echo '                         from the gnss receiver.'
     echo ''
-    echo '        --crontab'
-    echo '                         add crontab tools, every day logs are archived'
-    echo ''
     echo '        --detect-usb-gnss'
     echo '                         Detect your GNSS receiver.'
     echo ''
@@ -234,23 +231,8 @@ install_unit_files() {
         #Install unit files
         rtkbase/copy_unit.sh
         systemctl enable rtkbase_web.service
+        systemctl enable rtkbase_archive.timer
         systemctl daemon-reload
-      else
-        echo 'RtkBase not installed, use option --rtkbase-release'
-      fi
-}
-
-add_crontab() {
-    echo '################################'
-    echo 'ADDING CRONTAB'
-    echo '################################'
-      if [ -d rtkbase ]
-      then 
-        #script from https://stackoverflow.com/questions/610839/how-can-i-programmatically-create-a-new-cron-job
-        #I've added '-r' to sort because SHELL=/bin/bash should stay before "0 4 * * ..."
-        crontabuser=$(logname)
-        (crontab -u ${crontabuser} -l ; echo 'SHELL=/bin/bash') | sort -r | uniq - | crontab -u ${crontabuser} -
-        (crontab -u ${crontabuser} -l ; echo "0 4 * * * $(eval echo ~$(logname)/rtkbase/archive_and_clean.sh)") | sort -r | uniq - | crontab -u ${crontabuser} -
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
@@ -319,6 +301,7 @@ start_services() {
   systemctl start str2str_tcp.service
   systemctl restart gpsd.service
   systemctl restart chrony.service
+  systemctl start rtkbase_archive.timer
   echo '################################'
   echo 'END OF INSTALLATION'
   echo 'You can open your browser to http://'$(hostname -I)
@@ -342,7 +325,6 @@ main() {
 					     rtkbase_requirements            ;fi
     if [ "$i" == "--unit-files" ]     ; then install_unit_files              ;fi
     if [ "$i" == "--gpsd-chrony" ]    ; then install_gpsd_chrony             ;fi
-    if [ "$i" == "--crontab" ] 	      ; then add_crontab                     ;fi
     if [ "$i" == "--detect-usb-gnss" ]; then detect_usb_gnss                 ;fi
     if [ "$i" == "--configure-gnss" ] ; then configure_gnss                  ;fi
     if [ "$i" == "--start-services" ] ; then start_services                  ;fi
@@ -352,7 +334,6 @@ main() {
 					     rtkbase_requirements         && \
 					     install_unit_files           && \
 					     install_gpsd_chrony          && \
-					     add_crontab                  && \
 					     detect_usb_gnss              && \
 					     configure_gnss               && \
                start_services               ;fi
