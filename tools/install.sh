@@ -7,7 +7,7 @@ man_help(){
     echo '################################'
     echo 'RTKBASE INSTALLATION HELP'
     echo '################################'
-    echo 'Bash scripts for install a simple gnss base station with a web frontend.'
+    echo 'Bash scripts to install a simple gnss base station with a web frontend.'
     echo ''
     echo ''
     echo ''
