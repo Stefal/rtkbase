@@ -74,7 +74,7 @@ install_gpsd_chrony() {
       #Adding GPS as source for chrony
       grep -q 'set larger delay to allow the GPS' /etc/chrony/chrony.conf || echo '# set larger delay to allow the GPS source to overlap with the other sources and avoid the falseticker status
 ' >> /etc/chrony/chrony.conf
-      grep -qxF 'refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2' /etc/chrony/chrony.conf || echo 'refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2' >> /etc/chrony/chrony.conf
+      grep -qxF 'refclock SHM 0 refid GPS precision 1e-1 offset 0 delay 0.2' /etc/chrony/chrony.conf || echo 'refclock SHM 0 refid GPS precision 1e-1 offset 0 delay 0.2' >> /etc/chrony/chrony.conf
       #Adding PPS as an optionnal source for chrony
       grep -q 'refclock PPS /dev/pps0 refid PPS lock GPS' /etc/chrony/chrony.conf || echo '#refclock PPS /dev/pps0 refid PPS lock GPS' >> /etc/chrony/chrony.conf
 
