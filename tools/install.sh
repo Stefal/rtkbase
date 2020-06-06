@@ -152,7 +152,7 @@ install_rtklib() {
 
 rtkbase_repo(){
     #Get rtkbase repository
-    sudo -u $(logname) git clone -b web_gui --single-branch https://github.com/stefal/rtkbase.git
+    sudo -u $(logname) git clone https://github.com/stefal/rtkbase.git
     sudo -u $(logname) touch rtkbase/settings.conf
 
 }
