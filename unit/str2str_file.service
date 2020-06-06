@@ -8,7 +8,9 @@ User={user}
 ExecStart={script_path}/run_cast.sh in_tcp out_file
 Restart=on-failure
 RestartSec=30
-
+#Limiting log to 1 msg per minute
+LogRateLimitIntervalSec=1 minute
+LogRateLimitBurst=1
 
 [Install]
 WantedBy=multi-user.target
