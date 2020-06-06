@@ -81,8 +81,3 @@ rtcm_svr_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1
 logdir=$BASEDIR/log
 #log trace level (0: no trace)
 level=0
-
-# NTRIP caster logs
-log1=$logdir/cast_trac_`date -u +%Y%m%d_%H%M%S`.log
-log2=$logdir/cast_stat_`date -u +%Y%m%d_%H%M%S`.log
-log3=$logdir/ifconfig_`date -u +%Y%m%d_%H%M%S`.log
