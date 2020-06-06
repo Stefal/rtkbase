@@ -78,6 +78,6 @@ rtcm_svr_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1
 [log]
 
 #log directory
-logdir=$BASEDIR/log
+logdir=$BASEDIR/logs
 #log trace level (0: no trace)
 level=0
