@@ -5,3 +5,4 @@ rtkrcv.nav
 /logs/*
 settings.conf
 /data/*
+/log/*
