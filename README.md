@@ -18,7 +18,8 @@ Frontend's features are:
 
 + Enclosure: GentleBOX JE-200
 + SBC: Orange Pi Zero (512MB)
-+ Gnss Receiver: U-Blox F9P (from Drotek)
++ Gnss Receiver: U-Blox ZED-F9P (from Drotek)
++ Antenna: DA910 (Gps L1/L2, Glonass L1/L2, Beidou B1/B2/B3 and Galileo E1/E5b/E6) + sma (male) to TNC (male) outdoor cable.
 + Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
 
 ## Ready to flash release:
