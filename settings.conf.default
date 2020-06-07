@@ -1,0 +1,83 @@
+# settings for run_cast.sh
+
+[general]
+# Version
+version=2.0.0-beta.36
+# Rtkbase upgrade mandatory "checkpoint"
+checkpoint_version=2.1.0
+# User who runs str2str_file service
+user=
+# NTRIP caster program
+BASEDIR=$(dirname "$0")
+#path to the caster application
+cast=/usr/local/bin/str2str
+#set true if you want to enter a password to open the web gui.
+web_authentification=true
+#enter here your new password for web gui 
+#(it will be erased during the next web server start)
+new_web_password=
+#don't touch this one
+web_password_hash=pbkdf2:sha256:150000$kWdEE8eU$d30b1a75e5cf898684bad60b47a45a8058b6c33535560be005b6e0110b947cf6
+
+[main]
+#base coordinates: lat long height
+position='47.034 -1.251 36.4'
+#gnss receiver com port
+com_port='ttyS1'
+#gnss receiver com port settings
+com_port_settings='115200:8:n:1'
+#receiver model
+receiver='Ublox_ZED-F9P'
+#gnss receiver format
+receiver_format='ubx'
+#tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
+tcp_port='5015'
+
+[local_storage]
+
+# File options for local data storage
+
+#gnss data storage directory
+datadir=$BASEDIR/data
+#gnss data filename	    
+file_name='%Y-%m-%d_%h-%M-%S_GNSS-1'
+#file rotate time in hour
+file_rotate_time='24'
+#file overlap time in seconds
+file_overlap_time='30'
+#name for the compressed archive
+archive_name=$(date -d "-1 days" +"%Y-%m-%d_%S").zip
+#archives older than this value (in days) will be deleted by archive_and_clean.sh
+archive_rotate='90'
+
+[ntrip]
+
+# NTRIP caster options
+
+#ntrip caster url
+svr_addr='caster.centipede.fr'
+#ntrip caster port
+svr_port='2101'
+#ntrip caster password
+svr_pwd=''
+#Mount name
+mnt_name='Your_mount_name'
+
+rtcm_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127,1230'
+
+[rtcm_svr]
+
+# RTCM server options
+
+#port for rtcm local use
+rtcm_svr_port='5016'
+#messages for rtcm local use
+rtcm_svr_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127,1230'
+
+
+[log]
+
+#log directory
+logdir=$BASEDIR/logs
+#log trace level (0: no trace)
+level=0

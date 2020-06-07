@@ -1,0 +1,9 @@
+[Unit]
+Description=Run rtkbase_archive.service everyday at 04H00
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

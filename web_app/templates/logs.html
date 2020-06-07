@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-table.min.css') }}">
+{{super()}}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <table id="logtable" data-toggle="table">
+        
+        <thead>
+          <tr>
+            <th data-field="name" data-sortable="true">File name</th>
+            <th data-field="format" data-sortable="true">type</th>
+            <th data-field="size" data-sortable="true">size (MB)</th>
+            <th data-field="actions" data-formatter="actionFormatter" data-events="operateEvents">actions</th>
+            
+          </tr>
+        </thead>
+      </table>
+</div>
+
+<!-- The delete Modal dialog box-->
+<div class="modal" id="deleteModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Warning</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body text-center ">
+          Do you really want to delete this file ?
+          <p id="filename" class="font-weight-bold"></p>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer mx-auto">
+          <button id="confirm-delete-button" type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+<!-- The edit Modal dialog box-->
+<div class="modal" id="editModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Edit</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body text-center ">
+          Coming soon....
+          <p id="filename" class="font-weight-bold"></p>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer mx-auto">
+          <button id="edit-button" type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-table.min.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='logs.js') }}" charset="utf-8"></script>
+
+{% endblock %}

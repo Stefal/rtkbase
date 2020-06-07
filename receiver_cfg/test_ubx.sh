@@ -74,6 +74,8 @@ ver_check ()
 {
 dev_mon_ver=`dev_mon_ver`
 file_mon_ver=`file_mon_ver $1`
+echo "Device version: " ${dev_mon_ver}
+echo "File version: " ${file_mon_ver}
 
 if [[ ${dev_mon_ver} =~ .*${file_mon_ver}.* ]]
 then
@@ -105,6 +107,7 @@ then
 else
 return 1
 fi
+return 1
 }
 
 send_ubx ()

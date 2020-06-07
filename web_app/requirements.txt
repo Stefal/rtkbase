@@ -1,0 +1,13 @@
+cryptography
+Flask
+Flask-SocketIO
+eventlet
+Bootstrap-Flask
+Flask-WTF
+Flask-Login
+pexpect
+pyOpenSSL
+pyserial
+pystemd
+requests
+

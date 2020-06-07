@@ -1,5 +1,5 @@
 [Unit]
-Description=RTKBase Ntrip
+Description=RTKBase rtcm server
 #After=network-online.target
 #Wants=network-online.target
 Requires=str2str_tcp.service
@@ -7,7 +7,7 @@ Requires=str2str_tcp.service
 [Service]
 Type=forking
 User={user}
-ExecStart={script_path}/run_cast.sh in_tcp out_caster
+ExecStart={script_path}/run_cast.sh in_tcp out_rtcm_svr
 Restart=on-failure
 RestartSec=30
 #Limiting log to 1 msg per minute
