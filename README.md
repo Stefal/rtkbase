@@ -244,6 +244,55 @@ RTKBase use several RTKLIB `str2str` instances started with `run_cast.sh` as sys
 
 The web gui is available when the `rtkbase_web` service is running.
 
+## Other usages:
+A gnss receiver with a timepulse output is a very accurate [stratum 0](https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata) clock thus, your gnss base station could act as a stratum 1 ntp peer for your local network and/or the [ntp pool](https://en.wikipedia.org/wiki/NTP_pool). There are a few steps to do this:
+
++ Connect the timepulse output + GND to some inputs on your SBC.
++ Configure this input as PPS in your operating system.
+
+   + Raspberry Pi example: 
+      + Inside /boot/config.txt, add `dtoverlay=pps-gpio,gpiopin=18` on a new line. '18' is the input used for timepulse.
+      + Inside /etc/modules, add `pps-gpio` on a new line, if it is not already present.
+
+   + Orange Pi Zero example, inside /boot/armbianEnv.txt : 
+      
+      + Add `pps-gpio` to the `overlays` line.
+      + One a new line, add `param_pps_pin=PA19` <- change 'PA19' to your input.
+
++ Set gpsd and chrony to use PPS
+
+   + gpsd: comment the `DEVICE` line in `/etc/defaut/gpsd` and uncomment `#DEVICES="tcp:\\127.0.0.1:5015 \dev\pps0`
+
+   + chrony: inside `/etc/chrony/chrony.conf` uncomment the refclock pps line  and add noselect to the 'refclock SHM 0`. You should have something like this:
+   ```
+      refclock SHM 0 refid GPS precision 1e-1 offset 0 delay 0.2 noselect
+      refclock PPS /dev/pps0 refid PPS lock GPS
+   ```
+
+   + reboot your sbc and check the result of `chronyc sources -v` You should read something like this, notice the '*' before 'PPS': 
+   ```
+      basegnss@orangepizero:~$ chronyc sources -v
+      210 Number of sources = 6
+      .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+      / .- Source state '*' = current synced, '+' = combined , '-' = not combined,
+      | /   '?' = unreachable, 'x' = time may be in error, '~' = time too variable.
+      ||                                                 .- xxxx [ yyyy ] +/- zzzz
+      ||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+      ||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+      ||                                \     |          |  zzzz = estimated error.
+      ||                                 |    |           \
+      MS Name/IP address         Stratum Poll Reach LastRx Last sample
+      ===============================================================================
+      #? GPS                           0   4   377    17    +64ms[  +64ms] +/-  200ms
+      #* PPS                           0   4   377    14   +363ns[ +506ns] +/- 1790ns
+      ^- ntp0.dillydally.fr            2   6   177    16    -12ms[  -12ms] +/-   50ms
+      ^? 2a01:e35:2fba:7c00::21        0   6     0     -     +0ns[   +0ns] +/-    0ns
+      ^- 62-210-213-21.rev.poneyt>     2   6   177    17  -6488us[-6487us] +/-   67ms
+      ^- kalimantan.ordimatic.net      3   6   177    16    -27ms[  -27ms] +/-   64ms
+
+   ```
+
+
 
 ## License:
 RTKBase is licensed under AGPL 3 (see LICENSE file).
