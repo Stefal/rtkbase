@@ -41,14 +41,14 @@ function Chart() {
         $("#height_value").html("0");
 
         var height = 55*5;
-        var margin = {top: 30, right: 10, bottom: 30, left: 10};
+        var margin = {top: 30, right: 10, bottom: 30, left: 35};
         //  the size of the overall svg element
         var width = $("#bar-chart").width() - margin.left - margin.right,
             barWidth = width*0.022,
             barOffset = width*0.005;
 
         this.svg = d3.select('#bar-chart').append('svg')
-            .attr('width', width + margin.left + margin.right)
+            .attr('width', width + margin.left + margin.right)a
             .attr('height', height + margin.top + margin.bottom)
             .style('background', 'white');
 
@@ -143,7 +143,7 @@ function Chart() {
 
     this.resize = function(){
 
-        var margin = {top: 30, right: 10, bottom: 30, left: 10};
+        var margin = {top: 30, right: 10, bottom: 30, left: 35};
         var width = $("#bar-chart").width() - margin.left - margin.right;
 
         var barWidth = width*0.022;
@@ -369,6 +369,7 @@ function Chart() {
 
 }
 
+
 function updateCoordinateGrid(msg) {
         // status
         $("#status_value").html("<span>" + msg['solution status'] + "</span>");
@@ -382,7 +383,6 @@ function updateCoordinateGrid(msg) {
         var lat_value = coordinates[0].substring(0, 11) + Array(11 - coordinates[0].substring(0, 11).length + 1).join(" ");
         var lon_value = coordinates[1].substring(0, 11) + Array(11 - coordinates[1].substring(0, 11).length + 1).join(" ");
         var height_value = coordinates[2].substring(0, 11) + Array(11 - coordinates[2].substring(0, 11).length + 1 + 2).join(" ");
-
 
         $("#lat_value").html("<span>" + lat_value + " °" + "</span>");
         $("#lon_value").html("<span>" + lon_value + " °" + "</span>");
