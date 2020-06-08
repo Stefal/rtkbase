@@ -14,13 +14,15 @@ Frontend's features are:
 + Download/delete raw data
 
 ## Base example:
-<img src="./images/base_f9p.jpg" alt="status" width="550" />
+<img src="./images/base_f9p_raspberry_pi.jpg" alt="status" width="550" />
 
 + Enclosure: GentleBOX JE-200 (waterproof, cable glands for antenna and ethernet cable)
-+ SBC: Orange Pi Zero (512MB)
++ SBC: Raspberry Pi 3 / Orange Pi Zero (512MB)
 + Gnss Receiver: U-Blox ZED-F9P (from Drotek)
 + Antenna: DA910 (Gps L1/L2, Glonass L1/L2, Beidou B1/B2/B3 and Galileo E1/E5b/E6) + sma (male) to TNC (male) outdoor cable.
 + Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
+
+Other images are available in the ./images folder.
 
 ## Ready to flash release:
 If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases).
