@@ -58,7 +58,7 @@ The `install.sh` script can be use without the `--all` option to split the insta
    ################################
    RTKBASE INSTALLATION HELP
    ################################
-   Bash scripts for install a simple gnss base station with a web frontend.
+   Bash script to install a simple gnss base station with a web frontend.
 
 
 
