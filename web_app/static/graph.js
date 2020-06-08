@@ -138,7 +138,7 @@ function Chart() {
             .text(function(d) {
                 return d;
             })
-            .style("font-size","13px");
+            .style("font-size","10px");
     }
 
     this.resize = function(){
