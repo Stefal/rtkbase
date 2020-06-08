@@ -41,7 +41,7 @@ function Chart() {
         $("#height_value").html("0");
 
         var height = 55*5;
-        var margin = {top: 30, right: 10, bottom: 30, left: 25};
+        var margin = {top: 30, right: 10, bottom: 30, left: 10};
         //  the size of the overall svg element
         var width = $("#bar-chart").width() - margin.left - margin.right,
             barWidth = width*0.022,
@@ -95,7 +95,7 @@ function Chart() {
             .selectAll('rect').data(this.chartdata)
             .enter().append('rect')
             .style("fill", function(data) { return data.color; })
-            .style({stroke: "black"})
+            .style({stroke: "grey"})
             .attr('width', barWidth/2)
             .attr('height', function (data) {
                 return 5*data.value;
@@ -143,7 +143,7 @@ function Chart() {
 
     this.resize = function(){
 
-        var margin = {top: 30, right: 10, bottom: 30, left: 40};
+        var margin = {top: 30, right: 10, bottom: 30, left: 10};
         var width = $("#bar-chart").width() - margin.left - margin.right;
 
         var barWidth = width*0.022;
@@ -222,13 +222,13 @@ function Chart() {
                 // determine the fill color depending on the sat level
                 switch(true) {
                     case (current_level < 20):
-                        current_fillcolor = "#FF766C"; // Red
+                        current_fillcolor = "#FF1403"; // Red
                         break;
                     case (current_level >= 20 && current_level <= 33):
-                        current_fillcolor = "#FFEA5B"; // Yellow
+                        current_fillcolor = "#FFDE00"; // Yellow
                         break;
                     case (current_level >= 33):
-                        current_fillcolor = "#44D62C"; // Green
+                        current_fillcolor = "#62C902"; // Green
                         break;
                 }
 
