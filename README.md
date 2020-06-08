@@ -214,15 +214,6 @@ So, if you really want it, let's go for a manual installation with some explanat
    ```
    
    Change the ttyS1 and 115200 value if needed. Then you can use a network connection in U-center with the base station ip address and the port n°128.
-  
-1. If you log the raw data inside the base station, you may want to compress these data and delete the too old archives. `archive_and_clean.sh` will do it for you. The default settings compress the previous day data and delete all archives older than 90 days. To automate these 2 tasks, you can use `sudo ./install.sh --crontab` or:
-
-   Edit your crontab with ``$ crontab -e`` and add these lines:
-   ```bash
-   SHELL=/bin/bash
-   0 4 * * * /home/YOUR_USER_NAME/PATH_TO_RTKBASE/archive_and_clean.sh
-   ```
-   Cron will run this script everyday at 4H00.
 
 1. Now you can start the services with `sudo ./install.sh --start-services`, or:
    ```bash
@@ -230,6 +221,7 @@ So, if you really want it, let's go for a manual installation with some explanat
       $ sudo systemctl start str2str_tcp
       $ sudo systemctl start gpsd
       $ sudo systemctl start chrony
+      $ sudo systemctl start rtkbase_archive.timer
    ```
 
    Everything should be ready, now you can open a web browser to your base station ip address.
