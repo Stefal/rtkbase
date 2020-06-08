@@ -33,7 +33,7 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 
    ```bash
    $ cd ~
-   $ wget https://raw.githubusercontent.com/stefal/rtkbase/web_gui/tools/install.sh
+   $ wget https://raw.githubusercontent.com/stefal/rtkbase/master/tools/install.sh
    $ chmod +x install.sh
    $ sudo ./install.sh --all
    ```
