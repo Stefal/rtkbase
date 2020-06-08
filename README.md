@@ -16,7 +16,7 @@ Frontend's features are:
 ## Base example:
 <img src="./images/base_f9p.jpg" alt="status" width="550" />
 
-+ Enclosure: GentleBOX JE-200
++ Enclosure: GentleBOX JE-200 (waterproof, cable glands for antenna and ethernet cable)
 + SBC: Orange Pi Zero (512MB)
 + Gnss Receiver: U-Blox ZED-F9P (from Drotek)
 + Antenna: DA910 (Gps L1/L2, Glonass L1/L2, Beidou B1/B2/B3 and Galileo E1/E5b/E6) + sma (male) to TNC (male) outdoor cable.
