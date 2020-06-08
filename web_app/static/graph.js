@@ -41,7 +41,7 @@ function Chart() {
         $("#height_value").html("0");
 
         var height = 55*5;
-        var margin = {top: 30, right: 10, bottom: 30, left: 10};
+        var margin = {top: 30, right: 10, bottom: 30, left: 25};
         //  the size of the overall svg element
         var width = $("#bar-chart").width() - margin.left - margin.right,
             barWidth = width*0.022,
