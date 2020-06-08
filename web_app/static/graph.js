@@ -396,6 +396,10 @@ function Chart() {
 }
 
 function updateCoordinateGrid(msg) {
+        // status
+        $("#status_value").html("<span>" + msg['solution status'] + "</span>");
+        $("#mode_value").html("<span>" + msg['positioning mode'] + "</span>");
+
         // coordinates
         var coordinates = (typeof(msg['pos llh single (deg,m) rover']) == 'undefined') ? '000' : msg['pos llh single (deg,m) rover'].split(',');
 
