@@ -159,7 +159,7 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
             if release.get("prerelease") & prerelease or release.get("prerelease") == False:
                 latest_release = release["tag_name"].strip("v")
                 if latest_release > current_release and latest_release <= rtkbaseconfig.get("general", "checkpoint_version"):
-                    new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
+                    new_release = {"new_release" : latest_release, "url" : release.get("tarball_url"), "comment" : release.get("body")}
                     break
              
     except Exception as e:
