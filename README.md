@@ -242,14 +242,14 @@ The web gui is available when the `rtkbase_web` service is running.
 ## Other usages:
 A gnss receiver with a timepulse output is a very accurate [stratum 0](https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata) clock thus, your gnss base station could act as a stratum 1 ntp peer for your local network and/or the [ntp pool](https://en.wikipedia.org/wiki/NTP_pool). There are a few steps to do this:
 
-+ Connect the timepulse output + GND to some inputs on your SBC.
++ Connect the timepulse output + GND to some GPIO inputs on your SBC.
 + Configure this input as PPS in your operating system.
 
    + Raspberry Pi example: 
       + Inside /boot/config.txt, add `dtoverlay=pps-gpio,gpiopin=18` on a new line. '18' is the input used for timepulse.
       + Inside /etc/modules, add `pps-gpio` on a new line, if it is not already present.
 
-   + Orange Pi Zero example, inside /boot/armbianEnv.txt : 
+   + Orange Pi Zero example, inside /boot/armbianEnv.txt: 
       
       + Add `pps-gpio` to the `overlays` line.
       + One a new line, add `param_pps_pin=PA19` <- change 'PA19' to your input.
