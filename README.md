@@ -1,6 +1,6 @@
 # RTKBase
 
-### An easy to use and easy to install web frontend with some bash scripts and services for a simple gnss base station.
+### An easy to use and easy to install web frontend with some bash scripts and services for a simple headless gnss base station.
 
 ## FrontEnd:
 |<img src="./images/web_status.png" alt="status" width="250"/>|<img src="./images/web_settings.png" alt="settings" width="250"/>|<img src="./images/web_logs.png" alt="logs" width="250"/>|
