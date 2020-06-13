@@ -151,15 +151,16 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+    current_release = current_release.replace("-beta", "").replace("-alpha", "").replace("-rc", "")
     
     try:    
         response = requests.get(source_url)
         response = response.json()
         for release in response:
             if release.get("prerelease") & prerelease or release.get("prerelease") == False:
-                latest_release = release["tag_name"].strip("v")
+                latest_release = release.get("tag_name").strip("v").replace("-beta", "").replace("-alpha", "").replace("-rc", "")
                 if latest_release > current_release and latest_release <= rtkbaseconfig.get("general", "checkpoint_version"):
-                    new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
+                    new_release = {"new_release" : release.get("tag_name"), "url" : release.get("assets")[0].get("browser_download_url"), "comment" : release.get("body")}
                     break
              
     except Exception as e:
