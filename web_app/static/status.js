@@ -68,6 +68,16 @@ $(document).ready(function () {
         }
     });
 
+    // Add Base station crosshair
+    var crossIcon = L.icon({
+        iconUrl: './images/iconmonstr-crosshair-6-64.png',
+        iconSize: [64, 64],
+        iconAnchor: [32, 32],
+            });
+    
+    var baseMark = L.marker({lng: -1.3505, lat: 47.06003}).addTo(map);
+
+
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
     socket.on("satellite broadcast rover", function(msg) {
