@@ -56,7 +56,18 @@ $(document).ready(function () {
         
     }).addTo(map);
 
-    // Add marker
+    // Add Base station crosshair
+    var crossIcon = L.icon({
+        iconUrl: '/static/images/iconmonstr-crosshair-6-64.png',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+            });
+    
+    
+    //the baseCoordinates variable comes from status.html
+    var baseMark = L.marker(baseCoordinates, {icon: crossIcon}).addTo(map);
+
+    // Add realtime localisation marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
 
     // Move map view with marker location
@@ -67,16 +78,6 @@ $(document).ready(function () {
             map.flyTo(locMark.getLatLng(), 20);
         }
     });
-
-    // Add Base station crosshair
-    var crossIcon = L.icon({
-        iconUrl: './images/iconmonstr-crosshair-6-64.png',
-        iconSize: [64, 64],
-        iconAnchor: [32, 32],
-            });
-    
-    var baseMark = L.marker({lng: -1.3505, lat: 47.06003}).addTo(map);
-
 
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
