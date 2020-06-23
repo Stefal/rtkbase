@@ -59,8 +59,8 @@ $(document).ready(function () {
     // Add Base station crosshair
     var crossIcon = L.icon({
         iconUrl: '/static/images/iconmonstr-crosshair-6-64.png',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
             });
     
     
