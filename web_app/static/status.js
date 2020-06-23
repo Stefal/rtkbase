@@ -49,9 +49,8 @@ $(document).ready(function () {
 
     var osmLayer = L.tileLayer('https://osm.vtech.fr/hot/{z}/{x}/{y}.png?uuid=2fc148f4-7018-4fd0-ac34-6b626cdc97a1', {
         maxZoom: 20,
-        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a> ' +
-            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> ' +
-            '| <a href="https://cloud.empreintedigitale.fr">Empreinte digitale</a>',
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ' +
+            '| <a href="https://cloud.empreintedigitale.fr" target="_blank">Empreinte digitale</a>',
         tileSize: 256,
         
     });
@@ -68,7 +67,7 @@ $(document).ready(function () {
     
     var baseMaps = {
         "OpenStreetMap": osmLayer,
-        "Aerial": aerialLayer
+        "Aerial Hybrid": aerialLayer
     };
 
     L.control.layers(baseMaps).addTo(map);
