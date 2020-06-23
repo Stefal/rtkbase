@@ -47,15 +47,33 @@ $(document).ready(function () {
 
     var map = L.map('map').setView({lon: 0, lat: 0}, 2);
 
-    L.tileLayer('https://osm.vtech.fr/hot/{z}/{x}/{y}.png?uuid=2fc148f4-7018-4fd0-ac34-6b626cdc97a1', {
+    var osmLayer = L.tileLayer('https://osm.vtech.fr/hot/{z}/{x}/{y}.png?uuid=2fc148f4-7018-4fd0-ac34-6b626cdc97a1', {
         maxZoom: 20,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a> ' +
             '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> ' +
             '| <a href="https://cloud.empreintedigitale.fr">Empreinte digitale</a>',
         tileSize: 256,
         
-    }).addTo(map);
+    });
 
+    var aerialLayer = L.tileLayer('https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=diJ0vzi8QUkxUax5EvlK',{
+        tileSize: 512,
+        zoomOffset: -1,
+        minZoom: 1,
+        maxZoom: 20,
+        attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>',
+        crossOrigin: true
+      });
+
+    
+    var baseMaps = {
+        "OpenStreetMap": osmLayer,
+        "Aerial": aerialLayer
+    };
+
+    L.control.layers(baseMaps).addTo(map);
+    osmLayer.addTo(map);
+    
     // Add marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
 
