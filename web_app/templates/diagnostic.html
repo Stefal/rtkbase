@@ -1,0 +1,11 @@
+{% block content %}
+<body >
+<prestyle="white-space: pre-wrap">
+  {% for service in logs %}
+  {{ service.status|safe }}<br>
+{% endfor %}
+</pre>
+</body>
+
+{% endblock %}
+
