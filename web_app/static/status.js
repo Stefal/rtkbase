@@ -65,7 +65,7 @@ $(document).ready(function () {
     
     
     //the baseCoordinates variable comes from status.html
-    var baseMark = L.marker(baseCoordinates, {icon: crossIcon}).addTo(map);
+    var baseMark = L.marker(baseCoordinates, {icon: crossIcon, zIndexOffset: 0}).addTo(map);
 
     // Add realtime localisation marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
