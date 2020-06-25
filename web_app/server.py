@@ -88,6 +88,8 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
+                 {'service_unit' : 'rtkbase_archive.timer'}, 
+                 {'service_unit' : 'rtkbase_archive.service'},
                  ]
 
 
@@ -291,18 +293,25 @@ def logout():
     return redirect(url_for('login_page'))
 
 @app.route('/diagnostic')
+@login_required
 def diagnostic():
+    """
+    Get services journal and status
+    """
+    getServicesStatus()
     logs = []
     for service in services_list:
-        status = subprocess.run(['systemctl', 'status', service['service_unit']],
+        sysctl_status = subprocess.run(['systemctl', 'status', service['service_unit']],
                                 stdout=subprocess.PIPE,
                                 universal_newlines=True)
-        status = status.stdout.replace('\n', '<br>') 
-        #journal = subprocess.run(['journalctl', '-u', service['service_unit']], 
-         #                       stdout=subprocess.PIPE, 
-          #                      universal_newlines=True)
-        logs.append({'name' : service['service_unit'], 'status' : status, })
-    
+        journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']], 
+                                 stdout=subprocess.PIPE, 
+                                 universal_newlines=True)
+        
+        sysctl_status = sysctl_status.stdout.replace('\n', '<br>') 
+        journalctl = journalctl.stdout.replace('\n', '<br>')
+        logs.append({'name' : service['service_unit'], 'active' : service['active'], 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
+    print(logs)
     return render_template('diagnostic.html', logs = logs)
     
 

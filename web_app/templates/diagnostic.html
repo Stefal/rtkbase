@@ -2,7 +2,9 @@
 <body >
 <prestyle="white-space: pre-wrap">
   {% for service in logs %}
-  {{ service.status|safe }}<br>
+  {{ service.name }} : {{ service.active }}<br>
+  {{ service.sysctl_status|safe }}<br>
+  {{ service.journalctl|safe }}<br>
 {% endfor %}
 </pre>
 </body>
