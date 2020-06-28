@@ -154,6 +154,7 @@ rtkbase_repo(){
     #Get rtkbase repository
     sudo -u $(logname) git clone https://github.com/stefal/rtkbase.git
     sudo -u $(logname) touch rtkbase/settings.conf
+    add_rtkbase_path_to_environment
 
 }
 
@@ -162,6 +163,7 @@ rtkbase_release(){
     sudo -u $(logname) wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
     sudo -u $(logname) tar -xvf rtkbase.tar.gz
     sudo -u $(logname) touch rtkbase/settings.conf
+    add_rtkbase_path_to_environment
 
 }
 
@@ -205,6 +207,23 @@ install_rtkbase_from_release() {
         echo "RtkBase release: NO, download & deploy last release"
         rtkbase_release
       fi
+}
+
+add_rtkbase_path_to_environment(){
+    echo '################################'
+    echo 'ADDING RTKBASE PATH TO ENVIRONMENT'
+    echo '################################'
+    if [ -d rtkbase ]
+      then
+        if grep -q '^rtkbase_path=' /etc/environment
+          then
+            #Change the path using @ as separator because / is present in $(pwd) output
+            sed -i "s@^rtkbase_path=.*@rtkbase_path=$(pwd)\/rtkbase\/@" /etc/environment
+          else
+            #Add the path
+            echo "rtkbase_path=$(pwd)/rtkbase/" >> /etc/environment
+        fi
+    fi
 }
 
 rtkbase_requirements(){
