@@ -74,9 +74,9 @@ install_gpsd_chrony() {
       #Adding GPS as source for chrony
       grep -q 'set larger delay to allow the GPS' /etc/chrony/chrony.conf || echo '# set larger delay to allow the GPS source to overlap with the other sources and avoid the falseticker status
 ' >> /etc/chrony/chrony.conf
-      grep -qxF 'refclock SHM 0 refid GPS precision 1e-1 offset 0 delay 0.2' /etc/chrony/chrony.conf || echo 'refclock SHM 0 refid GPS precision 1e-1 offset 0 delay 0.2' >> /etc/chrony/chrony.conf
+      grep -qxF 'refclock SHM 0 refid GNSS precision 1e-1 offset 0 delay 0.2' /etc/chrony/chrony.conf || echo 'refclock SHM 0 refid GNSS precision 1e-1 offset 0 delay 0.2' >> /etc/chrony/chrony.conf
       #Adding PPS as an optionnal source for chrony
-      grep -q 'refclock PPS /dev/pps0 refid PPS lock GPS' /etc/chrony/chrony.conf || echo '#refclock PPS /dev/pps0 refid PPS lock GPS' >> /etc/chrony/chrony.conf
+      grep -q 'refclock PPS /dev/pps0 refid PPS lock GNSS' /etc/chrony/chrony.conf || echo '#refclock PPS /dev/pps0 refid PPS lock GNSS' >> /etc/chrony/chrony.conf
 
       #Overriding chrony.service with custom dependency
       cp /lib/systemd/system/chrony.service /etc/systemd/system/chrony.service
@@ -102,7 +102,7 @@ install_gpsd_chrony() {
       #Setting correct input for gpsd
       sed -i 's/^DEVICES=.*/DEVICES="tcp:\/\/127.0.0.1:5015"/' /etc/default/gpsd
       #Adding example for using pps
-      sed -i '/^DEVICES=.*/a #DEVICES="tcp:\/\/127.0.0.1:5015 \/dev\/pps0"' /etc/default/gpsd
+      grep -q 'DEVICES="tcp:/120.0.0.1:5015 /dev/pps0' /etc/default/gpsd || sed -i '/^DEVICES=.*/a #DEVICES="tcp:\/\/127.0.0.1:5015 \/dev\/pps0"' /etc/default/gpsd
       #gpsd should always run, in read only mode
       sed -i 's/^GPSD_OPTIONS=.*/GPSD_OPTIONS="-n -b"/' /etc/default/gpsd
       #Overriding gpsd.service with custom dependency
@@ -285,7 +285,7 @@ configure_gnss(){
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
         then
-          rtkbase/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
+          rtkbase/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
         fi
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
