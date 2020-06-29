@@ -224,6 +224,7 @@ add_rtkbase_path_to_environment(){
             echo "rtkbase_path=$(pwd)/rtkbase/" >> /etc/environment
         fi
     fi
+    export rtkbase_path=$(pwd)/rtkbase/
 }
 
 rtkbase_requirements(){
@@ -332,6 +333,13 @@ main() {
   array=($@)
   # if no parameters display help
   if [ -z "$array" ]                  ; then man_help                        ;fi
+  # If rtkbase is installed but the OS wasn't restarted, then the system wide
+  # rtkbase_path variable is not set in the current shell. We must source it
+  # from /etc/environment:
+  if [[ -z ${rtkbase_path} ]]
+  then
+    source /etc/environment
+  fi
   # run intall options
   for i in "${array[@]}"
   do
