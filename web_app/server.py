@@ -233,7 +233,7 @@ def status_page():
     """
     base_position = rtkbaseconfig.get("main", "position").replace("'", "").split()
     base_coordinates = {"lat" : base_position[0], "lon" : base_position[1]}
-    return render_template("status.html", base_coordinates = base_coordinates)
+    return render_template("status.html", base_coordinates = base_coordinates, tms_key = {"maptiler_key" : rtkbaseconfig.get("general", "maptiler_key")})
 
 @app.route('/settings')
 @login_required
