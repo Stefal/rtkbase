@@ -229,7 +229,7 @@ def status_page():
     """
         The status web page with the gnss satellites levels and a map
     """
-    return render_template("status.html")
+    return render_template("status.html", tms_key = {"maptiler_key" : rtkbaseconfig.get("general", "maptiler_key")})
 
 @app.route('/settings')
 @login_required

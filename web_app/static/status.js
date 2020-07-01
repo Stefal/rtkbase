@@ -55,7 +55,8 @@ $(document).ready(function () {
         
     });
 
-    var aerialLayer = L.tileLayer('https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=diJ0vzi8QUkxUax5EvlK',{
+    if (maptiler_key.length > 0) {
+    var aerialLayer = L.tileLayer('https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=' + maptiler_key,{
         tileSize: 512,
         zoomOffset: -1,
         minZoom: 1,
@@ -63,13 +64,17 @@ $(document).ready(function () {
         attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>',
         crossOrigin: true
       });
-
+    };
     
     var baseMaps = {
-        "OpenStreetMap": osmLayer,
-        "Aerial Hybrid": aerialLayer
+        "OpenStreetMap": osmLayer
     };
 
+    if (typeof(aerialLayer) !== 'undefined') {
+        baseMaps["Aerial_Hybrid"] = aerialLayer;
+    };
+    console.log("basemap après if" + baseMaps);
+    console.log
     L.control.layers(baseMaps).addTo(map);
     osmLayer.addTo(map);
     
