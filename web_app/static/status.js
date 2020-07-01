@@ -78,7 +78,18 @@ $(document).ready(function () {
     L.control.layers(baseMaps).addTo(map);
     osmLayer.addTo(map);
     
-    // Add marker
+    // Add Base station crosshair
+    var crossIcon = L.icon({
+        iconUrl: '/static/images/iconmonstr-crosshair-6-64.png',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+            });
+    
+    
+    //the baseCoordinates variable comes from status.html
+    var baseMark = L.marker(baseCoordinates, {icon: crossIcon, zIndexOffset: 0}).addTo(map);
+
+    // Add realtime localisation marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
 
     // Move map view with marker location

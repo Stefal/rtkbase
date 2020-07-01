@@ -29,7 +29,9 @@
 <script type="text/javascript" src="{{ url_for('static', filename='graph.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='lib/leaflet.js') }}" charset="utf-8"></script>
 <script> 
-    var maptiler_key = '{{ tms_key.maptiler_key }}';
+// baseCoordinates and maptiler_key are used inside status.js
+var baseCoordinates = {{ base_coordinates|tojson }};
+var maptiler_key = '{{ tms_key.maptiler_key }}';
 </script>
 <script type="text/javascript" src="{{ url_for('static', filename='status.js') }}" charset="utf-8"></script>
 {% endblock %}
