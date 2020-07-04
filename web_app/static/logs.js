@@ -7,6 +7,8 @@ window.operateEvents = {
     'click #log_delete': function (e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
         $('#deleteModal').modal();
+        //put filename inside button attribute data.row to get it when the use
+        // click on the confirm delete button.
         $('#confirm-delete-button').data.row = row;
     },
     'click #log_edit': function(e, value, row, index) {
