@@ -4,9 +4,6 @@ function actionFormatter (value,row,index) {
 }
 
 window.operateEvents = {
-    'click #log_edit': function (e, value, row, index) {
-        alert('Editing: \n' + row.name)
-    },
     'click #log_delete': function (e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
         $('#deleteModal').modal();
@@ -57,7 +54,7 @@ $(document).ready(function () {
             var downloadImg = document.createElement("img");
             downloadImg.setAttribute("src", "../static/images/download.svg");
             downloadImg.setAttribute("alt", "download");
-            downloadImg.setAttribute("title", "download");
+            downloadImg.setAttribute("title", "Download");
             downloadImg.setAttribute("width", "25");
             downloadImg.setAttribute("height", "25");
         actionDownloadElt.appendChild(downloadImg);
@@ -70,7 +67,7 @@ $(document).ready(function () {
             var editImg = document.createElement("img");
             editImg.setAttribute("src", "../static/images/pencil.svg");
             editImg.setAttribute("alt", "edit");
-            editImg.setAttribute("title", "edit");
+            editImg.setAttribute("title", "Edit");
             editImg.setAttribute("width", "25");
             editImg.setAttribute("height", "25");
         actionEditElt.appendChild(editImg);
@@ -84,7 +81,7 @@ $(document).ready(function () {
             var deleteImg = document.createElement("img");
             deleteImg.setAttribute("src", "../static/images/trash.svg");
             deleteImg.setAttribute("alt", "delete");
-            deleteImg.setAttribute("title", "dElete");
+            deleteImg.setAttribute("title", "Delete");
             deleteImg.setAttribute("width", "25");
             deleteImg.setAttribute("height", "25");
         actionDeleteElt.appendChild(deleteImg);
