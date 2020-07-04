@@ -376,6 +376,15 @@ def deleteLog(json):
     # Sending the the new available logs
     getAvailableLogs()
 
+#### Convert ubx file to rinex for Ign ####
+@socketio.on("rinex IGN", namespace="/test")
+def rinex_ign(json):
+    print("will send the file name to the conversion script: ", json.get("name"))
+    #simulate processing
+    time.sleep(2)
+    # if success:
+    socketio.emit("ign rinex ready", json.get("name"), namespace="/test")
+
 #### Download and convert log handlers ####
 
 @socketio.on("process log", namespace="/test")

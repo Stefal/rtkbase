@@ -14,11 +14,17 @@ window.operateEvents = {
     'click #log_edit': function(e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
         $('#editModal').modal();
+        $('#rinex-ign-button').data.row = row;
     }
 };
 
 $('#confirm-delete-button').on("click", function (){
     socket.emit("delete log", $('#confirm-delete-button').data.row);
+});
+
+$('#rinex-ign-button').on("click", function (){
+    socket.emit("rinex IGN", $('#rinex-ign-button').data.row);
+    $(this).html('<span class="spinner-border spinner-border-sm"></span> Creating Rinex...');
 });
 
 $(document).ready(function () {
@@ -49,7 +55,7 @@ $(document).ready(function () {
         console.log("New log list available");
         
         var actionDownloadElt = document.createElement("a");
-        actionDownloadElt.href = "#deleteModal";
+        actionDownloadElt.href = "#";
         actionDownloadElt.setAttribute("title", "download");
         actionDownloadElt.setAttribute("id", "log_download")
         actionDownloadElt.classList.add("mx-1");
@@ -106,8 +112,14 @@ $(document).ready(function () {
         console.log(zz);
         })
 
-        
-
+       // ################" SOCKETS ##########################"
+   
+       socket.on('ign rinex ready', function(msg){
+        //response = JSON.parse(msg);
+        console.log('ign rinex file is ready');
+        $('#rinex-ign-button').html('Create');
+        location.href = "/logs/download/" + msg
+    });
  
     
 })
