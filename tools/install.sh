@@ -154,6 +154,7 @@ rtkbase_repo(){
     #Get rtkbase repository
     sudo -u $(logname) git clone https://github.com/stefal/rtkbase.git
     sudo -u $(logname) touch rtkbase/settings.conf
+    add_rtkbase_path_to_environment
 
 }
 
@@ -162,6 +163,7 @@ rtkbase_release(){
     sudo -u $(logname) wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
     sudo -u $(logname) tar -xvf rtkbase.tar.gz
     sudo -u $(logname) touch rtkbase/settings.conf
+    add_rtkbase_path_to_environment
 
 }
 
@@ -169,15 +171,15 @@ install_rtkbase_from_repo() {
     echo '################################'
     echo 'INSTALLING RTKBASE FROM REPO'
     echo '################################'
-      if [ -d rtkbase ]
+      if [ -d ${rtkbase_path} ]
       then
-        if [ -d rtkbase/.git ]
+        if [ -d ${rtkbase_path}/.git ]
         then
           echo "RtkBase repo: YES, git pull"
-          git -C rtkbase pull
+          git -C ${rtkbase_path} pull
         else
           echo "RtkBase repo: NO, rm release & git clone rtkbase"
-          rm -r rtkbase
+          rm -r ${rtkbase_path}
           rtkbase_repo
         fi
       else
@@ -190,12 +192,12 @@ install_rtkbase_from_release() {
     echo '################################'
     echo 'INSTALLING RTKBASE FROM RELEASE'
     echo '################################'
-      if [ -d rtkbase ]
+      if [ -d ${rtkbase_path} ]
       then
-        if [ -d rtkbase/.git ]
+        if [ -d ${rtkbase_path}/.git ]
         then
           echo "RtkBase release: NO, rm repo & download last release"
-          rm -r rtkbase
+          rm -r ${rtkbase_path}
           rtkbase_release
         else
           echo "RtkBase release: YES, rm & deploy last release"
@@ -207,6 +209,24 @@ install_rtkbase_from_release() {
       fi
 }
 
+add_rtkbase_path_to_environment(){
+    echo '################################'
+    echo 'ADDING RTKBASE PATH TO ENVIRONMENT'
+    echo '################################'
+    if [ -d rtkbase ]
+      then
+        if grep -q '^rtkbase_path=' /etc/environment
+          then
+            #Change the path using @ as separator because / is present in $(pwd) output
+            sed -i "s@^rtkbase_path=.*@rtkbase_path=$(pwd)\/rtkbase@" /etc/environment
+          else
+            #Add the path
+            echo "rtkbase_path=$(pwd)/rtkbase" >> /etc/environment
+        fi
+    fi
+    export rtkbase_path=$(pwd)/rtkbase
+}
+
 rtkbase_requirements(){
     echo '################################'
     echo 'INSTALLING RTKBASE REQUIREMENTS'
@@ -214,10 +234,10 @@ rtkbase_requirements(){
       #as we need to run the web server as root, we need to install the requirements with
       #the same user
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
-      python3 -m pip install -r rtkbase/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
+      python3 -m pip install -r ${rtkbase_path}/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       # We were waiting for the next pystemd official release.
       # install pystemd dev wheel for arm platform
-      python3 -m pip install rtkbase/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
+      python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
 }
@@ -226,10 +246,10 @@ install_unit_files() {
     echo '################################'
     echo 'ADDING UNIT FILES'
     echo '################################'
-      if [ -d rtkbase ]
+      if [ -d ${rtkbase_path} ]
       then 
         #Install unit files
-        rtkbase/copy_unit.sh
+        ${rtkbase_path}/copy_unit.sh
         systemctl enable rtkbase_web.service
         systemctl enable rtkbase_archive.timer
         systemctl daemon-reload
@@ -263,7 +283,7 @@ configure_gnss(){
     echo '################################'
     echo 'CONFIGURE GNSS RECEIVER'
     echo '################################'
-      if [ -d rtkbase ]
+      if [ -d ${rtkbase_path} ]
       then 
         if [[ ${#detected_gnss[*]} -eq 2 ]]
         then
@@ -272,20 +292,20 @@ configure_gnss(){
           then
             gnss_format='ubx'
           fi
-          if [[ -f "rtkbase/settings.conf" ]]  && grep -E "^com_port=.*" rtkbase/settings.conf #check if settings.conf exists
+          if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -E "^com_port=.*" ${rtkbase_path}/settings.conf #check if settings.conf exists
           then
             #change the com port value inside settings.conf
-            sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ rtkbase/settings.conf
+            sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${rtkbase_path}/settings.conf
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
-            sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > rtkbase/settings.conf
+            sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > ${rtkbase_path}/settings.conf
           fi
         fi
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
         then
-          rtkbase/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
+          ${rtkbase_path}/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 ${rtkbase_path}/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
         fi
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
@@ -313,6 +333,18 @@ main() {
   array=($@)
   # if no parameters display help
   if [ -z "$array" ]                  ; then man_help                        ;fi
+  # If rtkbase is installed but the OS wasn't restarted, then the system wide
+  # rtkbase_path variable is not set in the current shell. We must source it
+  # from /etc/environment or set it to the default value "rtkbase":
+  if [[ -z ${rtkbase_path} ]]
+  then
+    if grep -q '^rtkbase_path=' /etc/environment
+    then
+      source /etc/environment
+    else 
+      export rtkbase_path='rtkbase'
+    fi
+  fi
   # run intall options
   for i in "${array[@]}"
   do
