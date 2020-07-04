@@ -57,7 +57,7 @@ $(document).ready(function () {
             var downloadImg = document.createElement("img");
             downloadImg.setAttribute("src", "../static/images/download.svg");
             downloadImg.setAttribute("alt", "download");
-            downloadImg.setAttribute("title", "dOwnload");
+            downloadImg.setAttribute("title", "download");
             downloadImg.setAttribute("width", "25");
             downloadImg.setAttribute("height", "25");
         actionDownloadElt.appendChild(downloadImg);

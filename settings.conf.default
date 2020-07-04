@@ -2,7 +2,7 @@
 
 [general]
 # Version
-version=2.0.0-beta.37
+version=2.0.2
 # Rtkbase upgrade mandatory "checkpoint"
 checkpoint_version=2.1.0
 # User who runs str2str_file service
@@ -18,6 +18,8 @@ web_authentification=true
 new_web_password=
 #don't touch this one
 web_password_hash=pbkdf2:sha256:150000$kWdEE8eU$d30b1a75e5cf898684bad60b47a45a8058b6c33535560be005b6e0110b947cf6
+#key needed to add an aerial image layer
+maptiler_key=
 
 [main]
 #base coordinates: lat long height

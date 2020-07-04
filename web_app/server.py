@@ -63,7 +63,7 @@ from wtforms import PasswordField, BooleanField, SubmitField
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_socketio import SocketIO, emit, disconnect
-from subprocess import check_output
+import subprocess
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -88,6 +88,8 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
+                 {'service_unit' : 'rtkbase_archive.timer'}, 
+                 {'service_unit' : 'rtkbase_archive.service'},
                  ]
 
 
@@ -151,15 +153,16 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+    current_release = current_release.replace("-beta", "").replace("-alpha", "").replace("-rc", "")
     
     try:    
         response = requests.get(source_url)
         response = response.json()
         for release in response:
             if release.get("prerelease") & prerelease or release.get("prerelease") == False:
-                latest_release = release["tag_name"].strip("v")
+                latest_release = release.get("tag_name").strip("v").replace("-beta", "").replace("-alpha", "").replace("-rc", "")
                 if latest_release > current_release and latest_release <= rtkbaseconfig.get("general", "checkpoint_version"):
-                    new_release = {"new_release" : latest_release, "url" : release.get("tarball_url")}
+                    new_release = {"new_release" : release.get("tag_name"), "url" : release.get("assets")[0].get("browser_download_url"), "comment" : release.get("body")}
                     break
              
     except Exception as e:
@@ -230,7 +233,7 @@ def status_page():
     """
     base_position = rtkbaseconfig.get("main", "position").replace("'", "").split()
     base_coordinates = {"lat" : base_position[0], "lon" : base_position[1]}
-    return render_template("status.html", base_coordinates = base_coordinates)
+    return render_template("status.html", base_coordinates = base_coordinates, tms_key = {"maptiler_key" : rtkbaseconfig.get("general", "maptiler_key")})
 
 @app.route('/settings')
 @login_required
@@ -290,6 +293,31 @@ def login_page():
 def logout():
     logout_user()
     return redirect(url_for('login_page'))
+
+@app.route('/diagnostic')
+@login_required
+def diagnostic():
+    """
+    Get services journal and status
+    """
+    getServicesStatus()
+    logs = []
+    for service in services_list:
+        sysctl_status = subprocess.run(['systemctl', 'status', service['service_unit']],
+                                stdout=subprocess.PIPE,
+                                universal_newlines=True)
+        journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']], 
+                                 stdout=subprocess.PIPE, 
+                                 universal_newlines=True)
+        
+        #Replace carrier return to <br> for html view
+        sysctl_status = sysctl_status.stdout.replace('\n', '<br>') 
+        journalctl = journalctl.stdout.replace('\n', '<br>')
+        active_state = "Active" if service['active'] == True else "Inactive"
+        logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
+        
+    return render_template('diagnostic.html', logs = logs)
+    
 
 #### Handle connect/disconnect events ####
 
@@ -386,7 +414,7 @@ def rebootRtkbase():
     rtk.shutdown()
     #socketio.stop() hang. I disabled it
     #socketio.stop()
-    check_output("reboot")
+    subprocess.check_output("reboot")
 
 @socketio.on("shutdown device", namespace="/test")
 def shutdownRtkbase():
@@ -394,12 +422,12 @@ def shutdownRtkbase():
     rtk.shutdown()
     #socketio.stop() hang. I disabled it
     #socketio.stop()
-    check_output(["shutdown", "now"])
+    subprocess.check_output(["shutdown", "now"])
 
 @socketio.on("turn off wi-fi", namespace="/test")
 def turnOffWiFi():
     print("Turning off wi-fi")
-#    check_output("rfkill block wlan", shell = True)
+#    subprocess.check_output("rfkill block wlan", shell = True)
 
 #### Systemd Services functions ####
 

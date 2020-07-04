@@ -1,6 +1,6 @@
 # RTKBase
 
-### An easy to use and easy to install web frontend with some bash scripts and services for a simple gnss base station.
+### An easy to use and easy to install web frontend with some bash scripts and services for a simple headless gnss base station.
 
 ## FrontEnd:
 |<img src="./images/web_status.png" alt="status" width="250"/>|<img src="./images/web_settings.png" alt="settings" width="250"/>|<img src="./images/web_logs.png" alt="logs" width="250"/>|
@@ -14,13 +14,15 @@ Frontend's features are:
 + Download/delete raw data
 
 ## Base example:
-<img src="./images/base_f9p.jpg" alt="status" width="550" />
+<img src="./images/base_f9p_raspberry_pi.jpg" alt="status" width="550" />
 
 + Enclosure: GentleBOX JE-200 (waterproof, cable glands for antenna and ethernet cable)
-+ SBC: Orange Pi Zero (512MB)
++ SBC: Raspberry Pi 3 / Orange Pi Zero (512MB)
 + Gnss Receiver: U-Blox ZED-F9P (from Drotek)
 + Antenna: DA910 (Gps L1/L2, Glonass L1/L2, Beidou B1/B2/B3 and Galileo E1/E5b/E6) + sma (male) to TNC (male) outdoor cable.
 + Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
+
+Other images are available in the ./images folder.
 
 ## Ready to flash release:
 If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases).
@@ -56,7 +58,7 @@ The `install.sh` script can be use without the `--all` option to split the insta
    ################################
    RTKBASE INSTALLATION HELP
    ################################
-   Bash scripts for install a simple gnss base station with a web frontend.
+   Bash script to install a simple gnss base station with a web frontend.
 
 
 
@@ -240,14 +242,14 @@ The web gui is available when the `rtkbase_web` service is running.
 ## Other usages:
 A gnss receiver with a timepulse output is a very accurate [stratum 0](https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata) clock thus, your gnss base station could act as a stratum 1 ntp peer for your local network and/or the [ntp pool](https://en.wikipedia.org/wiki/NTP_pool). There are a few steps to do this:
 
-+ Connect the timepulse output + GND to some inputs on your SBC.
++ Connect the timepulse output + GND to some GPIO inputs on your SBC.
 + Configure this input as PPS in your operating system.
 
    + Raspberry Pi example: 
       + Inside /boot/config.txt, add `dtoverlay=pps-gpio,gpiopin=18` on a new line. '18' is the input used for timepulse.
       + Inside /etc/modules, add `pps-gpio` on a new line, if it is not already present.
 
-   + Orange Pi Zero example, inside /boot/armbianEnv.txt : 
+   + Orange Pi Zero example, inside /boot/armbianEnv.txt: 
       
       + Add `pps-gpio` to the `overlays` line.
       + One a new line, add `param_pps_pin=PA19` <- change 'PA19' to your input.
