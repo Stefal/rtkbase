@@ -371,25 +371,25 @@ def getAvailableSpace():
 #### Delete log button handler ####
 
 @socketio.on("delete log", namespace="/test")
-def deleteLog(json):
-    rtk.logm.deleteLog(json.get("name"))
+def deleteLog(json_msg):
+    rtk.logm.deleteLog(json_msg.get("name"))
     # Sending the the new available logs
     getAvailableLogs()
 
 #### Convert ubx file to rinex for Ign ####
 @socketio.on("rinex IGN", namespace="/test")
-def rinex_ign(json):
-    print("will send the file name to the conversion script: ", json.get("name"))
+def rinex_ign(json_msg):
+    print("will send the file name to the conversion script: ", json_msg.get("name"))
     #simulate processing
     time.sleep(2)
     # if success:
-    socketio.emit("ign rinex ready", json.get("name"), namespace="/test")
+    socketio.emit("ign rinex ready", json_msg.get("name"), namespace="/test")
 
 #### Download and convert log handlers ####
 
 @socketio.on("process log", namespace="/test")
-def processLog(json):
-    log_name = json.get("name")
+def processLog(json_msg):
+    log_name = json_msg.get("name")
 
     print("Got signal to process a log, name = " + str(log_name))
     print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
@@ -398,8 +398,8 @@ def processLog(json):
     rtk.processLogPackage(raw_log_path)
 
 @socketio.on("cancel log conversion", namespace="/test")
-def cancelLogConversion(json):
-    log_name = json.get("name")
+def cancelLogConversion(json_msg):
+    log_name = json_msg.get("name")
     raw_log_path = rtk.logm.log_path + "/" + log_name
     rtk.cancelLogConversion(raw_log_path)
 
@@ -411,8 +411,8 @@ def readRINEXVersion():
     rtk.socketio.emit("current RINEX version", {"version": rinex_version}, namespace="/test")
 
 @socketio.on("write RINEX version", namespace="/test")
-def writeRINEXVersion(json):
-    rinex_version = json.get("version")
+def writeRINEXVersion(json_msg):
+    rinex_version = json_msg.get("version")
     rtk.logm.setRINEXVersion(rinex_version)
 
 #### Device hardware functions ####
@@ -506,21 +506,21 @@ def getServicesStatus():
     return services_status
 
 @socketio.on("services switch", namespace="/test")
-def switchService(json):
+def switchService(json_msg):
     """
         Start or stop some systemd services
         As a service could need some time to start or stop, there is a 5 seconds sleep
         before refreshing the status.
-        param: json: A json var from the web front end containing one or more service
+        param: json_msg: A json var from the web front end containing one or more service
         name with their new status.
     """
-    print("Received service to switch", json)
+    print("Received service to switch", json_msg)
     try:
         for service in services_list:
-            if json["name"] == service["name"] and json["active"] == True:
+            if json_msg["name"] == service["name"] and json_msg["active"] == True:
                 print("Trying to start service {}".format(service["name"]))
                 service["unit"].start()
-            elif json["name"] == service["name"] and json["active"] == False:
+            elif json_msg["name"] == service["name"] and json_msg["active"] == False:
                 print("Trying to stop service {}".format(service["name"]))
                 service["unit"].stop()
 
@@ -531,25 +531,25 @@ def switchService(json):
         getServicesStatus()
 
 @socketio.on("form data", namespace="/test")
-def update_settings(json):
+def update_settings(json_msg):
     """
         Get the form data from the web front end, and save theses values to settings.conf
         Then restart the services which have a dependency with these parameters.
-        param json: A json variable containing the source fom and the new paramaters
+        param json_msg: A json variable containing the source fom and the new paramaters
     """
-    print("received settings form", json)
-    source_section = json.pop().get("source_form")
+    print("received settings form", json_msg)
+    source_section = json_msg.pop().get("source_form")
     print("section: ", source_section)
     if source_section == "change_password":
-        if json[0].get("value") == json[1].get("value"):
-            rtkbaseconfig.update_setting("general", "new_web_password", json[0].get("value"))
+        if json_msg[0].get("value") == json_msg[1].get("value"):
+            rtkbaseconfig.update_setting("general", "new_web_password", json_msg[0].get("value"))
             update_password(rtkbaseconfig)
             socketio.emit("password updated", namespace="/test")
 
         else:
             print("ERREUR, MAUVAIS PASS")
     else:
-        for form_input in json:
+        for form_input in json_msg:
             print("name: ", form_input.get("name"))
             print("value: ", form_input.get("value"))
             rtkbaseconfig.update_setting(source_section, form_input.get("name"), form_input.get("value"), write_file=False)
