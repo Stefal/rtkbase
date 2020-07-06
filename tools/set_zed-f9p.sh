@@ -32,7 +32,7 @@ set_F9P() {
 #echo $DEVICE_SPEED
 #echo $CONFIG
 
-if [[ -c ${GPS} ]] && [[ ${DEVICE_SPEED} -gt 0 ]] && [[ -f $CONFIG && -s $CONFIG && $CONFIG == *.txt ]]
+if [[ -c ${GPS} ]] && [[ ${DEVICE_SPEED} -gt 0 ]] && [[ -f $CONFIG && -s $CONFIG && $CONFIG == *.cfg ]]
 then
     #Overwrite UBXOPTS with the settings from the command line
     export UBXOPTS="-f ${GPS} -s ${DEVICE_SPEED} -v 0"
