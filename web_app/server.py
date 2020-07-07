@@ -380,10 +380,16 @@ def deleteLog(json_msg):
 @socketio.on("rinex IGN", namespace="/test")
 def rinex_ign(json_msg):
     print("will send the file name to the conversion script: ", json_msg.get("name"))
-    #simulate processing
-    time.sleep(2)
-    # if success:
-    socketio.emit("ign rinex ready", json_msg.get("name"), namespace="/test")
+    #processing
+    user1=rtkbaseconfig.get("general", "user")
+    mnt_name=rtkbaseconfig.get("ntrip", "mnt_name").strip("'")
+    convpath="./home/"+ user1 +"/rtkbase/tools/convbin.sh"
+    subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name])
+    #get name:
+    f = open("/etc/environment", "r").read()
+    #export
+    socketio.emit("ign rinex ready",  str(f) , namespace="/test")
+    f.close()
 
 #### Download and convert log handlers ####
 
