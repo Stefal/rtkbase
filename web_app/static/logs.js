@@ -115,10 +115,17 @@ $(document).ready(function () {
        // ################" SOCKETS ##########################"
    
        socket.on('ign rinex ready', function(msg){
-        //response = JSON.parse(msg);
-        console.log('ign rinex file is ready');
-        $('#rinex-ign-button').html('Create');
-        location.href = "/logs/download/" + msg
+        response = JSON.parse(msg);
+        console.log(response);
+        if (response.result == "success") {
+            $('#rinex-ign-button').html('Create');
+            location.href = "/logs/download/" + response.file
+        }
+        else if (response.result == "failed") {
+            $('#rinex-ign-button').html('Create');
+            $('#editModal .modal-body').append("Failed!")
+            console.log(response.msg)
+        }
     });
  
     

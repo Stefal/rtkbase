@@ -381,15 +381,17 @@ def deleteLog(json_msg):
 def rinex_ign(json_msg):
     print("will send the file name to the conversion script: ", json_msg.get("name"))
     #processing
-    user1=rtkbaseconfig.get("general", "user")
-    mnt_name=rtkbaseconfig.get("ntrip", "mnt_name").strip("'")
-    convpath="./home/"+ user1 +"/rtkbase/tools/convbin.sh"
-    subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name])
-    #get name:
-    f = open("/etc/environment", "r").read()
-    #export
-    socketio.emit("ign rinex ready",  str(f) , namespace="/test")
-    f.close()
+    mnt_name = rtkbaseconfig.get("ntrip", "mnt_name").strip("'")
+    convpath = os.path.abspath(os.path.join(os.path.dirname(__file__), "../tools/convbin.sh"))
+    answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if answer.returncode == 0 and "rinex_file=" in answer.stdout:
+        rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
+        result = {"result" : "success", "file" : rinex_file}
+    else:
+        result = {"result" : "failed", "msg" : answer.stderr}
+    print("result: ", result)
+    socketio.emit("ign rinex ready", json.dumps(result), namespace="/test")
+
 
 #### Download and convert log handlers ####
 
