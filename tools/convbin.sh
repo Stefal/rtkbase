@@ -1,21 +1,22 @@
 #!/bin/bash
-#convert ubx(zip) to rinex
+#convert zipped raw file to rinex
 #./convbin.sh ubx.zip directory mount-name 
 
 RAW_ARCHIVE=$1
 DATA_DIR=$2
 MOUNT_NAME=$3
+RAW_TYPE=$4
 
 extract_raw_file() {
-  ubx=$(unzip -l ${RAW_ARCHIVE} "*.ubx" | awk '/-----/ {p = ++p % 2; next} p {print $NF}')
-  echo "- Extracting	"$ubx
-  unzip -o ${RAW_ARCHIVE} $ubx
+  raw_file=$(unzip -l ${RAW_ARCHIVE} "*.${RAW_TYPE}" | awk '/-----/ {p = ++p % 2; next} p {print $NF}')
+  echo "- Extracting	" "${raw_file}"
+  unzip -o ${RAW_ARCHIVE} "${raw_file}"
   return $?
 }
 
 convert_to_rinex() {
   echo "- CREATING RINEX	"${RINEX}
-    /usr/local/bin/convbin ${ubx} -v 2.11 -r ubx -hm ${MOUNT_NAME}    \
+    /usr/local/bin/convbin "${raw_file}" -v 2.11 -r ${RAW_TYPE} -hm ${MOUNT_NAME}    \
         -f 2 -y R -y E -y J -y S -y C -y I        \
         -od -os -oi -ot -ti 30 -tt 0 -ro -TADJ=1  \
         -o ${filedate}-${MOUNT_NAME}.${year2}o
@@ -31,5 +32,5 @@ cd ${DATA_DIR}
   RINEX=$(echo ${filedate}-${MOUNT_NAME}.${year2}o)
   echo "- Processing on	"${RAW_ARCHIVE}
   extract_raw_file && convert_to_rinex && echo -n 'rinex_file='${RINEX}
-  #remove ubx
-  rm $ubx
+  #remove raw file
+  rm "${raw_file}"
