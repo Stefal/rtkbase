@@ -334,9 +334,9 @@ def testDisconnect():
 
 @socketio.on("get logs list", namespace="/test")
 def getAvailableLogs():
-    print("DEBUG updating logs")
+    #print("DEBUG updating logs")
     rtk.logm.updateAvailableLogs()
-    print("Updated logs list is " + str(rtk.logm.available_logs))
+    #print("Updated logs list is " + str(rtk.logm.available_logs))
     rtk.socketio.emit("available logs", rtk.logm.available_logs, namespace="/test")
 
 #### str2str launch/shutdown handling ####
@@ -379,8 +379,6 @@ def deleteLog(json_msg):
 #### Convert ubx file to rinex for Ign ####
 @socketio.on("rinex IGN", namespace="/test")
 def rinex_ign(json_msg):
-    print("will send the file name to the conversion script: ", json_msg.get("name"))
-    #processing
     mnt_name = rtkbaseconfig.get("ntrip", "mnt_name").strip("'")
     convpath = os.path.abspath(os.path.join(os.path.dirname(__file__), "../tools/convbin.sh"))
     answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -389,9 +387,7 @@ def rinex_ign(json_msg):
         result = {"result" : "success", "file" : rinex_file}
     else:
         result = {"result" : "failed", "msg" : answer.stderr}
-    print("result: ", result)
     socketio.emit("ign rinex ready", json.dumps(result), namespace="/test")
-
 
 #### Download and convert log handlers ####
 
