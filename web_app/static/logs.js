@@ -47,10 +47,21 @@ $(document).ready(function () {
         console.log('disconnected');
     });
 
+    //Clean edit modal content when closing it, if there is a failed message
+    $("#editModal").on('hidden.bs.modal', function(){
+        socket.emit("get logs list");
+        var failedTitleElt = document.getElementById("failed_title");
+        if (failedTitleElt != null) {
+            failedTitleElt.remove();
+        };
+        var failedMsgElt = document.getElementById("failed_msg");
+        if (failedMsgElt != null) {
+            failedMsgElt.remove();
+        };
+      });
+
        // ################" TABLE ##########################"
 
-    
-    
     socket.on('available logs', function(msg){
         console.log("New log list available");
         
@@ -94,8 +105,6 @@ $(document).ready(function () {
             deleteImg.setAttribute("height", "25");
         actionDeleteElt.appendChild(deleteImg);
 
-       
-        
         // Adding icons for file's actions
         for (log of msg) {
             actionDownloadElt.href = "/logs/download/" + log.name
@@ -114,12 +123,29 @@ $(document).ready(function () {
 
        // ################" SOCKETS ##########################"
    
+        // server return the raw to rinex result
        socket.on('ign rinex ready', function(msg){
-        //response = JSON.parse(msg);
-        console.log('ign rinex file is ready');
-        $('#rinex-ign-button').html('Create');
-        location.href = "/logs/download/" + msg
+        response = JSON.parse(msg);
+        console.log(response);
+        if (response.result == "success") {           
+            $('#rinex-ign-button').html('Create');
+            location.href = "/logs/download/" + response.file;
+        }
+        else if (response.result == "failed") {
+            $('#rinex-ign-button').html('Create');
+
+            var failedTitleElt = document.createElement("h5");
+            failedTitleElt.classList.add("text-danger");
+            failedTitleElt.textContent = "Failed!";
+            failedTitleElt.id = "failed_title";
+            $('#editModal .modal-body').append(failedTitleElt);
+
+            var failedElt = document.createElement("p");
+            failedElt.classList.add("text-left");
+            failedElt.appendChild(document.createTextNode(response.msg));
+            failedElt.id = "failed_msg";
+            $('#editModal .modal-body').append(failedElt);
+        }
     });
- 
-    
+
 })
