@@ -49,8 +49,15 @@ $(document).ready(function () {
 
     //Clean edit modal content when closing it, if there is a failed message
     $("#editModal").on('hidden.bs.modal', function(){
-        document.getElementById("failed_title").remove()
-        document.getElementById("failed_msg").remove()
+        socket.emit("get logs list");
+        var failedTitleElt = document.getElementById("failed_title");
+        if (failedTitleElt != null) {
+            failedTitleElt.remove();
+        };
+        var failedMsgElt = document.getElementById("failed_msg");
+        if (failedMsgElt != null) {
+            failedMsgElt.remove();
+        };
       });
 
        // ################" TABLE ##########################"
@@ -120,7 +127,7 @@ $(document).ready(function () {
        socket.on('ign rinex ready', function(msg){
         response = JSON.parse(msg);
         console.log(response);
-        if (response.result == "success") {
+        if (response.result == "success") {           
             $('#rinex-ign-button').html('Create');
             location.href = "/logs/download/" + response.file;
         }
