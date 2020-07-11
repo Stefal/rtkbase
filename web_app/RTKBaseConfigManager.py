@@ -86,7 +86,7 @@ class RTKBaseConfigManager:
             and remove the single quotes.    
         """
         ordered_ntrip = [{"source_section" : "ntrip"}]
-        for key in ("svr_addr", "svr_port", "svr_pwd", "mnt_name", "rtcm_msg"):
+        for key in ("svr_addr", "svr_port", "svr_pwd", "mnt_name", "rtcm_msg", "ntrip_receiver_options"):
             ordered_ntrip.append({key : self.config.get('ntrip', key).strip("'")})
         return ordered_ntrip
     
@@ -106,7 +106,7 @@ class RTKBaseConfigManager:
             and remove the single quotes.       
         """
         ordered_rtcm_svr = [{"source_section" : "rtcm_svr"}]
-        for key in ("rtcm_svr_port", "rtcm_svr_msg"):
+        for key in ("rtcm_svr_port", "rtcm_svr_msg", "rtcm_receiver_options"):
             ordered_rtcm_svr.append({key : self.config.get('rtcm_svr', key).strip("'")})
         return ordered_rtcm_svr
 
