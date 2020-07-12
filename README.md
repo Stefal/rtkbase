@@ -116,7 +116,7 @@ So, if you really want it, let's go for a manual installation with some explanat
 
       ```bash
       $ cd ~
-      $ git clone -b rtklib_2.4.3 https://github.com/tomojitakasu/RTKLIB/rtklib_2.4.3
+      $ git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
       ```
 
    + compile and install str2str:
