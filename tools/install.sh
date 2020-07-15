@@ -296,10 +296,17 @@ configure_gnss(){
           then
             #change the com port value inside settings.conf
             sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${rtkbase_path}/settings.conf
+            #add option -TADJ=1 on rtcm/ntrip outputs
+            sudo -u $(logname) sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u $(logname) sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
             sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > ${rtkbase_path}/settings.conf
+            #add option -TADJ=1 on rtcm/ntrip outputs
+            sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
+
           fi
         fi
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
