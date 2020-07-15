@@ -61,7 +61,6 @@
         </div>
 
     </div>
-
     <div class="form-group row">
 
         <label for="tcp_port" class="col-sm-3 col-form-label">Tcp port: </label>
@@ -121,7 +120,13 @@
             <div class="invalid-feedback">Rtcm messages list</div>
         </div>
       </div>
-      
+      <div class="form-group row">
+        <label for="ntrip_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <div class="col-sm-9">
+            <input id="ntrip_receiver_options" type="text" name="ntrip_receiver_options" class="form-control" value="{{ ntrip_settings[5].ntrip_receiver_options }}" title="Receiver options" pattern="[^|><\/]*">
+            <div class="invalid-feedback">Receiver dependent options</div>
+        </div>
+      </div>      
 
         <div class="clearfix">
           <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
@@ -149,6 +154,13 @@
         <div class="col-sm-9">
             <input id="rtcm_svr_msg" type="text" name="rtcm_svr_msg" class="form-control" value="{{ rtcm_svr_settings[1].rtcm_svr_msg }}" title="Rtcm server messages list" pattern="[0-9,().]+" required>
             <div class="invalid-feedback">Rtcm server messages list</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_receiver_options" type="text" name="rtcm_receiver_options" class="form-control" value="{{ rtcm_svr_settings[2].rtcm_receiver_options }}" title="Receiver options" pattern="[^|><\/]*">
+            <div class="invalid-feedback">Receiver dependent options</div>
         </div>
       </div>
         

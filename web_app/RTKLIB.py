@@ -117,9 +117,12 @@ class RTKLIB:
         # self.loadState()
 
     def setCorrectTime(self):
+        # This method is partially disabled in RTKBase as chrony is responsible
+        # for syncing time and date.
+
         # determine if we have ntp service ready or we need gps time
 
-        print("RTKLIB 2 GPS time sync")
+        #print("RTKLIB 2 GPS time sync")
 
 ##        if not gps_time.time_synchronised_by_ntp():
             # wait for gps time
@@ -127,7 +130,7 @@ class RTKLIB:
 #            self.updateLED("orange,off")
 #        gps_time.set_gps_time("/dev/ttyACM0", 115200)
 
-        print("Time is synced by GPS!")
+        #print("Time is synced by GPS!")
 
         self.system_time_correct = True
         self.socketio.emit("system time corrected", {}, namespace="/test")

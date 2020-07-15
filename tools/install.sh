@@ -345,6 +345,12 @@ main() {
       export rtkbase_path='rtkbase'
     fi
   fi
+  # check if logname return an empty value
+  if [[ -z $(logname) ]]
+  then
+    echo 'The logname command return an empty value. Please reboot and retry.'
+    exit 1
+  fi
   # run intall options
   for i in "${array[@]}"
   do

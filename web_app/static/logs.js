@@ -4,22 +4,27 @@ function actionFormatter (value,row,index) {
 }
 
 window.operateEvents = {
-    'click #log_edit': function (e, value, row, index) {
-        alert('Editing: \n' + row.name)
-    },
     'click #log_delete': function (e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
         $('#deleteModal').modal();
+        //put filename inside button attribute data.row to get it when the use
+        // click on the confirm delete button.
         $('#confirm-delete-button').data.row = row;
     },
     'click #log_edit': function(e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
         $('#editModal').modal();
+        $('#rinex-ign-button').data.row = row;
     }
 };
 
 $('#confirm-delete-button').on("click", function (){
     socket.emit("delete log", $('#confirm-delete-button').data.row);
+});
+
+$('#rinex-ign-button').on("click", function (){
+    socket.emit("rinex IGN", $('#rinex-ign-button').data.row);
+    $(this).html('<span class="spinner-border spinner-border-sm"></span> Creating Rinex...');
 });
 
 $(document).ready(function () {
@@ -42,22 +47,33 @@ $(document).ready(function () {
         console.log('disconnected');
     });
 
+    //Clean edit modal content when closing it, if there is a failed message
+    $("#editModal").on('hidden.bs.modal', function(){
+        socket.emit("get logs list");
+        var failedTitleElt = document.getElementById("failed_title");
+        if (failedTitleElt != null) {
+            failedTitleElt.remove();
+        };
+        var failedMsgElt = document.getElementById("failed_msg");
+        if (failedMsgElt != null) {
+            failedMsgElt.remove();
+        };
+      });
+
        // ################" TABLE ##########################"
 
-    
-    
     socket.on('available logs', function(msg){
         console.log("New log list available");
         
         var actionDownloadElt = document.createElement("a");
-        actionDownloadElt.href = "#deleteModal";
+        actionDownloadElt.href = "#";
         actionDownloadElt.setAttribute("title", "download");
         actionDownloadElt.setAttribute("id", "log_download")
         actionDownloadElt.classList.add("mx-1");
             var downloadImg = document.createElement("img");
             downloadImg.setAttribute("src", "../static/images/download.svg");
             downloadImg.setAttribute("alt", "download");
-            downloadImg.setAttribute("title", "download");
+            downloadImg.setAttribute("title", "Download");
             downloadImg.setAttribute("width", "25");
             downloadImg.setAttribute("height", "25");
         actionDownloadElt.appendChild(downloadImg);
@@ -70,7 +86,7 @@ $(document).ready(function () {
             var editImg = document.createElement("img");
             editImg.setAttribute("src", "../static/images/pencil.svg");
             editImg.setAttribute("alt", "edit");
-            editImg.setAttribute("title", "edit");
+            editImg.setAttribute("title", "Edit");
             editImg.setAttribute("width", "25");
             editImg.setAttribute("height", "25");
         actionEditElt.appendChild(editImg);
@@ -84,13 +100,11 @@ $(document).ready(function () {
             var deleteImg = document.createElement("img");
             deleteImg.setAttribute("src", "../static/images/trash.svg");
             deleteImg.setAttribute("alt", "delete");
-            deleteImg.setAttribute("title", "dElete");
+            deleteImg.setAttribute("title", "Delete");
             deleteImg.setAttribute("width", "25");
             deleteImg.setAttribute("height", "25");
         actionDeleteElt.appendChild(deleteImg);
 
-       
-        
         // Adding icons for file's actions
         for (log of msg) {
             actionDownloadElt.href = "/logs/download/" + log.name
@@ -107,8 +121,31 @@ $(document).ready(function () {
         console.log(zz);
         })
 
-        
+       // ################" SOCKETS ##########################"
+   
+        // server return the raw to rinex result
+       socket.on('ign rinex ready', function(msg){
+        response = JSON.parse(msg);
+        console.log(response);
+        if (response.result == "success") {           
+            $('#rinex-ign-button').html('Create');
+            location.href = "/logs/download/" + response.file;
+        }
+        else if (response.result == "failed") {
+            $('#rinex-ign-button').html('Create');
 
- 
-    
+            var failedTitleElt = document.createElement("h5");
+            failedTitleElt.classList.add("text-danger");
+            failedTitleElt.textContent = "Failed!";
+            failedTitleElt.id = "failed_title";
+            $('#editModal .modal-body').append(failedTitleElt);
+
+            var failedElt = document.createElement("p");
+            failedElt.classList.add("text-left");
+            failedElt.appendChild(document.createTextNode(response.msg));
+            failedElt.id = "failed_msg";
+            $('#editModal .modal-body').append(failedElt);
+        }
+    });
+
 })
