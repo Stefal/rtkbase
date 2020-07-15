@@ -239,6 +239,11 @@ RTKBase use several RTKLIB `str2str` instances started with `run_cast.sh` as sys
 
 The web gui is available when the `rtkbase_web` service is running.
 
+## Advanced:
++ Aerial images:
+The default map background is OpenStreetMap, but you can switch to an aerial layer if you have a Maptiler key. To enable this layer, create a free account on [Maptiler](https://www.maptiler.com/), create a key and add it to `settings.conf` inside the `[general]` section:
+`maptiler_key=your_key`
+
 ## Other usages:
 A gnss receiver with a timepulse output is a very accurate [stratum 0](https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata) clock thus, your gnss base station could act as a stratum 1 ntp peer for your local network and/or the [ntp pool](https://en.wikipedia.org/wiki/NTP_pool). There are a few steps to do this:
 
