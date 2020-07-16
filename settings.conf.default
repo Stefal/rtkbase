@@ -2,7 +2,7 @@
 
 [general]
 # Version
-version=2.0.2
+version=2.0.3
 # Rtkbase upgrade mandatory "checkpoint"
 checkpoint_version=2.1.0
 # User who runs str2str_file service
@@ -23,7 +23,7 @@ maptiler_key=
 
 [main]
 #base coordinates: lat long height
-position='47.034 -1.251 36.4'
+position='47.0983869 -1.2655108 36.4'
 #gnss receiver com port
 com_port='ttyS1'
 #gnss receiver com port settings
