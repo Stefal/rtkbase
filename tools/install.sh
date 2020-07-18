@@ -253,6 +253,9 @@ install_unit_files() {
         systemctl enable rtkbase_web.service
         systemctl enable rtkbase_archive.timer
         systemctl daemon-reload
+	#Add dialout group to user
+	usermod -a -G dialout $(logname)
+	newgrp	
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
