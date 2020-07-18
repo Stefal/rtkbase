@@ -255,7 +255,7 @@ install_unit_files() {
         systemctl daemon-reload
 	#Add dialout group to user
 	usermod -a -G dialout $(logname)
-	newgrp	
+	newgrp - dialout
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
