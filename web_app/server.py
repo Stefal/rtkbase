@@ -162,7 +162,12 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
             if release.get("prerelease") & prerelease or release.get("prerelease") == False:
                 latest_release = release.get("tag_name").strip("v").replace("-beta", "").replace("-alpha", "").replace("-rc", "")
                 if latest_release > current_release and latest_release <= rtkbaseconfig.get("general", "checkpoint_version"):
-                    new_release = {"new_release" : release.get("tag_name"), "url" : release.get("assets")[0].get("browser_download_url"), "comment" : release.get("body")}
+                    new_release = {"new_release" : release.get("tag_name"), "comment" : release.get("body")}
+                    #find url for rtkbase.tar.gz
+                    for i, asset in enumerate(release["assets"]):
+                        if "rtkbase.tar.gz" in asset["name"]:
+                            new_release["url"] = asset.get("browser_download_url")
+                            break
                     break
              
     except Exception as e:
@@ -170,7 +175,6 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
         
     if emit:
         socketio.emit("new release", json.dumps(new_release), namespace="/test")
-    print
     return new_release
 
 @socketio.on("update rtkbase", namespace="/test")       
