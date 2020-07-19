@@ -35,7 +35,7 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 
    ```bash
    $ cd ~
-   $ wget wget https://github.com/stefal/rtkbase/releases/latest/download/install.sh -O install.sh
+   $ wget https://raw.githubusercontent.com/Stefal/rtkbase/master/tools/install.sh -O install.sh
    $ chmod +x install.sh
    $ sudo ./install.sh --all
    ```
