@@ -335,6 +335,9 @@ start_services() {
   echo 'END OF INSTALLATION'
   echo 'You can open your browser to http://'$(hostname -I)
   echo '################################'
+  #If the user isn't already in dialout group, a reboot is mandatory
+  #to be able to access /dev/tty*
+  groups $(logname) | grep -q "dialout" || echo "Please Reboot!"
 }
 main() {
   #display parameters
