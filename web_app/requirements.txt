@@ -9,4 +9,4 @@ pexpect==4.8.0
 pyOpenSSL==19.1.0
 pyserial==3.4
 pystemd
-requests==2.24.0
+requests==2.23.0
