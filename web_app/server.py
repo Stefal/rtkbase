@@ -36,6 +36,7 @@ eventlet.monkey_patch()
 import time
 import json
 import os
+import shutil
 import signal
 import sys
 import requests
@@ -187,6 +188,7 @@ def update_rtkbase():
     if update_url is None:
         return
 
+    shutil.rmtree("/var/tmp/rtkbase", ignore_errors=True)
     import tarfile
     #Download update
     update_archive = "/var/tmp/rtkbase_update.tar.gz"
