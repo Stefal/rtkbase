@@ -32,8 +32,10 @@ upd_2.0.2() {
   if [[ $(grep -E "^receiver_format='ubx'" ${destination_directory}/settings.conf) ]]
   then
     # Add -TAJD=1 option to rtcm/ntrip output for ublox receivers
-    sed -i "/^rtcm_msg=.*/a ntrip_receiver_options='-TADJ=1'" ${destination_directory}/settings.conf
-    sed -i "/^rtcm_svr_msg=.*/a rtcm_receiver_options='-TADJ=1'" ${destination_directory}/settings.conf
+    grep -q "^ntrip_receiver_options" ${destination_directory}/settings.conf || \
+      sed -i "/^rtcm_msg=.*/a ntrip_receiver_options='-TADJ=1'" ${destination_directory}/settings.conf
+    grep -q "^rtcm_receiver_options" ${destination_directory}/settings.conf || \
+      sed -i "/^rtcm_svr_msg=.*/a rtcm_receiver_options='-TADJ=1'" ${destination_directory}/settings.conf
   fi
   #upd_2.0.4
 }
