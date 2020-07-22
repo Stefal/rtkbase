@@ -237,7 +237,7 @@ rtkbase_requirements(){
       python3 -m pip install -r ${rtkbase_path}/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       # We were waiting for the next pystemd official release.
       # install pystemd dev wheel for arm platform
-      python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
+      uname -m | grep -q 'arm' && python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
 }
@@ -253,8 +253,8 @@ install_unit_files() {
         systemctl enable rtkbase_web.service
         systemctl enable rtkbase_archive.timer
         systemctl daemon-reload
-	      #Add dialout group to user
-	      usermod -a -G dialout $(logname)
+        #Add dialout group to user
+        usermod -a -G dialout $(logname)
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
@@ -380,14 +380,14 @@ main() {
     if [ "$i" == "--configure-gnss" ] ; then configure_gnss                  ;fi
     if [ "$i" == "--start-services" ] ; then start_services                  ;fi
     if [ "$i" == "--all" ]            ; then install_dependencies         && \
-					     install_rtklib               && \
-					     install_rtkbase_from_release && \
-					     rtkbase_requirements         && \
-					     install_unit_files           && \
-					     install_gpsd_chrony          && \
-					     detect_usb_gnss              && \
-					     configure_gnss               && \
-               start_services               ;fi
+                                      	     install_rtklib               && \
+                                      	     install_rtkbase_from_release && \
+                                      	     rtkbase_requirements         && \
+                                      	     install_unit_files           && \
+                                      	     install_gpsd_chrony          && \
+                                      	     detect_usb_gnss              && \
+                                      	     configure_gnss               && \
+                                      	     start_services                  ;fi
   done
 }
 
