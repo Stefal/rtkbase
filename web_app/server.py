@@ -77,6 +77,8 @@ app.config["SECRET_KEY"] = "secret!"
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
 
+print(app.config["DOWNLOAD_FOLDER"].split("/")[-1])
+exit
 path_to_rtklib = "/usr/local/bin"
 
 login=LoginManager(app)
@@ -584,7 +586,7 @@ if __name__ == "__main__":
         if not rtkbaseconfig.get_web_authentification():
             app.config["LOGIN_DISABLED"] = True
         #get data path
-        app.config["DOWNLOAD_FOLDER"] = rtkbaseconfig.get("local_storage", "datadir")
+        app.config["DOWNLOAD_FOLDER"] = rtkbaseconfig.get("local_storage", "datadir").strip("'")
         #load services status managed with systemd
         services_list = load_units(services_list)
         #Update standard user in settings.conf
