@@ -18,7 +18,7 @@ out_tcp="tcpsvr://:${tcp_port}"
 out_file="file://${datadir}/${file_name}.${receiver_format}::T::S=${file_rotate_time} -f ${file_overlap_time}"
 out_rtcm_svr="tcpsvr://:${rtcm_svr_port}#rtcm3 -msg ${rtcm_svr_msg} -p ${position}"
 #add receiver options if it exists
-[[ ! -z "${rtcm_receiver_options}" ]] && out_rtcm_svr=""${out_caster}" -opt "${rtcm_receiver_options}""
+[[ ! -z "${rtcm_receiver_options}" ]] && out_rtcm_svr=""${out_rtcm_svr}" -opt "${rtcm_receiver_options}""
 
 mkdir -p ${logdir}
     
