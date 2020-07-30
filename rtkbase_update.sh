@@ -1,5 +1,4 @@
 #!/bin/bash
-set -xv
 ### THIS SCRIPT SHOULD NOT BE RUN MANUALLY ###
 source_directory=$1
 destination_directory=$2
@@ -12,11 +11,11 @@ echo "remove existing rtkbase.old directory"
 rm -rf /var/tmp/rtkbase.old
 mkdir /var/tmp/rtkbase.old
 
-#echo "copy rtkbase to rtkbase.old except /data directory"
+echo "copy rtkbase to rtkbase.old except /data directory"
 #'shopt -s extglob' is needed for using (!pattern) exclusion pattern
 #from inside a script
-#shopt -s extglob
-#cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
+shopt -s extglob
+cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 
 echo "copy new release to destination"
 cp -rfp ${source_directory}/. ${destination_directory}
