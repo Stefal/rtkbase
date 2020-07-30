@@ -1,5 +1,10 @@
 #!/bin/bash
 ### THIS SCRIPT SHOULD NOT BE RUN MANUALLY ###
+
+#'shopt -s extglob' is needed for using (!pattern) exclusion pattern
+#from inside a script
+shopt -s extglob
+
 source_directory=$1
 destination_directory=$2
 data_dir=$3
@@ -12,9 +17,6 @@ rm -rf /var/tmp/rtkbase.old
 mkdir /var/tmp/rtkbase.old
 
 echo "copy rtkbase to rtkbase.old except /data directory"
-#'shopt -s extglob' is needed for using (!pattern) exclusion pattern
-#from inside a script
-shopt -s extglob
 cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 
 echo "copy new release to destination"
