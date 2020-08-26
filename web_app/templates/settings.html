@@ -188,21 +188,21 @@
       <div class="form-group row">
         <label for="out_com_port_settings" class="col-sm-3 col-form-label">Serial output port settings: </label>
         <div class="col-sm-9">
-            <input id="out_com_port_settings" type="text" name="out_com_port_settings" class="form-control" value="{{ serial_rtcm_settings[0].out_com_port_settings }}" title="Serial output port settings: baudrate:data bits:parity:stop bits:flow control" pattern="\w[^|><\/]*" required>
+            <input id="out_com_port_settings" type="text" name="out_com_port_settings" class="form-control" value="{{ serial_rtcm_settings[1].out_com_port_settings }}" title="Serial output port settings: baudrate:data bits:parity:stop bits:flow control" pattern="\w[^|><\/]*" required>
             <div class="invalid-feedback">Serial output port settings</div>
         </div>
       </div>
       <div class="form-group row">
         <label for="serial_rtcm_msg" class="col-sm-3 col-form-label">Serial Rtcm messages: </label>
         <div class="col-sm-9">
-            <input id="serial_rtcm_msg" type="text" name="serial_rtcm_msg" class="form-control" value="{{ rtcm_svr_settings[1].serial_rtcm_msg }}" title="Serial output Rtcm messages list" pattern="[0-9,().]+" required>
+            <input id="serial_rtcm_msg" type="text" name="serial_rtcm_msg" class="form-control" value="{{ serial_rtcm_settings[2].serial_rtcm_msg }}" title="Serial output Rtcm messages list" pattern="[0-9,().]+" required>
             <div class="invalid-feedback">Serial output Rtcm messages list</div>
         </div>
       </div>
       <div class="form-group row">
         <label for="serial_rtcm_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
         <div class="col-sm-9">
-            <input id="serial_rtcm_receiver_options" type="text" name="serial_rtcm_receiver_options" class="form-control" value="{{ rtcm_svr_settings[2].serial_rtcm_receiver_options }}" title="Receiver options" pattern="[^|><\/]*">
+            <input id="serial_rtcm_receiver_options" type="text" name="serial_rtcm_receiver_options" class="form-control" value="{{ serial_rtcm_settings[3].serial_rtcm_receiver_options }}" title="Receiver options" pattern="[^|><\/]*">
             <div class="invalid-feedback">Receiver dependent options</div>
         </div>
       </div>
