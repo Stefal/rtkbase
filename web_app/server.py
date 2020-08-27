@@ -90,10 +90,10 @@ rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
+                 {'service_unit' : 'str2str_serial_rtcm.service', "name" : "serial_rtcm"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
                  {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"}, 
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
-                 {'service_unit' : 'str2str_serial_rtcm.service', "name" : "serial_rtcm"},
                  ]
 
 
