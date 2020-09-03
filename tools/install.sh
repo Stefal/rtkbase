@@ -235,9 +235,17 @@ rtkbase_requirements(){
       #the same user
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       python3 -m pip install -r ${rtkbase_path}/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
-      # We were waiting for the next pystemd official release.
-      # install pystemd dev wheel for arm platform
-      uname -m | grep -q 'arm' || return 0 && python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
+      # We are waiting for the next pystemd official release.
+      # In the meantime, we install pystemd dev wheel for armv7 platform
+      platform=$(uname -m)
+      if [[ $platform =~ 'armv7' ]]
+      then
+        python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
+      elif [[ $platform =~ 'aarch64' ]]
+      then
+        echo "ERROR, pystemd is not yet available for aarch64 platform"
+        exit 1
+      fi
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
 }
