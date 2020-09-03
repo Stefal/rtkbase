@@ -245,6 +245,10 @@ rtkbase_requirements(){
       then
         echo "ERROR, pystemd is not yet available for aarch64 platform"
         exit 1
+      elif [[ $platform =~ 'armv6' ]]
+      then
+        echo "ERROR, pystemd is not yet available for armv6 platform"
+        exit 1
       fi
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
