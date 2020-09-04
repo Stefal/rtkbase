@@ -247,7 +247,7 @@ rtkbase_requirements(){
         exit 1
       elif [[ $platform =~ 'armv6' ]]
       then
-        echo "ERROR, pystemd is not yet available for armv6 platform"
+        python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1599232456-cp37-cp37m-linux_armv6l.whl
         exit 1
       fi
       #when we will be able to launch the web server without root, we will use
