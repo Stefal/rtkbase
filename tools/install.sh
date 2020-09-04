@@ -243,12 +243,10 @@ rtkbase_requirements(){
         python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
       elif [[ $platform =~ 'aarch64' ]]
       then
-        echo "ERROR, pystemd is not yet available for aarch64 platform"
-        exit 1
+        python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1599238382-cp37-cp37m-linux_aarch64.whl
       elif [[ $platform =~ 'armv6' ]]
       then
         python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1599232456-cp37-cp37m-linux_armv6l.whl
-        exit 1
       fi
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
