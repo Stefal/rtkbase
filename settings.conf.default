@@ -50,7 +50,7 @@ file_overlap_time='30'
 #name for the compressed archive
 archive_name=$(date -d "-1 days" +"%Y-%m-%d_%S").zip
 #archives older than this value (in days) will be deleted by archive_and_clean.sh
-archive_rotate='90'
+archive_rotate='60'
 
 [ntrip]
 
