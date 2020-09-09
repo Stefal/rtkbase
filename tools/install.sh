@@ -233,8 +233,6 @@ rtkbase_requirements(){
     echo '################################'
       #as we need to run the web server as root, we need to install the requirements with
       #the same user
-      python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
-      python3 -m pip install -r ${rtkbase_path}/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       # We are waiting for the next pystemd official release.
       # In the meantime, we install pystemd dev wheel for armv7 platform
       platform=$(uname -m)
@@ -244,10 +242,14 @@ rtkbase_requirements(){
       elif [[ $platform =~ 'aarch64' ]]
       then
         python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1599238382-cp37-cp37m-linux_aarch64.whl
+        # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
+        apt-get install -y libssl-dev libffi-dev
       elif [[ $platform =~ 'armv6' ]]
       then
         python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1599232456-cp37-cp37m-linux_armv6l.whl
       fi
+      python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
+      python3 -m pip install -r ${rtkbase_path}/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
 }
