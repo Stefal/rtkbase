@@ -279,6 +279,7 @@ detect_usb_gnss() {
       #This function put the (USB) detected gnss receiver informations in detected_gnss
       #If there are several receiver, only the last one will be present in the variable
       for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+          ID_SERIAL=''
           syspath="${sysdevpath%/dev}"
           devname="$(udevadm info -q name -p $syspath)"
           if [[ "$devname" == "bus/"* ]]; then continue; fi
