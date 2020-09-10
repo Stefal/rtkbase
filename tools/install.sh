@@ -323,6 +323,8 @@ configure_gnss(){
             sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
 
           fi
+        else
+          echo 'NO GNSS RECEIVER DETECTED, WE CAN'\''T CONFIGURE IT!'
         fi
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
