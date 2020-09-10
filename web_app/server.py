@@ -90,6 +90,7 @@ rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
+                 {'service_unit' : 'str2str_serial_rtcm.service', "name" : "serial_rtcm"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
                  {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"}, 
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
@@ -253,11 +254,13 @@ def settings_page():
     ntrip_settings = rtkbaseconfig.get_ntrip_settings()
     file_settings = rtkbaseconfig.get_file_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
+    serial_rtcm_settings = rtkbaseconfig.get_serial_rtcm_settings()
 
     return render_template("settings.html", main_settings = main_settings,
                                             ntrip_settings = ntrip_settings,
                                             file_settings = file_settings,
-                                            rtcm_svr_settings = rtcm_svr_settings)
+                                            rtcm_svr_settings = rtcm_svr_settings,
+                                            serial_rtcm_settings = serial_rtcm_settings,)
 
 @app.route('/logs')
 @login_required
@@ -570,11 +573,13 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip", "rtcm_svr", "file"))
+            restartServices(("main", "ntrip", "rtcm_svr", "file", "serial_rtcm"))
         elif source_section == "ntrip":
             restartServices(("ntrip",))
         elif source_section == "rtcm_svr":
             restartServices(("rtcm_svr",))
+        elif source_section == "serial_rtcm":
+            restartServices(("serial_rtcm",))
         elif source_section == "local_storage":
             restartServices(("file",))
 

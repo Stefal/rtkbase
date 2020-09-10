@@ -14,11 +14,18 @@ in_tcp="tcpcli://127.0.0.1:${tcp_port}#${receiver_format}"
 out_caster="ntrips://:${svr_pwd}@${svr_addr}:${svr_port}/${mnt_name}#rtcm3 -msg ${rtcm_msg} -p ${position} -i ${receiver}"
 #add receiver options if it exists
 [[ ! -z "${ntrip_receiver_options}" ]] && out_caster=""${out_caster}" -opt "${ntrip_receiver_options}""
+
 out_tcp="tcpsvr://:${tcp_port}"
+
 out_file="file://${datadir}/${file_name}.${receiver_format}::T::S=${file_rotate_time} -f ${file_overlap_time}"
+
 out_rtcm_svr="tcpsvr://:${rtcm_svr_port}#rtcm3 -msg ${rtcm_svr_msg} -p ${position}"
 #add receiver options if it exists
 [[ ! -z "${rtcm_receiver_options}" ]] && out_rtcm_svr=""${out_rtcm_svr}" -opt "${rtcm_receiver_options}""
+
+out_serial_rtcm="serial://${out_com_port}:${out_com_port_settings}#rtcm3 -msg ${serial_rtcm_msg} -p ${position}"
+#add receiver options if it exists
+[[ ! -z "${serial_rtcm_receiver_options}" ]] && out_serial_rtcm=""${out_serial_rtcm}" -opt "${serial_rtcm_receiver_options}""
 
 mkdir -p ${logdir}
     
@@ -37,6 +44,11 @@ mkdir -p ${logdir}
   out_rtcm_svr)
     #echo ${cast} -in ${!1} -out $out_rtcm_svr
     ${cast} -in ${!1} -out ${out_rtcm_svr} -t ${level} -fl ${logdir}/str2str_rtcm_svr.log &
+    ;;
+
+  out_serial_rtcm)
+    #echo ${cast} -in ${!1} -out $out_serial_rtcm
+    ${cast} -in ${!1} -out ${out_serial_rtcm} -t ${level} -fl ${logdir}/str2str_serial_rtcm.log &
     ;;
 
   out_file)

@@ -133,7 +133,7 @@
         </div>
     </form>
 
-  <!-- ######## RTCM Service ########-->
+  <!-- ######## Tcp RTCM Service ########-->
   <div id="rtcm_svr_service_space" class="form-group row">
     <div class="col">
     <label for="rtcm_svr-switch" class="col-4 col-form-label col-form-label-lg">Rtcm server service</label>
@@ -160,6 +160,49 @@
         <label for="rtcm_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
         <div class="col-sm-9">
             <input id="rtcm_receiver_options" type="text" name="rtcm_receiver_options" class="form-control" value="{{ rtcm_svr_settings[2].rtcm_receiver_options }}" title="Receiver options" pattern="[^|><\/]*">
+            <div class="invalid-feedback">Receiver dependent options</div>
+        </div>
+      </div>
+        
+        <div class="clearfix">
+        <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+      </div>
+    </form>
+
+    <!-- ######## Serial RTCM Service ########-->
+  <div id="serial_rtcm_service_space" class="form-group row">
+    <div class="col">
+    <label for="serial_rtcm-switch" class="col-4 col-form-label col-form-label-lg">Serial Rtcm service</label>
+    <input id="serial_rtcm-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ serial_rtcm_settings[0].source_section }}" aria-expanded="false" aria-controls="serial_rtcm_service_options">Options</button>
+    </div>
+  </div>
+    <form id="{{ serial_rtcm_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="out_com_port" class="col-sm-3 col-form-label">Serial output port: </label>
+        <div class="col-sm-9">
+            <input id="out_com_port" type="text" name="out_com_port" class="form-control" value="{{ serial_rtcm_settings[0].out_com_port }}" title="serial output port" pattern="\w+[^|><\/\s]*" required>
+            <div class="invalid-feedback">Serial output com port (without /dev/)</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="out_com_port_settings" class="col-sm-3 col-form-label">Serial output port settings: </label>
+        <div class="col-sm-9">
+            <input id="out_com_port_settings" type="text" name="out_com_port_settings" class="form-control" value="{{ serial_rtcm_settings[1].out_com_port_settings }}" title="Serial output port settings: baudrate:data bits:parity:stop bits:flow control" pattern="\w[^|><\/]*" required>
+            <div class="invalid-feedback">Serial output port settings</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="serial_rtcm_msg" class="col-sm-3 col-form-label">Serial Rtcm messages: </label>
+        <div class="col-sm-9">
+            <input id="serial_rtcm_msg" type="text" name="serial_rtcm_msg" class="form-control" value="{{ serial_rtcm_settings[2].serial_rtcm_msg }}" title="Serial output Rtcm messages list" pattern="[0-9,().]+" required>
+            <div class="invalid-feedback">Serial output Rtcm messages list</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="serial_rtcm_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <div class="col-sm-9">
+            <input id="serial_rtcm_receiver_options" type="text" name="serial_rtcm_receiver_options" class="form-control" value="{{ serial_rtcm_settings[3].serial_rtcm_receiver_options }}" title="Receiver options" pattern="[^|><\/]*">
             <div class="invalid-feedback">Receiver dependent options</div>
         </div>
       </div>
