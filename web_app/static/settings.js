@@ -137,11 +137,33 @@ $(document).ready(function () {
             socket.emit("services switch", {"name" : "rtcm_svr", "active" : switchStatus});
             
         })
+
+        // ####################  Serial RTCM service Switch #########################
+
+        // set the switch to on/off depending of the service status
+        if (servicesStatus[3].active === true) {
+            //document.querySelector("#main-switch").bootstrapToggle('on');
+            $('#serial_rtcm-switch').bootstrapToggle('on', true);
+        } else {
+            //document.querySelector("#main-switch").bootstrapToggle('off');
+            $('#serial_rtcm-switch').bootstrapToggle('off', true);
+        }
+        
+        // event for switching on/off service on user mouse click
+        //TODO When the switch changes its position, this event seems attached before
+        //the switch finish its transition, then fire another event.
+        $( "#serial_rtcm-switch" ).one("change", function(e) {
+            var switchStatus = $(this).prop('checked');
+            //console.log(" e : " + e);
+            console.log("Serial RTCM SwitchStatus : " + switchStatus);
+            socket.emit("services switch", {"name" : "serial_rtcm", "active" : switchStatus});
+            
+        })
     
         // ####################  LOG service Switch #########################
 
         // set the switch to on/off depending of the service status
-        if (servicesStatus[3].active === true) {
+        if (servicesStatus[4].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
             $('#file-switch').bootstrapToggle('on', true);
         } else {
