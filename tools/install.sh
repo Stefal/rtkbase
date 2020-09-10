@@ -370,7 +370,7 @@ main() {
     then
       source /etc/environment
     else 
-      export rtkbase_path='Rtkbase'
+      export rtkbase_path='rtkbase'
     fi
   fi
   # check if logname return an empty value
