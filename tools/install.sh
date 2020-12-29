@@ -66,7 +66,7 @@ install_gpsd_chrony() {
     echo '################################'
     echo 'CONFIGURING FOR USING GPSD + CHRONY'
     echo '################################'
-      apt-get install chrony
+      apt-get install chrony -y
       #Disabling and masking systemd-timesyncd
       systemctl stop systemd-timesyncd
       systemctl disable systemd-timesyncd
