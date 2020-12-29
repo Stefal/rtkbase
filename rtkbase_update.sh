@@ -23,6 +23,7 @@ echo "copy new release to destination"
 cp -rfp ${source_directory}/. ${destination_directory}
 
 echo "delete the line version= in settings.conf"
+# The new version number will be imported from settings.conf.default during the web server startup.
 sed -i '/version=/d' ${destination_directory}/settings.conf
 }
 
