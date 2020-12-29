@@ -47,7 +47,9 @@ upd_2.1.1() {
   file_name=$(basename ${file_path})
     echo copying ${file_name}
     sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"$(logname)"'|' ${file_path} > /etc/systemd/system/${file_name}
+    systemctl daemon-reload
 }
+
 update
 upd_${old_version}
 
