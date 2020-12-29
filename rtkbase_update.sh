@@ -38,6 +38,16 @@ upd_2.0.2() {
   #upd_2.0.4
 }
 
+upd_2.1.0() {
+  upd_2.1.1
+}
+
+upd_2.1.1() {
+  file_path=${destination_directory}'/unit/str2str_serial_rtcm.service'
+  file_name=$(basename ${file_path})
+    echo copying ${file_name}
+    sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"$(logname)"'|' ${file_path} > /etc/systemd/system/${file_name}
+}
 update
 upd_${old_version}
 
