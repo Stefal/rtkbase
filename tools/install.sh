@@ -59,7 +59,7 @@ install_dependencies() {
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get update 
-      apt-get install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip
+      apt-get install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev libssl-dev bc dos2unix socat zip unzip
 }
 
 install_gpsd_chrony() {
