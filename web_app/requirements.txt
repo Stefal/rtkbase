@@ -5,7 +5,11 @@ eventlet==0.30.0
 Bootstrap-Flask==1.5.1
 Flask-WTF==0.14.3
 Flask-Login==0.5.0
-pexpect==4.8.0
+#On some linux distribution, pexpect is already installed
+#and can't be upgraded with pip. In these cases, pip fail, leaving
+#some package uninstalled.
+#With pexpect <=4.8.0, pip will not fail.
+pexpect<=4.8.0
 pyOpenSSL==20.0.1
 pyserial==3.5
 pystemd==0.8.0
