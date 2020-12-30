@@ -59,7 +59,7 @@ install_dependencies() {
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get update 
-      apt-get install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev libssl-dev bc dos2unix socat zip unzip
+      apt-get install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip
 }
 
 install_gpsd_chrony() {
@@ -235,7 +235,7 @@ rtkbase_requirements(){
       #the same user
       # In the meantime, we install pystemd dev wheel for armv7 platform
       platform=$(uname -m)
-      if [[ $platform =~ 'aarch64' ]]
+      if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
       then
         # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
         apt-get install -y libssl-dev libffi-dev
