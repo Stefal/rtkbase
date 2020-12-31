@@ -137,12 +137,12 @@ install_rtklib() {
         sudo -u $(logname) git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
         #Install Rtklib app
         #TODO add correct CTARGET in makefile?
-        make --directory=RTKLIB/app/consoapp/str2str/gcc
-        make --directory=RTKLIB/app/consoapp/str2str/gcc install
-        make --directory=RTKLIB/app/consoapp/rtkrcv/gcc
-        make --directory=RTKLIB/app/consoapp/rtkrcv/gcc install
-        make --directory=RTKLIB/app/consoapp/convbin/gcc
-        make --directory=RTKLIB/app/consoapp/convbin/gcc install
+        make --directory=RTKLIB/app/consapp/str2str/gcc
+        make --directory=RTKLIB/app/consapp/str2str/gcc install
+        make --directory=RTKLIB/app/consapp/rtkrcv/gcc
+        make --directory=RTKLIB/app/consapp/rtkrcv/gcc install
+        make --directory=RTKLIB/app/consapp/convbin/gcc
+        make --directory=RTKLIB/app/consapp/convbin/gcc install
         #deleting RTKLIB
         rm -rf RTKLIB/
       else
