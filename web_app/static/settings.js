@@ -219,7 +219,7 @@ $(document).ready(function () {
         }
         
     })
-
+      
     $("#start-update-button").on("click", function () {
         //$("#updateModal .modal-title").text(("Installing update"));
         socket.emit("update rtkbase");
@@ -228,6 +228,14 @@ $(document).ready(function () {
         $(this).html('<span class="spinner-border spinner-border-sm"></span> Updating...');
         $("#cancel-button").prop("disabled", true);
     })
+
+    // Cleaning update modal box when closing it
+
+    $("#updateModal").on('hidden.bs.modal', function(){
+        $("#updateModal .modal-title").text("Update");
+        $("#updateModal .modal-body").text('');
+        $("#start-update-button").prop("disabled", true);
+      });
 
     // ####################### HANDLE CHANGING PASSWORD #######################
 
