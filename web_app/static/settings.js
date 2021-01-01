@@ -277,7 +277,7 @@ $(document).ready(function () {
         $("#shutdownModal").modal();
     })
     $("#confirm-shutdown-button").on("click", function() {
-        $("#rebootModal .modal-body").html('<div class="align-items-center">Shutting down...  <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div></div>');
+        $("#shutdownModal .modal-body").html('<div class="align-items-center">Shutting down...  <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div></div>');
         $("#confirm-shutdown-button").prop("disabled", true);
         $("#shutdown-cancel-button").prop("disabled", true);
         socket.emit("shutdown device");
