@@ -133,18 +133,18 @@ install_rtklib() {
       if [ ! -f /usr/local/bin/str2str ]
       then 
         rm -rf RTKLIB/
-        #Get Rtklib 2.4.3 repository
-        sudo -u $(logname) git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
+        #Get Rtklib 2.4.3 b33 release
+        sudo -u $(logname) wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b33.tar.gz | tar -xvz
         #Install Rtklib app
         #TODO add correct CTARGET in makefile?
-        make --directory=RTKLIB/app/consapp/str2str/gcc
-        make --directory=RTKLIB/app/consapp/str2str/gcc install
-        make --directory=RTKLIB/app/consapp/rtkrcv/gcc
-        make --directory=RTKLIB/app/consapp/rtkrcv/gcc install
-        make --directory=RTKLIB/app/consapp/convbin/gcc
-        make --directory=RTKLIB/app/consapp/convbin/gcc install
+        make --directory=RTKLIB-2.4.3-b33/app/str2str/gcc
+        make --directory=RTKLIB-2.4.3-b33/app/str2str/gcc install
+        make --directory=RTKLIB-2.4.3-b33/app/rtkrcv/gcc
+        make --directory=RTKLIB-2.4.3-b33/app/rtkrcv/gcc install
+        make --directory=RTKLIB-2.4.3-b33/app/convbin/gcc
+        make --directory=RTKLIB-2.4.3-b33/app/convbin/gcc install
         #deleting RTKLIB
-        rm -rf RTKLIB/
+        rm -rf RTKLIB-2.4.3-b33/
       else
         echo 'str2str already exist'
       fi
