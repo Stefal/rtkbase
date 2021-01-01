@@ -262,18 +262,24 @@ $(document).ready(function () {
         $("#passwordChangedModal").modal();
     })
 
-    // ####################### HANDLE REBOOT SHUTDOWN #######################
+    // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
     $("#reboot-button").on("click", function() {
         $("#rebootModal").modal();
     })
     $("#confirm-reboot-button").on("click", function() {
+        $("#rebootModal .modal-body").html('<div class="align-items-center">Rebooting...  <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div></div>');
+        $("#confirm-reboot-button").prop("disabled", true);
+        $("#reboot-cancel-button").prop("disabled", true);
         socket.emit("reboot device");
     })
     $("#shutdown-button").on("click", function() {
         $("#shutdownModal").modal();
     })
     $("#confirm-shutdown-button").on("click", function() {
+        $("#rebootModal .modal-body").html('<div class="align-items-center">Shutting down...  <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div></div>');
+        $("#confirm-shutdown-button").prop("disabled", true);
+        $("#shutdown-cancel-button").prop("disabled", true);
         socket.emit("shutdown device");
     })
 
