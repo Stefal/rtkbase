@@ -279,7 +279,7 @@ $(document).ready(function () {
         $("#confirm-reboot-button").prop("disabled", true);
         $("#reboot-cancel-button").prop("disabled", true);
         socket.emit("reboot device");
-        countdown(90);
+        countdown(60);
     })
     $("#shutdown-button").on("click", function() {
         $("#shutdownModal").modal();
