@@ -60,6 +60,8 @@ upd_2.1.1() {
   rm -rf RTKLIB-2.4.3-b34/
   #restarting str2str_tcp service
   systemctl start str2str_tcp
+  #update python module
+  python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt'
   #copying new service
   file_path=${destination_directory}'/unit/str2str_serial_rtcm.service'
   file_name=$(basename ${file_path})
