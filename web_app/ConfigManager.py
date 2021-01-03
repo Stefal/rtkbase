@@ -235,7 +235,7 @@ class ConfigManager:
 
         self.config_path = config_path
 
-        self.default_rover_config = "rtkbase_single_default.conf"
+        self.default_rover_config = "rtkbase_ppp-static_default.conf"
         self.default_base_config = "rtkbase_base_default.conf"
 
         self.available_configs = []
