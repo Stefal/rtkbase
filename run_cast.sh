@@ -33,22 +33,22 @@ mkdir -p ${logdir}
     out_tcp)
     #echo ${cast} -in ${!1} -out $out_tcp
     # What is this ${!1} ? It's variable indirection
-    ${cast} -in ${!1} -out ${out_tcp} -t ${level} -fl ${logdir}/str2str_tcp.log &
+    ${cast} -in ${!1} -out ${out_tcp} -t ${level} &
     ;;
 
   out_caster)
     #echo ${cast} -in ${!1} -out $out_caster
-    ${cast} -in ${!1} -out ${out_caster} -t ${level} -fl ${logdir}/str2str_ntrip.log &
+    ${cast} -in ${!1} -out ${out_caster} -t ${level} &
     ;;
 
   out_rtcm_svr)
     #echo ${cast} -in ${!1} -out $out_rtcm_svr
-    ${cast} -in ${!1} -out ${out_rtcm_svr} -t ${level} -fl ${logdir}/str2str_rtcm_svr.log &
+    ${cast} -in ${!1} -out ${out_rtcm_svr} -t ${level} &
     ;;
 
   out_serial_rtcm)
     #echo ${cast} -in ${!1} -out $out_serial_rtcm
-    ${cast} -in ${!1} -out ${out_serial_rtcm} -t ${level} -fl ${logdir}/str2str_serial_rtcm.log &
+    ${cast} -in ${!1} -out ${out_serial_rtcm} -t ${level} &
     ;;
 
   out_file)
@@ -58,7 +58,7 @@ mkdir -p ${logdir}
     if [ ${ret} -eq 0 ]
     then
       mkdir -p ${datadir}
-      ${cast} -in ${!1} -out ${out_file} -t ${level} -fl ${logdir}/str2str_file.log &
+      ${cast} -in ${!1} -out ${out_file} -t ${level} &
     fi
     ;;
     
