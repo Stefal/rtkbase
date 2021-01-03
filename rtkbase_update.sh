@@ -22,9 +22,6 @@ cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 echo "copy new release to destination"
 cp -rfp ${source_directory}/. ${destination_directory}
 
-echo "delete the line version= in settings.conf"
-# The new version number will be imported from settings.conf.default during the web server startup.
-sed -i '/version=/d' ${destination_directory}/settings.conf
 }
 
 upd_2.0.2() {
@@ -73,6 +70,10 @@ upd_2.1.1() {
 
 update
 upd_${old_version}
+
+echo "delete the line version= in settings.conf"
+# The new version number will be imported from settings.conf.default during the web server startup.
+sed -i '/version=/d' ${destination_directory}/settings.conf
 
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
