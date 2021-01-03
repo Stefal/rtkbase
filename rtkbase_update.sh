@@ -44,11 +44,29 @@ upd_2.1.0() {
 }
 
 upd_2.1.1() {
+  #stopping services to copy new rtklib app
+  systemctl stop rtkbase_web
+  systemctl stop str2str_tcp
+  #Get Rtklib 2.4.3 b34 release
+  wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
+  #Install Rtklib app
+  make --directory=RTKLIB-2.4.3-b34/app/str2str/gcc
+  make --directory=RTKLIB-2.4.3-b34/app/str2str/gcc install
+  make --directory=RTKLIB-2.4.3-b34/app/rtkrcv/gcc
+  make --directory=RTKLIB-2.4.3-b34/app/rtkrcv/gcc install
+  make --directory=RTKLIB-2.4.3-b34/app/convbin/gcc
+  make --directory=RTKLIB-2.4.3-b34/app/convbin/gcc install
+  #deleting RTKLIB
+  rm -rf RTKLIB-2.4.3-b34/
+  #restarting str2str_tcp service
+  systemctl start str2str_tcp
+  #copying new service
   file_path=${destination_directory}'/unit/str2str_serial_rtcm.service'
   file_name=$(basename ${file_path})
     echo copying ${file_name}
     sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"$(logname)"'|' ${file_path} > /etc/systemd/system/${file_name}
     systemctl daemon-reload
+  
 }
 
 update
