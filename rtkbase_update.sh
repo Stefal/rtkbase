@@ -60,7 +60,7 @@ upd_2.1.1() {
   #update python module
   python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt'
   #copying new service
-  file_path=${destination_directory}'/unit/str2str_serial_rtcm.service'
+  file_path=${destination_directory}'/unit/str2str_rtcm_serial.service'
   file_name=$(basename ${file_path})
     echo copying ${file_name}
     sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"$(logname)"'|' ${file_path} > /etc/systemd/system/${file_name}

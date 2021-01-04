@@ -305,7 +305,7 @@ configure_gnss(){
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
             sudo -u $(logname) sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
             sudo -u $(logname) sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u $(logname) sed -i s/^serial_rtcm_receiver_options=.*/serial_rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u $(logname) sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
 
 
           else
@@ -313,7 +313,7 @@ configure_gnss(){
             #as it could start before the web server merge settings.conf.default and settings.conf
             sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > ${rtkbase_path}/settings.conf
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
-            sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[serial_rtcm]\nserial_rtcm_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
+            sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
 
           fi
         else
