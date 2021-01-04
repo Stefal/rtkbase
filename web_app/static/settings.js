@@ -267,7 +267,7 @@ $(document).ready(function () {
     function countdown(remaining) {
         if(remaining === 0)
             location.reload();
-        //document.getElementById('countdown').innerHTML = remaining;
+        document.getElementById('countdown').innerHTML = remaining;
         setTimeout(function(){ countdown(remaining - 1); }, 1000);
     };
 
@@ -275,8 +275,9 @@ $(document).ready(function () {
         $("#rebootModal").modal();
     })
     $("#confirm-reboot-button").on("click", function() {
-        $("#rebootModal .modal-body").html('<div class="align-items-center">Rebooting...  <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div></div>');
-        $("#confirm-reboot-button").prop("disabled", true);
+        $("#rebootModal .modal-body").html('<div class="align-items-center">Auto refresh in <span id="countdown"></span>s</div>');
+        $(this).html('<span class="spinner-border spinner-border-sm"></span> Rebooting...');
+        $(this).prop("disabled", true);
         $("#reboot-cancel-button").prop("disabled", true);
         socket.emit("reboot device");
         countdown(60);
