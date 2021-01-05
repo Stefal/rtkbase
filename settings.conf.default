@@ -34,6 +34,8 @@ receiver='Ublox_ZED-F9P'
 receiver_format='ubx'
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
 tcp_port='5015'
+#Antenna info, id, serial number. Without space inside the strings
+antenna_info=''
 
 [local_storage]
 
@@ -64,7 +66,7 @@ svr_port='2101'
 svr_pwd=''
 #Mount name
 mnt_name='Your_mount_name'
-rtcm_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_msg='1004,1005,1006,1008,1012,1019,1020,1033,1042,1045,1046,1077,1087,1097,1107,1127,1230'
 #Receiver dependent options
 ntrip_receiver_options=''
 
@@ -75,7 +77,7 @@ ntrip_receiver_options=''
 #port for rtcm local use
 rtcm_svr_port='5016'
 #messages for rtcm local use
-rtcm_svr_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_svr_msg='1004,1005,1006,1008,1012,1019,1020,1033,1042,1045,1046,1077,1087,1097,1107,1127,1230'
 #Receiver dependent options
 rtcm_receiver_options=''
 
@@ -88,7 +90,7 @@ out_com_port=''
 #serial output settings
 out_com_port_settings='115200:8:n:1'
 #messages for rtcm local use
-rtcm_serial_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_serial_msg='1004,1005,1006,1008,1012,1019,1020,1033,1042,1045,1046,1077,1087,1097,1107,1127,1230'
 #Receiver dependent options
 rtcm_serial_receiver_options=''
 

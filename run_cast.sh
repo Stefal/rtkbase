@@ -11,7 +11,7 @@ source <( grep = ${BASEDIR}/settings.conf )  #import settings
 in_serial="serial://${com_port}:${com_port_settings}#${receiver_format}"
 in_tcp="tcpcli://127.0.0.1:${tcp_port}#${receiver_format}"
 
-out_caster="ntrips://:${svr_pwd}@${svr_addr}:${svr_port}/${mnt_name}#rtcm3 -msg ${rtcm_msg} -p ${position} -i ${receiver}"
+out_caster="ntrips://:${svr_pwd}@${svr_addr}:${svr_port}/${mnt_name}#rtcm3 -msg ${rtcm_msg} -p ${position} -i RTKBase_v${version}_${receiver} -a ${antenna_info}"
 #add receiver options if it exists
 [[ ! -z "${ntrip_receiver_options}" ]] && out_caster=""${out_caster}" -opt "${ntrip_receiver_options}""
 
