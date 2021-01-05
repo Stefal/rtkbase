@@ -45,14 +45,14 @@ upd_2.1.1() {
   systemctl stop rtkbase_web
   systemctl stop str2str_tcp
   #Get Rtklib 2.4.3 b34 release
-  wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
+  wget -qO - https://github.com/Stefal/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
   #Install Rtklib app
-  make --directory=RTKLIB-2.4.3-b34/app/str2str/gcc
-  make --directory=RTKLIB-2.4.3-b34/app/str2str/gcc install
-  make --directory=RTKLIB-2.4.3-b34/app/rtkrcv/gcc
-  make --directory=RTKLIB-2.4.3-b34/app/rtkrcv/gcc install
-  make --directory=RTKLIB-2.4.3-b34/app/convbin/gcc
-  make --directory=RTKLIB-2.4.3-b34/app/convbin/gcc install
+  make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc
+  make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc install
+  make --directory=RTKLIB-2.4.3-b34/app/consapp/rtkrcv/gcc
+  make --directory=RTKLIB-2.4.3-b34/app/consapp/rtkrcv/gcc install
+  make --directory=RTKLIB-2.4.3-b34/app/consapp/convbin/gcc
+  make --directory=RTKLIB-2.4.3-b34/app/consapp/convbin/gcc install
   #deleting RTKLIB
   rm -rf RTKLIB-2.4.3-b34/
   #restarting str2str_tcp service
