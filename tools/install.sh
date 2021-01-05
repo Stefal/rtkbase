@@ -143,7 +143,7 @@ install_rtklib() {
         make --directory=RTKLIB-2.4.3-b34/app/consapp/convbin/gcc
         make --directory=RTKLIB-2.4.3-b34/app/consapp/convbin/gcc install
         #deleting RTKLIB
-        #rm -rf RTKLIB-2.4.3-b34/
+        rm -rf RTKLIB-2.4.3-b34/
       else
         echo 'str2str already exist'
       fi
