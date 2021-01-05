@@ -25,7 +25,7 @@ man_help(){
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
     echo '        --rtklib'
-    echo '                         Clone RTKlib 2.4.3 from github and compile it.'
+    echo '                         Get RTKlib 2.4.3 from github and compile it.'
     echo '                         https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3'
     echo ''
     echo '        --rtkbase-release'
