@@ -133,7 +133,7 @@ install_rtklib() {
       if [ ! -f /usr/local/bin/str2str ]
       then 
         #Get Rtklib 2.4.3 b34 release
-        sudo -u $(logname) wget -qO - https://github.com/Stefal/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
+        sudo -u $(logname) wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
         #Install Rtklib app
         #TODO add correct CTARGET in makefile?
         make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc
