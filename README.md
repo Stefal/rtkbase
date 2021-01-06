@@ -29,6 +29,8 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 
 ## Easy installation:
 
+# WARNING!! Since 2021/01/01 the installation script is broken. Please wait for a new release, or use the above link to the ready to flash iso file!
+
 + Connect your gnss receiver to your raspberry pi/orange pi/....
 
 + Open a terminal and:
