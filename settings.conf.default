@@ -32,10 +32,10 @@ com_port_settings='115200:8:n:1'
 receiver='Ublox_ZED-F9P'
 #gnss receiver format
 receiver_format='ubx'
-#tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
-tcp_port='5015'
 #Antenna info, id, serial number. Without space inside the strings
 antenna_info=''
+#tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
+tcp_port='5015'
 
 [local_storage]
 
