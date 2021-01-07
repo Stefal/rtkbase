@@ -56,6 +56,7 @@
 - Download/Delete raw data
 - Automatic installation
 - Automatic setup for usb connected Ublox Zed-F9P
+- Multiple simultaneous streams (Raw/Rtcm/Ntrip)
 
 ## [1.0.0] - 2019-12-19
 ### Added
