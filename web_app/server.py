@@ -76,9 +76,6 @@ app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
-
-print(app.config["DOWNLOAD_FOLDER"].split("/")[-1])
-exit
 path_to_rtklib = "/usr/local/bin"
 
 login=LoginManager(app)
