@@ -109,6 +109,10 @@ upd_2.1.1() {
   insert_rtcm_msg $(grep "^rtcm_svr_msg=" ${destination_directory}/settings.conf) 1033 1230 '(10)' && \
       sed -i '/^rtcm_svr_msg=/c\'"${new_rtcm}" ${destination_directory}/settings.conf
   
+  #restarting runnning rtcm services to send the new messages.
+  systemctl is-active --quiet str2str_ntrip && systemctl restart str2str_ntrip
+  systemctl is-active --quiet str2str_rtcm_svr && systemctl restart str2str_rtcm_svr
+
 }
 
 update
