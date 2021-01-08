@@ -223,7 +223,7 @@ $(document).ready(function () {
     $("#start-update-button").on("click", function () {
         //$("#updateModal .modal-title").text(("Installing update"));
         socket.emit("update rtkbase");
-        $("#updateModal .modal-body").text("Please Wait...and refresh this page in a few minutes");
+        $("#updateModal .modal-body").text("Please wait...and refresh this page in a few minutes");
         $(this).prop("disabled", true);
         $(this).html('<span class="spinner-border spinner-border-sm"></span> Updating...');
         $("#cancel-button").prop("disabled", true);
