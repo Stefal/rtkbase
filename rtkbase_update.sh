@@ -5,6 +5,9 @@
 #from inside a script
 shopt -s extglob
 
+#enable this line to send the script output to /var/log/syslog.
+#exec 1> >(logger -s -t $(basename $0)) 2>&1
+
 source_directory=$1
 destination_directory=$2
 data_dir=$3
@@ -72,7 +75,7 @@ upd_2.1.0() {
 
 upd_2.1.1() {
   #stopping services to copy new rtklib app
-  systemctl stop rtkbase_web
+  #systemctl stop rtkbase_web <- don't do that, it will kill this script process.
   systemctl stop str2str_tcp
   #Get Rtklib 2.4.3 b34 release
   wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
