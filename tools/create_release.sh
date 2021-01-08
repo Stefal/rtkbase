@@ -3,15 +3,18 @@
 
 BASEDIR=$(dirname "$0")
 cd ${BASEDIR}/../..
-tar --exclude='rtkbase/data' \
+tar --exclude-vcs \
+    --exclude='rtkbase/data' \
     --exclude='rtkbase/drawing' \
     --exclude='rtkbase/images' \
     --exclude='rtkbase/log' \
     --exclude='rtkbase/logs' \
     --exclude='rtkbase/.vscode' \
     --exclude='rtkbase/.github' \
+    --exclude='rtkbase/settings.conf' \
+    --exclude='test.sh' \
+    --exclude='test.conf' \
     --exclude='*.pyc' \
-    --exclude-vcs \
     -zcvf rtkbase.tar.gz rtkbase/
 echo '========================================================'
 echo 'Archive rtkbase.tar.gz created inside' $(pwd)
