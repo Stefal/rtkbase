@@ -205,7 +205,12 @@ def update_rtkbase():
         if tarinfo.isdir():
             primary_folder = tarinfo.name
             break
-    
+    #Delete previous update directory
+    try:
+        os.rmdir("/var/tmp/rtkbase")
+    except FileNotFoundError:
+        print("/var/tmps/rtkbase directory doesn't exist")
+        
     #Extract archive
     tar.extractall("/var/tmp")
 
