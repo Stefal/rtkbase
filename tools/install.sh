@@ -372,6 +372,13 @@ main() {
     echo 'The logname command return an empty value. Please reboot and retry.'
     exit 1
   fi
+  # check if there is enough space available
+  if [[ $(df -kP ~/ | grep -v '^Filesystem' | awk '{ print $4 }') -lt 300000 ]]
+  then
+    echo 'Available space is lower than 300MB.'
+    echo 'Exiting...'
+    exit 1
+  fi
   # run intall options
   for i in "${array[@]}"
   do
