@@ -36,6 +36,8 @@ receiver_format='ubx'
 antenna_info=''
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
 tcp_port='5015'
+#ext_tcp_source is mainly for dev purpose to receive a raw stream from another base
+ext_tcp_source=''
 
 [local_storage]
 
