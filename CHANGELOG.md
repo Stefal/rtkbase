@@ -7,6 +7,8 @@
 - RTKBase release number, receiver model, and antenna information are sent on RTCM stream (message 1008 and 1033 added)
 - Spinners and countdown added on reboot modal window
 - Auto refresh the webpage after a reboot (fixed time duration)
+- The archive_and_clean script delete oldest archives if there is less than 500MB available.
+- The install script check if there is enough space before starting
 
 ### Changed
 - Upgrade to RTKLib v2.4.3-b34
