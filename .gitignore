@@ -8,3 +8,4 @@ settings.conf
 /log/*
 test.sh
 test.conf
+*.FCStd1
