@@ -14,7 +14,6 @@ function copy_Coord() {
     // so falling back to execCommand. It's deprecated but still functionnal.
     $("#copyCoordModal").modal();
     dummyElt = document.getElementById('dummy_input');
-    dummyElt.type = "text";
     dummyElt.value = coordinates_string;
     dummyElt.focus();
     dummyElt.select();
