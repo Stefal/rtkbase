@@ -1,6 +1,29 @@
 lastBaseMsg = new Object();
 numOfRepetition = 0;
 
+function copy_Coord() {
+    /* Get the text field */
+    var latitude = document.getElementById("lat_value").textContent.slice(0, -1).trim();
+    var longitude = document.getElementById("lon_value").textContent.slice(0, -1).trim();
+    var height = document.getElementById("height_value").textContent.slice(0, -1).trim();
+    coordinates_string = latitude + " " + longitude + " " + height;
+    
+    //$("#copyCoordModal .modal-body").text(coordinates_string);
+    //navigator.clipboard.writeText(coordinates_string);
+    // navigator.clipboard doesn't work without https
+    // so falling back to execCommand. It's deprecated but still functionnal.
+    $("#copyCoordModal").modal();
+    dummyElt = document.getElementById('dummy_input');
+    dummyElt.type = "text";
+    dummyElt.value = coordinates_string;
+    dummyElt.focus();
+    dummyElt.select();
+    document.execCommand('copy');
+  
+    /* Alert the copied text */
+    //alert("Copied the text: " + coordinates_string);
+  }
+
 $(document).ready(function () {
 
     // SocketIO namespace:
@@ -42,6 +65,8 @@ $(document).ready(function () {
 
     updateCoordinateGrid(msg_status)
 
+    
+
     // ####################### MAP ####################################################
 
 
@@ -73,8 +98,6 @@ $(document).ready(function () {
     if (typeof(aerialLayer) !== 'undefined') {
         baseMaps["Aerial_Hybrid"] = aerialLayer;
     };
-    console.log("basemap après if" + baseMaps);
-    console.log
     L.control.layers(baseMaps).addTo(map);
     osmLayer.addTo(map);
     
