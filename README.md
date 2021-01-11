@@ -28,9 +28,6 @@ Other images are available in the ./images folder.
 If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases).
 
 ## Easy installation:
-
-# WARNING!! Since 2021/01/01 the installation script is broken. Please wait for a new release, or use the above link to the ready to flash iso file!
-
 + Connect your gnss receiver to your raspberry pi/orange pi/....
 
 + Open a terminal and:
@@ -298,7 +295,8 @@ A gnss receiver with a timepulse output is a very accurate [stratum 0](https://e
 
    ```
 
-
+## History:
+See the [changelog](./CHANGELOG.md)
 
 ## License:
 RTKBase is licensed under AGPL 3 (see LICENSE file).
