@@ -1,7 +1,7 @@
 lastBaseMsg = new Object();
 numOfRepetition = 0;
 //Event listener for copying coordinate to clipboard
-const elClipboard = document.getElementById("clipboard_img");
+const elClipboard = document.getElementById("clipboard_cell");
 elClipboard.addEventListener("click", copy_Coord, false);
 
 function copy_Coord() {
