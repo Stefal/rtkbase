@@ -299,7 +299,7 @@ A gnss receiver with a timepulse output is a very accurate [stratum 0](https://e
 See the [changelog](./CHANGELOG.md)
 
 ## License:
-RTKBase is licensed under AGPL 3 (see LICENSE file).
+RTKBase is licensed under AGPL 3 (see [LICENSE](./LICENSE) file).
 
 RTKBase uses some parts of others software:
 + [RTKLIB](https://github.com/tomojitakasu/RTKLIB) (BSD-2-Clause)
