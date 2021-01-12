@@ -71,7 +71,7 @@ class RtkController:
         # otherwise, it's supposed to be in the upper directory(rtkrcv inside app)
 
         if config_name is None:
-            config_name = "rtkbase_single_default.conf"
+            config_name = "rtkbase_ppp-static_default.conf"
 
         if not self.launched:
 

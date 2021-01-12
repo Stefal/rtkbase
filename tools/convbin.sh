@@ -1,6 +1,6 @@
 #!/bin/bash
 #convert zipped raw file to rinex
-#./convbin.sh ubx.zip directory mount-name 
+#./convbin.sh ubx.zip directory mount-name raw_type
 
 RAW_ARCHIVE=$1
 DATA_DIR=$2

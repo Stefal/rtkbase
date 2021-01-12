@@ -25,7 +25,7 @@ man_help(){
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
     echo '        --rtklib'
-    echo '                         Clone RTKlib 2.4.3 from github and compile it.'
+    echo '                         Get RTKlib 2.4.3 from github and compile it.'
     echo '                         https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3'
     echo ''
     echo '        --rtkbase-release'
@@ -66,7 +66,7 @@ install_gpsd_chrony() {
     echo '################################'
     echo 'CONFIGURING FOR USING GPSD + CHRONY'
     echo '################################'
-      apt-get install chrony
+      apt-get install chrony -y
       #Disabling and masking systemd-timesyncd
       systemctl stop systemd-timesyncd
       systemctl disable systemd-timesyncd
@@ -132,19 +132,18 @@ install_rtklib() {
       # str2str already exist?
       if [ ! -f /usr/local/bin/str2str ]
       then 
-        rm -rf RTKLIB/
-        #Get Rtklib 2.4.3 repository
-        sudo -u $(logname) git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
+        #Get Rtklib 2.4.3 b34 release
+        sudo -u $(logname) wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
         #Install Rtklib app
         #TODO add correct CTARGET in makefile?
-        make --directory=RTKLIB/app/str2str/gcc
-        make --directory=RTKLIB/app/str2str/gcc install
-        make --directory=RTKLIB/app/rtkrcv/gcc
-        make --directory=RTKLIB/app/rtkrcv/gcc install
-        make --directory=RTKLIB/app/convbin/gcc
-        make --directory=RTKLIB/app/convbin/gcc install
+        make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc
+        make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc install
+        make --directory=RTKLIB-2.4.3-b34/app/consapp/rtkrcv/gcc
+        make --directory=RTKLIB-2.4.3-b34/app/consapp/rtkrcv/gcc install
+        make --directory=RTKLIB-2.4.3-b34/app/consapp/convbin/gcc
+        make --directory=RTKLIB-2.4.3-b34/app/consapp/convbin/gcc install
         #deleting RTKLIB
-        rm -rf RTKLIB/
+        rm -rf RTKLIB-2.4.3-b34/
       else
         echo 'str2str already exist'
       fi
@@ -233,11 +232,15 @@ rtkbase_requirements(){
     echo '################################'
       #as we need to run the web server as root, we need to install the requirements with
       #the same user
+      # In the meantime, we install pystemd dev wheel for armv7 platform
+      platform=$(uname -m)
+      if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
+      then
+        # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
+        apt-get install -y libssl-dev libffi-dev
+      fi
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       python3 -m pip install -r ${rtkbase_path}/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
-      # We were waiting for the next pystemd official release.
-      # install pystemd dev wheel for arm platform
-      uname -m | grep -q 'arm' || return 0 && python3 -m pip install ${rtkbase_path}/tools/pystemd-0.8.1590398158-cp37-cp37m-linux_armv7l.whl
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
 }
@@ -267,6 +270,7 @@ detect_usb_gnss() {
       #This function put the (USB) detected gnss receiver informations in detected_gnss
       #If there are several receiver, only the last one will be present in the variable
       for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+          ID_SERIAL=''
           syspath="${sysdevpath%/dev}"
           devname="$(udevadm info -q name -p $syspath)"
           if [[ "$devname" == "bus/"* ]]; then continue; fi
@@ -298,18 +302,22 @@ configure_gnss(){
           then
             #change the com port value inside settings.conf
             sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${rtkbase_path}/settings.conf
-            #add option -TADJ=1 on rtcm/ntrip outputs
+            #add option -TADJ=1 on rtcm/ntrip/serial outputs
             sudo -u $(logname) sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
             sudo -u $(logname) sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u $(logname) sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+
 
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
             sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > ${rtkbase_path}/settings.conf
-            #add option -TADJ=1 on rtcm/ntrip outputs
-            sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
+            #add option -TADJ=1 on rtcm/ntrip/serial outputs
+            sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
 
           fi
+        else
+          echo 'NO GNSS RECEIVER DETECTED, WE CAN'\''T CONFIGURE IT!'
         fi
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
@@ -362,6 +370,13 @@ main() {
   if [[ -z $(logname) ]]
   then
     echo 'The logname command return an empty value. Please reboot and retry.'
+    exit 1
+  fi
+  # check if there is enough space available
+  if [[ $(df -kP ~/ | grep -v '^Filesystem' | awk '{ print $4 }') -lt 300000 ]]
+  then
+    echo 'Available space is lower than 300MB.'
+    echo 'Exiting...'
     exit 1
   fi
   # run intall options

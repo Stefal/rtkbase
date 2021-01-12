@@ -6,4 +6,6 @@ rtkrcv.nav
 settings.conf
 /data/*
 /log/*
+test.sh
+test.conf
 *.FCStd1

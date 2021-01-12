@@ -137,11 +137,33 @@ $(document).ready(function () {
             socket.emit("services switch", {"name" : "rtcm_svr", "active" : switchStatus});
             
         })
+
+        // ####################  Serial RTCM service Switch #########################
+
+        // set the switch to on/off depending of the service status
+        if (servicesStatus[3].active === true) {
+            //document.querySelector("#main-switch").bootstrapToggle('on');
+            $('#rtcm_serial-switch').bootstrapToggle('on', true);
+        } else {
+            //document.querySelector("#main-switch").bootstrapToggle('off');
+            $('#rtcm_serial-switch').bootstrapToggle('off', true);
+        }
+        
+        // event for switching on/off service on user mouse click
+        //TODO When the switch changes its position, this event seems attached before
+        //the switch finish its transition, then fire another event.
+        $( "#rtcm_serial-switch" ).one("change", function(e) {
+            var switchStatus = $(this).prop('checked');
+            //console.log(" e : " + e);
+            console.log("Serial RTCM SwitchStatus : " + switchStatus);
+            socket.emit("services switch", {"name" : "rtcm_serial", "active" : switchStatus});
+            
+        })
     
         // ####################  LOG service Switch #########################
 
         // set the switch to on/off depending of the service status
-        if (servicesStatus[3].active === true) {
+        if (servicesStatus[4].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
             $('#file-switch').bootstrapToggle('on', true);
         } else {
@@ -197,15 +219,23 @@ $(document).ready(function () {
         }
         
     })
-
+      
     $("#start-update-button").on("click", function () {
         //$("#updateModal .modal-title").text(("Installing update"));
         socket.emit("update rtkbase");
-        $("#updateModal .modal-body").text("Please Wait...and refresh this page in a few minutes");
+        $("#updateModal .modal-body").text("Please wait...and refresh this page in a few minutes");
         $(this).prop("disabled", true);
         $(this).html('<span class="spinner-border spinner-border-sm"></span> Updating...');
         $("#cancel-button").prop("disabled", true);
     })
+
+    // Cleaning update modal box when closing it
+
+    $("#updateModal").on('hidden.bs.modal', function(){
+        $("#updateModal .modal-title").text("Update");
+        $("#updateModal .modal-body").text('');
+        $("#start-update-button").prop("disabled", true);
+      });
 
     // ####################### HANDLE CHANGING PASSWORD #######################
 
@@ -232,18 +262,33 @@ $(document).ready(function () {
         $("#passwordChangedModal").modal();
     })
 
-    // ####################### HANDLE REBOOT SHUTDOWN #######################
+    // ####################### HANDLE REBOOT & SHUTDOWN #######################
+
+    function countdown(remaining) {
+        if(remaining === 0)
+            location.reload();
+        document.getElementById('countdown').innerHTML = remaining;
+        setTimeout(function(){ countdown(remaining - 1); }, 1000);
+    };
 
     $("#reboot-button").on("click", function() {
         $("#rebootModal").modal();
     })
     $("#confirm-reboot-button").on("click", function() {
+        $("#rebootModal .modal-body").html('<div class="align-items-center">Auto refresh in <span id="countdown"></span>s</div>');
+        $(this).html('<span class="spinner-border spinner-border-sm"></span> Rebooting...');
+        $(this).prop("disabled", true);
+        $("#reboot-cancel-button").prop("disabled", true);
         socket.emit("reboot device");
+        countdown(60);
     })
     $("#shutdown-button").on("click", function() {
         $("#shutdownModal").modal();
     })
     $("#confirm-shutdown-button").on("click", function() {
+        $("#shutdownModal .modal-body").html('<div class="align-items-center">Shutting down...  <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div></div>');
+        $("#confirm-shutdown-button").prop("disabled", true);
+        $("#shutdown-cancel-button").prop("disabled", true);
         socket.emit("shutdown device");
     })
 

@@ -9,7 +9,7 @@ Frontend's features are:
 
 + View the satellites signal levels
 + View the base location on a map
-+ Start/stop various services (Sending data to a Ntrip caster, Rtcm server, Log raw data to files)
++ Start/stop various services (Sending data to a Ntrip caster, Rtcm server, Sending Rtcm stream on radio link, Log raw data to files)
 + Edit the services settings
 + Download/delete raw data
 
@@ -28,9 +28,6 @@ Other images are available in the ./images folder.
 If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases).
 
 ## Easy installation:
-
-# WARNING!! Since 2021/01/01 the installation script is broken. Please wait for a new release, or use the above link to the ready to flash iso file!
-
 + Connect your gnss receiver to your raspberry pi/orange pi/....
 
 + Open a terminal and:
@@ -235,6 +232,7 @@ RTKBase use several RTKLIB `str2str` instances started with `run_cast.sh` as sys
 + `str2str_tcp.service` is the main instance. It is connected to the gnss receiver and broadcast the raw data on TCP for all the others services.
 + `str2str_ntrip.service` get the data from the main instance, convert the data to rtcm and stream them to a Ntrip caster.
 + `str2str_rtcm_svr.service` get the data from the main instance, convert the data to rtcm and stream them to clients
++ `str2str_rtcm_serial.service` get the data from the main instance, convert the data to rtcm and stream them to a serial port (radio link, or other peripheral)
 + `str2str_file.service` get the data from the main instance, and log the data to files.
 
 <img src="./images/internal.png" alt="internal"/>
@@ -297,10 +295,11 @@ A gnss receiver with a timepulse output is a very accurate [stratum 0](https://e
 
    ```
 
-
+## History:
+See the [changelog](./CHANGELOG.md)
 
 ## License:
-RTKBase is licensed under AGPL 3 (see LICENSE file).
+RTKBase is licensed under AGPL 3 (see [LICENSE](./LICENSE) file).
 
 RTKBase uses some parts of others software:
 + [RTKLIB](https://github.com/tomojitakasu/RTKLIB) (BSD-2-Clause)

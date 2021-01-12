@@ -76,9 +76,6 @@ app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
-
-print(app.config["DOWNLOAD_FOLDER"].split("/")[-1])
-exit
 path_to_rtklib = "/usr/local/bin"
 
 login=LoginManager(app)
@@ -90,6 +87,7 @@ rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
+                 {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
                  {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"}, 
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
@@ -207,7 +205,12 @@ def update_rtkbase():
         if tarinfo.isdir():
             primary_folder = tarinfo.name
             break
-    
+    #Delete previous update directory
+    try:
+        os.rmdir("/var/tmp/rtkbase")
+    except FileNotFoundError:
+        print("/var/tmps/rtkbase directory doesn't exist")
+        
     #Extract archive
     tar.extractall("/var/tmp")
 
@@ -253,11 +256,13 @@ def settings_page():
     ntrip_settings = rtkbaseconfig.get_ntrip_settings()
     file_settings = rtkbaseconfig.get_file_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
+    rtcm_serial_settings = rtkbaseconfig.get_rtcm_serial_settings()
 
     return render_template("settings.html", main_settings = main_settings,
                                             ntrip_settings = ntrip_settings,
                                             file_settings = file_settings,
-                                            rtcm_svr_settings = rtcm_svr_settings)
+                                            rtcm_svr_settings = rtcm_svr_settings,
+                                            rtcm_serial_settings = rtcm_serial_settings,)
 
 @app.route('/logs')
 @login_required
@@ -570,11 +575,13 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip", "rtcm_svr", "file"))
+            restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))
         elif source_section == "ntrip":
             restartServices(("ntrip",))
         elif source_section == "rtcm_svr":
             restartServices(("rtcm_svr",))
+        elif source_section == "rtcm_serial":
+            restartServices(("rtcm_serial",))
         elif source_section == "local_storage":
             restartServices(("file",))
 

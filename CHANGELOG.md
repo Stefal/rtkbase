@@ -3,10 +3,13 @@
 ## Unreleased
 ### Added
 - New Rtcm serial service to send a rtcm stream on a serial output, like a radio module
-- You can edit the antenna info in Webpage->Settings->Main
 - RTKBase release number, receiver model, and antenna information are sent on RTCM stream (message 1008 and 1033 added)
-- Spinners and countdown added on reboot modal window
-- Auto refresh the webpage after a reboot (fixed time duration)
+- GUI->Status: Button to copy realtime coordinates to the clipboard
+- GUI->Settings: You can edit the antenna info in Main service options
+- GUI->Settings: Spinners and countdown added on reboot modal window
+- GUI->Settings: Auto refresh the webpage after a reboot (fixed time duration)
+- The archive_and_clean script delete oldest archives if there is less than 500MB available.
+- The install script check if there is enough space before starting
 
 ### Changed
 - Upgrade to RTKLib v2.4.3-b34

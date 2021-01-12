@@ -14,12 +14,32 @@
     <div class="col py-3 border bg-light"><b>Latitude: </b><span id="lat_value"></span></div>
     <div class="col py-3 border bg-light"><b>Longitude: </b><span id="lon_value"></span></div>
     <div class="col py-3 border bg-light"><b>Height: </b><span id="height_value"></span></div>
+    <div class="col-auto py-3 border bg-light" id="clipboard_cell" ><img class="mx-auto align-baseline" src="../static/images/clipboard.svg" 
+      title="copy coordinate to clipboard" alt="clipboard"></div>
 </div>
 
-<div id="map" style="height: 420px; margin-top: 2em; margin-bottom: 2em;">
-    
+<div id="map" style="height: 420px; margin-top: 2em; margin-bottom: 2em;">    
 </div>
-
+<!-- The copy coordinate Modal dialog box-->
+<div class="modal" id="copyCoordModal">
+    <div class="modal-dialog">
+      <div class="modal-content">     
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Coordinates sent to clipboard</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>       
+        <!-- Modal body -->
+        <div class="modal-body">
+            <input id="dummy_input" class="form-control" type="text">   
+        </div>       
+        <!-- Modal footer -->
+        <div class="modal-footer mx-auto">
+          <button id="start-update-button" type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+        </div>      
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

@@ -10,15 +10,26 @@ source <( grep = ${BASEDIR}/settings.conf )  #import settings
 
 in_serial="serial://${com_port}:${com_port_settings}#${receiver_format}"
 in_tcp="tcpcli://127.0.0.1:${tcp_port}#${receiver_format}"
+#in_ext_tcp is mainly for dev purpose to receive a raw stream from another base
+in_ext_tcp="tcpcli://${ext_tcp_source}:${tcp_port}#${receiver_format}"
 
-out_caster="ntrips://:${svr_pwd}@${svr_addr}:${svr_port}/${mnt_name}#rtcm3 -msg ${rtcm_msg} -p ${position} -i ${receiver}"
+out_caster="ntrips://:${svr_pwd}@${svr_addr}:${svr_port}/${mnt_name}#rtcm3 -msg ${rtcm_msg} -p ${position}"
 #add receiver options if it exists
 [[ ! -z "${ntrip_receiver_options}" ]] && out_caster=""${out_caster}" -opt "${ntrip_receiver_options}""
+
 out_tcp="tcpsvr://:${tcp_port}"
+
 out_file="file://${datadir}/${file_name}.${receiver_format}::T::S=${file_rotate_time} -f ${file_overlap_time}"
+
 out_rtcm_svr="tcpsvr://:${rtcm_svr_port}#rtcm3 -msg ${rtcm_svr_msg} -p ${position}"
 #add receiver options if it exists
 [[ ! -z "${rtcm_receiver_options}" ]] && out_rtcm_svr=""${out_rtcm_svr}" -opt "${rtcm_receiver_options}""
+
+out_rtcm_serial="serial://${out_com_port}:${out_com_port_settings}#rtcm3 -msg ${rtcm_serial_msg} -p ${position}"
+#add receiver options if it exists
+[[ ! -z "${rtcm_serial_receiver_options}" ]] && out_rtcm_serial=""${out_rtcm_serial}" -opt "${rtcm_serial_receiver_options}""
+
+receiver_info="RTKBase ${receiver},${version}"
 
 mkdir -p ${logdir}
     
@@ -31,12 +42,17 @@ mkdir -p ${logdir}
 
   out_caster)
     #echo ${cast} -in ${!1} -out $out_caster
-    ${cast} -in ${!1} -out ${out_caster} -t ${level} -fl ${logdir}/str2str_ntrip.log &
+    ${cast} -in ${!1} -out ${out_caster} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip.log &
     ;;
 
   out_rtcm_svr)
     #echo ${cast} -in ${!1} -out $out_rtcm_svr
-    ${cast} -in ${!1} -out ${out_rtcm_svr} -t ${level} -fl ${logdir}/str2str_rtcm_svr.log &
+    ${cast} -in ${!1} -out ${out_rtcm_svr} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_svr.log &
+    ;;
+
+  out_rtcm_serial)
+    #echo ${cast} -in ${!1} -out $out_rtcm_serial
+    ${cast} -in ${!1} -out ${out_rtcm_serial} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_serial.log &
     ;;
 
   out_file)
@@ -51,8 +67,3 @@ mkdir -p ${logdir}
     ;;
     
   esac
-
-
-
-
-

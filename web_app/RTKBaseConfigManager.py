@@ -76,7 +76,7 @@ class RTKBaseConfigManager:
             and remove the single quotes.      
         """
         ordered_main = [{"source_section" : "main"}]
-        for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_format", "tcp_port"):
+        for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_format", "antenna_info", "tcp_port"):
             ordered_main.append({key : self.config.get('main', key).strip("'")})
         return ordered_main
 
@@ -110,6 +110,16 @@ class RTKBaseConfigManager:
             ordered_rtcm_svr.append({key : self.config.get('rtcm_svr', key).strip("'")})
         return ordered_rtcm_svr
 
+    def get_rtcm_serial_settings(self):
+        """
+            Get a subset of the settings from the file section in an ordered object
+            and remove the single quotes.       
+        """
+        ordered_rtcm_serial = [{"source_section" : "rtcm_serial"}]
+        for key in ("out_com_port", "out_com_port_settings", "rtcm_serial_msg", "rtcm_serial_receiver_options"):
+            ordered_rtcm_serial.append({key : self.config.get('rtcm_serial', key).strip("'")})
+        return ordered_rtcm_serial
+
     def get_ordered_settings(self):
         """
             Get a subset of the main, ntrip and file sections from the settings file
@@ -120,6 +130,7 @@ class RTKBaseConfigManager:
         ordered_settings['ntrip'] = self.get_ntrip_settings()
         ordered_settings['file'] = self.get_file_settings()
         ordered_settings['rtcm_svr'] = self.get_rtcm_svr_settings()
+        ordered_settings['rtcm_serial'] = self.get_rtcm_serial_settings()
         return ordered_settings
 
     def get_web_authentification(self):

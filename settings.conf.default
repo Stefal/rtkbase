@@ -2,9 +2,9 @@
 
 [general]
 # Version
-version=2.1.1
+version=2.2.0
 # Rtkbase upgrade mandatory "checkpoint"
-checkpoint_version=2.2.0
+checkpoint_version=2.3.0
 # User who runs str2str_file service
 user=
 # NTRIP caster program
@@ -32,8 +32,12 @@ com_port_settings='115200:8:n:1'
 receiver='Ublox_ZED-F9P'
 #gnss receiver format
 receiver_format='ubx'
+#Antenna info, id, serial number. Without space inside the strings
+antenna_info='NULLANTENNA'
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
 tcp_port='5015'
+#ext_tcp_source is mainly for dev purpose to receive a raw stream from another base
+ext_tcp_source=''
 
 [local_storage]
 
@@ -64,7 +68,7 @@ svr_port='2101'
 svr_pwd=''
 #Mount name
 mnt_name='Your_mount_name'
-rtcm_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
 #Receiver dependent options
 ntrip_receiver_options=''
 
@@ -75,9 +79,22 @@ ntrip_receiver_options=''
 #port for rtcm local use
 rtcm_svr_port='5016'
 #messages for rtcm local use
-rtcm_svr_msg='1004,1005,1006,1012,1019,1020,1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_svr_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
 #Receiver dependent options
 rtcm_receiver_options=''
+
+[rtcm_serial]
+
+# Serial output RTCM options
+
+#serial output for rtcm local use
+out_com_port=''
+#serial output settings
+out_com_port_settings='115200:8:n:1'
+#messages for rtcm local use
+rtcm_serial_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+#Receiver dependent options
+rtcm_serial_receiver_options=''
 
 [log]
 
