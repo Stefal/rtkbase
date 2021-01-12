@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [2.2.0] - 2021-01-12
 ### Added
 - New Rtcm serial service to send a rtcm stream on a serial output, like a radio module
 - RTKBase release number, receiver model, and antenna information are sent on RTCM stream (message 1008 and 1033 added)
