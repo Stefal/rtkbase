@@ -18,6 +18,7 @@
 - Some python module updates
 - More dependencies are installed for aarch64 platform
 - The realtime base location calculation is now using dual-frequency ionosphere correction. You won't see the location anymore if you use a single frequency receiver.
+- Default value for archive rotation lowered to 60 days.
 
 ### Fixed
 - Cleaning update modal box when closing it
