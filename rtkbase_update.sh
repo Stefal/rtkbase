@@ -99,7 +99,7 @@ upd_2.1.1() {
   file_path=${destination_directory}'/unit/str2str_rtcm_serial.service'
   file_name=$(basename ${file_path})
   echo copying ${file_name}
-  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"$(logname)"'|' ${file_path} > /etc/systemd/system/${file_name}
+  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
   systemctl daemon-reload
 
   #inserting new rtcm message 1008 and 1033 inside rtcm_msg and rtcm_svr_msg
@@ -133,4 +133,4 @@ echo "Restart web server"
 sudo systemctl restart rtkbase_web.service
 
 #if a reboot is needed
-sudo reboot now
+sudo reboot
