@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [2.2.0] - 2021-01-12
 ### Added
 - New Rtcm serial service to send a rtcm stream on a serial output, like a radio module
 - RTKBase release number, receiver model, and antenna information are sent on RTCM stream (message 1008 and 1033 added)
@@ -18,6 +18,7 @@
 - Some python module updates
 - More dependencies are installed for aarch64 platform
 - The realtime base location calculation is now using dual-frequency ionosphere correction. You won't see the location anymore if you use a single frequency receiver.
+- Default value for archive rotation lowered to 60 days.
 
 ### Fixed
 - Cleaning update modal box when closing it
