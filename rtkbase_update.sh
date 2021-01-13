@@ -113,8 +113,9 @@ upd_2.1.1() {
       sed -i '/^rtcm_svr_msg=/c\'"${new_rtcm}" ${destination_directory}/settings.conf
   
   #restarting runnning rtcm services to send the new messages.
-  systemctl is-active --quiet str2str_ntrip && systemctl restart str2str_ntrip
-  systemctl is-active --quiet str2str_rtcm_svr && systemctl restart str2str_rtcm_svr
+  # my bad ! these services are already stopped. the command bellow won't restart them
+  #systemctl is-active --quiet str2str_ntrip && systemctl restart str2str_ntrip
+  #systemctl is-active --quiet str2str_rtcm_svr && systemctl restart str2str_rtcm_svr
 
 }
 
@@ -128,10 +129,8 @@ sed -i '/version=/d' ${destination_directory}/settings.conf
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
 
-#if a reboot is needed
-#sudo reboot now
-
 echo "Restart web server"
 sudo systemctl restart rtkbase_web.service
 
-
+#if a reboot is needed
+sudo reboot now
