@@ -130,7 +130,7 @@ sed -i '/version=/d' ${destination_directory}/settings.conf
 chown -R ${standard_user}:${standard_user} ${destination_directory}
 
 echo "Restart web server"
-sudo systemctl restart rtkbase_web.service
+systemctl restart rtkbase_web.service
 
 #if a reboot is needed
-sudo reboot
+systemctl reboot
