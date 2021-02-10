@@ -1,4 +1,4 @@
-cryptography==3.3.1
+cryptography==3.3.2
 Flask==1.1.2
 Flask-SocketIO==4.3.2
 eventlet==0.30.0
