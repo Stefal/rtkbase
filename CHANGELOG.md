@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.1] - Not released
+### Fixed
+- Rtkbase was deleting old archive when remaining space was lower than 5GB instead of 500MB
+
 ## [2.2.0] - 2021-01-12
 ### Added
 - New Rtcm serial service to send a rtcm stream on a serial output, like a radio module
