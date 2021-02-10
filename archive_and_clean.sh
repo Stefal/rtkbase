@@ -11,7 +11,7 @@ check_space(){
 }
 
 #Check if there is enough available space (more than 500MB), and delete oldest archive if needed.
-while [[ $(check_space) -lt 5000000 ]]
+while [[ $(check_space) -lt 500000 ]]
 do
   file_to_delete=$(find . -maxdepth 1 -type f | sort -r | tail -1)
   #Test if there is a file to delete
