@@ -55,6 +55,8 @@ file_overlap_time='30'
 archive_name=$(date -d "-1 days" +"%Y-%m-%d_%S").zip
 #archives older than this value (in days) will be deleted by archive_and_clean.sh
 archive_rotate='60'
+#minum free space on device (in MB) before oldest archives are deleted
+min_free_space='500'
 
 [ntrip]
 
