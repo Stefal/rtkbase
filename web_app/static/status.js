@@ -78,8 +78,13 @@ $(document).ready(function () {
         maxZoom: 20,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ' +
             '| <a href="https://cloud.empreintedigitale.fr" target="_blank">Empreinte digitale</a>',
-        tileSize: 256,
-        
+        tileSize: 256,      
+    });
+
+    var orthoHrLayer = L.tileLayer('https://wms.openstreetmap.fr/tms/1.0.0/tous_fr/{z}/{x}/{y} ', {
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://geoservices.ign.fr/documentation/diffusion/documentation-offre.html#bdortho_orthohr target="_blank">IGN</a> ',
+        tileSize: 256,       
     });
 
     if (maptiler_key.length > 0) {
@@ -94,7 +99,8 @@ $(document).ready(function () {
     };
     
     var baseMaps = {
-        "OpenStreetMap": osmLayer
+        "OpenStreetMap": osmLayer, 
+        "Ortho HR (fr)": orthoHrLayer
     };
 
     if (typeof(aerialLayer) !== 'undefined') {
