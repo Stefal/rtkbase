@@ -7,11 +7,11 @@ source <( grep = ${BASEDIR}/settings.conf )
 cd ${datadir}
 
 check_space(){
-  df -kP ${datadir} | grep -v '^Filesystem' | awk '{ print $4 }'
+  df -mP ${datadir} | grep -v '^Filesystem' | awk '{ print $4 }'
 }
 
 #Check if there is enough available space (more than 500MB), and delete oldest archive if needed.
-while [[ $(check_space) -lt 500000 ]]
+while [[ $(check_space) -lt ${min_free_space} ]]
 do
   file_to_delete=$(find . -maxdepth 1 -type f | sort -r | tail -1)
   #Test if there is a file to delete
