@@ -10,7 +10,7 @@ check_space(){
   df -mP ${datadir} | grep -v '^Filesystem' | awk '{ print $4 }'
 }
 
-#Check if there is enough available space (more than 500MB), and delete oldest archive if needed.
+#Check if there is enough available space (default value is more than 500MB), and delete oldest archive if needed.
 while [[ $(check_space) -lt ${min_free_space} ]]
 do
   file_to_delete=$(find . -maxdepth 1 -type f | sort -r | tail -1)
