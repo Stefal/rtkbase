@@ -204,7 +204,7 @@ So, if you really want it, let's go for a manual installation with some explanat
 
    If it's a U-Blox ZED-F9P (uart), you can use this command (change the ttyS1 and 115200 value if needed)):
    ```bash
-   $ rtkbase/tools/set_zed-f9p.sh /dev/ttyS1 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.txt
+   $ rtkbase/tools/set_zed-f9p.sh /dev/ttyS1 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
    ```
      
    If you need to use a config tool from another computer (like U-center), you can use `socat`:
