@@ -1,6 +1,9 @@
 # Changelog
 
 ## [2.2.1] - Not released
+### Added
+- GUI -> Status: New OrthoHR aerial imagery layer, covering France.
+
 ### Fixed
 - Rtkbase was deleting old archive when remaining space was lower than 5GB instead of 500MB
 
