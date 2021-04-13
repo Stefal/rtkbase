@@ -123,12 +123,13 @@ $(document).ready(function () {
     // Add realtime localisation marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
 
-    // Move map view with marker location
+    // Move map view with markers bounds
     locMark.addEventListener("move", function() {
         const reduceBounds = map.getBounds().pad(-0.4);
-        if (reduceBounds.contains(locMark.getLatLng()) != true) {
+        const markerBounds = L.latLngBounds(baseMark.getLatLng(), locMark.getLatLng())
+        if (reduceBounds.contains(markerBounds.getCenter()) != true) {
             console.log("location marker is outside the bound, moving the map");
-            map.flyTo(locMark.getLatLng(), 20);
+            map.flyToBounds(markerBounds, 20);
         }
     });
 
