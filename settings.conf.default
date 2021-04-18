@@ -74,6 +74,22 @@ rtcm_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,107
 #Receiver dependent options
 ntrip_receiver_options=''
 
+[local_ntrip]
+
+# local NTRIP caster options
+# These options are needed when you set your base as a NTRIP caster
+
+#user/password credentials to connect to this local caster
+local_ntrip_user=''
+local_ntrip_pwd=''
+#local ntrip port
+local_ntrip_port='2101'
+#mount point name for this local ntrip caster
+local_ntrip_mnt_name=''
+local_ntrip_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+#Receiver dependent options
+local_ntrip_receiver_options=''
+
 [rtcm_svr]
 
 # RTCM server options

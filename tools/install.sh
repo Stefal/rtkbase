@@ -304,16 +304,16 @@ configure_gnss(){
             sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${rtkbase_path}/settings.conf
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
             sudo -u $(logname) sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u $(logname) sed -i s/^local_ntrip_receiver_options=.*/local_ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
             sudo -u $(logname) sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
             sudo -u $(logname) sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-
 
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
             sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > ${rtkbase_path}/settings.conf
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
-            sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
+            sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
 
           fi
         else
