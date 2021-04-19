@@ -86,6 +86,7 @@ bootstrap = Bootstrap(app)
 rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD_FOLDER"])
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
+                 {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
                  {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
@@ -254,12 +255,14 @@ def settings_page():
     """
     main_settings = rtkbaseconfig.get_main_settings()
     ntrip_settings = rtkbaseconfig.get_ntrip_settings()
+    local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
     file_settings = rtkbaseconfig.get_file_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
     rtcm_serial_settings = rtkbaseconfig.get_rtcm_serial_settings()
 
     return render_template("settings.html", main_settings = main_settings,
                                             ntrip_settings = ntrip_settings,
+                                            local_ntripc_settings = local_ntripc_settings,
                                             file_settings = file_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
                                             rtcm_serial_settings = rtcm_serial_settings,)
@@ -578,6 +581,8 @@ def update_settings(json_msg):
             restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))
         elif source_section == "ntrip":
             restartServices(("ntrip",))
+        elif source_section == "local_ntrip":
+            restartServices(("local_ntrip"))
         elif source_section == "rtcm_svr":
             restartServices(("rtcm_svr",))
         elif source_section == "rtcm_serial":

@@ -143,6 +143,63 @@
         </div>
     </form>
 
+  <!-- ######## Local Ntrip Caster Service ########-->
+  <div id="local_ntripc_service_space" class="form-group row">
+    <div class="col">
+    <label for="ntripc-switch" class="col-4 col-form-label col-form-label-lg">Ntrip Caster service</label>
+    <input id="ntripc-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ local_ntripc_settings[0].source_section }}" aria-expanded="false" aria-controls="local_ntripc_service_options">Options</button>
+    </div>
+  </div>
+    <form id="{{ local_ntripc_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="local_ntripc_user" class="col-sm-3 col-form-label">Local caster username: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_user" type="text" name="local_ntripc_user" class="form-control" value="{{ local_ntripc_settings[0].local_ntripc_user }}" title="Local Ntrip caster username" pattern="\w+[^|><\s]*" required>
+            <div class="invalid-feedback">Local Ntrip caster username</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_pwd" class="col-sm-3 col-form-label">Local caster password: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_pwd" type="text" name="local_ntripc_pwd" class="form-control" value="{{ local_ntripc_settings[1].local_ntripc_pwd }}" title="local Ntrip caster password" pattern="\w+[^|><\s]*" required>
+            <div class="invalid-feedback">Local Ntrip caster username</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_port" class="col-sm-3 col-form-label">Local caster port: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_port" type="text" name="local_ntripc_port" class="form-control" value="{{ local_ntripc_settings[2].local_ntripc_port }}" title="local Ntrip caster port number" pattern="[0-9]{4,5}" required>
+            <div class="invalid-feedback">Local Ntrip Caster port number, e.g. 2101</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_mnt_name" class="col-sm-3 col-form-label">Local caster mount name: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_mnt_name" type="text" name="local_ntripc_mnt_name" class="form-control" value="{{ local_ntripc_settings[3].local_ntripc_mnt_name }}" title="Local Ntrip caster Mount name" pattern="\w+[^|><\/\s]*" required>
+            <div class="invalid-feedback">Local Ntrip caster mount name</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_msg" class="col-sm-3 col-form-label">Local caster rtcm messages: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_msg" type="text" name="local_ntripc_msg" class="form-control" value="{{ local_ntripc_settings[4].local_ntripc_msg }}" title="Local Ntrip rtcm messages list" pattern="[0-9,().]+" required>
+            <div class="invalid-feedback">Local caster Rtcm messages list</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_receiver_options" class="col-sm-3 col-form-label">Local caster receiver options: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_receiver_options" type="text" name="local_ntripc_receiver_options" class="form-control" value="{{ local_ntripc_settings[5].local_ntripc_receiver_options }}" title="Local Ntrip Caster Receiver options" pattern="[^|><\/]*">
+            <div class="invalid-feedback">Local Ntrip Caster Receiver dependent options, e.g. -TADJ=1 for u-blox</div>
+        </div>
+      </div>      
+
+        <div class="clearfix">
+          <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+        </div>
+    </form>
+
   <!-- ######## RTCM Tcp Service ########-->
   <div id="rtcm_svr_service_space" class="form-group row">
     <div class="col">

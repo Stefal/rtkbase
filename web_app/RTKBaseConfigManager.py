@@ -89,6 +89,16 @@ class RTKBaseConfigManager:
         for key in ("svr_addr", "svr_port", "svr_pwd", "mnt_name", "rtcm_msg", "ntrip_receiver_options"):
             ordered_ntrip.append({key : self.config.get('ntrip', key).strip("'")})
         return ordered_ntrip
+
+    def get_local_ntripc_settings(self):
+        """
+            Get a subset of the settings from the local ntrip section in an ordered object
+            and remove the single quotes.    
+        """
+        ordered_local_ntripc = [{"source_section" : "local_ntrip_caster"}]
+        for key in ("local_ntripc_user", "local_ntripc_pwd", "local_ntripc_port", "local_ntripc_mnt_name", "local_ntripc_msg", "local_ntripc_receiver_options"):
+            ordered_local_ntripc.append({key : self.config.get('local_ntrip_caster', key).strip("'")})
+        return ordered_local_ntripc
     
     def get_file_settings(self):
         """
@@ -128,6 +138,7 @@ class RTKBaseConfigManager:
         ordered_settings = {}
         ordered_settings['main'] = self.get_main_settings()
         ordered_settings['ntrip'] = self.get_ntrip_settings()
+        ordered_settings['local_ntripc'] = self.get_local_ntripc_settings()
         ordered_settings['file'] = self.get_file_settings()
         ordered_settings['rtcm_svr'] = self.get_rtcm_svr_settings()
         ordered_settings['rtcm_serial'] = self.get_rtcm_serial_settings()
