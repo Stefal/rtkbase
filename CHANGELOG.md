@@ -4,6 +4,7 @@
 ### Added
 - GUI -> Status: New OrthoHR aerial imagery layer, covering France.
 - GUI -> Status: Realtime and static base position stay both visible on the map.
+- GUI -> Settings: New local Ntrip Caster service to use RTKBase as a NTRIP Caster.
 
 ### Fixed
 - Rtkbase was deleting old archive when remaining space was lower than 5GB instead of 500MB
