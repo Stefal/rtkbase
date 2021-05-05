@@ -21,6 +21,7 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Software/Hardware (please complete the following information):**
+ - RTKBase release number X.X.X
  - OS: [e.g. Armbian 64bits, Raspberry Pi Os]
  - SBC [e.g. Raspberry Pi 3B+, Orange Pi Zero]
  - GNSS Device: [e.g. Ublox F9P]
