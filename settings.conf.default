@@ -33,7 +33,7 @@ receiver='Ublox_ZED-F9P'
 #gnss receiver format
 receiver_format='ubx'
 #Antenna info, id, serial number. Without space inside the strings
-antenna_info='NULLANTENNA'
+antenna_info='ADVNULLANTENNA'
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
 tcp_port='5015'
 #ext_tcp_source is mainly for dev purpose to receive a raw stream from another base
