@@ -38,6 +38,8 @@ antenna_info='ADVNULLANTENNA'
 tcp_port='5015'
 #ext_tcp_source is mainly for dev purpose to receive a raw stream from another base
 ext_tcp_source=''
+#ext_tcp_port is the port used for ext_tcp_source
+ext_tcp_port=''
 
 [local_storage]
 

@@ -11,7 +11,7 @@ source <( grep = ${BASEDIR}/settings.conf )  #import settings
 in_serial="serial://${com_port}:${com_port_settings}#${receiver_format}"
 in_tcp="tcpcli://127.0.0.1:${tcp_port}#${receiver_format}"
 #in_ext_tcp is mainly for dev purpose to receive a raw stream from another base
-in_ext_tcp="tcpcli://${ext_tcp_source}:${tcp_port}#${receiver_format}"
+in_ext_tcp="tcpcli://${ext_tcp_source}:${ext_tcp_port}#${receiver_format}"
 
 out_caster="ntrips://:${svr_pwd}@${svr_addr}:${svr_port}/${mnt_name}#rtcm3 -msg ${rtcm_msg} -p ${position}"
 #add receiver options if it exists
