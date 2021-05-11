@@ -83,7 +83,14 @@ login.login_view = 'login_page'
 socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
-rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD_FOLDER"])
+#Get settings from settings.conf.default and settings.conf
+rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
+
+rtk = RTKLIB(socketio,
+            rtklib_path=path_to_rtklib,
+            log_path=app.config["DOWNLOAD_FOLDER"],
+            )
+
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
@@ -94,12 +101,8 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
                  ]
 
-
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
-
-#Get settings from settings.conf.default and settings.conf
-rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
 
 class User(UserMixin):
     """ Class for user authentification """
@@ -370,7 +373,13 @@ def shutdownBase():
 @socketio.on("start base", namespace="/test")
 def startBase():
     rtk.startBase()
-
+    if rtk.get_rtkcv_option("inpstr1-path") != "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'"):
+        rtk.set_rtkcv_option("inpstr1-path", "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'"), restart=True)
+    if rtk.get_rtkcv_option("inpstr1-format") != rtkbaseconfig.get("main", "receiver_format").strip("'"):
+        rtk.set_rtkcv_option("inpstr1-format", rtkbaseconfig.get("main", "receiver_format").strip("'"), restart=True)
+    #TODO une autre solution pour éviter ces comparaisons et restart multiple était de stocker un attribut pending refresh
+    # dans l'instance RTKRCV ou RtkController. Mais pour le moment, un startBase() ne fait rien si rtkrcv est déjà en route
+    # il faudrait peut-être ajouter un paramètre "force" pour forcer le redémarrage.
 @socketio.on("stop base", namespace="/test")
 def stopBase():
     rtk.stopBase()
@@ -579,6 +588,7 @@ def update_settings(json_msg):
         #Restart service if needed
         if source_section == "main":
             restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))
+            #rtk.rtkrcv_pending_refresh = True          
         elif source_section == "ntrip":
             restartServices(("ntrip",))
         elif source_section == "local_ntrip":
