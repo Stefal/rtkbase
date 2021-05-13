@@ -83,7 +83,7 @@ $(document).ready(function () {
 
     var orthoHrLayer = L.tileLayer('https://wms.openstreetmap.fr/tms/1.0.0/tous_fr/{z}/{x}/{y} ', {
         maxZoom: 20,
-        attribution: '&copy; <a href="https://geoservices.ign.fr/documentation/diffusion/documentation-offre.html#bdortho_orthohr target="_blank">IGN</a> ',
+        attribution: 'Ortho HR | &copy; <a href="https://geoservices.ign.fr/documentation/diffusion/documentation-offre.html#bdortho_orthohr target="_blank">IGN</a> ',
         tileSize: 256,       
     });
 
