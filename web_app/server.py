@@ -137,6 +137,7 @@ def manager():
     """ This manager runs inside a thread
         It checks how long rtkrcv is running since the last user leaves the
         status web page, and stop rtkrcv when sleep_count reaches rtkrcv_standby delay
+        And it sends various system informations to the web interface
     """
     while True:
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
@@ -145,7 +146,9 @@ def manager():
                 rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
             print("I'd like to stop rtkrcv (sleep_count = {}), but rtk.state is: {}".format(rtk.sleep_count, rtk.state))
-        socketio.emit("cpu temp", json.dumps(get_cpu_temp()), namespace="/test")
+
+        sys_infos = {"cpu_temp" : get_cpu_temp(), "uptime" : get_uptime()}
+        socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
         time.sleep(1)
 
 def old_get_cpu_temp():
@@ -163,8 +166,11 @@ def get_cpu_temp():
         temps = psutil.sensors_temperatures()
         current_cpu_temp = round(temps.get('cpu_thermal')[0].current, 1)
     except:
-        current_cpu_temp = None
+        current_cpu_temp = 99
     return current_cpu_temp
+
+def get_uptime():
+    return round(time.time() - psutil.boot_time())
 
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=False, emit = True):

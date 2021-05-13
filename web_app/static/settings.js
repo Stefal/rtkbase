@@ -286,17 +286,42 @@ $(document).ready(function () {
 
     // ####################### HANDLE HARDWARE INFORMATIONS #######################
 
-    socket.on("cpu temp", function(temp) {
+    socket.on("sys_informations", function(infos) {
         // todo: add comments
-        var cpuTemp = JSON.parse(temp);
-        var cpuElt = document.getElementById("cpu_temp");
-        cpuElt.textContent = cpuTemp + ' C°';
-        if (cpuTemp > 85) {
+        var sysInfos = JSON.parse(infos);
+        var cpuElt = document.getElementById("cpu_temperature");
+        cpuElt.textContent = sysInfos['cpu_temp'] + ' C°';
+        if (sysInfos['cpu_temp'] > 85) {
             cpuElt.style.color = "red";
         } else {
             cpuElt.style.color = "black";
         }
+        var upTimeElt = document.getElementById("uptime");
+        upTimeElt.textContent = forHumans(sysInfos['uptime']);
     })
+    //source: https://stackoverflow.com/a/34270811
+    /**
+     * Translates seconds into human readable format of seconds, minutes, hours, days, and years
+     * 
+     * @param  {number} seconds The number of seconds to be processed
+     * @return {string}         The phrase describing the the amount of time
+    */
+    function forHumans ( seconds ) {
+        var levels = [
+            [Math.floor(seconds / 31536000), 'y'],
+            [Math.floor((seconds % 31536000) / 86400), 'd'],
+            [Math.floor(((seconds % 31536000) % 86400) / 3600), 'h'],
+            [Math.floor((((seconds % 31536000) % 86400) % 3600) / 60), 'mn'],
+            [(((seconds % 31536000) % 86400) % 3600) % 60, 's'],
+        ];
+        var returntext = '';
+    
+        for (var i = 0, max = levels.length; i < max; i++) {
+            if ( levels[i][0] === 0 ) continue;
+            returntext += ' ' + levels[i][0] + '' + (levels[i][0] === 1 ? levels[i][1].substr(0, levels[i][1].length-1): levels[i][1]);
+        };
+        return returntext.trim();
+    }
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
     function countdown(remaining) {
