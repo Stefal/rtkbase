@@ -8,6 +8,9 @@
 - GUI -> Settings: Display Cpu temperature.
 - GUI -> Settings: Display uptime.
 
+### Changed
+- Default antenna value sets to 'ADVNULLANTENNA' instead of 'NULLANTENNA'.
+
 ### Fixed
 - Rtkbase was deleting old archive when remaining space was lower than 5GB instead of 500MB. And now you can change the value inside `settings.conf`.
 - rtkrcv configuration was hardcoded with ubx input, now it uses the format set on GUI -> Settings -> Main.
