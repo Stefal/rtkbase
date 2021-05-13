@@ -7,6 +7,7 @@
 - GUI -> Settings: New local Ntrip Caster service to use RTKBase as a NTRIP Caster.
 - GUI -> Settings: Display Cpu temperature.
 - GUI -> Settings: Display uptime.
+- GUI -> Settings: Display storage informations
 
 ### Changed
 - Default antenna value sets to 'ADVNULLANTENNA' instead of 'NULLANTENNA'.
