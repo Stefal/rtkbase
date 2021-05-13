@@ -320,8 +320,9 @@ def diagnostic():
     Get services journal and status
     """
     getServicesStatus()
+    rtkbase_web_service = {'service_unit' : 'rtkbase_web.service', 'name' : 'RTKBase Web Server', 'active' : True}
     logs = []
-    for service in services_list:
+    for service in services_list + [rtkbase_web_service]:
         sysctl_status = subprocess.run(['systemctl', 'status', service['service_unit']],
                                 stdout=subprocess.PIPE,
                                 universal_newlines=True)
@@ -532,6 +533,7 @@ def getServicesStatus():
     print("Getting services status")
     
     for service in services_list:
+        #print("unit qui déconne : ", service["name"])
         service["active"] = service["unit"].isActive()
 
     services_status = []
