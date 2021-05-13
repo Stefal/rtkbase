@@ -65,6 +65,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_socketio import SocketIO, emit, disconnect
 import subprocess
+import psutil
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -144,7 +145,26 @@ def manager():
                 rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
             print("I'd like to stop rtkrcv (sleep_count = {}), but rtk.state is: {}".format(rtk.sleep_count, rtk.state))
+        socketio.emit("cpu temp", json.dumps(get_cpu_temp()), namespace="/test")
         time.sleep(1)
+
+def old_get_cpu_temp():
+    try:
+        with open('/sys/class/thermal/thermal_zone0/temp', 'r') as ftemp:
+            current_temp = int(ftemp.read()) / 1000
+        print(current_temp)
+    except:
+        print("can't get cpu temp")
+        current_temp = 99
+    return current_temp
+
+def get_cpu_temp():
+    try:
+        temps = psutil.sensors_temperatures()
+        current_cpu_temp = round(temps.get('cpu_thermal')[0].current, 1)
+    except:
+        current_cpu_temp = None
+    return current_cpu_temp
 
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=False, emit = True):
