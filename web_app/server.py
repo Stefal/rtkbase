@@ -83,7 +83,14 @@ login.login_view = 'login_page'
 socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
-rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD_FOLDER"])
+#Get settings from settings.conf.default and settings.conf
+rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
+
+rtk = RTKLIB(socketio,
+            rtklib_path=path_to_rtklib,
+            log_path=app.config["DOWNLOAD_FOLDER"],
+            )
+
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
                  {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
@@ -94,12 +101,8 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
                  ]
 
-
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
-
-#Get settings from settings.conf.default and settings.conf
-rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
 
 class User(UserMixin):
     """ Class for user authentification """
@@ -369,8 +372,21 @@ def shutdownBase():
 
 @socketio.on("start base", namespace="/test")
 def startBase():
+    # We must start rtkcv before trying to modify an option
     rtk.startBase()
-
+    saved_input_path = "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'")
+    saved_input_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
+    if rtk.get_rtkcv_option("inpstr1-path") != saved_input_path:
+        rtk.set_rtkcv_option("inpstr1-path", saved_input_path)
+        rtk.set_rtkcv_pending_refresh(True)
+    if rtk.get_rtkcv_option("inpstr1-format") != saved_input_type:
+        rtk.set_rtkcv_option("inpstr1-format", saved_input_type)
+        rtk.set_rtkcv_pending_refresh(True)
+    
+    if rtk.get_rtkcv_pending_status():
+        print("REFRESH NEEDED !!!!!!!!!!!!!!!!")
+        rtk.startBase()
+    
 @socketio.on("stop base", namespace="/test")
 def stopBase():
     rtk.stopBase()
@@ -556,7 +572,7 @@ def update_settings(json_msg):
     """
         Get the form data from the web front end, and save theses values to settings.conf
         Then restart the services which have a dependency with these parameters.
-        param json_msg: A json variable containing the source fom and the new paramaters
+        param json_msg: A json variable containing the source form and the new paramaters
     """
     print("received settings form", json_msg)
     source_section = json_msg.pop().get("source_form")
@@ -568,7 +584,7 @@ def update_settings(json_msg):
             socketio.emit("password updated", namespace="/test")
 
         else:
-            print("ERREUR, MAUVAIS PASS")
+            print("ERROR, WRONG PASSWORD!")
     else:
         for form_input in json_msg:
             print("name: ", form_input.get("name"))
@@ -578,7 +594,7 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))
+            restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))  
         elif source_section == "ntrip":
             restartServices(("ntrip",))
         elif source_section == "local_ntrip":
