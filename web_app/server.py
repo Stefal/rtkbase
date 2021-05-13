@@ -372,14 +372,21 @@ def shutdownBase():
 
 @socketio.on("start base", namespace="/test")
 def startBase():
+    # We must start rtkcv before trying to modify an option
     rtk.startBase()
-    if rtk.get_rtkcv_option("inpstr1-path") != "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'"):
-        rtk.set_rtkcv_option("inpstr1-path", "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'"), restart=True)
-    if rtk.get_rtkcv_option("inpstr1-format") != rtkbaseconfig.get("main", "receiver_format").strip("'"):
-        rtk.set_rtkcv_option("inpstr1-format", rtkbaseconfig.get("main", "receiver_format").strip("'"), restart=True)
-    #TODO une autre solution pour éviter ces comparaisons et restart multiple était de stocker un attribut pending refresh
-    # dans l'instance RTKRCV ou RtkController. Mais pour le moment, un startBase() ne fait rien si rtkrcv est déjà en route
-    # il faudrait peut-être ajouter un paramètre "force" pour forcer le redémarrage.
+    saved_input_path = "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'")
+    saved_input_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
+    if rtk.get_rtkcv_option("inpstr1-path") != saved_input_path:
+        rtk.set_rtkcv_option("inpstr1-path", saved_input_path)
+        rtk.set_rtkcv_pending_refresh(True)
+    if rtk.get_rtkcv_option("inpstr1-format") != saved_input_type:
+        rtk.set_rtkcv_option("inpstr1-format", saved_input_type)
+        rtk.set_rtkcv_pending_refresh(True)
+    
+    if rtk.get_rtkcv_pending_status():
+        print("REFRESH NEEDED !!!!!!!!!!!!!!!!")
+        rtk.startBase()
+    
 @socketio.on("stop base", namespace="/test")
 def stopBase():
     rtk.stopBase()
@@ -565,7 +572,7 @@ def update_settings(json_msg):
     """
         Get the form data from the web front end, and save theses values to settings.conf
         Then restart the services which have a dependency with these parameters.
-        param json_msg: A json variable containing the source fom and the new paramaters
+        param json_msg: A json variable containing the source form and the new paramaters
     """
     print("received settings form", json_msg)
     source_section = json_msg.pop().get("source_form")
@@ -577,7 +584,7 @@ def update_settings(json_msg):
             socketio.emit("password updated", namespace="/test")
 
         else:
-            print("ERREUR, MAUVAIS PASS")
+            print("ERROR, WRONG PASSWORD!")
     else:
         for form_input in json_msg:
             print("name: ", form_input.get("name"))
@@ -587,8 +594,7 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))
-            #rtk.rtkrcv_pending_refresh = True          
+            restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))  
         elif source_section == "ntrip":
             restartServices(("ntrip",))
         elif source_section == "local_ntrip":

@@ -48,6 +48,7 @@ class RtkController:
 
         self.started = False
         self.launched = False
+        self.restart_needed = False
         self.current_config = ""
 
     def expectAnswer(self, last_command = ""):
@@ -140,6 +141,9 @@ class RtkController:
 
     def start(self):
 
+        if self.started and self.restart_needed:
+            self.restart_needed = False if self.restart() == 3 else True
+        
         if not self.started:
             self.semaphore.acquire()
 
@@ -152,8 +156,7 @@ class RtkController:
             self.semaphore.release()
             self.started = True
 
-            self.restart()
-            print("Restart")
+            self.restart() # Why this restart??
             return 1
 
         # already started
