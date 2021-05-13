@@ -139,8 +139,9 @@ def manager():
     """
     while True:
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
-            rtk.stopBase()
-            rtk.sleep_count = 0
+            print("Trying to stop rtkrcv")
+            if rtk.stopBase() == 1:
+                rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
             print("I'd like to stop rtkrcv (sleep_count = {}), but rtk.state is: {}".format(rtk.sleep_count, rtk.state))
         time.sleep(1)
