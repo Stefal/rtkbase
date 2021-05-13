@@ -291,7 +291,7 @@ $(document).ready(function () {
         var sysInfos = JSON.parse(infos);
         
         var cpuElt = document.getElementById("cpu_temperature");
-        cpuElt.textContent = sysInfos['cpu_temp'] + ' C°';
+        cpuElt.textContent = sysInfos['cpu_temp'] + ' C°' + ' - (max: ' + sysInfos['max_cpu_temp'] + 'C°)';
         if (sysInfos['cpu_temp'] > 85) {
             cpuElt.style.color = "red";
         } else {
@@ -301,7 +301,12 @@ $(document).ready(function () {
         upTimeElt.textContent = forHumans(sysInfos['uptime']);
         
         var volumeInfoElt = document.getElementById("vol__space_infos");
-        volumeInfoElt.textContent = sysInfos["volume_free"] + 'GB available of ' + sysInfos["volume_total"] + 'GB - (' + sysInfos["volume_percent_used"] + '% used)'; 
+        volumeInfoElt.textContent = sysInfos['volume_free'] + 'GB available of ' + sysInfos['volume_total'] + 'GB - (' + sysInfos['volume_percent_used'] + '% used)';
+        if (sysInfos['volume_free'] < 0.5) {
+            volumeInfoElt.style.color = "red";
+        } else {
+            volumeInfoElt.style.color = "black";
+        }
 
     })
     //source: https://stackoverflow.com/a/34270811

@@ -134,11 +134,12 @@ def update_password(config_object):
         config_object.update_setting("general", "new_web_password", "")
         
 def manager():
-    """ This manager runs inside a thread
+    """ This manager runs inside a separate thread
         It checks how long rtkrcv is running since the last user leaves the
         status web page, and stop rtkrcv when sleep_count reaches rtkrcv_standby delay
         And it sends various system informations to the web interface
     """
+    max_cpu_temp = 0
     while True:
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
             print("Trying to stop rtkrcv")
@@ -146,8 +147,11 @@ def manager():
                 rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
             print("I'd like to stop rtkrcv (sleep_count = {}), but rtk.state is: {}".format(rtk.sleep_count, rtk.state))
+        cpu_temp = get_cpu_temp()
+        max_cpu_temp = max(cpu_temp, max_cpu_temp)
         volume_usage = get_volume_usage()
-        sys_infos = {"cpu_temp" : get_cpu_temp(),
+        sys_infos = {"cpu_temp" : cpu_temp,
+                    "max_cpu_temp" : max_cpu_temp,
                     "uptime" : get_uptime(),
                     "volume_free" : round(volume_usage.free / 10E9, 2),
                     "volume_used" : round(volume_usage.used / 10E9, 2),
