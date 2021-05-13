@@ -291,11 +291,11 @@ $(document).ready(function () {
         var sysInfos = JSON.parse(infos);
         
         var cpuElt = document.getElementById("cpu_temperature");
-        cpuElt.textContent = sysInfos['cpu_temp'] + ' C°' + ' - (max: ' + sysInfos['max_cpu_temp'] + 'C°)';
+        cpuElt.textContent = sysInfos['cpu_temp'] + ' C°' + ' - (highest recorded temp: ' + sysInfos['max_cpu_temp'] + 'C°)';
         if (sysInfos['cpu_temp'] > 85) {
             cpuElt.style.color = "red";
         } else {
-            cpuElt.style.color = "black";
+            cpuElt.style.color = "#212529";
         }
         var upTimeElt = document.getElementById("uptime");
         upTimeElt.textContent = forHumans(sysInfos['uptime']);
@@ -305,7 +305,7 @@ $(document).ready(function () {
         if (sysInfos['volume_free'] < 0.5) {
             volumeInfoElt.style.color = "red";
         } else {
-            volumeInfoElt.style.color = "black";
+            volumeInfoElt.style.color = "#212529";
         }
 
     })
