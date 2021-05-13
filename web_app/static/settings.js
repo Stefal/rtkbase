@@ -284,6 +284,19 @@ $(document).ready(function () {
         $("#passwordChangedModal").modal();
     })
 
+    // ####################### HANDLE HARDWARE INFORMATIONS #######################
+
+    socket.on("cpu temp", function(temp) {
+        // todo: add comments
+        var cpuTemp = JSON.parse(temp);
+        var cpuElt = document.getElementById("cpu_temp");
+        cpuElt.textContent = cpuTemp + ' C°';
+        if (cpuTemp > 85) {
+            cpuElt.style.color = "red";
+        } else {
+            cpuElt.style.color = "black";
+        }
+    })
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
     function countdown(remaining) {
