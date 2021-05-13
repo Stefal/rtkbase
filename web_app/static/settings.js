@@ -289,6 +289,7 @@ $(document).ready(function () {
     socket.on("sys_informations", function(infos) {
         // todo: add comments
         var sysInfos = JSON.parse(infos);
+        
         var cpuElt = document.getElementById("cpu_temperature");
         cpuElt.textContent = sysInfos['cpu_temp'] + ' C°';
         if (sysInfos['cpu_temp'] > 85) {
@@ -298,6 +299,10 @@ $(document).ready(function () {
         }
         var upTimeElt = document.getElementById("uptime");
         upTimeElt.textContent = forHumans(sysInfos['uptime']);
+        
+        var volumeInfoElt = document.getElementById("vol__space_infos");
+        volumeInfoElt.textContent = sysInfos["volume_free"] + 'GB available of ' + sysInfos["volume_total"] + 'GB - (' + sysInfos["volume_percent_used"] + '% used)'; 
+
     })
     //source: https://stackoverflow.com/a/34270811
     /**

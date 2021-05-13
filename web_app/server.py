@@ -146,8 +146,13 @@ def manager():
                 rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
             print("I'd like to stop rtkrcv (sleep_count = {}), but rtk.state is: {}".format(rtk.sleep_count, rtk.state))
-
-        sys_infos = {"cpu_temp" : get_cpu_temp(), "uptime" : get_uptime()}
+        volume_usage = get_volume_usage()
+        sys_infos = {"cpu_temp" : get_cpu_temp(),
+                    "uptime" : get_uptime(),
+                    "volume_free" : round(volume_usage.free / 10E9, 2),
+                    "volume_used" : round(volume_usage.used / 10E9, 2),
+                    "volume_total" : round(volume_usage.total / 10E9, 2),
+                    "volume_percent_used" : volume_usage.percent}
         socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
         time.sleep(1)
 
@@ -171,6 +176,10 @@ def get_cpu_temp():
 
 def get_uptime():
     return round(time.time() - psutil.boot_time())
+
+def get_volume_usage(volume = rtk.logm.log_path):
+    return psutil.disk_usage(volume)
+
 
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=False, emit = True):
