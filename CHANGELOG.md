@@ -5,9 +5,12 @@
 - GUI -> Status: New OrthoHR aerial imagery layer, covering France.
 - GUI -> Status: Realtime and static base position stay both visible on the map.
 - GUI -> Settings: New local Ntrip Caster service to use RTKBase as a NTRIP Caster.
+- GUI -> Settings: Display Cpu temperature.
+- GUI -> Settings: Display uptime.
 
 ### Fixed
-- Rtkbase was deleting old archive when remaining space was lower than 5GB instead of 500MB
+- Rtkbase was deleting old archive when remaining space was lower than 5GB instead of 500MB. And now you can change the value inside `settings.conf`.
+- rtkrcv configuration was hardcoded with ubx input, now it uses the format set on GUI -> Settings -> Main.
 
 ## [2.2.0] - 2021-01-12
 ### Added
