@@ -152,7 +152,7 @@ install_rtklib() {
 rtkbase_repo(){
     #Get rtkbase repository
     if [[ -n "${1}" ]]; then
-      git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
+      sudo -u "$(logname)" git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
     else
       sudo -u "$(logname)" git clone https://github.com/stefal/rtkbase.git
     fi
