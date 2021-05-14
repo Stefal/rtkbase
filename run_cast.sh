@@ -17,9 +17,9 @@ out_caster="ntrips://:${svr_pwd}@${svr_addr}:${svr_port}/${mnt_name}#rtcm3 -msg 
 #add receiver options if it exists
 [[ ! -z "${ntrip_receiver_options}" ]] && out_caster=""${out_caster}" -opt "${ntrip_receiver_options}""
 
-out_local_caster="ntripc://${local_ntrip_user}${local_ntrip_pwd}@:${local_ntrip_port}/${local_ntrip_mnt_name}#rtcm3 -msg ${local_ntrip_msg} -p ${position}"
+out_local_caster="ntripc://${local_ntripc_user}${local_ntripc_pwd}@:${local_ntripc_port}/${local_ntripc_mnt_name}#rtcm3 -msg ${local_ntripc_msg} -p ${position}"
 #add receiver options if it exists
-[[ ! -z "${local_ntrip_receiver_options}" ]] && out_local_caster=""${out_local_caster}" -opt "${local_ntrip_receiver_options}""
+[[ ! -z "${local_ntripc_receiver_options}" ]] && out_local_caster=""${out_local_caster}" -opt "${local_ntripc_receiver_options}""
 
 out_tcp="tcpsvr://:${tcp_port}"
 
@@ -50,7 +50,7 @@ mkdir -p ${logdir}
     ;;
 
   out_local_caster)
-    #echo ${cast} -in ${!1} -out $out_caster
+    #echo ${cast} -in ${!1} -out $out_local_caster
     ${cast} -in ${!1} -out ${out_local_caster} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip.log &
     ;;
 
