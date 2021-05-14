@@ -133,7 +133,7 @@ install_rtklib() {
       if [ ! -f /usr/local/bin/str2str ]
       then 
         #Get Rtklib 2.4.3 b34 release
-        sudo -u $(logname) wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
+        sudo -u "$(logname)" wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
         #Install Rtklib app
         #TODO add correct CTARGET in makefile?
         make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc
@@ -151,17 +151,17 @@ install_rtklib() {
 
 rtkbase_repo(){
     #Get rtkbase repository
-    sudo -u $(logname) git clone https://github.com/stefal/rtkbase.git
-    sudo -u $(logname) touch rtkbase/settings.conf
+    sudo -u "$(logname)" git clone https://github.com/stefal/rtkbase.git
+    sudo -u "$(logname)" touch rtkbase/settings.conf
     add_rtkbase_path_to_environment
 
 }
 
 rtkbase_release(){
     #Get rtkbase latest release
-    sudo -u $(logname) wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
-    sudo -u $(logname) tar -xvf rtkbase.tar.gz
-    sudo -u $(logname) touch rtkbase/settings.conf
+    sudo -u "$(logname)" wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
+    sudo -u "$(logname)" tar -xvf rtkbase.tar.gz
+    sudo -u "$(logname)" touch rtkbase/settings.conf
     add_rtkbase_path_to_environment
 
 }
@@ -170,15 +170,15 @@ install_rtkbase_from_repo() {
     echo '################################'
     echo 'INSTALLING RTKBASE FROM REPO'
     echo '################################'
-      if [ -d ${rtkbase_path} ]
+      if [ -d "${rtkbase_path}" ]
       then
-        if [ -d ${rtkbase_path}/.git ]
+        if [ -d "${rtkbase_path}"/.git ]
         then
           echo "RtkBase repo: YES, git pull"
-          git -C ${rtkbase_path} pull
+          git -C "${rtkbase_path}" pull
         else
           echo "RtkBase repo: NO, rm release & git clone rtkbase"
-          rm -r ${rtkbase_path}
+          rm -r "${rtkbase_path}"
           rtkbase_repo
         fi
       else
@@ -191,12 +191,12 @@ install_rtkbase_from_release() {
     echo '################################'
     echo 'INSTALLING RTKBASE FROM RELEASE'
     echo '################################'
-      if [ -d ${rtkbase_path} ]
+      if [ -d "${rtkbase_path}" ]
       then
-        if [ -d ${rtkbase_path}/.git ]
+        if [ -d "${rtkbase_path}"/.git ]
         then
           echo "RtkBase release: NO, rm repo & download last release"
-          rm -r ${rtkbase_path}
+          rm -r "${rtkbase_path}"
           rtkbase_release
         else
           echo "RtkBase release: YES, rm & deploy last release"
@@ -223,7 +223,8 @@ add_rtkbase_path_to_environment(){
             echo "rtkbase_path=$(pwd)/rtkbase" >> /etc/environment
         fi
     fi
-    export rtkbase_path=$(pwd)/rtkbase
+    rtkbase_path=$(pwd)/rtkbase
+    export rtkbase_path
 }
 
 rtkbase_requirements(){
@@ -240,7 +241,7 @@ rtkbase_requirements(){
         apt-get install -y libssl-dev libffi-dev
       fi
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
-      python3 -m pip install -r ${rtkbase_path}/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
+      python3 -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
 }
@@ -249,15 +250,15 @@ install_unit_files() {
     echo '################################'
     echo 'ADDING UNIT FILES'
     echo '################################'
-      if [ -d ${rtkbase_path} ]
+      if [ -d "${rtkbase_path}" ]
       then 
         #Install unit files
-        ${rtkbase_path}/copy_unit.sh
+        "${rtkbase_path}"/copy_unit.sh
         systemctl enable rtkbase_web.service
         systemctl enable rtkbase_archive.timer
         systemctl daemon-reload
         #Add dialout group to user
-        usermod -a -G dialout $(logname)
+        usermod -a -G dialout "$(logname)"
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
@@ -272,15 +273,15 @@ detect_usb_gnss() {
       for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
           ID_SERIAL=''
           syspath="${sysdevpath%/dev}"
-          devname="$(udevadm info -q name -p $syspath)"
+          devname="$(udevadm info -q name -p "${syspath}")"
           if [[ "$devname" == "bus/"* ]]; then continue; fi
-          eval "$(udevadm info -q property --export -p $syspath)"
+          eval "$(udevadm info -q property --export -p "${syspath}")"
           if [[ -z "$ID_SERIAL" ]]; then continue; fi
           if [[ "$ID_SERIAL" =~ (u-blox|skytraq) ]]
           then
             detected_gnss[0]=$devname
             detected_gnss[1]=$ID_SERIAL
-            echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
+            echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"
           fi
       done
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
@@ -310,7 +311,7 @@ configure_gnss(){
     echo '################################'
     echo 'CONFIGURE GNSS RECEIVER'
     echo '################################'
-      if [ -d ${rtkbase_path} ]
+      if [ -d "${rtkbase_path}" ]
       then 
         if [[ ${#detected_gnss[*]} -eq 2 ]]
         then
@@ -319,22 +320,22 @@ configure_gnss(){
           then
             gnss_format='ubx'
           fi
-          if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -E "^com_port=.*" ${rtkbase_path}/settings.conf #check if settings.conf exists
+          if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -E "^com_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
           then
             #change the com port value inside settings.conf
-            sudo -u $(logname) sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ ${rtkbase_path}/settings.conf
+            sudo -u "$(logname)" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
-            sudo -u $(logname) sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u $(logname) sed -i s/^local_ntrip_receiver_options=.*/local_ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u $(logname) sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u $(logname) sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u "$(logname)" sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "$(logname)" sed -i s/^local_ntrip_receiver_options=.*/local_ntrip_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "$(logname)" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "$(logname)" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
 
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
-            sudo -u $(logname) printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > ${rtkbase_path}/settings.conf
+            sudo -u "$(logname)" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
-            sudo -u $(logname) printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> ${rtkbase_path}/settings.conf
+            sudo -u "$(logname)" printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntrip_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
 
           fi
         else
@@ -343,7 +344,7 @@ configure_gnss(){
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
         then
-          ${rtkbase_path}/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 ${rtkbase_path}/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
+          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
         fi
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
@@ -362,17 +363,17 @@ start_services() {
   systemctl start rtkbase_archive.timer
   echo '################################'
   echo 'END OF INSTALLATION'
-  echo 'You can open your browser to http://'$(hostname -I)
+  echo 'You can open your browser to http://'"$(hostname -I)"
   #If the user isn't already in dialout group, a reboot is 
   #mandatory to be able to access /dev/tty*
-  groups $(logname) | grep -q "dialout" || echo "But first, Please REBOOT!!!"
+  groups "$(logname)" | grep -q "dialout" || echo "But first, Please REBOOT!!!"
   echo '################################'
   
 }
 main() {
   #display parameters
-  echo 'Installation options: ' $@
-  array=($@)
+  echo 'Installation options: ' "$@"
+  array=("$@")
   # if no parameters display help
   if [ -z "$array" ]                  ; then man_help                        ;fi
   # If rtkbase is installed but the OS wasn't restarted, then the system wide
@@ -427,5 +428,5 @@ main() {
   done
 }
 
-main $@
+main "$@"
 exit 0
