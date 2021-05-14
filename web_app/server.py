@@ -182,7 +182,11 @@ def get_uptime():
     return round(time.time() - psutil.boot_time())
 
 def get_volume_usage(volume = rtk.logm.log_path):
-    return psutil.disk_usage(volume)
+    try:
+        volume_info = psutil.disk_usage(volume)
+    except FileNotFoundError:
+        volume_info = psutil.disk_usage("/")
+    return volume_info
 
 
 @socketio.on("check update", namespace="/test")
