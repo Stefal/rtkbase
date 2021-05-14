@@ -290,22 +290,37 @@ $(document).ready(function () {
         // todo: add comments
         var sysInfos = JSON.parse(infos);
         
-        var cpuElt = document.getElementById("cpu_temperature");
-        cpuElt.textContent = sysInfos['cpu_temp'] + ' C°' + ' - (highest recorded temp: ' + sysInfos['max_cpu_temp'] + 'C°)';
+        var cpuTempElt = document.getElementById("cpu_temperature");
+        cpuTempElt.textContent = sysInfos['cpu_temp'] + ' C°';
         if (sysInfos['cpu_temp'] > 85) {
-            cpuElt.style.color = "red";
-        } else {
-            cpuElt.style.color = "#212529";
+            cpuTempElt.style.color = "red";
+        } else if (sysInfos['cpu_temp'] > 70) {
+            cpuTempElt.style.color = "darkorange";
         }
+        else {
+            cpuTempElt.style.color = "#212529";
+        }
+        var cpuMaxTempElt = document.getElementById("max_cpu_temperature");
+        cpuMaxTempElt.textContent = sysInfos['max_cpu_temp'] + 'C°)';
+        if (sysInfos['max_cpu_temp'] > 85) {
+            cpuMaxTempElt.style.color = "red";
+        } else if (sysInfos['max_cpu_temp'] > 70) {
+            cpuMaxTempElt.style.color = "darkorange";
+        } else {
+            cpuMaxTempElt.style.color = "#212529";
+        }
+        
         var upTimeElt = document.getElementById("uptime");
         upTimeElt.textContent = forHumans(sysInfos['uptime']);
         
-        var volumeInfoElt = document.getElementById("vol__space_infos");
-        volumeInfoElt.textContent = sysInfos['volume_free'] + 'GB available of ' + sysInfos['volume_total'] + 'GB - (' + sysInfos['volume_percent_used'] + '% used)';
+        var volumeSpaceElt = document.getElementById("vol_space_used");
+        volumeSpaceElt.textContent = sysInfos['volume_free'] + 'GB';
+        document.getElementById("vol_space_max").textContent = sysInfos["volume_total"] + 'GB';
+        document.getElementById("vol_space_free").textContent = sysInfos["volume_percent_used"];
         if (sysInfos['volume_free'] < 0.5) {
-            volumeInfoElt.style.color = "red";
+            volumeSpaceElt.style.color = "red";
         } else {
-            volumeInfoElt.style.color = "#212529";
+            volumeSpaceElt.style.color = "#212529";
         }
 
     })

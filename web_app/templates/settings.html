@@ -380,7 +380,9 @@
       <span class="col-sm-3">CPU Temp:</span>
     </div>
     <div class="col-sm-8">
-      <span id="cpu_temperature" class="col-sm-3">- C°</span>
+      <span id="cpu_temperature">- C°</span>
+      <span>- (highest record: </span>
+      <span id="max_cpu_temperature">- C°)</span>
     </div>
   </div>
 
@@ -389,7 +391,7 @@
       <span class="col-sm-3">Uptime:</span>
     </div>
     <div class="col-sm-8">
-      <span id="uptime" class="col-sm-3"></span>
+      <span id="uptime"></span>
     </div>
   </div>
 
@@ -398,7 +400,11 @@
       <span class="col-sm-3">Storage:</span>
     </div>
     <div class="col-sm-8">
-      <span id="vol__space_infos" class="col-sm-3"></span>
+      <span id="vol_space_used"></span>
+      <span>available of </span>
+      <span id="vol_space_max"></span>
+      <span>- (</span><span id="vol_space_free"></span>
+      <span>% used)</span>
     </div>
   </div>
 
@@ -411,7 +417,7 @@
         <!--<button id="download-diag-button" class="btn btn-secondary" type="button" disabled>Download</button>-->
     </div>
   </div>
-  
+
     <div class="row py-2 align-items-center">
       <div class="col-sm-4">
         <span class="col-sm-3">Power:</span>
