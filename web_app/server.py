@@ -153,9 +153,9 @@ def manager():
         sys_infos = {"cpu_temp" : cpu_temp,
                     "max_cpu_temp" : max_cpu_temp,
                     "uptime" : get_uptime(),
-                    "volume_free" : round(volume_usage.free / 10E9, 2),
-                    "volume_used" : round(volume_usage.used / 10E9, 2),
-                    "volume_total" : round(volume_usage.total / 10E9, 2),
+                    "volume_free" : round(volume_usage.free / 10E8, 2),
+                    "volume_used" : round(volume_usage.used / 10E8, 2),
+                    "volume_total" : round(volume_usage.total / 10E8, 2),
                     "volume_percent_used" : volume_usage.percent}
         socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
         time.sleep(1)
