@@ -151,7 +151,11 @@ install_rtklib() {
 
 rtkbase_repo(){
     #Get rtkbase repository
-    sudo -u "$(logname)" git clone https://github.com/stefal/rtkbase.git
+    if [[ -n "${1}" ]]; then
+      git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
+    else
+      sudo -u "$(logname)" git clone https://github.com/stefal/rtkbase.git
+    fi
     sudo -u "$(logname)" touch rtkbase/settings.conf
     add_rtkbase_path_to_environment
 
@@ -179,11 +183,11 @@ install_rtkbase_from_repo() {
         else
           echo "RtkBase repo: NO, rm release & git clone rtkbase"
           rm -r "${rtkbase_path}"
-          rtkbase_repo
+          rtkbase_repo "${1}"
         fi
       else
         echo "RtkBase repo: NO, git clone rtkbase"
-        rtkbase_repo
+        rtkbase_repo "${1}"
       fi
 }
 
@@ -416,6 +420,15 @@ main() {
     if [ "$i" == "--detect-usb-gnss" ]; then detect_usb_gnss                 ;fi
     if [ "$i" == "--configure-gnss" ] ; then configure_gnss                  ;fi
     if [ "$i" == "--start-services" ] ; then start_services                  ;fi
+    if [ "$i" == "--alldev" ] ;         then install_dependencies         && \
+                                      	     install_rtklib               && \
+                                      	     install_rtkbase_from_repo  dev && \
+                                      	     rtkbase_requirements         && \
+                                      	     install_unit_files           && \
+                                      	     install_gpsd_chrony          && \
+                                      	     detect_usb_gnss              && \
+                                      	     configure_gnss               && \
+                                      	     start_services                  ;fi
     if [ "$i" == "--all" ]            ; then install_dependencies         && \
                                       	     install_rtklib               && \
                                       	     install_rtkbase_from_release && \
