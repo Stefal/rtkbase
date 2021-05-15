@@ -1,7 +1,7 @@
-cryptography==3.3.1
+cryptography==3.3.2
 Flask==1.1.2
 Flask-SocketIO==4.3.2
-eventlet==0.30.0
+eventlet==0.31.0
 Bootstrap-Flask==1.5.1
 Flask-WTF==0.14.3
 Flask-Login==0.5.0
