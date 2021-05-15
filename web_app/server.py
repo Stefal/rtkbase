@@ -242,10 +242,10 @@ def update_rtkbase():
     update_archive = download_update(update_url)
 
     if update_archive is None:
-        socketio.emit("downloading_update", {"result": False}, namespace="/test")
+        socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
         return
     else:
-        socketio.emit("downloading_update", {"result": True}, namespace="/test")
+        socketio.emit("downloading_update", json.dumps({"result": 'true'}), namespace="/test")
 
     #Get the "root" folder in the archive
     tar = tarfile.open(update_archive)
