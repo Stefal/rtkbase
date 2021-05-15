@@ -239,13 +239,13 @@ def update_rtkbase():
     shutil.rmtree("/var/tmp/rtkbase", ignore_errors=True)
     import tarfile
     #Download update
-    update_archive = "/var/tmp/rtkbase_update.tar.gz"
-    try:
-        response = requests.get(update_url)
-        with open(update_archive, "wb") as f:
-            f.write(response.content)
-    except Exception as e:
-        print("Error: Can't download update - ", e)
+    update_archive = download_update(update_url)
+
+    if update_archive is None:
+        socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
+        return
+    else:
+        socketio.emit("downloading_update", json.dumps({"result": 'true'}), namespace="/test")
 
     #Get the "root" folder in the archive
     tar = tarfile.open(update_archive)
@@ -269,7 +269,21 @@ def update_rtkbase():
     script_path = os.path.join(source_path, "rtkbase_update.sh")
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
+    socketio.emit("updating_rtkbase", namespace="/test")
+    time.sleep(1)
     os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
+
+def download_update(update_path):
+    update_archive = "/var/tmp/rtkbase_update.tar.gz"
+    try:
+        response = requests.get(update_path)
+        with open(update_archive, "wb") as f:
+            f.write(response.content)
+    except Exception as e:
+        print("Error: Can't download update - ", e)
+        return None
+    else:
+        return update_archive
 
 @app.before_request
 def inject_release():
