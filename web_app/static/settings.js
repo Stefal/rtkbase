@@ -349,11 +349,13 @@ $(document).ready(function () {
     }
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
-    function countdown(remaining) {
+    function countdown(remaining, count) {
         if(remaining === 0)
             location.reload();
+        if (count > 15 && socket.connected)
+            location.reload();
         document.getElementById('countdown').innerHTML = remaining;
-        setTimeout(function(){ countdown(remaining - 1); }, 1000);
+        setTimeout(function(){ countdown(remaining - 1, count + 1); }, 1000);
     };
 
     $("#reboot-button").on("click", function() {
@@ -365,7 +367,7 @@ $(document).ready(function () {
         $(this).prop("disabled", true);
         $("#reboot-cancel-button").prop("disabled", true);
         socket.emit("reboot device");
-        countdown(60);
+        countdown(60, 0);
     })
     $("#shutdown-button").on("click", function() {
         $("#shutdownModal").modal();
