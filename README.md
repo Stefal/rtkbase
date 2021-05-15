@@ -246,6 +246,14 @@ The default map background is OpenStreetMap, but you can switch to an aerial lay
 + Receiver options: str2str accept some receiver dependent options. If you use a U-Blox, the `-TADJ=1` parameter is recommended as a workaround to non-rounded second values in Rtcm and Ntrip outputs. You can enter this parameter inside the settings forms. More informations [here](https://rtklibexplorer.wordpress.com/2017/02/01/a-fix-for-the-rtcm-time-tag-issue/) and [here](https://github.com/Stefal/rtkbase/issues/80).
 
     <img src="./images/ntrip_settings.png" alt="status" width="450"/>
+## Development release:
+If you want to install RTKBase from the dev branch, you can do it with these commands:
+```bash
+   $ cd ~
+   $ wget https://raw.githubusercontent.com/Stefal/rtkbase/dev/tools/install.sh -O install.sh
+   $ chmod +x install.sh
+   $ sudo ./install.sh --alldev
+```
 
 ## Other usages:
 A gnss receiver with a timepulse output is a very accurate [stratum 0](https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata) clock thus, your gnss base station could act as a stratum 1 ntp peer for your local network and/or the [ntp pool](https://en.wikipedia.org/wiki/NTP_pool). There are a few steps to do this:
