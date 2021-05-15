@@ -264,7 +264,7 @@ $(document).ready(function () {
     socket.on("downloading_update", function(msg) {
         response = JSON.parse(msg);
         console.log("Downloading result: " + response);
-        if (response['result'] === 'True') {
+        if (response['result'] === 'true') {
             $("#updateModal .modal-body").text("Please wait...Preparing update...");
         } else {
             $("#updateModal .modal-body").text("Download failure");
