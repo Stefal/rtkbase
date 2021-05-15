@@ -269,8 +269,8 @@ def update_rtkbase():
     script_path = os.path.join(source_path, "rtkbase_update.sh")
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
-    #sending message to clients...rtkbase will close.
     socketio.emit("updating_rtkbase", namespace="/test")
+    time.sleep(1)
     os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
 
 def download_update(update_path):

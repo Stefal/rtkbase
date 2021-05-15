@@ -62,15 +62,6 @@ $(document).ready(function () {
       e.preventDefault();
       });
     
-    // Wait for a server reconnection
-    function countdown(remaining, count) {
-    if(remaining === 0)
-        location.reload();
-    if (count > 15 && socket.connected)
-        location.reload();
-    document.getElementById('countdown').innerHTML = remaining;
-    setTimeout(function(){ countdown(remaining - 1, count + 1); }, 1000);
-};
     // ####################### HANDLE RTKBASE SERVICES    #######################
 
     socket.on("services status", function(msg) {
@@ -78,11 +69,9 @@ $(document).ready(function () {
         var servicesStatus = JSON.parse(msg);
         console.log("service status: " + servicesStatus);
         
-
         // ################ MAiN service Switch  ######################
         console.log("REFRESHING  service switch");
-
-        
+       
         // set the switch to on/off depending of the service status
         if (servicesStatus[0].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
@@ -99,8 +88,7 @@ $(document).ready(function () {
             var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("Main SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "main", "active" : switchStatus});
-            
+            socket.emit("services switch", {"name" : "main", "active" : switchStatus});          
         })
 
         // ####################  NTRIP service Switch #########################
@@ -121,8 +109,7 @@ $(document).ready(function () {
             var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("Ntrip SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "ntrip", "active" : switchStatus});
-            
+            socket.emit("services switch", {"name" : "ntrip", "active" : switchStatus});           
         })
 
         // ################  Local NTRIP Caster service Switch #####################
@@ -143,8 +130,7 @@ $(document).ready(function () {
             var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("Ntrip Caster SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "local_ntrip_caster", "active" : switchStatus});
-            
+            socket.emit("services switch", {"name" : "local_ntrip_caster", "active" : switchStatus});         
         })
 
         // ####################  RTCM server service Switch #########################
@@ -165,8 +151,7 @@ $(document).ready(function () {
             var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("RTCM Server SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "rtcm_svr", "active" : switchStatus});
-            
+            socket.emit("services switch", {"name" : "rtcm_svr", "active" : switchStatus});         
         })
 
         // ####################  Serial RTCM service Switch #########################
@@ -187,8 +172,7 @@ $(document).ready(function () {
             var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("Serial RTCM SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "rtcm_serial", "active" : switchStatus});
-            
+            socket.emit("services switch", {"name" : "rtcm_serial", "active" : switchStatus});           
         })
     
         // ####################  LOG service Switch #########################
@@ -209,10 +193,8 @@ $(document).ready(function () {
             var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             console.log("File SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "file", "active" : switchStatus});
-            
+            socket.emit("services switch", {"name" : "file", "active" : switchStatus});          
         })
-
     })
 
     socket.on("system time corrected", function(msg) {
@@ -221,7 +203,6 @@ $(document).ready(function () {
         $('#stop_button').removeClass('ui-disabled');
         $('#start_button').removeClass('ui-disabled');
     })
-
 
     // ####################### HANDLE UPDATE #######################
 
@@ -247,8 +228,7 @@ $(document).ready(function () {
             $("#updateModal .modal-title").text("No Update available!");
             $("#updateModal .modal-body").text("We're working on it. Come back later!");
             $("#updateModal").modal();
-        }
-        
+        }       
     })
       
     $("#start-update-button").on("click", function () {
@@ -268,15 +248,30 @@ $(document).ready(function () {
             $("#updateModal .modal-body").text("Please wait...Preparing update...");
         } else {
             $("#updateModal .modal-body").text("Download failure");
-            $("#start-update-button").html('<span class="btn btn-success"></span> Update...');
+            $("#start-update-button").html('Update...');
             $("#cancel-button").prop("disabled", false);
         }
     })
 
     socket.on("updating_rtkbase", function() {
-        $("#updateModal .modal-body").text("Please wait a few minutes...Updating...");
-        countdown(600, 0);
+        $("#updateModal .modal-body").text("Please wait...Updating...");
+        update_countdown(600, 0);
     })
+    
+    function update_countdown(remaining, count) {
+        if(remaining === 0)
+            location.reload();
+        if (count > 15 && socket.connected) {
+            $("#updateModal .modal-body").text("Update Successful!");
+            $("#start-update-button").html('Refresh');
+            $("#start-update-button").prop("disabled", false);
+            $("#start-update-button").off("click");
+            $("#start-update-button").on("click", function() {
+                location.reload();
+            });
+        }
+        setTimeout(function(){ update_countdown(remaining - 1, count + 1); }, 1000);
+    };
     // Cleaning update modal box when closing it
 
     $("#updateModal").on('hidden.bs.modal', function(){
@@ -300,10 +295,8 @@ $(document).ready(function () {
             // input is valid -- reset the error message
             new_pwd.setCustomValidity('');
             confirm_pwd.setCustomValidity('');
-    
         }
     }
-
 
     socket.on("password updated", function() {
         //open modal box for logout
@@ -348,7 +341,6 @@ $(document).ready(function () {
         } else {
             volumeSpaceElt.style.color = "#212529";
         }
-
     })
     //source: https://stackoverflow.com/a/34270811
     /**
@@ -384,8 +376,17 @@ $(document).ready(function () {
         $(this).prop("disabled", true);
         $("#reboot-cancel-button").prop("disabled", true);
         socket.emit("reboot device");
-        countdown(60, 0);
+        reboot_countdown(60, 0);
     })
+
+    function reboot_countdown(remaining, count) {
+        if(remaining === 0)
+            location.reload();
+        if (count > 15 && socket.connected)
+            location.reload();
+        document.getElementById('countdown').innerHTML = remaining;
+        setTimeout(function(){ reboot_countdown(remaining - 1, count + 1); }, 1000);
+    };
     $("#shutdown-button").on("click", function() {
         $("#shutdownModal").modal();
     })
