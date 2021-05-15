@@ -276,7 +276,7 @@ def update_rtkbase():
 def download_update(update_path):
     update_archive = "/var/tmp/rtkbase_update.tar.gz"
     try:
-        response = requests.get(update_url)
+        response = requests.get(update_path)
         with open(update_archive, "wb") as f:
             f.write(response.content)
     except Exception as e:
