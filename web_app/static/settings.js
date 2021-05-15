@@ -62,6 +62,15 @@ $(document).ready(function () {
       e.preventDefault();
       });
     
+    // Wait for a server reconnection
+    function countdown(remaining, count) {
+    if(remaining === 0)
+        location.reload();
+    if (count > 15 && socket.connected)
+        location.reload();
+    document.getElementById('countdown').innerHTML = remaining;
+    setTimeout(function(){ countdown(remaining - 1, count + 1); }, 1000);
+};
     // ####################### HANDLE RTKBASE SERVICES    #######################
 
     socket.on("services status", function(msg) {
@@ -245,12 +254,29 @@ $(document).ready(function () {
     $("#start-update-button").on("click", function () {
         //$("#updateModal .modal-title").text(("Installing update"));
         socket.emit("update rtkbase");
-        $("#updateModal .modal-body").text("Please wait...and refresh this page in a few minutes");
+        $("#updateModal .modal-body").text("Please wait...Downloading update...");
         $(this).prop("disabled", true);
         $(this).html('<span class="spinner-border spinner-border-sm"></span> Updating...');
         $("#cancel-button").prop("disabled", true);
+        //now, we waiting for a download result message from the server
     })
 
+    socket.on("downloading_update", function(msg) {
+        response = JSON.parse(msg);
+        console.log("Downloading result: " + response);
+        if (response['result'] === 'True') {
+            $("#updateModal .modal-body").text("Please wait...Preparing update...");
+        } else {
+            $("#updateModal .modal-body").text("Download failure");
+            $("#start-update-button").html('<span class="btn btn-success"></span> Update...');
+            $("#cancel-button").prop("disabled", false);
+        }
+    })
+
+    socket.on("updating_rtkbase", function() {
+        $("#updateModal .modal-body").text("Please wait a few minutes...Updating...");
+        countdown(600, 0);
+    })
     // Cleaning update modal box when closing it
 
     $("#updateModal").on('hidden.bs.modal', function(){
@@ -348,15 +374,6 @@ $(document).ready(function () {
         return returntext.trim();
     }
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
-
-    function countdown(remaining, count) {
-        if(remaining === 0)
-            location.reload();
-        if (count > 15 && socket.connected)
-            location.reload();
-        document.getElementById('countdown').innerHTML = remaining;
-        setTimeout(function(){ countdown(remaining - 1, count + 1); }, 1000);
-    };
 
     $("#reboot-button").on("click", function() {
         $("#rebootModal").modal();
