@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # clienthelpers.py - helper functions for xgps and test_maidenhead
@@ -10,6 +9,9 @@
 # This file is Copyright 2019 by the GPSD project
 # SPDX-License-Identifier: BSD-2-Clause
 """GPSd client helpers submodule."""
+
+from __future__ import absolute_import  # Ensure Python2 behaves like Python 3
+import gps
 import math
 import os
 
@@ -357,7 +359,7 @@ GEOID_DELTA = [
 #  This table is wmm2015.  Values obtained from MagneticField, part of
 #  geographiclib., by using devtools/get_mag_var_table.py
 #
-#  magvar[][] has the magnetic variation (declination), in hundreths of
+#  magvar[][] has the magnetic variation (declination), in hundredths of
 #  a degree, on a 5 degree by 5 * degree grid for the entire planet.
 #
 #  This table is duplicated in geoid.c.  Keep them in sync.
@@ -784,8 +786,11 @@ def deg_to_str(fmt, degrees):
 
 def gpsd_units():
     """Deduce a set of units from locale and environment."""
-    unit_lookup = {'imperial': imperial,
+    unit_lookup = {'i': imperial,
+                   'imperial': imperial,
+                   'm': metric,
                    'metric': metric,
+                   'n': nautical,
                    'nautical': nautical}
     if 'GPSD_UNITS' in os.environ:
         store = os.environ['GPSD_UNITS']
@@ -799,6 +804,36 @@ def gpsd_units():
                     return imperial
                 return metric
     return unspecified
+
+
+class unit_adjustments(object):
+    """Encapsulate adjustments for unit systems."""
+
+    def __init__(self, units=None):
+        "Initialize class unit_adjustments"
+        self.altfactor = gps.METERS_TO_FEET
+        self.altunits = "ft"
+        self.name = "imperial"
+        self.speedfactor = gps.MPS_TO_MPH
+        self.speedunits = "mph"
+        if units is None:
+            units = gpsd_units()
+        if units in (unspecified, imperial, "imperial", "i"):
+            pass
+        elif units in (nautical, "nautical", "n"):
+            self.altfactor = gps.METERS_TO_FEET
+            self.altunits = "ft"
+            self.name = "nautical"
+            self.speedfactor = gps.MPS_TO_KNOTS
+            self.speedunits = "knots"
+        elif units in (metric, "metric", "m"):
+            self.altfactor = 1.0
+            self.altunits = "m"
+            self.name = "metric"
+            self.speedfactor = gps.MPS_TO_KPH
+            self.speedunits = "km/h"
+        else:
+            raise ValueError  # Should never happen
 
 
 # Arguments are in signed decimal latitude and longitude. For example,
@@ -858,6 +893,7 @@ def maidenhead(dec_lat, dec_lon):
             grid_lon_subsq + grid_lat_subsq +
             grid_lon_extsq + grid_lat_extsq)
 
+
 def __bilinear(lat, lon, table):
     """Return bilinear interpolated data from table"""
 
@@ -908,12 +944,14 @@ def __bilinear(lat, lon, table):
 
 def mag_var(lat, lon):
     """Return magnetic variation (declination) in degrees.
+
 Given a lat/lon in degrees"""
     return __bilinear(lat, lon, magvar_table)
 
 
 def wgs84_separation(lat, lon):
     """Return MSL-WGS84 geodetic separation in meters.
+
 Given a lat/lon in degrees"""
     return __bilinear(lat, lon, GEOID_DELTA)
 

@@ -1,4 +1,4 @@
-"WATCH options - controls what data is streamed, and how it's converted"
+"""WATCH options - controls what data is streamed, and how it's converted."""
 WATCH_ENABLE = 0x000001        # enable streaming
 WATCH_DISABLE = 0x000002       # disable watching
 WATCH_JSON = 0x000010          # JSON output
