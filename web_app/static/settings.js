@@ -363,7 +363,7 @@ $(document).ready(function () {
     
         for (var i = 0, max = levels.length; i < max; i++) {
             if ( levels[i][0] === 0 ) continue;
-            returntext += ' ' + levels[i][0] + '' + (levels[i][0] === 1 ? levels[i][1].substr(0, levels[i][1].length-1): levels[i][1]);
+            returntext += ' ' + levels[i][0] + '' + (levels[i][0] === 1 ? levels[i][1]: levels[i][1]);
         };
         return returntext.trim();
     }
