@@ -207,9 +207,11 @@ class RTKLIB:
             print("rtkrcv launch failed")
         elif res2 == 1:
             print("rtkrcv launch successful")
+            self.state = "base"
         elif res2 == 2:
             print("rtkrcv already launched")
-        
+            self.state = "base"
+            
         #TODO need refactoring
         #maybe a new method to launch/start rtkrcv outside
         #startBase and startRover
