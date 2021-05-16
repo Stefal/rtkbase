@@ -8,6 +8,7 @@
 - GUI -> Settings: Display Cpu temperature.
 - GUI -> Settings: Display uptime.
 - GUI -> Settings: Display storage informations.
+- GUI -> Settings: Tooltips to display some help about each services.
 - GUI : Auto reconnection with the server after a RTKBase update or a server (SBC) reboot.
 
 ### Changed
