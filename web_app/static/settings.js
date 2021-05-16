@@ -28,7 +28,9 @@ $(document).ready(function () {
 
 	if(window.location.hash != '')
 		window.location.href = "/";
-
+    
+    //enable tooltips
+    $('[data-toggle="tooltip"]').tooltip(); 
     // We don't want to do extra work like updating the graph in background
 
     // SocketIO namespace:

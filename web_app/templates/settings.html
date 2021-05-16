@@ -15,6 +15,12 @@
     <label for="main-switch" class="col-4 col-form-label col-form-label-lg">Main service</label>
     <input id="main-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ main_settings[0].source_section }}" aria-expanded="false" aria-controls="main_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service manage the connection with the GNSS receiver. Here you can set its parameters. It is mandatory.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
     </div>
   </div>
       <form id="{{ main_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -92,6 +98,12 @@
     <label for="ntrip-switch" class="col-4 col-form-label col-form-label-lg">Ntrip service</label>
     <input id="ntrip-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip_settings[0].source_section }}" aria-expanded="false" aria-controls="ntrip_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service sends the rtcm messages to a Ntrip (broad)caster server like rtk2go, centipede, or other.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
     </div>
   </div>
     <form id="{{ ntrip_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -149,7 +161,13 @@
     <label for="ntripc-switch" class="col-4 col-form-label col-form-label-lg">Ntrip Caster service</label>
     <input id="ntripc-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ local_ntripc_settings[0].source_section }}" aria-expanded="false" aria-controls="local_ntripc_service_options">Options</button>
-    </div>
+    <a href="#" data-toggle="tooltip" title="This service enable a local Ntrip caster directly inside you base station. It' useful if you can't or don't want to use another caster. Make sure that your router is configured correctly if you want to connect to the caster outside of you local network.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
+  </div>
   </div>
     <form id="{{ local_ntripc_settings.pop(0).source_section }}" class="collapse was-validated">
       <div class="form-group row">
@@ -206,6 +224,12 @@
     <label for="rtcm_svr-switch" class="col-4 col-form-label col-form-label-lg">Rtcm tcp service</label>
     <input id="rtcm_svr-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_svr_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_svr_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, allow you to send a rtcm stream on the network.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
     </div>
   </div>
     <form id="{{ rtcm_svr_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -242,6 +266,12 @@
     <label for="rtcm_serial-switch" class="col-4 col-form-label col-form-label-lg">Rtcm serial service</label>
     <input id="rtcm_serial-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_serial_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_serial_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, can send a rtcm stream to a serial output. The common use is with a serial to radio adapter.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
     </div>
   </div>
     <form id="{{ rtcm_serial_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -285,6 +315,12 @@
     <label for="file-switch" class="col-4 col-form-label col-form-label-lg">File service</label>
     <input id="file-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ file_settings[0].source_section }}" aria-expanded="false" aria-controls="file_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, store the raw data from the GNSS receiver to a file. It's useful when you want to post-process the data.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
   </div>
   </div>
     <form id="{{ file_settings.pop(0).source_section }}" class="collapse was-validated">
