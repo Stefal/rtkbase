@@ -312,7 +312,7 @@ $(document).ready(function () {
         var sysInfos = JSON.parse(infos);
         
         var cpuTempElt = document.getElementById("cpu_temperature");
-        cpuTempElt.textContent = sysInfos['cpu_temp'] + ' C°';
+        cpuTempElt.textContent = new Intl.NumberFormat('fullwide', { minimumFractionDigits : 1 }).format(sysInfos['cpu_temp']) + ' C°';
         if (sysInfos['cpu_temp'] > 85) {
             cpuTempElt.style.color = "red";
         } else if (sysInfos['cpu_temp'] > 70) {
@@ -322,7 +322,7 @@ $(document).ready(function () {
             cpuTempElt.style.color = "#212529";
         }
         var cpuMaxTempElt = document.getElementById("max_cpu_temperature");
-        cpuMaxTempElt.textContent = sysInfos['max_cpu_temp'] + 'C°)';
+        cpuMaxTempElt.textContent = new Intl.NumberFormat('fullwide', { minimumFractionDigits : 1 }).format(sysInfos['max_cpu_temp']) + 'C°)';
         if (sysInfos['max_cpu_temp'] > 85) {
             cpuMaxTempElt.style.color = "red";
         } else if (sysInfos['max_cpu_temp'] > 70) {
