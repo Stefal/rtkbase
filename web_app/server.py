@@ -175,7 +175,7 @@ def get_cpu_temp():
         temps = psutil.sensors_temperatures()
         current_cpu_temp = round(temps.get('cpu_thermal')[0].current, 1)
     except:
-        current_cpu_temp = 75
+        current_cpu_temp = 0
     return current_cpu_temp
 
 def get_uptime():
