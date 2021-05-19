@@ -1,7 +1,6 @@
 import os
 from pystemd.systemd1 import Unit
 from pystemd.systemd1 import Manager
-from pystemd.systemd1 import ServiceController
 
 class ServiceController(object):
     """
