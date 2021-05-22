@@ -125,6 +125,60 @@ $(document).ready(function () {
             $('#ntripc-switch').bootstrapToggle('off', true);
         }
         
+        console.log(servicesStatus[2]);
+        if (servicesStatus[2].btn_color) {
+            $('#ntripc-switch').bootstrapToggle('setOnStyle', servicesStatus[2].btn_color);
+        }
+        // TODO
+        // Ca ne va pas, on peut avoir un start - success au dernier essai de redémarrage, et finir
+        // par un dead success. Donc pas de off en rouge alors que ça devrait être le cas.
+        if (servicesStatus[2].btn_off_color) {
+            $('#ntripc-switch').bootstrapToggle('setOffStyle', servicesStatus[2].btn_off_color);
+        }
+        /*
+        if (servicesStatus[2].btn_color === "orange") {
+            console.log("ok, c'est orange");
+            btnElts.forEach((item, index) => {
+                paint(item, "btn-warning");
+            })   
+            }
+        if (servicesStatus[2].btn_color === "green") {
+            console.log("ok, c'est vert");
+            btnElts.forEach((item, index) => {
+                paint(item, "btn-success");
+            })   
+            }
+        if (servicesStatus[2].btn_color === "red") {
+            console.log("ok, c'est rouge");
+            btnElts.forEach((item, index) => {
+                paint(item, "btn-danger");
+            })   
+            }
+        if (servicesStatus[2].btn_color === "grey") {
+            console.log("ok, c'est gris");
+            btnElts.forEach((item, index) => {
+                paint(item, "btn-outline-secondary");
+            })   
+            }
+            */
+    
+    
+
+        
+                /*il doit y avoir un moyen de faire plus simple en s'aidant de https://tutorialio.com/add-remove-toggle-or-replace-class-of-an-element-in-javascript/
+                Je pense à quelque chose comme .replace(regex pour btn-*, 'btn-success');
+                voilà :
+                const re = new RegExp(/^btn-\w*'/);
+                dd.classList.forEach((item, index) => {
+                console.log(index, item);
+                if (reg.test(item)) {
+                    console.log("regex valide")
+                    dd.classList.replace(item, "btn-warning");
+                    }
+                })
+                }
+                }
+        */
         // event for switching on/off service on user mouse click
         //TODO When the switch changes its position, this event seems attached before
         //the switch finish its transition, then fire another event.

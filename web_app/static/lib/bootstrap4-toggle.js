@@ -101,33 +101,47 @@
    }
 
    Toggle.prototype.setOnStyle = function (style) {
-       var ToggleOn = this.$toggle.parent().find('.toggle-on');
-       ToggleOn.removeClass(this._onstyle);
-       //removing onstyle class on outline
-       this.$toggle.removeClass(this._onstyle)
-       // set new onstyle
-       this.options.onstyle = style;
-       this._onstyle = 'btn-' + this.options.onstyle;
-       // now adding back new onstyle class ...
-       // on label
-       ToggleOn.addClass(this._onstyle)
-       // on outline
-       this.$toggle.addClass(this._onstyle);
+        if (this.$element.prop('checked')) {
+            var ToggleOn = this.$toggle.parent().find('.toggle-on');
+            ToggleOn.removeClass(this._onstyle);
+            //removing onstyle class on outline
+            this.$toggle.removeClass(this._onstyle)
+            // set new onstyle
+            this.options.onstyle = style;
+            this._onstyle = 'btn-' + this.options.onstyle;
+            // now adding back new onstyle class ...
+            // on label
+            ToggleOn.addClass(this._onstyle)
+            // on outline
+            this.$toggle.addClass(this._onstyle);
+        }
+        else {
+            // only set new onstyle
+            this.options.onstyle = style;
+            this._onstyle = 'btn-' + this.options.onstyle;
+        }
     }
-    
+
     Toggle.prototype.setOffStyle = function (style) {
-        var ToggleOff = this.$toggle.parent().find('.toggle-off');
-        ToggleOff.removeClass(this._offstyle);
-        //removing offstyle class on outline
-        this.$toggle.removeClass(this._offstyle)
-        // set new offstyle
-        this.options.offstyle = style;
-        this._offstyle = 'btn-' + this.options.offstyle;
-        // now adding back new offstyle class ...
-        // on label
-        ToggleOff.addClass(this._offstyle)
-        // on outline
-        this.$toggle.addClass(this._offstyle);
+        if (!this.$element.prop('checked')) {
+            var ToggleOff = this.$toggle.parent().find('.toggle-off');
+            ToggleOff.removeClass(this._offstyle);
+            //removing offstyle class on outline
+            this.$toggle.removeClass(this._offstyle)
+            // set new offstyle
+            this.options.offstyle = style;
+            this._offstyle = 'btn-' + this.options.offstyle;
+            // now adding back new offstyle class ...
+            // on label
+            ToggleOff.addClass(this._offstyle)
+            // on outline
+            this.$toggle.addClass(this._offstyle);
+        }
+        else {
+            // only set new offstyle
+            this.options.offstyle = style;
+            this._offstyle = 'btn-' + this.options.offstyle;
+        }
      }
 
    Toggle.prototype.off = function (silent) {
