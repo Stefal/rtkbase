@@ -100,6 +100,36 @@
        if (!silent) this.trigger()
    }
 
+   Toggle.prototype.setOnStyle = function (style) {
+       var ToggleOn = this.$toggle.parent().find('.toggle-on');
+       ToggleOn.removeClass(this._onstyle);
+       //removing onstyle class on outline
+       this.$toggle.removeClass(this._onstyle)
+       // set new onstyle
+       this.options.onstyle = style;
+       this._onstyle = 'btn-' + this.options.onstyle;
+       // now adding back new onstyle class ...
+       // on label
+       ToggleOn.addClass(this._onstyle)
+       // on outline
+       this.$toggle.addClass(this._onstyle);
+    }
+    
+    Toggle.prototype.setOffStyle = function (style) {
+        var ToggleOff = this.$toggle.parent().find('.toggle-off');
+        ToggleOff.removeClass(this._offstyle);
+        //removing offstyle class on outline
+        this.$toggle.removeClass(this._offstyle)
+        // set new offstyle
+        this.options.offstyle = style;
+        this._offstyle = 'btn-' + this.options.offstyle;
+        // now adding back new offstyle class ...
+        // on label
+        ToggleOff.addClass(this._offstyle)
+        // on outline
+        this.$toggle.addClass(this._offstyle);
+     }
+
    Toggle.prototype.off = function (silent) {
        if (this.$element.prop('disabled')) return false
        this.$toggle.removeClass(this._onstyle).addClass(this._offstyle + ' off')
@@ -118,7 +148,7 @@
        this.$toggle.attr('disabled', 'disabled')
        this.$element.prop('disabled', true)
    }
-
+   
    Toggle.prototype.update = function (silent) {
        if (this.$element.prop('disabled')) this.disable()
        else this.enable()
@@ -153,7 +183,7 @@
            var options = typeof option == 'object' && option
 
            if (!data) $this.data('bs.toggle', (data = new Toggle(this, options)))
-           if (typeof option === 'string' && data[option] && typeof optArg === 'boolean') data[option](optArg)
+           if (typeof option === 'string' && data[option] && (typeof optArg === 'boolean' || typeof optArg === 'string')) data[option](optArg)
            else if (typeof option === 'string' && data[option]) data[option]()
            //else if (option && !data[option]) console.log('bootstrap-toggle: error: method `'+ option +'` does not exist!');
        })
