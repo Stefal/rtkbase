@@ -140,7 +140,14 @@ def manager():
         And it sends various system informations to the web interface
     """
     max_cpu_temp = 0
+    services_status = getServicesStatus(False)
     while True:
+        updated_services_status = getServicesStatus(False)
+        if services_status != updated_services_status:
+            services_status = repaint_services_button(updated_services_status)
+            socketio.emit("services status", json.dumps(services_status), namespace="/test")
+            #print(services_status)
+
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
             print("Trying to stop rtkrcv")
             if rtk.stopBase() == 1:
@@ -159,6 +166,30 @@ def manager():
                     "volume_percent_used" : volume_usage.percent}
         socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
         time.sleep(1)
+
+def repaint_services_button(services_list):
+    """
+       set service color on web app frontend depending on the service status:
+       status = running => green button
+        status = auto-restart => orange button (alert)
+        result = exit-code => red button (danger)
+    """ 
+    for service in services_list:
+        if service.get("status") == "running":
+            service["btn_color"] = "success"
+        #elif service.get("status") == "dead":
+        #    service["btn_color"] = "danger"
+        elif service.get("result") == "exit-code":
+            service["btn_color"] = "warning"
+        elif service.get("status") == "auto-restart":
+            service["btn_color"] = "warning"
+
+        if service.get("state_ok") == False:
+            service["btn_off_color"] = "outline-danger"
+        elif service.get("state_ok") == True:
+            service["btn_off_color"] = "outline-secondary"
+        
+    return services_list
 
 def old_get_cpu_temp():
     try:
@@ -582,24 +613,38 @@ def restartServices(restart_services_list):
     getServicesStatus()
 
 @socketio.on("get services status", namespace="/test")
-def getServicesStatus():
+def getServicesStatus(emit_pingback=True):
     """
         Get the status of services listed in services_list
         (services_list is global)
     """
 
-    print("Getting services status")
-    
-    for service in services_list:
-        #print("unit qui déconne : ", service["name"])
-        service["active"] = service["unit"].isActive()
+    #print("Getting services status")
+    try:
+        for service in services_list:
+            #print("unit qui déconne : ", service["name"])
+            service["active"] = service["unit"].isActive()
+            service["status"] = service["unit"].status()
+            service["result"] = service["unit"].get_result()
+            if service.get("result") == "success" and service.get("status") == "running":
+                service["state_ok"] = True
+            elif service.get("result") == "exit-code":
+                service["state_ok"] = False
+            else:
+                service["state_ok"] = None
+
+    except Exception as e:
+        #print("Error getting service info for: {} - {}".format(service['name'], e))
+        pass
 
     services_status = []
     for service in services_list: 
         services_status.append({key:service[key] for key in service if key != 'unit'})
     
-    print(services_status)
-    socketio.emit("services status", json.dumps(services_status), namespace="/test")
+    services_status = repaint_services_button(services_status)
+    #print(services_status)
+    if emit_pingback:
+        socketio.emit("services status", json.dumps(services_status), namespace="/test")
     return services_status
 
 @socketio.on("services switch", namespace="/test")
@@ -623,9 +668,11 @@ def switchService(json_msg):
 
     except Exception as e:
         print(e)
-    finally:
-        time.sleep(5)
-        getServicesStatus()
+    # finally not needed anymore since the service status is refreshed continuously
+    # with the manager
+    #finally:
+    #    time.sleep(5)
+    #    getServicesStatus()
 
 @socketio.on("form data", namespace="/test")
 def update_settings(json_msg):
