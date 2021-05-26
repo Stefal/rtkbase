@@ -104,6 +104,7 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
 
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
+connected_clients = 0
 
 class User(UserMixin):
     """ Class for user authentification """
@@ -142,11 +143,12 @@ def manager():
     max_cpu_temp = 0
     services_status = getServicesStatus(False)
     while True:
-        updated_services_status = getServicesStatus(False)
-        if services_status != updated_services_status:
-            services_status = repaint_services_button(updated_services_status)
-            socketio.emit("services status", json.dumps(services_status), namespace="/test")
-            #print(services_status)
+        if connected_clients > 0:
+            updated_services_status = getServicesStatus(False)
+            if  services_status != updated_services_status:
+                services_status = repaint_services_button(updated_services_status)
+                socketio.emit("services status", json.dumps(services_status), namespace="/test")
+                print("service status", services_status)
 
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
             print("Trying to stop rtkrcv")
@@ -432,11 +434,15 @@ def diagnostic():
 
 @socketio.on("connect", namespace="/test")
 def testConnect():
+    global connected_clients
+    connected_clients += 1
     print("Browser client connected")
     rtk.sendState()
 
 @socketio.on("disconnect", namespace="/test")
 def testDisconnect():
+    global connected_clients
+    connected_clients -=1
     print("Browser client disconnected")
 
 #### Log list handling ###
