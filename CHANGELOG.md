@@ -1,10 +1,11 @@
 # Changelog
 
-## [2.2.1] - Not released
+## [2.3.0] - Not released
 ### Added
 - GUI -> Settings: New local Ntrip Caster service to use RTKBase as a standalone NTRIP Caster.
 - GUI -> Status: New OrthoHR aerial imagery layer, covering France.
 - GUI -> Status: Realtime and static base position stay both visible on the map.
+- GUI -> Settings: Service status are updated in realtime, and painted with orange/red in case of restart/failure.
 - GUI -> Settings: Display Cpu temperature.
 - GUI -> Settings: Display uptime.
 - GUI -> Settings: Display storage informations.
