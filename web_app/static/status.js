@@ -60,8 +60,8 @@ $(document).ready(function () {
     var msg_status = {
             "lat" : "0",
             "lon" : "0",
-            "height": "0"
-            //"solution status": status,
+            "height": "0",
+            "solution_status": "-",
             //"positioning mode": mode
         };
 
