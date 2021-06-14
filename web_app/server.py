@@ -259,21 +259,29 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
         socketio.emit("new release", json.dumps(new_release), namespace="/test")
     return new_release
 
-@socketio.on("update rtkbase", namespace="/test")       
-def update_rtkbase():
+@socketio.on("update rtkbase", namespace="/test")
+def update_rtkbase(update_file=False):
     """
         Check if a RTKBase exists, download it and update rtkbase
+        if update_file is a link to a file, use it to update rtkbase (mainly used for dev purpose)
     """
-    #Check if an update is available
-    update_url = check_update(emit=False).get("url")
-    if update_url is None:
-        return
 
     shutil.rmtree("/var/tmp/rtkbase", ignore_errors=True)
     import tarfile
-    #Download update
-    update_archive = download_update(update_url)
 
+    if not update_file:
+        #Check if an update is available
+        update_url = check_update(emit=False).get("url")
+        if update_url is None:
+            return
+        #Download update
+        update_archive = download_update(update_url)
+    else:
+        #update from file
+        update_file.save("/var/tmp/rtkbase_update.tar.gz")
+        update_archive = "/var/tmp/rtkbase_update.tar.gz"
+        print("update stored in /var/tmp/")
+        
     if update_archive is None:
         socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
         return
@@ -290,7 +298,7 @@ def update_rtkbase():
     try:
         os.rmdir("/var/tmp/rtkbase")
     except FileNotFoundError:
-        print("/var/tmps/rtkbase directory doesn't exist")
+        print("/var/tmp/rtkbase directory doesn't exist")
         
     #Extract archive
     tar.extractall("/var/tmp")
@@ -429,6 +437,15 @@ def diagnostic():
         
     return render_template('diagnostic.html', logs = logs)
     
+@app.route('/manual_update', methods=['GET', 'POST'])       
+@login_required
+def upload_file():
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+        if uploaded_file.filename != '':
+            update_rtkbase(uploaded_file)
+        return "Updating....please refresh in a few minutes"
+    return render_template('manual_update.html')
 
 #### Handle connect/disconnect events ####
 
