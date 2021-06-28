@@ -118,7 +118,7 @@ upd_2.1.1() {
   #systemctl is-active --quiet str2str_rtcm_svr && systemctl restart str2str_rtcm_svr
 }
 
-update_2.2.0() {
+upd_2.2.0() {
   #update python module
   python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt'
   
