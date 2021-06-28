@@ -70,7 +70,7 @@ upd_2.0.2() {
 }
 
 upd_2.1.0() {
-  upd_2.1.1
+  upd_2.1.1 "$@"
 }
 
 upd_2.1.1() {
@@ -99,7 +99,7 @@ upd_2.1.1() {
   file_path=${destination_directory}'/unit/str2str_rtcm_serial.service'
   file_name=$(basename ${file_path})
   echo copying ${file_name}
-  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$2")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
   systemctl daemon-reload
 
   #inserting new rtcm message 1008 and 1033 inside rtcm_msg and rtcm_svr_msg
@@ -126,12 +126,12 @@ upd_2.2.0() {
   file_path=${destination_directory}'/unit/str2str_local_ntrip_caster.service'
   file_name=$(basename ${file_path})
   echo copying ${file_name}
-  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$2")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
   systemctl daemon-reload
 }
 
 update
-upd_${old_version}
+upd_${old_version} "$@"
 
 echo "delete the line version= in settings.conf"
 # The new version number will be imported from settings.conf.default during the web server startup.
