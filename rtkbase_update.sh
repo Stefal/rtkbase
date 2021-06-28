@@ -116,7 +116,18 @@ upd_2.1.1() {
   # my bad ! these services are already stopped. the command bellow won't restart them
   #systemctl is-active --quiet str2str_ntrip && systemctl restart str2str_ntrip
   #systemctl is-active --quiet str2str_rtcm_svr && systemctl restart str2str_rtcm_svr
+}
 
+update_2.2.0() {
+  #update python module
+  python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt'
+  
+  #copying new service
+  file_path=${destination_directory}'/unit/str2str_local_ntrip_caster.service'
+  file_name=$(basename ${file_path})
+  echo copying ${file_name}
+  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  systemctl daemon-reload
 }
 
 update
@@ -133,4 +144,4 @@ echo "Restart web server"
 systemctl restart rtkbase_web.service
 
 #if a reboot is needed
-systemctl reboot
+#systemctl reboot
