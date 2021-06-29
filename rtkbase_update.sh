@@ -99,7 +99,7 @@ upd_2.1.1() {
   file_path=${destination_directory}'/unit/str2str_rtcm_serial.service'
   file_name=$(basename ${file_path})
   echo copying ${file_name}
-  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$2")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
   systemctl daemon-reload
 
   #inserting new rtcm message 1008 and 1033 inside rtcm_msg and rtcm_svr_msg
@@ -126,7 +126,7 @@ upd_2.2.0() {
   file_path=${destination_directory}'/unit/str2str_local_ntrip_caster.service'
   file_name=$(basename ${file_path})
   echo copying ${file_name}
-  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$2")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
   systemctl daemon-reload
 }
 
