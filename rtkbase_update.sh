@@ -127,6 +127,10 @@ upd_2.2.0() {
   file_name=$(basename ${file_path})
   echo copying ${file_name}
   sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+
+  #fix previous wrong path to run_cast.sh inside str2str_rtcm_serial.service during 2.1.1 to 2.2.0 update (/var/tmp/rtkbase/run_cast.sh)
+  sed -i 's|'/var/tmp/rtkbase'|'"$(readlink -f "$2")"'|' /etc/systemd/system/str2str_rtcm_serial.service
+
   systemctl daemon-reload
 }
 
