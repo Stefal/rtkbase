@@ -5,11 +5,11 @@
 ## FrontEnd:
 |<img src="./images/web_status.png" alt="status" width="250"/>|<img src="./images/web_settings.png" alt="settings" width="250"/>|<img src="./images/web_logs.png" alt="logs" width="250"/>|
 
-Frontend's features are:
+Frontend's main features are:
 
 + View the satellites signal levels
 + View the base location on a map
-+ Start/stop various services (Sending data to a Ntrip caster, Rtcm server, Sending Rtcm stream on radio link, Log raw data to files)
++ Start/stop various services (Sending data to a Ntrip caster, Ntrip caster, Rtcm server, Sending Rtcm stream on radio link, Log raw data to files)
 + Edit the services settings
 + Download/delete raw data
 
@@ -20,7 +20,7 @@ Frontend's features are:
 + SBC: Raspberry Pi 3 / Orange Pi Zero (512MB)
 + Gnss Receiver: U-Blox ZED-F9P (from Drotek)
 + Antenna: DA910 (Gps L1/L2, Glonass L1/L2, Beidou B1/B2/B3 and Galileo E1/E5b/E6) + sma (male) to TNC (male) outdoor cable.
-+ Power: Trendnet TPE-113GI POE injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
++ Power: Trendnet TPE-115GI POE+ injector + Trendnet POE TPE-104GS Extractor/Splitter + DC Barrel to Micro Usb adapter
 
 Other images are available in the ./images folder.
 
@@ -242,7 +242,7 @@ The web gui is available when the `rtkbase_web` service is running.
 
 ## Advanced:
 + Aerial images:
-The default map background is OpenStreetMap, but you can switch to an aerial layer if you have a Maptiler key. To enable this layer, create a free account on [Maptiler](https://www.maptiler.com/), create a key and add it to `settings.conf` inside the `[general]` section:
+The default map background is OpenStreetMap, but you can switch to a worldwide aerial layer if you have a Maptiler key. To enable this layer, create a free account on [Maptiler](https://www.maptiler.com/), create a key and add it to `settings.conf` inside the `[general]` section:
 `maptiler_key=your_key`
 + Receiver options: str2str accept some receiver dependent options. If you use a U-Blox, the `-TADJ=1` parameter is recommended as a workaround to non-rounded second values in Rtcm and Ntrip outputs. You can enter this parameter inside the settings forms. More informations [here](https://rtklibexplorer.wordpress.com/2017/02/01/a-fix-for-the-rtcm-time-tag-issue/) and [here](https://github.com/Stefal/rtkbase/issues/80).
 
