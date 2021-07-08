@@ -65,6 +65,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_socketio import SocketIO, emit, disconnect
 import subprocess
+import psutil
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -83,9 +84,17 @@ login.login_view = 'login_page'
 socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
-rtk = RTKLIB(socketio, rtklib_path=path_to_rtklib, log_path=app.config["DOWNLOAD_FOLDER"])
+#Get settings from settings.conf.default and settings.conf
+rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
+
+rtk = RTKLIB(socketio,
+            rtklib_path=path_to_rtklib,
+            log_path=app.config["DOWNLOAD_FOLDER"],
+            )
+
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
+                 {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
                  {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
@@ -93,12 +102,9 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
                  ]
 
-
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
-
-#Get settings from settings.conf.default and settings.conf
-rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
+connected_clients = 0
 
 class User(UserMixin):
     """ Class for user authentification """
@@ -129,17 +135,92 @@ def update_password(config_object):
         config_object.update_setting("general", "new_web_password", "")
         
 def manager():
-    """ This manager runs inside a thread
+    """ This manager runs inside a separate thread
         It checks how long rtkrcv is running since the last user leaves the
         status web page, and stop rtkrcv when sleep_count reaches rtkrcv_standby delay
+        And it sends various system informations to the web interface
     """
+    max_cpu_temp = 0
+    services_status = getServicesStatus(False)
     while True:
+        if connected_clients > 0:
+            updated_services_status = getServicesStatus(False)
+            if  services_status != updated_services_status:
+                services_status = repaint_services_button(updated_services_status)
+                socketio.emit("services status", json.dumps(services_status), namespace="/test")
+                print("service status", services_status)
+
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
-            rtk.stopBase()
-            rtk.sleep_count = 0
+            print("Trying to stop rtkrcv")
+            if rtk.stopBase() == 1:
+                rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
             print("I'd like to stop rtkrcv (sleep_count = {}), but rtk.state is: {}".format(rtk.sleep_count, rtk.state))
+        cpu_temp = get_cpu_temp()
+        max_cpu_temp = max(cpu_temp, max_cpu_temp)
+        volume_usage = get_volume_usage()
+        sys_infos = {"cpu_temp" : cpu_temp,
+                    "max_cpu_temp" : max_cpu_temp,
+                    "uptime" : get_uptime(),
+                    "volume_free" : round(volume_usage.free / 10E8, 2),
+                    "volume_used" : round(volume_usage.used / 10E8, 2),
+                    "volume_total" : round(volume_usage.total / 10E8, 2),
+                    "volume_percent_used" : volume_usage.percent}
+        socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
         time.sleep(1)
+
+def repaint_services_button(services_list):
+    """
+       set service color on web app frontend depending on the service status:
+       status = running => green button
+        status = auto-restart => orange button (alert)
+        result = exit-code => red button (danger)
+    """ 
+    for service in services_list:
+        if service.get("status") == "running":
+            service["btn_color"] = "success"
+        #elif service.get("status") == "dead":
+        #    service["btn_color"] = "danger"
+        elif service.get("result") == "exit-code":
+            service["btn_color"] = "warning"
+        elif service.get("status") == "auto-restart":
+            service["btn_color"] = "warning"
+
+        if service.get("state_ok") == False:
+            service["btn_off_color"] = "outline-danger"
+        elif service.get("state_ok") == True:
+            service["btn_off_color"] = "outline-secondary"
+        
+    return services_list
+
+def old_get_cpu_temp():
+    try:
+        with open('/sys/class/thermal/thermal_zone0/temp', 'r') as ftemp:
+            current_temp = int(ftemp.read()) / 1000
+        print(current_temp)
+    except:
+        print("can't get cpu temp")
+        current_temp = 75
+    return current_temp
+
+def get_cpu_temp():
+    try:
+        temps = psutil.sensors_temperatures()
+        current_cpu_temp = round(temps.get('cpu_thermal')[0].current, 1)
+    except:
+        current_cpu_temp = 0
+    return current_cpu_temp
+
+def get_uptime():
+    return round(time.time() - psutil.boot_time())
+
+def get_volume_usage(volume = rtk.logm.log_path):
+    try:
+        volume_info = psutil.disk_usage(volume)
+    except FileNotFoundError:
+        volume_info = psutil.disk_usage("/")
+    return volume_info
+
 
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=False, emit = True):
@@ -178,26 +259,34 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
         socketio.emit("new release", json.dumps(new_release), namespace="/test")
     return new_release
 
-@socketio.on("update rtkbase", namespace="/test")       
-def update_rtkbase():
+@socketio.on("update rtkbase", namespace="/test")
+def update_rtkbase(update_file=False):
     """
         Check if a RTKBase exists, download it and update rtkbase
+        if update_file is a link to a file, use it to update rtkbase (mainly used for dev purpose)
     """
-    #Check if an update is available
-    update_url = check_update(emit=False).get("url")
-    if update_url is None:
-        return
 
     shutil.rmtree("/var/tmp/rtkbase", ignore_errors=True)
     import tarfile
-    #Download update
-    update_archive = "/var/tmp/rtkbase_update.tar.gz"
-    try:
-        response = requests.get(update_url)
-        with open(update_archive, "wb") as f:
-            f.write(response.content)
-    except Exception as e:
-        print("Error: Can't download update - ", e)
+
+    if not update_file:
+        #Check if an update is available
+        update_url = check_update(emit=False).get("url")
+        if update_url is None:
+            return
+        #Download update
+        update_archive = download_update(update_url)
+    else:
+        #update from file
+        update_file.save("/var/tmp/rtkbase_update.tar.gz")
+        update_archive = "/var/tmp/rtkbase_update.tar.gz"
+        print("update stored in /var/tmp/")
+        
+    if update_archive is None:
+        socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
+        return
+    else:
+        socketio.emit("downloading_update", json.dumps({"result": 'true'}), namespace="/test")
 
     #Get the "root" folder in the archive
     tar = tarfile.open(update_archive)
@@ -209,7 +298,7 @@ def update_rtkbase():
     try:
         os.rmdir("/var/tmp/rtkbase")
     except FileNotFoundError:
-        print("/var/tmps/rtkbase directory doesn't exist")
+        print("/var/tmp/rtkbase directory doesn't exist")
         
     #Extract archive
     tar.extractall("/var/tmp")
@@ -221,7 +310,21 @@ def update_rtkbase():
     script_path = os.path.join(source_path, "rtkbase_update.sh")
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
+    socketio.emit("updating_rtkbase", namespace="/test")
+    time.sleep(1)
     os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
+
+def download_update(update_path):
+    update_archive = "/var/tmp/rtkbase_update.tar.gz"
+    try:
+        response = requests.get(update_path)
+        with open(update_archive, "wb") as f:
+            f.write(response.content)
+    except Exception as e:
+        print("Error: Can't download update - ", e)
+        return None
+    else:
+        return update_archive
 
 @app.before_request
 def inject_release():
@@ -254,12 +357,14 @@ def settings_page():
     """
     main_settings = rtkbaseconfig.get_main_settings()
     ntrip_settings = rtkbaseconfig.get_ntrip_settings()
+    local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
     file_settings = rtkbaseconfig.get_file_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
     rtcm_serial_settings = rtkbaseconfig.get_rtcm_serial_settings()
 
     return render_template("settings.html", main_settings = main_settings,
                                             ntrip_settings = ntrip_settings,
+                                            local_ntripc_settings = local_ntripc_settings,
                                             file_settings = file_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
                                             rtcm_serial_settings = rtcm_serial_settings,)
@@ -314,8 +419,9 @@ def diagnostic():
     Get services journal and status
     """
     getServicesStatus()
+    rtkbase_web_service = {'service_unit' : 'rtkbase_web.service', 'name' : 'RTKBase Web Server', 'active' : True}
     logs = []
-    for service in services_list:
+    for service in services_list + [rtkbase_web_service]:
         sysctl_status = subprocess.run(['systemctl', 'status', service['service_unit']],
                                 stdout=subprocess.PIPE,
                                 universal_newlines=True)
@@ -331,16 +437,29 @@ def diagnostic():
         
     return render_template('diagnostic.html', logs = logs)
     
+@app.route('/manual_update', methods=['GET', 'POST'])       
+@login_required
+def upload_file():
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+        if uploaded_file.filename != '':
+            update_rtkbase(uploaded_file)
+        return "Updating....please refresh in a few minutes"
+    return render_template('manual_update.html')
 
 #### Handle connect/disconnect events ####
 
 @socketio.on("connect", namespace="/test")
 def testConnect():
+    global connected_clients
+    connected_clients += 1
     print("Browser client connected")
     rtk.sendState()
 
 @socketio.on("disconnect", namespace="/test")
 def testDisconnect():
+    global connected_clients
+    connected_clients -=1
     print("Browser client disconnected")
 
 #### Log list handling ###
@@ -366,8 +485,21 @@ def shutdownBase():
 
 @socketio.on("start base", namespace="/test")
 def startBase():
+    # We must start rtkcv before trying to modify an option
     rtk.startBase()
-
+    saved_input_path = "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'")
+    saved_input_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
+    if rtk.get_rtkcv_option("inpstr1-path") != saved_input_path:
+        rtk.set_rtkcv_option("inpstr1-path", saved_input_path)
+        rtk.set_rtkcv_pending_refresh(True)
+    if rtk.get_rtkcv_option("inpstr1-format") != saved_input_type:
+        rtk.set_rtkcv_option("inpstr1-format", saved_input_type)
+        rtk.set_rtkcv_pending_refresh(True)
+    
+    if rtk.get_rtkcv_pending_status():
+        print("REFRESH NEEDED !!!!!!!!!!!!!!!!")
+        rtk.startBase()
+    
 @socketio.on("stop base", namespace="/test")
 def stopBase():
     rtk.stopBase()
@@ -504,23 +636,38 @@ def restartServices(restart_services_list):
     getServicesStatus()
 
 @socketio.on("get services status", namespace="/test")
-def getServicesStatus():
+def getServicesStatus(emit_pingback=True):
     """
         Get the status of services listed in services_list
         (services_list is global)
     """
 
-    print("Getting services status")
-    
-    for service in services_list:
-        service["active"] = service["unit"].isActive()
+    #print("Getting services status")
+    try:
+        for service in services_list:
+            #print("unit qui déconne : ", service["name"])
+            service["active"] = service["unit"].isActive()
+            service["status"] = service["unit"].status()
+            service["result"] = service["unit"].get_result()
+            if service.get("result") == "success" and service.get("status") == "running":
+                service["state_ok"] = True
+            elif service.get("result") == "exit-code":
+                service["state_ok"] = False
+            else:
+                service["state_ok"] = None
+
+    except Exception as e:
+        #print("Error getting service info for: {} - {}".format(service['name'], e))
+        pass
 
     services_status = []
     for service in services_list: 
         services_status.append({key:service[key] for key in service if key != 'unit'})
     
-    print(services_status)
-    socketio.emit("services status", json.dumps(services_status), namespace="/test")
+    services_status = repaint_services_button(services_status)
+    #print(services_status)
+    if emit_pingback:
+        socketio.emit("services status", json.dumps(services_status), namespace="/test")
     return services_status
 
 @socketio.on("services switch", namespace="/test")
@@ -544,16 +691,18 @@ def switchService(json_msg):
 
     except Exception as e:
         print(e)
-    finally:
-        time.sleep(5)
-        getServicesStatus()
+    # finally not needed anymore since the service status is refreshed continuously
+    # with the manager
+    #finally:
+    #    time.sleep(5)
+    #    getServicesStatus()
 
 @socketio.on("form data", namespace="/test")
 def update_settings(json_msg):
     """
         Get the form data from the web front end, and save theses values to settings.conf
         Then restart the services which have a dependency with these parameters.
-        param json_msg: A json variable containing the source fom and the new paramaters
+        param json_msg: A json variable containing the source form and the new paramaters
     """
     print("received settings form", json_msg)
     source_section = json_msg.pop().get("source_form")
@@ -565,7 +714,7 @@ def update_settings(json_msg):
             socketio.emit("password updated", namespace="/test")
 
         else:
-            print("ERREUR, MAUVAIS PASS")
+            print("ERROR, WRONG PASSWORD!")
     else:
         for form_input in json_msg:
             print("name: ", form_input.get("name"))
@@ -575,9 +724,11 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))
+            restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))  
         elif source_section == "ntrip":
             restartServices(("ntrip",))
+        elif source_section == "local_ntrip":
+            restartServices(("local_ntrip"))
         elif source_section == "rtcm_svr":
             restartServices(("rtcm_svr",))
         elif source_section == "rtcm_serial":

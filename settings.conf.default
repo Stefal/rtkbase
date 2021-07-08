@@ -2,9 +2,9 @@
 
 [general]
 # Version
-version=2.2.0
+version=2.3.0
 # Rtkbase upgrade mandatory "checkpoint"
-checkpoint_version=2.3.0
+checkpoint_version=2.4.0
 # User who runs str2str_file service
 user=
 # NTRIP caster program
@@ -25,19 +25,21 @@ maptiler_key=
 #base coordinates: lat long height
 position='47.0983869 -1.2655108 36.4'
 #gnss receiver com port
-com_port='ttyS1'
+com_port=''
 #gnss receiver com port settings
 com_port_settings='115200:8:n:1'
 #receiver model
 receiver='Ublox_ZED-F9P'
 #gnss receiver format
-receiver_format='ubx'
+receiver_format=''
 #Antenna info, id, serial number. Without space inside the strings
-antenna_info='NULLANTENNA'
+antenna_info='ADVNULLANTENNA'
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
 tcp_port='5015'
 #ext_tcp_source is mainly for dev purpose to receive a raw stream from another base
 ext_tcp_source=''
+#ext_tcp_port is the port used for ext_tcp_source
+ext_tcp_port=''
 
 [local_storage]
 
@@ -55,6 +57,8 @@ file_overlap_time='30'
 archive_name=$(date -d "-1 days" +"%Y-%m-%d_%S").zip
 #archives older than this value (in days) will be deleted by archive_and_clean.sh
 archive_rotate='60'
+#minum free space on device (in MB) before oldest archives are deleted
+min_free_space='500'
 
 [ntrip]
 
@@ -71,6 +75,22 @@ mnt_name='Your_mount_name'
 rtcm_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
 #Receiver dependent options
 ntrip_receiver_options=''
+
+[local_ntrip_caster]
+
+# local NTRIP caster options
+# These options are needed when you set your base as a NTRIP caster
+
+#user/password credentials to connect to this local caster
+local_ntripc_user=''
+local_ntripc_pwd=''
+#local ntrip port
+local_ntripc_port='2101'
+#mount point name for this local ntrip caster
+local_ntripc_mnt_name=''
+local_ntripc_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+#Receiver dependent options
+local_ntripc_receiver_options=''
 
 [rtcm_svr]
 

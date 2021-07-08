@@ -207,9 +207,11 @@ class RTKLIB:
             print("rtkrcv launch failed")
         elif res2 == 1:
             print("rtkrcv launch successful")
+            self.state = "base"
         elif res2 == 2:
             print("rtkrcv already launched")
-        
+            self.state = "base"
+            
         #TODO need refactoring
         #maybe a new method to launch/start rtkrcv outside
         #startBase and startRover
@@ -320,6 +322,35 @@ class RTKLIB:
         self.semaphore.release()
 
         return res
+
+    def set_rtkcv_option(self, option_name, option_value, restart=False):
+        # send option and value to the rtkrcv instance
+        self.semaphore.acquire()
+        res = self.rtkc.set_option_value(option_name, option_value, restart)
+
+        if res == 1:
+            print("Settings sent successfully to rtkrcv")
+        else:
+            print("Failed to sent settings to rtkrcv")
+
+        self.semaphore.release()
+
+    def get_rtkcv_option(self, option_name):
+        # get option's value from the rtkrcv instance
+        self.semaphore.acquire()
+        res = self.rtkc.get_option_value(option_name)
+
+        if res == -1:
+            print("Failed to get settings from rtkrcv")
+            
+        self.semaphore.release()
+        return res
+
+    def set_rtkcv_pending_refresh(self, truefalse):
+        self.rtkc.restart_needed = truefalse
+    
+    def get_rtkcv_pending_status(self):
+        return self.rtkc.restart_needed
 
     def shutdown(self):
         # shutdown whatever mode we are in. stop broadcast threads

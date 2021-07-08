@@ -11,11 +11,15 @@ source <( grep = ${BASEDIR}/settings.conf )  #import settings
 in_serial="serial://${com_port}:${com_port_settings}#${receiver_format}"
 in_tcp="tcpcli://127.0.0.1:${tcp_port}#${receiver_format}"
 #in_ext_tcp is mainly for dev purpose to receive a raw stream from another base
-in_ext_tcp="tcpcli://${ext_tcp_source}:${tcp_port}#${receiver_format}"
+in_ext_tcp="tcpcli://${ext_tcp_source}:${ext_tcp_port}#${receiver_format}"
 
 out_caster="ntrips://:${svr_pwd}@${svr_addr}:${svr_port}/${mnt_name}#rtcm3 -msg ${rtcm_msg} -p ${position}"
 #add receiver options if it exists
 [[ ! -z "${ntrip_receiver_options}" ]] && out_caster=""${out_caster}" -opt "${ntrip_receiver_options}""
+
+out_local_caster="ntripc://${local_ntripc_user}${local_ntripc_pwd}@:${local_ntripc_port}/${local_ntripc_mnt_name}#rtcm3 -msg ${local_ntripc_msg} -p ${position}"
+#add receiver options if it exists
+[[ ! -z "${local_ntripc_receiver_options}" ]] && out_local_caster=""${out_local_caster}" -opt "${local_ntripc_receiver_options}""
 
 out_tcp="tcpsvr://:${tcp_port}"
 
@@ -43,6 +47,11 @@ mkdir -p ${logdir}
   out_caster)
     #echo ${cast} -in ${!1} -out $out_caster
     ${cast} -in ${!1} -out ${out_caster} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip.log &
+    ;;
+
+  out_local_caster)
+    #echo ${cast} -in ${!1} -out $out_local_caster
+    ${cast} -in ${!1} -out ${out_local_caster} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip.log &
     ;;
 
   out_rtcm_svr)

@@ -16,9 +16,9 @@ api_version_major = 3   # bumped on incompatible changes
 api_version_minor = 14   # bumped on compatible changes
 
 # at some point this will need an override method
-__iconpath__ = '//usr/local/share/gpsd/icons'
+__iconpath__ = '/usr/local/share/gpsd/icons'
 
-__version__ = '3.20.1~dev'
+__version__ = '3.22.1~dev'
 
 # The 'client' module exposes some C utility functions for Python clients.
 # The 'packet' module exposes the packet getter via a Python interface.

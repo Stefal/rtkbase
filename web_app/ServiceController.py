@@ -23,11 +23,32 @@ class ServiceController(object):
             return True
         else:
             return False
+    
+    def get_nrestart(self):
+        """
+            Get the number of restarts since the last service startup
+        """
+        return self.unit.Service.NRestarts
+
+    def get_result(self):
+        """
+            Get the service return status.
+            success => it's ok
+            exit-code => str2str doesn't start successfully
+            We can read a success between the startup and the first error
+        """
+        return self.unit.Service.Result.decode()
 
     def getUser(self):
         return self.unit.Service.User.decode()
     
     def status(self):
+        """
+            get the unit status:
+            auto-restart: the service will restart later
+            start: the service is starting
+            running; the service is running
+        """
         return (self.unit.Unit.SubState).decode()
 
     def start(self):

@@ -70,7 +70,7 @@ upd_2.0.2() {
 }
 
 upd_2.1.0() {
-  upd_2.1.1
+  upd_2.1.1 "$@"
 }
 
 upd_2.1.1() {
@@ -99,7 +99,7 @@ upd_2.1.1() {
   file_path=${destination_directory}'/unit/str2str_rtcm_serial.service'
   file_name=$(basename ${file_path})
   echo copying ${file_name}
-  sed -e 's|{script_path}|'"$(dirname "$(readlink -f "$0")")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
   systemctl daemon-reload
 
   #inserting new rtcm message 1008 and 1033 inside rtcm_msg and rtcm_svr_msg
@@ -116,11 +116,26 @@ upd_2.1.1() {
   # my bad ! these services are already stopped. the command bellow won't restart them
   #systemctl is-active --quiet str2str_ntrip && systemctl restart str2str_ntrip
   #systemctl is-active --quiet str2str_rtcm_svr && systemctl restart str2str_rtcm_svr
+}
 
+upd_2.2.0() {
+  #update python module
+  python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt'
+  
+  #copying new service
+  file_path=${destination_directory}'/unit/str2str_local_ntrip_caster.service'
+  file_name=$(basename ${file_path})
+  echo copying ${file_name}
+  sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+
+  #fix previous wrong path to run_cast.sh inside str2str_rtcm_serial.service during 2.1.1 to 2.2.0 update (/var/tmp/rtkbase/run_cast.sh)
+  sed -i 's|'/var/tmp/rtkbase'|'"$(readlink -f "$2")"'|' /etc/systemd/system/str2str_rtcm_serial.service
+
+  systemctl daemon-reload
 }
 
 update
-upd_${old_version}
+upd_${old_version} "$@"
 
 echo "delete the line version= in settings.conf"
 # The new version number will be imported from settings.conf.default during the web server startup.
@@ -133,4 +148,4 @@ echo "Restart web server"
 systemctl restart rtkbase_web.service
 
 #if a reboot is needed
-systemctl reboot
+#systemctl reboot

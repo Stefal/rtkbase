@@ -376,8 +376,8 @@ function updateCoordinateGrid(msg) {
         var lat_value = coordinates[0].substring(0, 11) + Array(11 - coordinates[0].substring(0, 11).length + 1).join(" ");
         var lon_value = coordinates[1].substring(0, 11) + Array(11 - coordinates[1].substring(0, 11).length + 1).join(" ");
         var height_value = coordinates[2].substring(0, 11) + Array(11 - coordinates[2].substring(0, 11).length + 1 + 2).join(" ");
-
-        $("#lat_value").html("<span>" + lat_value + " °" + "</span>");
-        $("#lon_value").html("<span>" + lon_value + " °" + "</span>");
-        $("#height_value").html("<span>" + height_value + "m" + "</span>");
+        $("#lat_value").html(lat_value + " °");
+        $("#lon_value").html(lon_value + " °");
+        $("#height_value").html(height_value + "m");
+        $("#solution_status").html(msg['solution status']);
 }

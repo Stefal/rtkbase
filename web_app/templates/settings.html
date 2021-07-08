@@ -2,7 +2,7 @@
 
 {% block styles %}
 {{super()}}
-<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap4-toggle.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap4-toggle.css') }}">
 
 {% endblock %}
 
@@ -15,6 +15,12 @@
     <label for="main-switch" class="col-4 col-form-label col-form-label-lg">Main service</label>
     <input id="main-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ main_settings[0].source_section }}" aria-expanded="false" aria-controls="main_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service manage the connection with the GNSS receiver. Here you can set its parameters. It is mandatory, all other services depend from this one.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
     </div>
   </div>
       <form id="{{ main_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -92,6 +98,12 @@
     <label for="ntrip-switch" class="col-4 col-form-label col-form-label-lg">Ntrip service</label>
     <input id="ntrip-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip_settings[0].source_section }}" aria-expanded="false" aria-controls="ntrip_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service sends the rtcm messages to a Ntrip (broad)caster server like rtk2go, centipede, or other.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
     </div>
   </div>
     <form id="{{ ntrip_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -143,12 +155,81 @@
         </div>
     </form>
 
+  <!-- ######## Local Ntrip Caster Service ########-->
+  <div id="local_ntripc_service_space" class="form-group row">
+    <div class="col">
+    <label for="ntripc-switch" class="col-4 col-form-label col-form-label-lg">Ntrip Caster service</label>
+    <input id="ntripc-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ local_ntripc_settings[0].source_section }}" aria-expanded="false" aria-controls="local_ntripc_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service enable a local Ntrip caster directly inside you base station. It' useful if you can't or don't want to use another caster. Make sure that your router is configured correctly if you want to connect to the caster outside of you local network.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
+  </div>
+  </div>
+    <form id="{{ local_ntripc_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="local_ntripc_user" class="col-sm-3 col-form-label">Local caster username: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_user" type="text" name="local_ntripc_user" class="form-control" value="{{ local_ntripc_settings[0].local_ntripc_user }}" title="Local Ntrip caster username for the rover" pattern="\w+[^|><\s]*" required>
+            <div class="invalid-feedback">Local Ntrip caster username for the rover</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_pwd" class="col-sm-3 col-form-label">Local caster password: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_pwd" type="text" name="local_ntripc_pwd" class="form-control" value="{{ local_ntripc_settings[1].local_ntripc_pwd }}" title="local Ntrip caster password for the rover" pattern="\w+[^|><\s]*" required>
+            <div class="invalid-feedback">Local Ntrip caster password for the rover</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_port" class="col-sm-3 col-form-label">Local caster port: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_port" type="text" name="local_ntripc_port" class="form-control" value="{{ local_ntripc_settings[2].local_ntripc_port }}" title="local Ntrip caster port number" pattern="[0-9]{4,5}" required>
+            <div class="invalid-feedback">Local Ntrip Caster port number, e.g. 2101</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_mnt_name" class="col-sm-3 col-form-label">Local caster mount name: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_mnt_name" type="text" name="local_ntripc_mnt_name" class="form-control" value="{{ local_ntripc_settings[3].local_ntripc_mnt_name }}" title="Local Ntrip caster Mount name" pattern="\w+[^|><\/\s]*" required>
+            <div class="invalid-feedback">Local Ntrip caster mount name</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_msg" class="col-sm-3 col-form-label">Local caster rtcm messages: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_msg" type="text" name="local_ntripc_msg" class="form-control" value="{{ local_ntripc_settings[4].local_ntripc_msg }}" title="Local Ntrip rtcm messages list" pattern="[0-9,().]+" required>
+            <div class="invalid-feedback">Local caster Rtcm messages list</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="local_ntripc_receiver_options" class="col-sm-3 col-form-label">Local caster receiver options: </label>
+        <div class="col-sm-9">
+            <input id="local_ntripc_receiver_options" type="text" name="local_ntripc_receiver_options" class="form-control" value="{{ local_ntripc_settings[5].local_ntripc_receiver_options }}" title="Local Ntrip Caster Receiver options" pattern="[^|><\/]*">
+            <div class="invalid-feedback">Local Ntrip Caster Receiver dependent options, e.g. -TADJ=1 for u-blox</div>
+        </div>
+      </div>      
+
+        <div class="clearfix">
+          <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+        </div>
+    </form>
+
   <!-- ######## RTCM Tcp Service ########-->
   <div id="rtcm_svr_service_space" class="form-group row">
     <div class="col">
     <label for="rtcm_svr-switch" class="col-4 col-form-label col-form-label-lg">Rtcm tcp service</label>
     <input id="rtcm_svr-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_svr_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_svr_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, allow you to send a rtcm stream on the network.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
     </div>
   </div>
     <form id="{{ rtcm_svr_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -185,6 +266,12 @@
     <label for="rtcm_serial-switch" class="col-4 col-form-label col-form-label-lg">Rtcm serial service</label>
     <input id="rtcm_serial-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_serial_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_serial_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, can send a rtcm stream to a serial output. The common use is with a serial to radio adapter.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
     </div>
   </div>
     <form id="{{ rtcm_serial_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -228,6 +315,12 @@
     <label for="file-switch" class="col-4 col-form-label col-form-label-lg">File service</label>
     <input id="file-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ file_settings[0].source_section }}" aria-expanded="false" aria-controls="file_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, store the raw data from the GNSS receiver to a file. It's useful when you want to post-process the data.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
   </div>
   </div>
     <form id="{{ file_settings.pop(0).source_section }}" class="collapse was-validated">
@@ -317,15 +410,48 @@
         </form>
       </div>
     </div>
-    
-    <div class="row py-2 align-items-center">
-      <div class="col-sm-4">
-        <span class="col-sm-3">Diagnostic:</span>
-      </div>
-      <div class="col-sm-8">
-          <a href="{{ url_for('diagnostic') }}" target="_blank" class="btn btn-secondary" role="button">View</a>
-          <!--<button id="download-diag-button" class="btn btn-secondary" type="button" disabled>Download</button>-->
-      </div>
+
+  <div class="row py-2 align-items-center">
+    <div class="col-sm-4">
+      <span class="col-sm-3">CPU Temp:</span>
+    </div>
+    <div class="col-sm-8">
+      <span id="cpu_temperature">- C°</span>
+      <span>- (highest record: </span>
+      <span id="max_cpu_temperature">- C°)</span>
+    </div>
+  </div>
+
+  <div class="row py-2 align-items-center">
+    <div class="col-sm-4">
+      <span class="col-sm-3">Uptime:</span>
+    </div>
+    <div class="col-sm-8">
+      <span id="uptime"></span>
+    </div>
+  </div>
+
+  <div class="row py-2 align-items-center">
+    <div class="col-sm-4">
+      <span class="col-sm-3">Storage:</span>
+    </div>
+    <div class="col-sm-8">
+      <span id="vol_space_used"></span>
+      <span>available of </span>
+      <span id="vol_space_max"></span>
+      <span>- (</span><span id="vol_space_free"></span>
+      <span>% used)</span>
+    </div>
+  </div>
+
+  <div class="row py-2 align-items-center">
+    <div class="col-sm-4">
+      <span class="col-sm-3">Diagnostic:</span>
+    </div>
+    <div class="col-sm-8">
+        <a href="{{ url_for('diagnostic') }}" target="_blank" class="btn btn-secondary" role="button">View</a>
+        <!--<button id="download-diag-button" class="btn btn-secondary" type="button" disabled>Download</button>-->
+    </div>
   </div>
 
     <div class="row py-2 align-items-center">
@@ -428,6 +554,6 @@
 
 {% block scripts %}
 {{super()}}
-<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap4-toggle.min.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap4-toggle.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}" charset="utf-8"></script>
 {% endblock %}

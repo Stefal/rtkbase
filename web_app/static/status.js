@@ -60,8 +60,8 @@ $(document).ready(function () {
     var msg_status = {
             "lat" : "0",
             "lon" : "0",
-            "height": "0"
-            //"solution status": status,
+            "height": "0",
+            "solution_status": "-",
             //"positioning mode": mode
         };
 
@@ -78,8 +78,13 @@ $(document).ready(function () {
         maxZoom: 20,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ' +
             '| <a href="https://cloud.empreintedigitale.fr" target="_blank">Empreinte digitale</a>',
-        tileSize: 256,
-        
+        tileSize: 256,      
+    });
+
+    var orthoHrLayer = L.tileLayer('https://wms.openstreetmap.fr/tms/1.0.0/tous_fr/{z}/{x}/{y} ', {
+        maxZoom: 20,
+        attribution: 'Ortho HR | &copy; <a href="https://geoservices.ign.fr/documentation/diffusion/documentation-offre.html#bdortho_orthohr target="_blank">IGN</a> ',
+        tileSize: 256,       
     });
 
     if (maptiler_key.length > 0) {
@@ -94,7 +99,8 @@ $(document).ready(function () {
     };
     
     var baseMaps = {
-        "OpenStreetMap": osmLayer
+        "OpenStreetMap": osmLayer, 
+        "Ortho HR (fr)": orthoHrLayer
     };
 
     if (typeof(aerialLayer) !== 'undefined') {
@@ -117,12 +123,13 @@ $(document).ready(function () {
     // Add realtime localisation marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
 
-    // Move map view with marker location
+    // Move map view with markers bounds
     locMark.addEventListener("move", function() {
         const reduceBounds = map.getBounds().pad(-0.4);
-        if (reduceBounds.contains(locMark.getLatLng()) != true) {
+        const markerBounds = L.latLngBounds(baseMark.getLatLng(), locMark.getLatLng())
+        if (reduceBounds.contains(markerBounds.getCenter()) != true) {
             console.log("location marker is outside the bound, moving the map");
-            map.flyTo(locMark.getLatLng(), 20);
+            map.flyToBounds(markerBounds, 20);
         }
     });
 

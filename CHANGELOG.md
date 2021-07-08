@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.3.0] - Not released
+### Added
+- New local Ntrip Caster service to use RTKBase as a standalone NTRIP Caster.
+- GUI -> Status: New OrthoHR aerial imagery layer, covering France only.
+- GUI -> Status: Realtime and static base position stay both visible on the map.
+- GUI -> Status: Solution status is displayed next to coordinates.
+- GUI -> Settings: Service status are updated in realtime, and painted with orange/red in case of restart/failure.
+- GUI -> Settings: Display Cpu temperature.
+- GUI -> Settings: Display uptime.
+- GUI -> Settings: Display storage informations.
+- GUI -> Settings: Tooltips to display some help about each services.
+- GUI : Auto reconnection with the web server after a RTKBase update or a server (SBC) reboot.
+
+### Changed
+- Default antenna value sets to 'ADVNULLANTENNA' instead of 'NULLANTENNA'.
+
+### Fixed
+- Rtkbase was deleting old archives when remaining space was lower than 5GB instead of 500MB. And now you can change this value inside `settings.conf`.
+- rtkrcv configuration was hardcoded with ubx input, now it uses the format set on GUI -> Settings -> Main.
+- Only .ubx files were archived. Now archive_and_clean.sh script check for all files format managed by str2str.
+- The 2.1.x to 2.2.0 upgrade created a wrong path inside str2str_rtcm_serial.service (/var/tmp/rtkbase)
+
+### Security
+- Cryptography module updated to 3.3.2
+- Eventlet module updated to 0.31.0
+
 ## [2.2.0] - 2021-01-12
 ### Added
 - New Rtcm serial service to send a rtcm stream on a serial output, like a radio module

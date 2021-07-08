@@ -1,0 +1,18 @@
+[Unit]
+Description=RTKBase local Ntrip Caster
+#After=network-online.target
+#Wants=network-online.target
+Requires=str2str_tcp.service
+
+[Service]
+Type=forking
+User={user}
+ExecStart={script_path}/run_cast.sh in_tcp out_local_caster
+Restart=on-failure
+RestartSec=30
+#Limiting log to 1 msg per minute
+LogRateLimitIntervalSec=1 minute
+LogRateLimitBurst=1
+
+[Install]
+WantedBy=multi-user.target

@@ -36,6 +36,7 @@ class RtkController:
 
         self.bin_path = rtklib_path
         self.config_path = config_path
+        self.settings = {}
 
         self.child = 0
 
@@ -47,11 +48,12 @@ class RtkController:
 
         self.started = False
         self.launched = False
+        self.restart_needed = False
         self.current_config = ""
 
     def expectAnswer(self, last_command = ""):
         a = self.child.expect(["rtkrcv>", pexpect.EOF, "error"])
-        # check rtklib output for any errors
+        # check rtkrcv output for any errors
         if a == 1:
             print("got EOF while waiting for rtkrcv> . Shutting down")
             print("This means something went wrong and rtkrcv just stopped")
@@ -72,6 +74,7 @@ class RtkController:
 
         if config_name is None:
             config_name = "rtkbase_ppp-static_default.conf"
+            #config_name = "rtkrcv_rtk_static_emonie.conf"
 
         if not self.launched:
 
@@ -84,15 +87,25 @@ class RtkController:
 
             self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
 
-            print('Launching rtklib with: "' + spawn_command + '"')
+            print('Launching rtkrcv with: "' + spawn_command + '"')
 
             if self.expectAnswer("spawn") < 0:
                 self.semaphore.release()
                 return -1
+            
+            #storing options/values in self.settings dict
+            self.get_all_options_values()
 
             self.semaphore.release()
             self.launched = True
             self.current_config = config_name
+
+            # Set input type and input string
+            #if self.set_option_value("inpstr1-type", self.input_type) and self.set_option_value("inpstr1-string", self.input_string):
+            #    print('Setting rtkrcv with {} and {}'.format(self.input_type, self.input_string))
+            #else:
+            #    print('Failed to set rtkrcv input parameters')
+            #    return -1
 
             # launch success
             return 1
@@ -129,6 +142,9 @@ class RtkController:
 
     def start(self):
 
+        if self.started and self.restart_needed:
+            self.restart_needed = False if self.restart() == 3 else True
+        
         if not self.started:
             self.semaphore.acquire()
 
@@ -141,8 +157,7 @@ class RtkController:
             self.semaphore.release()
             self.started = True
 
-            self.restart()
-            print("Restart")
+            self.restart() # Why this restart??
             return 1
 
         # already started
@@ -209,8 +224,11 @@ class RtkController:
 
     def getStatus(self):
 
-        self.semaphore.acquire()
+        if not self.launched:
+            return -1
 
+        self.semaphore.acquire()
+        
         self.child.send("status\r\n")
 
         if self.expectAnswer("get status") < 0:
@@ -294,6 +312,89 @@ class RtkController:
 
         return 1
 
+    def get_option_value(self, option_name):
+        
+        if not self.launched:
+            return -1
+        self.semaphore.acquire()
+
+        self.child.send("option" + " " + option_name + "\r\n")
+
+        if self.expectAnswer("get option") < 0:
+            self.semaphore.release()
+            return -1
+        
+        answer = self.child.before.decode().split("\r\n")
+        #answer is a list containing :
+        # - the string sent to rtkrcv
+        # - a string containing the answer as displayed directly inside rtkrcv
+        # if option_name string match several options, rtkrcv return all the corresponding options as separate strings
+
+        if type(answer) is list and len(answer) == 3 and option_name in answer[1].split()[0]:
+            option_name = answer[1].split()[0]
+            option_value = answer[1].split()[1].strip("=")
+        else:
+            self.semaphore.release()
+            return -1
+
+        self.semaphore.release()
+
+        return option_value
+    
+    def get_all_options_values(self):
+        
+        if not self.launched:
+            return -1
+        self.semaphore.acquire()
+
+        self.child.send("option" + "\r\n")
+
+        if self.expectAnswer("get all options") < 0:
+            self.semaphore.release()
+            return -1
+        
+        answer = self.child.before.decode().split("\r\n")[1:-1]
+
+        if type(answer) is list:
+            for elt in answer:
+                #print("ELT : ", elt)
+                option_name = elt.split()[0]
+                option_value = elt.split()[1].strip("=")
+                self.settings[option_name] = option_value
+        else:
+            self.semaphore.release()
+            return -1
+
+        self.semaphore.release()
+
+        return 1
+
+    def set_option_value(self, option_name, value, restart = False):
+        self.semaphore.acquire()
+
+        self.child.send("set" + " " + option_name + " " + value + "\r\n")
+
+        if self.expectAnswer("set option") < 0:
+            self.semaphore.release()
+            return -1
+
+        answer = self.child.before.decode().split("\r\n")
+        #answer is a list containing :
+        # - the string sent to rtkrcv
+        # - a string containing the answer as displayed directly inside rtkrcv
+        if type(answer) is list and len(answer) == 3 and option_name in answer[1].split()[1]:
+            #success
+            pass
+        else:
+            self.semaphore.release()
+            return -1
+
+        self.semaphore.release()
+
+        if restart:
+            self.restart()
+
+        return 1
 
 
 
