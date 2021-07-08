@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.0] - Not released
+## [2.3.0] - 2021-07-08
 ### Added
 - New local Ntrip Caster service to use RTKBase as a standalone NTRIP Caster.
 - GUI -> Status: New OrthoHR aerial imagery layer, covering France only.
