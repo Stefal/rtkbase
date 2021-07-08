@@ -120,7 +120,7 @@ upd_2.1.1() {
 
 upd_2.2.0() {
   #update python module
-  python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt'
+  python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
   
   #copying new service
   file_path=${destination_directory}'/unit/str2str_local_ntrip_caster.service'
