@@ -141,10 +141,10 @@ def manager():
         And it sends various system informations to the web interface
     """
     max_cpu_temp = 0
-    services_status = getServicesStatus(False)
+    services_status = getServicesStatus()
     while True:
         if connected_clients > 0:
-            updated_services_status = getServicesStatus(False)
+            updated_services_status = getServicesStatus(emit_pingback=True)
             if  services_status != updated_services_status:
                 services_status = repaint_services_button(updated_services_status)
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
@@ -636,7 +636,7 @@ def restartServices(restart_services_list):
     getServicesStatus()
 
 @socketio.on("get services status", namespace="/test")
-def getServicesStatus(emit_pingback=True):
+def getServicesStatus(emit_pingback=False):
     """
         Get the status of services listed in services_list
         (services_list is global)
