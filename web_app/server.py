@@ -432,7 +432,7 @@ def diagnostic():
         #Replace carrier return to <br> for html view
         sysctl_status = sysctl_status.stdout.replace('\n', '<br>') 
         journalctl = journalctl.stdout.replace('\n', '<br>')
-        active_state = "Active" if service['active'] == True else "Inactive"
+        active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
         
     return render_template('diagnostic.html', logs = logs)
@@ -658,6 +658,8 @@ def getServicesStatus(emit_pingback=False):
 
     except Exception as e:
         #print("Error getting service info for: {} - {}".format(service['name'], e))
+        #TODO manage better the error with rtkbase_archive.service. See https://github.com/Stefal/rtkbase/issues/162
+        #and try to remove this "pass" without any notification (bad practive)
         pass
 
     services_status = []
