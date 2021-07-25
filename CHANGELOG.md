@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.3.1] - 2021-07-24
+### Fixed
+- Local ntrip caster was not started with the right user/password syntax. #166
+- Local ntrip caster service was not restarted after new settings were set. #167
+
 ## [2.3.0] - 2021-07-08
 ### Added
 - New local Ntrip Caster service to use RTKBase as a standalone NTRIP Caster.

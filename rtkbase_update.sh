@@ -22,6 +22,9 @@ mkdir /var/tmp/rtkbase.old
 echo "copy rtkbase to rtkbase.old except /data directory"
 cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 
+#Don't do that or it will stop the update process
+#systemctl stop rtkbase_web.service
+
 echo "copy new release to destination"
 cp -rfp ${source_directory}/. ${destination_directory}
 
@@ -134,7 +137,13 @@ upd_2.2.0() {
   systemctl daemon-reload
 }
 
+upd_2.3.0() {
+  #'nothing to do'
+  return
+}
+# standard update
 update
+# calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
 upd_${old_version} "$@"
 
 echo "delete the line version= in settings.conf"
