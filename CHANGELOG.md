@@ -1,9 +1,10 @@
 # Changelog
 
-## [2.3.1] - 2021-07-24
+## [2.3.1] - 2021-07-25
 ### Fixed
 - Local ntrip caster was not started with the right user/password syntax. #166
 - Local ntrip caster service was not restarted after new settings were set. #167
+- Psutil python requirement could not be installed on Os already including it (like Raspberry Pi Os with desktop). #165
 
 ## [2.3.0] - 2021-07-08
 ### Added
