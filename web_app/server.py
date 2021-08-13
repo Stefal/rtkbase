@@ -141,10 +141,10 @@ def manager():
         And it sends various system informations to the web interface
     """
     max_cpu_temp = 0
-    services_status = getServicesStatus(False)
+    services_status = getServicesStatus()
     while True:
         if connected_clients > 0:
-            updated_services_status = getServicesStatus(False)
+            updated_services_status = getServicesStatus(emit_pingback=True)
             if  services_status != updated_services_status:
                 services_status = repaint_services_button(updated_services_status)
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
@@ -432,7 +432,7 @@ def diagnostic():
         #Replace carrier return to <br> for html view
         sysctl_status = sysctl_status.stdout.replace('\n', '<br>') 
         journalctl = journalctl.stdout.replace('\n', '<br>')
-        active_state = "Active" if service['active'] == True else "Inactive"
+        active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
         
     return render_template('diagnostic.html', logs = logs)
@@ -636,7 +636,7 @@ def restartServices(restart_services_list):
     getServicesStatus()
 
 @socketio.on("get services status", namespace="/test")
-def getServicesStatus(emit_pingback=True):
+def getServicesStatus(emit_pingback=False):
     """
         Get the status of services listed in services_list
         (services_list is global)
@@ -658,6 +658,8 @@ def getServicesStatus(emit_pingback=True):
 
     except Exception as e:
         #print("Error getting service info for: {} - {}".format(service['name'], e))
+        #TODO manage better the error with rtkbase_archive.service. See https://github.com/Stefal/rtkbase/issues/162
+        #and try to remove this "pass" without any notification (bad practive)
         pass
 
     services_status = []
@@ -724,11 +726,11 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip", "rtcm_svr", "file", "rtcm_serial"))  
+            restartServices(("main", "ntrip", "local_ntrip_caster", "rtcm_svr", "file", "rtcm_serial"))  
         elif source_section == "ntrip":
             restartServices(("ntrip",))
-        elif source_section == "local_ntrip":
-            restartServices(("local_ntrip"))
+        elif source_section == "local_ntrip_caster":
+            restartServices(("local_ntrip_caster",))
         elif source_section == "rtcm_svr":
             restartServices(("rtcm_svr",))
         elif source_section == "rtcm_serial":

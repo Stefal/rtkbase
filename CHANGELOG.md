@@ -1,6 +1,12 @@
 # Changelog
 
-## [2.3.0] - Not released
+## [2.3.1] - 2021-07-25
+### Fixed
+- Local ntrip caster was not started with the right user/password syntax. #166
+- Local ntrip caster service was not restarted after new settings were set. #167
+- Psutil python requirement could not be installed on Os already including it (like Raspberry Pi Os with desktop). #165
+
+## [2.3.0] - 2021-07-08
 ### Added
 - New local Ntrip Caster service to use RTKBase as a standalone NTRIP Caster.
 - GUI -> Status: New OrthoHR aerial imagery layer, covering France only.
@@ -17,10 +23,11 @@
 - Default antenna value sets to 'ADVNULLANTENNA' instead of 'NULLANTENNA'.
 
 ### Fixed
-- Rtkbase was deleting old archives when remaining space was lower than 5GB instead of 500MB. And now you can change this value inside `settings.conf`.
-- rtkrcv configuration was hardcoded with ubx input, now it uses the format set on GUI -> Settings -> Main.
-- Only .ubx files were archived. Now archive_and_clean.sh script check for all files format managed by str2str.
+- Rtkbase was deleting old archives when remaining space was lower than 5GB instead of 500MB. And now you can change this value inside `settings.conf`. #132
+- rtkrcv configuration was hardcoded with ubx input, now it uses the format set on GUI -> Settings -> Main. #148
+- Only .ubx files were archived. Now archive_and_clean.sh script check for all files format managed by str2str. #158
 - The 2.1.x to 2.2.0 upgrade created a wrong path inside str2str_rtcm_serial.service (/var/tmp/rtkbase)
+- rtkrcv didn't always stop after the 1O mn timeout. #35
 
 ### Security
 - Cryptography module updated to 3.3.2
