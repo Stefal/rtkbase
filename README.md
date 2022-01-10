@@ -45,7 +45,7 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 
    <img src="./images/web_all_settings.png" alt="all settings" width="600" />
 
-   If you don't already know your base precise coordinates, it's time to read one of theses tutorial:
+   If you don't already know your base precise coordinates, it's time to read one of these tutorials:
    - [rtklibexplorer - Post-processing RTK - for single and dual frequency receivers](https://rtklibexplorer.wordpress.com/2020/02/05/rtklib-tips-for-using-a-cors-station-as-base/)
    - [rtklibexplorer - PPP - for dual frequency receivers](https://rtklibexplorer.wordpress.com/2017/11/23/ppp-solutions-with-the-swiftnav-piksi-multi/)
    - [Centipede documentation (in french)](https://jancelin.github.io/docs-centipedeRTK/docs/base/positionnement.html)
