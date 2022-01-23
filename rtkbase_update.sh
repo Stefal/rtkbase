@@ -150,7 +150,8 @@ echo "delete the line version= in settings.conf"
 # The new version number will be imported from settings.conf.default during the web server startup.
 sed -i '/version=/d' ${destination_directory}/settings.conf
 # restart ntrip/rtcm to send the new release number in the stream
-systemctl is-active --quiet str2str_ntrip.service && systemctl restart str2str_ntrip.service
+systemctl is-active --quiet str2str_ntrip_A.service && systemctl restart str2str_ntrip_A.service
+systemctl is-active --quiet str2str_ntrip_B.service && systemctl restart str2str_ntrip_B.service
 systemctl is-active --quiet str2str_local_ntrip_caster.service && systemctl restart str2str_local_ntrip_caster.service
 systemctl is-active --quiet str2str_rtcm_svr.service && systemctl restart str2str_rtcm_svr.service
 systemctl is-active --quiet str2str_rtcm_serial.service && systemctl restart str2str_rtcm_serial.service
