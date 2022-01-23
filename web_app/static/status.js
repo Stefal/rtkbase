@@ -81,6 +81,12 @@ $(document).ready(function () {
         tileSize: 256,      
     });
 
+    var osm2Layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ',
+        tileSize: 256,      
+    });
+
     var orthoHrLayer = L.tileLayer('https://wms.openstreetmap.fr/tms/1.0.0/tous_fr/{z}/{x}/{y} ', {
         maxZoom: 20,
         attribution: '<a href="https://wiki.openstreetmap.org/wiki/FR:Serveurs/wms.openstreetmap.fr" target="_blank">Ortho HR</a> ' + 
@@ -100,8 +106,9 @@ $(document).ready(function () {
     };
     
     var baseMaps = {
-        "OpenStreetMap": osmLayer, 
-        "Ortho HR (fr)": orthoHrLayer
+        "OpenStreetMap (ED)": osmLayer,
+        "OpenStreetMap (Osm)": osm2Layer, 
+        "Ortho HR (France)": orthoHrLayer
     };
 
     if (typeof(aerialLayer) !== 'undefined') {
