@@ -88,7 +88,7 @@ $(document).ready(function () {
     });
 
     var orthoHrLayer = L.tileLayer('https://wms.openstreetmap.fr/tms/1.0.0/tous_fr/{z}/{x}/{y} ', {
-        maxZoom: 20,
+        maxZoom: 21,
         attribution: '<a href="https://wiki.openstreetmap.org/wiki/FR:Serveurs/wms.openstreetmap.fr" target="_blank">Ortho HR</a> ' + 
             '| &copy; <a href="https://geoservices.ign.fr/documentation/diffusion/documentation-offre.html#bdortho_orthohr target="_blank">IGN</a> ',
         tileSize: 256,       
@@ -106,7 +106,7 @@ $(document).ready(function () {
     };
     
     var baseMaps = {
-        "OpenStreetMap (ED)": osmLayer,
+        "OpenStreetMap (Hot)": osmLayer,
         "OpenStreetMap (Osm)": osm2Layer, 
         "Ortho HR (France)": orthoHrLayer
     };
