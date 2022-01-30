@@ -77,7 +77,8 @@ app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
-path_to_rtklib = "/usr/local/bin"
+rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
+path_to_rtklib = "/usr/local/bin" #TODO find path with which or another tool
 
 login=LoginManager(app)
 login.login_view = 'login_page'
@@ -85,7 +86,7 @@ socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
 #Get settings from settings.conf.default and settings.conf
-rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
+rtkbaseconfig = RTKBaseConfigManager(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf"))
 
 rtk = RTKLIB(socketio,
             rtklib_path=path_to_rtklib,
@@ -305,7 +306,6 @@ def update_rtkbase(update_file=False):
 
     #launch update script
     rtk.shutdownBase()
-    rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
     source_path = os.path.join("/var/tmp/", primary_folder)
     script_path = os.path.join(source_path, "rtkbase_update.sh")
     current_release = rtkbaseconfig.get("general", "version").strip("v")
@@ -521,12 +521,37 @@ def deleteLog(json_msg):
     # Sending the the new available logs
     getAvailableLogs()
 
+#### Detect GNSS receiver button handler ####
+@socketio.on("detect_receiver", namespace="/test")
+def detect_receiver():
+    print("Detecting gnss receiver")
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if answer.returncode == 0 and "/dev/" in answer.stdout:
+        print("ok stdout: ", answer.stdout)
+        port, gnss_type = answer.stdout.split("\n").pop().strip("/dev/").split(" - ")
+        result = {"result" : "success", "port" : port, "gnss_type" : gnss_type}
+    else:
+        print("Not ok stdout: ", answer.stdout)
+        result = {"result" : "failed"}
+    socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
+
+@socketio.on("configure_receiver", namespace="/test")
+def configure_receiver(brand="u-blox", model="F9P"):
+    # only ZED-F9P could be configured automaticaly
+    print("configure {} gnss receiver model {}".format(brand, model))
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss", "configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if answer.returncode == 0 and "Done" in answer.stdout:
+        result = {"result" : "success"}
+    else:
+        result = {"result" : "failed"}
+    socketio.emit("gnss_configuration_result", jsdon.dumps(result), namespace="/test")
+
 #### Convert ubx file to rinex for Ign ####
 @socketio.on("rinex IGN", namespace="/test")
 def rinex_ign(json_msg):
     raw_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
     mnt_name = rtkbaseconfig.get("ntrip", "mnt_name").strip("'")
-    convpath = os.path.abspath(os.path.join(os.path.dirname(__file__), "../tools/convbin.sh"))
+    convpath = os.path.abspath(os.path.join(rtkbase_path, "tools", "convbin.sh"))
     answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "rinex_file=" in answer.stdout:
         rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
