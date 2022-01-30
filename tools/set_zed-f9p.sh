@@ -24,6 +24,7 @@ set_F9P() {
         while read setting; do
             python3 ${BASEDIR}/ubxtool -s 115200 -z $setting
         done <${CONFIG}
+        sleep 2
         echo 'Done'
     fi
 }
