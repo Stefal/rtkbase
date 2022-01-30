@@ -253,6 +253,12 @@ $(document).ready(function () {
         $('#start_button').removeClass('ui-disabled');
     })
 
+    // ############### HANDLE DETECT/CONFIGURE GNSS ################
+    $('#detect_receiver_button').on("click", function (){
+        socket.emit("detect_receiver");
+        //$(this).html('<span class="spinner-border spinner-border-sm"></span> Creating Rinex...');
+    });
+   
     // ####################### HANDLE UPDATE #######################
 
     $('#check_update_button').on("click", function (){
