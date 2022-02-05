@@ -254,11 +254,53 @@ $(document).ready(function () {
     })
 
     // ############### HANDLE DETECT/CONFIGURE GNSS ################
+
     $('#detect_receiver_button').on("click", function (){
         socket.emit("detect_receiver");
         //$(this).html('<span class="spinner-border spinner-border-sm"></span> Creating Rinex...');
     });
    
+    var detectModalElt = document.getElementById('detectModal');
+    var pbodyElt = detectModalElt.querySelector('.modal-body > p');
+    var applyBtnElt = detectModalElt.querySelector('#apply-button');
+
+    socket.on("gnss_detection_result", function(msg) {
+        // open modal box with detection result and asking for configuration if detection is a success and a u-blox receiver
+        response = JSON.parse(msg);
+        console.log(response);
+        if (response['result'] === 'success') {
+            pbodyElt.innerHTML = response['gnss_type'] + ' GNSS receiver detected on ' + response['port'] + '<br>' + 'Do you want to apply and configure the receiver?';
+            applyBtnElt.removeAttribute('disabled');
+        } else {
+            applyBtnElt.setAttribute('disabled', '');
+            pbodyElt.innerHTML = 'No GNSS receiver detected';
+            // TODO add a way to send the configuration even though the receiver isn't detected. It could be useful for F9P connected with Uart.
+        }
+        $('#detectModal').modal();
+    })
+
+    applyBtnElt.onclick = function(){
+        console.log("click sur apply button");
+        document.querySelector('#com_port').setAttribute('value', response['port']);
+
+        socket.emit("configure_receiver");
+        pbodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
+        applyBtnElt.setAttribute('disabled', '');
+    };
+
+    // TODO create function to receive gnss configuration success message
+    
+    // then save the form (how?) to restart the services via server.py
+    // then display success in the modal with ok/close button
+    socket.on("gnss_configuration_result", function(msg) {
+        response = JSON.parse(msg);
+        if (response['result'] === 'success') {
+            
+        } else {
+
+        }
+
+    });
     // ####################### HANDLE UPDATE #######################
 
     $('#check_update_button').on("click", function (){

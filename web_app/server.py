@@ -525,23 +525,27 @@ def deleteLog(json_msg):
 @socketio.on("detect_receiver", namespace="/test")
 def detect_receiver():
     print("Detecting gnss receiver")
+    #TODO stop main service !!!!!!!!!!!!!??
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
-        print("ok stdout: ", answer.stdout)
+        print("DEBUG ok stdout: ", answer.stdout)
         port, gnss_type = answer.stdout.split("\n").pop().strip("/dev/").split(" - ")
         result = {"result" : "success", "port" : port, "gnss_type" : gnss_type}
     else:
-        print("Not ok stdout: ", answer.stdout)
+        print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
+    result = {"result" : "success", "port" : 'AMAO', "gnss_type" : 'u-blox'}
     socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
 
 @socketio.on("configure_receiver", namespace="/test")
 def configure_receiver(brand="u-blox", model="F9P"):
     # only ZED-F9P could be configured automaticaly
+    #TODO stop main service !!!!!!!!!!!!!??
     print("configure {} gnss receiver model {}".format(brand, model))
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss", "configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "Done" in answer.stdout:
         result = {"result" : "success"}
+
     else:
         result = {"result" : "failed"}
     socketio.emit("gnss_configuration_result", jsdon.dumps(result), namespace="/test")
