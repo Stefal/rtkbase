@@ -548,7 +548,8 @@ def configure_receiver(brand="u-blox", model="F9P"):
 
     else:
         result = {"result" : "failed"}
-    socketio.emit("gnss_configuration_result", jsdon.dumps(result), namespace="/test")
+    result = {"result" : "success"}
+    socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test")
 
 #### Convert ubx file to rinex for Ign ####
 @socketio.on("rinex IGN", namespace="/test")
