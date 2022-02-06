@@ -272,9 +272,8 @@ $(document).ready(function () {
         console.log(response);
         if (response['result'] === 'success') {
             detectBodyElt.innerHTML = response['gnss_type'] + ' GNSS receiver detected on ' + response['port'] + '<br>' + 'Do you want to apply and configure the receiver?';
-            detectApplyBtnElt.onclick = function(){
-                document.querySelector('#com_port').setAttribute('value', response['port']);
-            // TODO bug : si on a modifié en premier la valeur du port, ensuite l'application de la valeur par cette commande ci-dessus ne fonctionne pas
+            detectApplyBtnElt.onclick = function (){
+                document.querySelector('#com_port').value = response['port'];
                 document.querySelector('#main > .clearfix > button').removeAttribute('disabled');
                 document.querySelector('#main > .clearfix > button').click();
                 socket.emit("configure_receiver");
