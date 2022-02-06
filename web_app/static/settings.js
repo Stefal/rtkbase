@@ -258,8 +258,8 @@ $(document).ready(function () {
     $('#detect_receiver_button').on("click", function (){
         detectApplyBtnElt.innerText = "Apply";
         detectApplyBtnElt.setAttribute('disabled', '');
+        detectApplyBtnElt.removeAttribute('data-dismiss');
         socket.emit("detect_receiver");
-        //$(this).html('<span class="spinner-border spinner-border-sm"></span> Creating Rinex...');
     });
    
     var detectModalElt = document.getElementById('detectModal');
@@ -292,14 +292,16 @@ $(document).ready(function () {
     socket.on("gnss_configuration_result", function(msg) {
         response = JSON.parse(msg);
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = "GNSS receiver successfully configured"
-            detectApplyBtnElt.innerText = "Close";
+            detectBodyElt.innerHTML = "GNSS receiver successfully configured";
+            detectApplyBtnElt.onclick = function (){}; //remove the previous event which launched the gnss configuration
             detectApplyBtnElt.removeAttribute('disabled');
+            detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
+            detectApplyBtnElt.innerText = "Close";
         } else {
             detectBodyElt.innerHTML = "GNSS receiver configuration failed"
         }
-
     });
+    
     // ####################### HANDLE UPDATE #######################
 
     $('#check_update_button').on("click", function (){
