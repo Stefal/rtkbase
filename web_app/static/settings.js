@@ -271,7 +271,7 @@ $(document).ready(function () {
         response = JSON.parse(msg);
         console.log(response);
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = response['gnss_type'] + ' GNSS receiver detected on ' + response['port'] + '<br>' + 'Do you want to apply and configure the receiver?';
+            detectBodyElt.innerHTML = response['gnss_type'] + ' USB GNSS receiver detected on ' + response['port'] + '<br>' + 'Do you want to apply and configure the receiver?';
             detectApplyBtnElt.onclick = function (){
                 document.querySelector('#com_port').value = response['port'];
                 document.querySelector('#main > .clearfix > button').removeAttribute('disabled');
@@ -283,8 +283,15 @@ $(document).ready(function () {
             detectApplyBtnElt.removeAttribute('disabled');
         } else {
             detectApplyBtnElt.setAttribute('disabled', '');
-            detectBodyElt.innerHTML = 'No GNSS receiver detected';
+            detectBodyElt.innerHTML = 'No USB GNSS receiver detected';
             // TODO add a way to send the configuration even though the receiver isn't detected. It could be useful for F9P connected with Uart.
+            //detectBodyElt.innerHTML = 'No GNSS receiver detected. <br> would you still like to try to configure the receiver?';
+            //detectApplyBtnElt.onclick = function (){
+            //    socket.emit("configure_receiver");
+            //    detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
+            //    detectApplyBtnElt.setAttribute('disabled', '');
+            //};
+            //detectApplyBtnElt.removeAttribute('disabled');
         }
         $('#detectModal').modal();
     })
@@ -293,7 +300,7 @@ $(document).ready(function () {
         response = JSON.parse(msg);
         if (response['result'] === 'success') {
             detectBodyElt.innerHTML = "GNSS receiver successfully configured";
-            detectApplyBtnElt.onclick = function (){}; //remove the previous event which launched the gnss configuration
+            detectApplyBtnElt.onclick = function (){}; //remove the previous attached event which launched the gnss configuration
             detectApplyBtnElt.removeAttribute('disabled');
             detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
             detectApplyBtnElt.innerText = "Close";

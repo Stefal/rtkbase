@@ -534,7 +534,7 @@ def detect_receiver():
     else:
         print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
-    result = {"result" : "success", "port" : 'AMAO', "gnss_type" : 'u-blox'}
+    #result = {"result" : "failed"}
     socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
 
 @socketio.on("configure_receiver", namespace="/test")
@@ -548,7 +548,7 @@ def configure_receiver(brand="u-blox", model="F9P"):
 
     else:
         result = {"result" : "failed"}
-    result = {"result" : "success"}
+    #result = {"result" : "success"}
     socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test")
 
 #### Convert ubx file to rinex for Ign ####
