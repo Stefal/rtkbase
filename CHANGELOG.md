@@ -3,6 +3,7 @@
 ## [2.3.2] - not released
 ### Added
 - GUI -> Status: Added a new map background : Osm "standard", from osm.org
+- GUI: The footer include a link to the github repo. #191
 ### Changed
 - Leafletjs upgraded to release 1.7
 - GUI -> Status: Ortho HR max zoom changed from 20 to 21
