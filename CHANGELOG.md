@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.3.2] - not released
+### Added
+- GUI -> Status: Added a new map background : Osm "standard", from osm.org
+### Changed
+- Leafletjs upgraded to release 1.7
+- GUI -> Status: Ortho HR max zoom changed from 20 to 21
+### Fixed
+- GUI -> Settings: "Save" buttons are disabled when a new setting is saved. #193
+
 ## [2.3.1] - 2021-07-25
 ### Fixed
 - Local ntrip caster was not started with the right user/password syntax. #166
