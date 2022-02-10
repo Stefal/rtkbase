@@ -13,6 +13,13 @@ window.operateEvents = {
     },
     'click #log_edit': function(e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
+        console.log(row.format);
+        if ( row.format.split(".").pop() === "ZIP") {
+            $('#rinex-ign-button').removeAttr("disabled");
+        }
+        else {
+            $('#rinex-ign-button').prop("disabled", true);;
+        }
         $('#editModal').modal();
         $('#rinex-ign-button').data.row = row;
     }
