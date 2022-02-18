@@ -530,7 +530,7 @@ def detect_receiver():
     if answer.returncode == 0 and "/dev/" in answer.stdout:
         print("DEBUG ok stdout: ", answer.stdout)
         port, gnss_type = answer.stdout.split("\n").pop(-2).strip("/dev/").split(" - ")
-        result = {"result" : "success", "port" : port, "gnss_type" : gnss_type}
+        result = {"result" : "success", "port" : port.strip(), "gnss_type" : gnss_type}
     else:
         print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
