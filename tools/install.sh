@@ -328,6 +328,7 @@ configure_gnss(){
           then
             #change the com port value inside settings.conf
             sudo -u "$(logname)" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "$(logname)" sed -i s/^receiver_format=.*/receiver_format=\'${gnss_format}\'/ "${rtkbase_path}"/settings.conf
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
             sudo -u "$(logname)" sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
             sudo -u "$(logname)" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
