@@ -529,7 +529,7 @@ def detect_receiver():
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
         print("DEBUG ok stdout: ", answer.stdout)
-        port, gnss_type = answer.stdout.split("\n").pop().strip("/dev/").split(" - ")
+        port, gnss_type = answer.stdout.split("\n").pop(-2).strip("/dev/").split(" - ")
         result = {"result" : "success", "port" : port, "gnss_type" : gnss_type}
     else:
         print("DEBUG Not ok stdout: ", answer.stdout)
@@ -542,7 +542,7 @@ def configure_receiver(brand="u-blox", model="F9P"):
     # only ZED-F9P could be configured automaticaly
     #TODO stop main service !!!!!!!!!!!!!??
     print("configure {} gnss receiver model {}".format(brand, model))
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss", "configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss", "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "Done" in answer.stdout:
         result = {"result" : "success"}
 
