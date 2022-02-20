@@ -82,7 +82,8 @@ $(document).ready(function () {
     });
 
     var osm2Layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        maxZoom: 20,
+        maxNativeZoom: 19,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ',
         tileSize: 256,      
     });
