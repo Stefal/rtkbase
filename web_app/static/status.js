@@ -110,7 +110,7 @@ $(document).ready(function () {
     
     var baseMaps = {
         "OpenStreetMap (Hot)": osmLayer,
-        "OpenStreetMap (Osm)": osm2Layer, 
+        "OpenStreetMap (Osm)": osm2Layer,
         "Ortho HR (France)": orthoHrLayer
     };
 
@@ -118,7 +118,7 @@ $(document).ready(function () {
         baseMaps["Aerial_Hybrid"] = aerialLayer;
     };
     L.control.layers(baseMaps).addTo(map);
-    osmLayer.addTo(map);
+    osm2Layer.addTo(map);
     
     // Add Base station crosshair
     var crossIcon = L.icon({
@@ -140,7 +140,7 @@ $(document).ready(function () {
         const markerBounds = L.latLngBounds(baseMark.getLatLng(), locMark.getLatLng())
         if (reduceBounds.contains(markerBounds.getCenter()) != true) {
             console.log("location marker is outside the bound, moving the map");
-            map.flyToBounds(markerBounds, 20);
+            map.flyToBounds(markerBounds, 19);
         }
     });
 
