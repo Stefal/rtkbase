@@ -141,6 +141,12 @@ upd_2.3.0() {
   #'nothing to do'
   return
 }
+
+upd_2.3.1() {
+  #'nothing to do'
+  return
+}
+
 # standard update
 update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
