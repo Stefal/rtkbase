@@ -221,6 +221,17 @@ def get_volume_usage(volume = rtk.logm.log_path):
         volume_info = psutil.disk_usage("/")
     return volume_info
 
+def get_sbc_model():
+    """
+        Try to detect the single board computer used
+        :return the model name or unknown if not detected
+    """
+    answer = subprocess.run(["cat", "/proc/device-tree/model"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if answer.returncode == 0:
+        sbc_model = answer.stdout.split("\n").pop().strip()
+    else:
+        sbc_model = "unknown"
+    return sbc_model
 
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=False, emit = True):
@@ -332,6 +343,7 @@ def inject_release():
         Insert the RTKBase release number as a global variable for Flask/Jinja
     """
     g.version = rtkbaseconfig.get("general", "version")
+    g.sbc_model = get_sbc_model()
 
 @login.user_loader
 def load_user(id):

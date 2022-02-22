@@ -52,16 +52,17 @@ $(document).ready(function () {
 
     //Enable "Save" button when form value is changed
     $("form").on('input', 'input, select', function() {
-        console.log("change detected")
-          $(this).closest("form").find("button").removeAttr("disabled");
+        console.log("change detected");
+        $(this).closest("form").find("button").removeAttr("disabled");
         });
 
     // Send saved settings to back-end
     $("form").submit(function(e) {
         var formdata = $( this ).serializeArray();
-      formdata.push({"source_form" : e.currentTarget.id});
-      socket.emit("form data", formdata);
-      e.preventDefault();
+        formdata.push({"source_form" : e.currentTarget.id});
+        socket.emit("form data", formdata);
+        e.preventDefault();
+        $(this).closest("form").find("button").prop("disabled", true);
       });
     
     // ####################### HANDLE RTKBASE SERVICES    #######################
