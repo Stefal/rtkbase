@@ -2,13 +2,17 @@
 
 ## [2.3.2] - not released
 ### Added
-- GUI -> Status: Added a new map background : Osm "standard", from osm.org.
+- GUI -> Status: Added a new default map background : Osm "standard", from osm.org.
 - GUI: The footer include a link to the github repo. #191
+- GUI -> Settings : Board name is displayed in the System Settings section. #194
 ### Changed
 - Leafletjs upgraded to release 1.7
 - GUI -> Status: Ortho HR (aerial images) max zoom changed from 20 to 21.
 ### Fixed
 - GUI -> Settings: "Save" buttons are disabled when a new setting is saved. #193
+- Rtcm and Ntrip services are restarded after a RTKBase update. #171
+- The Rinex conversion is more robust and error message is more understandable.
+- GUI -> Rinex conversion is now enabled only for zip files.
 
 ## [2.3.1] - 2021-07-25
 ### Fixed
