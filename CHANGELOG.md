@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.2] - not released
+## [2.3.2] - 2022-02-22
 ### Added
 - GUI -> Status: Added a new default map background : Osm "standard", from osm.org.
 - GUI: The footer include a link to the github repo. #191
