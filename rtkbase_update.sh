@@ -147,6 +147,13 @@ upd_2.3.1() {
   return
 }
 
+upd_2.3.2() {
+#Add restart condition in gpsd.service
+  sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+  sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+  return
+}
+
 # standard update
 update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
