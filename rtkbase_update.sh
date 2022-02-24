@@ -159,20 +159,24 @@ update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
 upd_${old_version} "$@"
 
-echo "delete the line version= in settings.conf"
+echo "delete the line checkpoint_version= in settings.conf"
 # The new version number will be imported from settings.conf.default during the web server startup.
-sed -i '/version=/d' ${destination_directory}/settings.conf
+sed -i '/checkpoint_version=/d' ${destination_directory}/settings.conf
+echo "update the release version in settings.conf"
+new_release=$(grep '^version=*' settings.conf.default)
+sed -i 's/^version=*/'${new_release}'/' ${destination_directory}/settings.conf
 
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
 
-echo "Restart web server"
-systemctl restart rtkbase_web.service
 # restart ntrip/rtcm to send the new release number in the stream
-sleep 5
 systemctl is-active --quiet str2str_ntrip.service && systemctl restart str2str_ntrip.service
 systemctl is-active --quiet str2str_local_ntrip_caster.service && systemctl restart str2str_local_ntrip_caster.service
 systemctl is-active --quiet str2str_rtcm_svr.service && systemctl restart str2str_rtcm_svr.service
 systemctl is-active --quiet str2str_rtcm_serial.service && systemctl restart str2str_rtcm_serial.service
+sleep 2
 #if a reboot is needed
 #systemctl reboot
+
+echo "Restart web server"
+systemctl restart rtkbase_web.service
