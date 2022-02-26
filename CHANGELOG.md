@@ -4,6 +4,7 @@
 ### Added
 ### Changed
 ### Fixed
+- GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
 - Rtcm and Ntrip services are restarded after a RTKBase update. #171
 - When the Main service restart, Gpsd service restart too #94
 ### Security
