@@ -3,6 +3,7 @@
 ## [2.3.3] - not released
 ### Added
 ### Changed
+- Flask upgraded to v2.0.3 and other dependencies upgraded too.
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
 - Rtcm and Ntrip services are restarded after a RTKBase update. #171
