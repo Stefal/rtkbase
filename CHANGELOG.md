@@ -1,4 +1,7 @@
 # Changelog
+## [2.3.3] - 2022-02-28
+### Fixed
+- Fix the Rinex conversion failure. #206
 
 ## [2.3.2] - 2022-02-22
 ### Added
