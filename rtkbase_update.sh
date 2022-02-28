@@ -147,8 +147,11 @@ upd_2.3.1() {
 
 upd_2.3.2() {
 #Add restart condition in gpsd.service
-  sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
-  sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+  if ! grep -q '^Restart=' /etc/systemd/system/gpsd.service ; then
+    sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+    sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+  fi
+  systemctl daemon-reload
 }
 
 # standard update
@@ -161,13 +164,13 @@ echo "delete the line checkpoint_version= in settings.conf"
 sed -i '/checkpoint_version=/d' ${destination_directory}/settings.conf
 
 echo "update the release version in settings.conf"
-new_release=$(grep '^version=*' settings.conf.default)
-sed -i 's/^version=*/'${new_release}'/' ${destination_directory}/settings.conf
+new_release=$(grep '^version=*' ${destination_directory}/settings.conf.default)
+sed -i 's/^version=.*/'${new_release}'/' ${destination_directory}/settings.conf
 
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
 
-# restart ntrip/rtcm to send the new release number in the stream
+echo 'restart ntrip/rtcm to send the new release number in the stream'
 systemctl is-active --quiet str2str_ntrip.service && systemctl restart str2str_ntrip.service
 systemctl is-active --quiet str2str_local_ntrip_caster.service && systemctl restart str2str_local_ntrip_caster.service
 systemctl is-active --quiet str2str_rtcm_svr.service && systemctl restart str2str_rtcm_svr.service
