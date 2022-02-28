@@ -1,4 +1,9 @@
 # Changelog
+## [2.3.3] - 2022-02-28
+### Fixed
+- Fix the Rinex conversion failure. #206
+- Restart Ntrip/Rtcm services after an update. #171
+- When the Main service restart, Gpsd service restart too #94
 
 ## [2.3.3] - not released
 ### Added

@@ -7,7 +7,7 @@ window.operateEvents = {
     'click #log_delete': function (e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
         $('#deleteModal').modal();
-        //put filename inside button attribute data.row to get it when the use
+        //put filename inside button attribute data.row to get it when the user
         // click on the confirm delete button.
         $('#confirm-delete-button').data.row = row;
     },
@@ -30,7 +30,7 @@ $('#confirm-delete-button').on("click", function (){
 });
 
 $('#rinex-ign-button').on("click", function (){
-    socket.emit("rinex IGN", $('#rinex-ign-button').data.row);
+    socket.emit("rinex IGN", $('#rinex-ign-button').data.row, 'ign_rinex');
     $(this).html('<span class="spinner-border spinner-border-sm"></span> Creating Rinex...');
 });
 
