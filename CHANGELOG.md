@@ -1,19 +1,20 @@
 # Changelog
-## [2.3.3] - 2022-02-28
-### Fixed
-- Fix the Rinex conversion failure. #206
-- Restart Ntrip/Rtcm services after an update. #171
-- When the Main service restart, Gpsd service restart too #94
 
-## [2.3.3] - not released
+## [2.3.4] - not released
 ### Added
 ### Changed
 - Flask upgraded to v2.0.3 and other dependencies upgraded too.
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
-- Rtcm and Ntrip services are restarded after a RTKBase update. #171
-- When the Main service restart, Gpsd service restart too #94
+- When the Main service restart, Gpsd service restart too #94 <-TODO
+
 ### Security
+
+## [2.3.3] - 2022-02-28
+### Fixed
+- Fix the Rinex conversion failure. #206
+- Restart Ntrip/Rtcm services after an update. #171
+- When the Main service restart, Gpsd service restart too #94
 
 ## [2.3.2] - 2022-02-22
 ### Added
