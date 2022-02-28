@@ -138,18 +138,17 @@ upd_2.2.0() {
 }
 
 upd_2.3.0() {
-  #'nothing to do'
-  return
+  upd_2.3.2 "$@"
 }
 
 upd_2.3.1() {
-  #'nothing to do'
-  return
+  upd_2.3.2 "$@"
 }
 
 upd_2.3.2() {
-  #nothing to do
-  return
+#Add restart condition in gpsd.service
+  sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+  sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
 }
 
 # standard update

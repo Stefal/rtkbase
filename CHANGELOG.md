@@ -3,6 +3,8 @@
 ### Fixed
 - Fix the Rinex conversion failure. #206
 - Restart Ntrip/Rtcm services after an update. #171
+- When the Main service restart, Gpsd service restart too #94
+
 ## [2.3.2] - 2022-02-22
 ### Added
 - GUI -> Status: Added a new default map background : Osm "standard", from osm.org.
