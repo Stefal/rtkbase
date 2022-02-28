@@ -147,14 +147,23 @@ upd_2.3.1() {
   return
 }
 
+upd_2.3.2() {
+  #nothing to do
+  return
+}
+
 # standard update
 update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
 upd_${old_version} "$@"
 
-echo "delete the line version= in settings.conf"
-# The new version number will be imported from settings.conf.default during the web server startup.
-sed -i '/version=/d' ${destination_directory}/settings.conf
+# The new checkpoint_version number will be imported from settings.conf.default during the web server startup.
+echo "delete the line checkpoint_version= in settings.conf"
+sed -i '/checkpoint_version=/d' ${destination_directory}/settings.conf
+
+echo "update the release version in settings.conf"
+new_release=$(grep '^version=*' settings.conf.default)
+sed -i 's/^version=*/'${new_release}'/' ${destination_directory}/settings.conf
 
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
