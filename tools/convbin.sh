@@ -66,5 +66,5 @@ RINEX=$(echo "${filedate}"-"${MOUNT_NAME}"."${year2}"o)
 echo "- Processing on	""${RAW_ARCHIVE}"
 extract_raw_file                  && \
 ${rnx_conversion_func}            && \
-echo -n 'rinex_file='"${RINEX}"   && \
+echo -n 'rinex_file='"${RINEX}"
 rm "${raw_file}"

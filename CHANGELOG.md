@@ -5,6 +5,16 @@
 - Restart Ntrip/Rtcm services after an update. #171
 - When the Main service restart, Gpsd service restart too #94
 
+## [2.3.3] - not released
+### Added
+### Changed
+- Flask upgraded to v2.0.3 and other dependencies upgraded too.
+### Fixed
+- GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
+- Rtcm and Ntrip services are restarded after a RTKBase update. #171
+- When the Main service restart, Gpsd service restart too #94
+### Security
+
 ## [2.3.2] - 2022-02-22
 ### Added
 - GUI -> Status: Added a new default map background : Osm "standard", from osm.org.
@@ -15,7 +25,6 @@
 - GUI -> Status: Ortho HR (aerial images) max zoom changed from 20 to 21.
 ### Fixed
 - GUI -> Settings: "Save" buttons are disabled when a new setting is saved. #193
-- Rtcm and Ntrip services are restarded after a RTKBase update. #171
 - The Rinex conversion is more robust and error message is more understandable.
 - GUI -> Rinex conversion is now enabled only for zip files.
 

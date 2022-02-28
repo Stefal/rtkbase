@@ -116,6 +116,9 @@ install_gpsd_chrony() {
         #Add the BindsTo value
         sed -i '/^After=.*/i BindsTo=str2str_tcp.service' /etc/systemd/system/gpsd.service
       fi
+      #Add restart condition
+      sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+      sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
 
       #Reload systemd services and enable chrony and gpsd
       systemctl daemon-reload
