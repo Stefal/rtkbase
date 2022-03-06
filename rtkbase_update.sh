@@ -154,14 +154,12 @@ upd_2.3.2() {
   systemctl daemon-reload
 }
 
-upd_2.3.2() {
-#Add restart condition in gpsd.service
-  sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
-  sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+upd_2.3.3() {
+#TODO update gpsd unit file
+# make a new gpsd unif file copy, as in install.sh, and grep/sed lines as in install.sh
  #update python module
   python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
 
-  return
 }
 
 # standard update
