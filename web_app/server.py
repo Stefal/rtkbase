@@ -535,19 +535,27 @@ def detect_receiver():
         print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
     #result = {"result" : "failed"}
+    result = {"result" : "success", "port" : "bestport", "gnss_type" : "F12P"}
     socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
 
 @socketio.on("configure_receiver", namespace="/test")
 def configure_receiver(brand="u-blox", model="F9P"):
     # only ZED-F9P could be configured automaticaly
     #TODO stop main service !!!!!!!!!!!!!??
+    main_service = services_list[0]
+    restart_main = False
+    if main_service.get("active") is True:
+        main_service["unit"].stop()
+        restart_main = True
     print("configure {} gnss receiver model {}".format(brand, model))
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss", "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "Done" in answer.stdout:
         result = {"result" : "success"}
-
     else:
         result = {"result" : "failed"}
+    if restart_main is True:
+        print("DEBUG: Restarting main service after F9P configuration")
+        main_service["unit"].start()
     #result = {"result" : "success"}
     socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test")
 
