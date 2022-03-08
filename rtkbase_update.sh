@@ -155,10 +155,19 @@ upd_2.3.2() {
 }
 
 upd_2.3.3() {
-#TODO update gpsd unit file
-# make a new gpsd unif file copy, as in install.sh, and grep/sed lines as in install.sh
- #update python module
-  python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
+  #update gpsd unit file
+    cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
+    sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
+    sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
+    #Add restart condition
+    grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+    grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+    #Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
+    grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
+    systemctl daemon-reload
+    systemctl restart gpsd
+  #update python module
+    python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
 
 }
 
@@ -168,9 +177,11 @@ update
 upd_${old_version} "$@"
 
 # The new version numbers will be imported from settings.conf.default during the web server startup.
-echo "delete the line version= and checkpoint_version= in settings.conf"
+echo "Delete the line version= and checkpoint_version= in settings.conf"
 sed -i '/^checkpoint_version=/d' ${destination_directory}/settings.conf
 sed -i '/^version=/d' ${destination_directory}/settings.conf
+echo 'Insert updated status in settings.conf'
+sed -i '/^\[general\]/a updated=true' ${destination_directory}/settings.conf
 
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
