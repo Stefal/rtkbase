@@ -2,7 +2,7 @@
 
 [general]
 # Version
-version=2.3.3
+version=2.3.4
 # Rtkbase upgrade mandatory "checkpoint"
 checkpoint_version=2.4.0
 # User who runs str2str_file service
