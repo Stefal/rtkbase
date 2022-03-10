@@ -146,12 +146,13 @@ upd_2.3.1() {
 }
 
 upd_2.3.2() {
-#Add restart condition in gpsd.service
-  if ! grep -q '^Restart=' /etc/systemd/system/gpsd.service ; then
-    sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
-    sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
-  fi
-  systemctl daemon-reload
+  #Add restart condition in gpsd.service
+    if ! grep -q '^Restart=' /etc/systemd/system/gpsd.service ; then
+      sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+      sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+    fi
+    systemctl daemon-reload
+  upd_2.3.3 "$@"
 }
 
 upd_2.3.3() {
