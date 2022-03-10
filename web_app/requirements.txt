@@ -2,7 +2,7 @@ cryptography==36.0.1
 itsdangerous==2.0.1
 Flask==2.0.3
 Flask-SocketIO==5.1.1
-eventlet==1.1.2
+eventlet==0.33.0
 Bootstrap-Flask==2.0.1
 Flask-WTF==1.0.0
 Flask-Login==0.5.0
