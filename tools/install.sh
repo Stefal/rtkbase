@@ -2,7 +2,7 @@
 
 ### RTKBASE INSTALLATION SCRIPT ###
 declare -a detected_gnss
-
+declare RTKBASE_USER
 man_help(){
     echo '################################'
     echo 'RTKBASE INSTALLATION HELP'
@@ -17,41 +17,64 @@ man_help(){
     echo '        sudo ./install.sh'
     echo ''
     echo 'Options:'
-    echo '        --all'
+    echo '        -a | --all'
     echo '                         Install all dependencies, Rtklib, last release of Rtkbase, services,'
     echo '                         crontab jobs, detect your GNSS receiver and configure it.'
     echo ''
-    echo '        --dependencies'
+    echo '        -v | --alldev <branch>'
+    echo '                         Install all as --all option, but use the rtkbase github repo instead of the release'
+    echo '                         You have to select the git branch you want to install.'
+    echo ''
+    echo '        -u | --user'
+    echo '                         Use this username as User= inside service unit and for path to rtkbase:'
+    echo '                         --user=john will install rtkbase in /home/john/rtkbase'
+    echo ''
+    echo '        -d | --dependencies'
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
-    echo '        --rtklib'
+    echo '        -r | --rtklib'
     echo '                         Get RTKlib 2.4.3 from github and compile it.'
     echo '                         https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3'
     echo ''
-    echo '        --rtkbase-release'
+    echo '        -b | --rtkbase-release'
     echo '                         Get last release of RTKBASE:'
     echo '                         https://github.com/Stefal/rtkbase/releases'
     echo ''
-    echo '        --rtkbase-repo'
-    echo '                         Clone RTKBASE from github:'
-    echo '                         https://github.com/Stefal/rtkbase/tree/web_gui'
+    echo '        -i | --rtkbase-repo <branch>'
+    echo '                         Clone RTKBASE from github with the <branch> parameter used to select the branch.'
     echo ''
-    echo '        --unit-files'
+    echo '        -t | --unit-files'
     echo '                         Deploy services.'
     echo ''
-    echo '        --gpsd-chrony'
+    echo '        -g | --gpsd-chrony'
     echo '                         Install gpsd and chrony to set date and time'
     echo '                         from the gnss receiver.'
     echo ''
-    echo '        --detect-usb-gnss'
+    echo '        -e | --detect-usb-gnss'
     echo '                         Detect your GNSS receiver.'
     echo ''
-    echo '        --configure-gnss'
+    echo '        -c | --configure-gnss'
     echo '                         Configure your GNSS receiver.'
     echo ''
-    echo '        --start-services'
+    echo '        -s | --start-services'
     echo '                         Start services (rtkbase_web, str2str_tcp, gpsd, chrony)'
+    echo ''
+    echo '        -h | --help'
+    echo '                          Display this help message.'
+
     exit 0
+}
+
+check_user() {
+  if [ "${1}" != 0 ] ; then
+    RTKBASE_USER="${1}"
+  elif [[ -z $(logname) ]] ; then
+    echo 'The logname command return an empty value. Please reboot and retry.'
+    exit 1
+  else
+    RTKBASE_USER=$(logname)
+  fi
+  echo "${RTKBASE_USER}"
 }
 
 install_dependencies() {
@@ -133,7 +156,7 @@ install_rtklib() {
       if [ ! -f /usr/local/bin/str2str ]
       then 
         #Get Rtklib 2.4.3 b34 release
-        sudo -u "$(logname)" wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
+        sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
         #Install Rtklib app
         #TODO add correct CTARGET in makefile?
         make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc
@@ -152,20 +175,20 @@ install_rtklib() {
 rtkbase_repo(){
     #Get rtkbase repository
     if [[ -n "${1}" ]]; then
-      sudo -u "$(logname)" git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
+      sudo -u "${RTKBASE_USER}" git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
     else
-      sudo -u "$(logname)" git clone https://github.com/stefal/rtkbase.git
+      sudo -u "${RTKBASE_USER}" git clone https://github.com/stefal/rtkbase.git
     fi
-    sudo -u "$(logname)" touch rtkbase/settings.conf
+    sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
     add_rtkbase_path_to_environment
 
 }
 
 rtkbase_release(){
     #Get rtkbase latest release
-    sudo -u "$(logname)" wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
-    sudo -u "$(logname)" tar -xvf rtkbase.tar.gz
-    sudo -u "$(logname)" touch rtkbase/settings.conf
+    sudo -u "${RTKBASE_USER}" wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
+    sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
+    sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
     add_rtkbase_path_to_environment
 
 }
@@ -262,7 +285,7 @@ install_unit_files() {
         systemctl enable rtkbase_archive.timer
         systemctl daemon-reload
         #Add dialout group to user
-        usermod -a -G dialout "$(logname)"
+        usermod -a -G dialout "${RTKBASE_USER}"
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
       fi
@@ -310,7 +333,6 @@ get_device_path() {
     done
 }
 
-
 configure_gnss(){
     echo '################################'
     echo 'CONFIGURE GNSS RECEIVER'
@@ -327,20 +349,20 @@ configure_gnss(){
           if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -E "^com_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
           then
             #change the com port value inside settings.conf
-            sudo -u "$(logname)" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "$(logname)" sed -i s/^receiver_format=.*/receiver_format=\'${gnss_format}\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'${gnss_format}\'/ "${rtkbase_path}"/settings.conf
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
-            sudo -u "$(logname)" sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u "$(logname)" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u "$(logname)" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u "$(logname)" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
 
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
-            sudo -u "$(logname)" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
             #add option -TADJ=1 on rtcm/ntrip/serial outputs
-            sudo -u "$(logname)" printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
 
           fi
         else
@@ -371,19 +393,15 @@ start_services() {
   echo 'You can open your browser to http://'"$(hostname -I)"
   #If the user isn't already in dialout group, a reboot is 
   #mandatory to be able to access /dev/tty*
-  groups "$(logname)" | grep -q "dialout" || echo "But first, Please REBOOT!!!"
+  groups "${RTKBASE_USER}" | grep -q "dialout" || echo "But first, Please REBOOT!!!"
   echo '################################'
-  
 }
+
 main() {
-  #display parameters
-  echo 'Installation options: ' "$@"
-  array=("$@")
-  # if no parameters display help
-  if [ -z "$array" ]                  ; then man_help                        ;fi
   # If rtkbase is installed but the OS wasn't restarted, then the system wide
   # rtkbase_path variable is not set in the current shell. We must source it
   # from /etc/environment or set it to the default value "rtkbase":
+  
   if [[ -z ${rtkbase_path} ]]
   then
     if grep -q '^rtkbase_path=' /etc/environment
@@ -393,12 +411,7 @@ main() {
       export rtkbase_path='rtkbase'
     fi
   fi
-  # check if logname return an empty value
-  if [[ -z $(logname) ]]
-  then
-    echo 'The logname command return an empty value. Please reboot and retry.'
-    exit 1
-  fi
+  
   # check if there is enough space available
   if [[ $(df -kP ~/ | grep -v '^Filesystem' | awk '{ print $4 }') -lt 300000 ]]
   then
@@ -406,40 +419,87 @@ main() {
     echo 'Exiting...'
     exit 1
   fi
-  # run intall options
-  for i in "${array[@]}"
-  do
-    if [ "$1" == "--help" ]           ; then man_help                        ;fi
-    if [ "$i" == "--dependencies" ]   ; then install_dependencies            ;fi
-    if [ "$i" == "--rtklib" ] 	      ; then install_rtklib                  ;fi
-    if [ "$i" == "--rtkbase-release" ]; then install_rtkbase_from_release && \
-					     rtkbase_requirements            ;fi
-    if [ "$i" == "--rtkbase-repo" ]   ; then install_rtkbase_from_repo    && \
-					     rtkbase_requirements            ;fi
-    if [ "$i" == "--unit-files" ]     ; then install_unit_files              ;fi
-    if [ "$i" == "--gpsd-chrony" ]    ; then install_gpsd_chrony             ;fi
-    if [ "$i" == "--detect-usb-gnss" ]; then detect_usb_gnss                 ;fi
-    if [ "$i" == "--configure-gnss" ] ; then configure_gnss                  ;fi
-    if [ "$i" == "--start-services" ] ; then start_services                  ;fi
-    if [ "$i" == "--alldev" ] ;         then install_dependencies         && \
-                                      	     install_rtklib               && \
-                                      	     install_rtkbase_from_repo  dev && \
-                                      	     rtkbase_requirements         && \
-                                      	     install_unit_files           && \
-                                      	     install_gpsd_chrony          && \
-                                      	     detect_usb_gnss              && \
-                                      	     configure_gnss               && \
-                                      	     start_services                  ;fi
-    if [ "$i" == "--all" ]            ; then install_dependencies         && \
-                                      	     install_rtklib               && \
-                                      	     install_rtkbase_from_release && \
-                                      	     rtkbase_requirements         && \
-                                      	     install_unit_files           && \
-                                      	     install_gpsd_chrony          && \
-                                      	     detect_usb_gnss              && \
-                                      	     configure_gnss               && \
-                                      	     start_services                  ;fi
-  done
+  
+  #display parameters
+  #parsing with getopt: https://www.shellscript.sh/tips/getopt/index.html
+  ARG_HELP=0
+  ARG_USER=0
+  ARG_DEPENDENCIES=0
+  ARG_RTKLIB=0
+  ARG_RTKBASE_RELEASE=0
+  ARG_RTKBASE_REPO=0
+  ARG_UNIT=0
+  ARG_GPSD_CHRONY=0
+  ARG_DETECT_USB_GNSS=0
+  ARG_CONFIGURE_GNSS=0
+  ARG_START_SERVICES=0
+  ARG_ALLDEV=0
+  ARG_ALL=0
+
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:tgecsv:a --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,unit-files,gpsd-chrony,detect-usb-gnss,configure-gnss,start-services,alldev:,all -- "$@")
+  VALID_ARGUMENTS=$?
+  if [ "$VALID_ARGUMENTS" != "0" ]; then
+    #man_help
+    echo 'Try '\''install.sh --help'\'' for more information'
+    exit 1
+  fi
+
+  echo "PARSED_ARGUMENTS is $PARSED_ARGUMENTS"
+  eval set -- "$PARSED_ARGUMENTS"
+  while :
+    do
+      case "$1" in
+        -h | --help)   ARG_HELP=1                     ; shift   ;;
+        -u | --user)   ARG_USER="${2}"                ; shift 2 ;;
+        -d | --dependencies) ARG_DEPENDENCIES=1       ; shift   ;;
+        -r | --rtklib) ARG_RTKLIB=1                   ; shift   ;;
+        -b | --rtkbase-release) ARG_RTKBASE_RELEASE=1 ; shift   ;;
+        -i | --rtkbase-repo) ARG_RTKBASE_REPO="${2}"  ; shift 2 ;;
+        -t | --unit-files) ARG_UNIT=1                 ; shift   ;;
+        -g | --gpsd-chrony) ARG_GPSD_CHRONY=1         ; shift   ;;
+        -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1 ; shift   ;;
+        -c | --configure-gnss) ARG_CONFIGURE_GNSS=1   ; shift   ;;
+        -s | --start-services) ARG_START_SERVICES=1   ; shift   ;;
+        -v | --alldev) ARG_ALLDEV="${2}"              ; shift 2 ;;
+        -a | --all) ARG_ALL=1                         ; shift   ;;
+        # -- means the end of the arguments; drop this, and break out of the while loop
+        --) shift; break ;;
+        # If invalid options were passed, then getopt should have reported an error,
+        # which we checked as VALID_ARGUMENTS when getopt was called...
+        *) echo "Unexpected option: $1 - this should not happen."
+          usage ;;
+      esac
+    done
+  [ $ARG_HELP -eq 1 ] && man_help
+  RTKBASE_USER=$(check_user "${ARG_USER}"); echo 'user devient: ' "${RTKBASE_USER}"
+  #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; check_user "${ARG_USER}"; else ;fi
+  [ $ARG_DEPENDENCIES -eq 1 ] && install_dependencies
+  [ $ARG_RTKLIB -eq 1 ] && install_rtklib
+  [ $ARG_RTKBASE_RELEASE -eq 1 ] && install_rtkbase_from_release && rtkbase_requirements
+  if [ $ARG_RTKBASE_REPO != 0 ] ; then install_rtkbase_from_repo "${ARG_RTKBASE_REPO}";fi
+  [ $ARG_UNIT -eq 1 ] && install_unit_files
+  [ $ARG_GPSD_CHRONY -eq 1 ] && install_gpsd_chrony
+  [ $ARG_DETECT_USB_GNSS -eq 1 ] && detect_usb_gnss
+  [ $ARG_CONFIGURE_GNSS -eq 1 ] && configure_gnss
+  [ $ARG_START_SERVICES -eq 1 ] && start_services
+  if [ $ARG_ALLDEV != 0 ] ; then install_dependencies              && \
+                        install_rtklib                             && \
+                        install_rtkbase_from_repo "${ARG_ALLDEV}"  && \
+                        rtkbase_requirements                       && \
+                        install_unit_files                         && \
+                        install_gpsd_chrony                        && \
+                        detect_usb_gnss                            && \
+                        configure_gnss                             && \
+                        start_services                             ;fi
+  [ $ARG_ALL -eq 1 ] && install_dependencies          && \
+                        install_rtklib                && \
+                        install_rtkbase_from_release  && \
+                        rtkbase_requirements          && \
+                        install_unit_files            && \
+                        install_gpsd_chrony           && \
+                        detect_usb_gnss               && \
+                        configure_gnss                && \
+                        start_services  
 }
 
 main "$@"
