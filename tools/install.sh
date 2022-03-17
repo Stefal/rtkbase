@@ -68,6 +68,9 @@ man_help(){
 check_user() {
   if [ "${1}" != 0 ] ; then
     RTKBASE_USER="${1}"
+      #TODO check if user exists and/or path exists ?
+      # warning for image creation, do the path exist ?
+
   elif [[ -z $(logname) ]] ; then
     echo 'The logname command return an empty value. Please reboot and retry.'
     exit 1
