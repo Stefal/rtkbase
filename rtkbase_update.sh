@@ -152,6 +152,22 @@ upd_2.3.2() {
     sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
   fi
   systemctl daemon-reload
+  upd_2.3.3 "$@"
+}
+
+upd_2.3.3() {
+#Overriding gpsd.service with custom dependency
+cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
+sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
+sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
+#Add restart condition
+grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+#Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
+grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
+
+systemctl daemon-reload
+systemctl restart gpsd
 }
 
 # standard update
