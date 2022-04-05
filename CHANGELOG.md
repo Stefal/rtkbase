@@ -11,8 +11,8 @@
 
 ## [2.3.4] - 2022-04-01
 ### Fixed 
- - Failure with some python dependancies. #215
- - More fixes with Gpsd service restart. #94
+- Failure with some python dependancies. #215
+- More fixes with Gpsd service restart. #94
 
 ## [2.3.3] - 2022-02-28
 ### Fixed
