@@ -146,30 +146,33 @@ upd_2.3.1() {
 }
 
 upd_2.3.2() {
-  #Add restart condition in gpsd.service
-    if ! grep -q '^Restart=' /etc/systemd/system/gpsd.service ; then
-      sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
-      sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
-    fi
-    systemctl daemon-reload
+#Add restart condition in gpsd.service
+  if ! grep -q '^Restart=' /etc/systemd/system/gpsd.service ; then
+    sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+    sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+  fi
+  systemctl daemon-reload
   upd_2.3.3 "$@"
 }
 
 upd_2.3.3() {
-  #update gpsd unit file
-    cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
-    sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
-    sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
-    #Add restart condition
-    grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
-    grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
-    #Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
-    grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
-    systemctl daemon-reload
-    systemctl restart gpsd
-  #update python module
-    python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
+ #update gpsd unit file
+ cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
+ sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
+ sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
+ #Add restart condition
+ grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+ grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+ #Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
+ grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
+ systemctl daemon-reload
+ systemctl restart gpsd  
+ upd_2.3.4 "$@"
+}
 
+upd_2.3.4() {
+#update python module
+    python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
 }
 
 # standard update

@@ -1,14 +1,18 @@
 # Changelog
 
-## [2.3.4] - not released
+## [2.3.5] - not released
 ### Added
 ### Changed
 - Flask upgraded to v2.0.3 and other dependencies upgraded too.
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
-- When the Main service restart, Gpsd service restart too #94 <-TODO
 
 ### Security
+
+## [2.3.4] - 2022-04-01
+### Fixed 
+ - Failure with some python dependancies. #215
+ - More fixes with Gpsd service restart. #94
 
 ## [2.3.3] - 2022-02-28
 ### Fixed
