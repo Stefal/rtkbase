@@ -9,7 +9,7 @@
 
     {% block styles %}
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap.min-4.6.1.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-4.6.1.min.css') }}">
     {% endblock %}
 
     <title>RTKBase</title>
@@ -34,8 +34,7 @@
     {% block scripts %}
     <!-- Optional JavaScript -->
         <script type="text/javascript" src="{{ url_for('static', filename='lib/jquery-3.5.1.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='lib/popper.min.js') }}"></script>        
-        <script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap.min-4.6.1.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-4.6.1.bundle.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='lib/socket.io.min-4.1.1.js') }}"></script>
     {% endblock %}
   </body>
