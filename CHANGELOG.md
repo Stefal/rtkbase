@@ -1,14 +1,4 @@
 # Changelog
-
-## [2.3.5] - not released
-### Added
-### Changed
-- Flask upgraded to v2.0.3 and other dependencies upgraded too.
-### Fixed
-- GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
-
-### Security
-
 ## [2.3.4] - 2022-04-01
 ### Fixed 
  - Failure with some python dependancies. #215
@@ -30,6 +20,7 @@
 - GUI -> Status: Ortho HR (aerial images) max zoom changed from 20 to 21.
 ### Fixed
 - GUI -> Settings: "Save" buttons are disabled when a new setting is saved. #193
+- Rtcm and Ntrip services are restarded after a RTKBase update. #171
 - The Rinex conversion is more robust and error message is more understandable.
 - GUI -> Rinex conversion is now enabled only for zip files.
 

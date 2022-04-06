@@ -765,12 +765,6 @@ if __name__ == "__main__":
         services_list = load_units(services_list)
         #Update standard user in settings.conf
         update_std_user(services_list)
-        #check if we run RTKBase for the first time after an update
-        #and restart some services to let them send the new release number.
-        if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
-            restartServices(["ntrip", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
-            rtkbaseconfig.remove_option("general", "updated")
-            rtkbaseconfig.write_file()
         #Start a "manager" thread
         manager_thread = Thread(target=manager, daemon=True)
         manager_thread.start()

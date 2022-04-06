@@ -156,23 +156,18 @@ upd_2.3.2() {
 }
 
 upd_2.3.3() {
- #update gpsd unit file
- cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
- sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
- sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
- #Add restart condition
- grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
- grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
- #Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
- grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
- systemctl daemon-reload
- systemctl restart gpsd  
- upd_2.3.4 "$@"
-}
+#Overriding gpsd.service with custom dependency
+cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
+sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
+sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
+#Add restart condition
+grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+#Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
+grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
 
-upd_2.3.4() {
-#update python module
-    python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
+systemctl daemon-reload
+systemctl restart gpsd
 }
 
 # standard update
@@ -180,18 +175,25 @@ update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
 upd_${old_version} "$@"
 
-# The new version numbers will be imported from settings.conf.default during the web server startup.
-echo "Delete the line version= and checkpoint_version= in settings.conf"
-sed -i '/^checkpoint_version=/d' ${destination_directory}/settings.conf
-sed -i '/^version=/d' ${destination_directory}/settings.conf
-echo 'Insert updated status in settings.conf'
-sed -i '/^\[general\]/a updated=true' ${destination_directory}/settings.conf
+# The new checkpoint_version number will be imported from settings.conf.default during the web server startup.
+echo "delete the line checkpoint_version= in settings.conf"
+sed -i '/checkpoint_version=/d' ${destination_directory}/settings.conf
+
+echo "update the release version in settings.conf"
+new_release=$(grep '^version=*' ${destination_directory}/settings.conf.default)
+sed -i 's/^version=.*/'${new_release}'/' ${destination_directory}/settings.conf
 
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
 
-#if a reboot is needed
-#systemctl reboot
+echo 'restart ntrip/rtcm to send the new release number in the stream'
+systemctl is-active --quiet str2str_ntrip.service && systemctl restart str2str_ntrip.service
+systemctl is-active --quiet str2str_local_ntrip_caster.service && systemctl restart str2str_local_ntrip_caster.service
+systemctl is-active --quiet str2str_rtcm_svr.service && systemctl restart str2str_rtcm_svr.service
+systemctl is-active --quiet str2str_rtcm_serial.service && systemctl restart str2str_rtcm_serial.service
 
 echo "Restart web server"
 systemctl restart rtkbase_web.service
+
+#if a reboot is needed
+#systemctl reboot

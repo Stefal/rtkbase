@@ -184,10 +184,7 @@ function Chart() {
         var new_sat_values = [];
 
         for (var k in msg) {
-            // filtering in case of non sat level info in msg (ie gps_time)
-            if (k.length < 4) {
             new_sat_values.push({sat:k, level:msg[k]});
-            }
         }
 
         // sort the sat levels by ascension
@@ -379,9 +376,8 @@ function updateCoordinateGrid(msg) {
         var lat_value = coordinates[0].substring(0, 11) + Array(11 - coordinates[0].substring(0, 11).length + 1).join(" ");
         var lon_value = coordinates[1].substring(0, 11) + Array(11 - coordinates[1].substring(0, 11).length + 1).join(" ");
         var height_value = coordinates[2].substring(0, 11) + Array(11 - coordinates[2].substring(0, 11).length + 1 + 2).join(" ");
-        var solution_status = 'solution status' in msg ? msg['solution status'] : '-';
         $("#lat_value").html(lat_value + " °");
         $("#lon_value").html(lon_value + " °");
         $("#height_value").html(height_value + "m");
-        $("#solution_status").html(solution_status);
+        $("#solution_status").html(msg['solution status']);
 }
