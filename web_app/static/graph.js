@@ -204,9 +204,9 @@ function Chart() {
         var new_sat_labels = [];
         var new_sat_fillcolors = [];
 
-        for(var i = new_sat_values_length - number_of_satellites; i < new_sat_values_length; i++) {
+        for(var i = 0; i < number_of_satellites; i++) {
             // check if we actually have enough satellites to plot:
-            if (i <  0) {
+            if (i >= new_sat_values_length) {
                 // we have less than number_of_satellites to plot
                 // so we fill the first bars of the graph with zeroes and stuff
                 new_sat_levels.push(0);
