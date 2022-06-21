@@ -3,6 +3,7 @@
 {% block styles %}
 {{super()}}
 <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap4-toggle.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-icons.css') }}">
 
 {% endblock %}
 
@@ -124,7 +125,14 @@
       <div class="form-group row">
         <label for="svr_pwd" class="col-sm-3 col-form-label">Caster password: </label>
         <div class="col-sm-9">
-            <input id="svr_pwd" type="password" name="svr_pwd" class="form-control" value="{{ ntrip_settings[2].svr_pwd }}" title="caster password" required>
+          <div class="input-group">
+              <input id="svr_pwd" type="password" name="svr_pwd" class="form-control" value="{{ ntrip_settings[2].svr_pwd }}" title="caster password" required>
+              <span class="input-group-append">
+                <button class="btn btn-outline-secondary" id="svr_pwd_button" type="button">
+                  <i class="bi bi-eye-slash" aria-hidden="true"></i>
+                </button>
+              </span>
+            </div>
             <div class="invalid-feedback">Caster password</div>
         </div>
       </div>

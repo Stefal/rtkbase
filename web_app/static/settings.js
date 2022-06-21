@@ -64,6 +64,20 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).closest("form").find("button").prop("disabled", true);
       });
+
+    // See password button
+    $("#svr_pwd_button").on("click", function (e) {
+        e.preventDefault();
+        if ($('#svr_pwd').attr("type") == "text") {
+            $('#svr_pwd').attr('type', 'password');
+            $('#svr_pwd_button i').addClass("bi bi-eye-slash");
+            $('#svr_pwd_button i').removeClass("bi bi-eye");
+        } else if ($('#svr_pwd').attr("type") == "password") {
+            $('#svr_pwd').attr('type', 'text');
+            $('#svr_pwd_button i').removeClass("bi bi-eye-slash");
+            $('#svr_pwd_button i').addClass("bi bi-eye");
+        }
+    });
     
     // ####################### HANDLE RTKBASE SERVICES    #######################
 
