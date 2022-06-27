@@ -1,12 +1,10 @@
 function Chart() {
 //set for 37
     this.chartdata = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'},{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}];
-    this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'},{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}];
     this.labeldata = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 
     this.height = parseInt(55*5);
     this.roverBars = '';
-    this.baseBars = '';
     this.labels = '';
     this.svg = '';
     this.vAxis = '';
@@ -51,10 +49,6 @@ function Chart() {
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
             .style('background', 'white');
-
-        var yScale = d3.scale.linear()
-        .domain([0, 55])
-        .range([0, height])
 
         this.xScale = d3.scale.ordinal()
             .rangeBands([0, width])
@@ -107,23 +101,6 @@ function Chart() {
                 return (55*5 - 5*data.value);
             });
 
-        this.baseBars = this.svg.append('g')
-            .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-            .selectAll('rect').data(this.chartdata1)
-            .enter().append('rect')
-            .style("fill", function(data) { return data.color; })
-            .style({stroke: "black"})
-            .attr('width', barWidth/2)
-            .attr('height', function (data) {
-                return 5*data.value;
-            })
-            .attr('x', function (data, i) {
-                return i * (barWidth + barOffset) + barWidth/2;
-            })
-            .attr('y', function (data) {
-                return (55*5 - 5*data.value);
-            });
-
         this.labels = this.svg.append("g")
             .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
             .attr("class", "labels")
@@ -153,10 +130,6 @@ function Chart() {
         this.roverBars.attr("width", barWidth/2)
         .attr('x', function (data, i) {
             return i * (barWidth + barOffset);
-        })
-        this.baseBars.attr("width", barWidth/2)
-        .attr('x', function (data, i) {
-            return i * (barWidth + barOffset) + barWidth/2;
         })
         this.labels.attr("dx", function(d, i) {
             return (i * (barWidth + barOffset)) + barWidth/2-14;
@@ -261,62 +234,9 @@ function Chart() {
             });
     }
 
-    this.baseUpdate = function(msg){
-        var base_dataset_number = 0;
-        var current_level = 0;
-        var current_fillcolor;
-        var new_sat_levels = [];
-        // var new_sat_labels = [];
-        var new_sat_fillcolors = [];
-
-        // cycle through the graphs's labels and extract base levels for them
-        this.labeldata.forEach(function(label, label_index) {
-            if (label in msg) {
-                // get the sat level as an integer
-                current_level = parseInt(msg[label]);
-
-                new_sat_levels.push(current_level);
-                new_sat_fillcolors.push("#d9d9d9");
-
-            } else {
-                // if we don't the same satellite in the base
-                new_sat_levels.push(0);
-                new_sat_fillcolors.push("#d9d9d9");
-            }
-
-        });
-        for (var i = 0; i < new_sat_levels.length; i++) {
-            this.chartdata1[i]['value'] = new_sat_levels[i];
-            this.chartdata1[i]['color'] = new_sat_fillcolors[i];
-        };
-
-        if(JSON.stringify(msg) == JSON.stringify(lastBaseMsg)){
-            numOfRepetition++;
-        }
-        else{
-           lastBaseMsg = msg;
-           numOfRepetition = 0;
-        }
-
-        if(numOfRepetition >= 5)
-	this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'},{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}];
-
-        this.baseBars.data(this.chartdata1)
-        .transition()
-        .attr('height', function (data) {
-            return 5*data.value;
-        })
-        .attr('y', function (data) {
-            return (55*5 - 5*data.value);
-        })
-        .style("fill", function(data) { return data.color; })
-        .duration(300);
-    }
-
     this.cleanStatus = function(mode, status) {
 
         this.chartdata = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'},{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}];
-	this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'},{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,0,0,0.5)'}];
         this.labeldata = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 
         console.log("Got signal to clean the graph")
@@ -330,17 +250,6 @@ function Chart() {
         }
 
         this.roverBars.data(this.chartdata)
-        .transition()
-        .attr('height', function (data) {
-            return 5*data.value;
-        })
-        .attr('y', function (data) {
-            return (55*5 - 5*data.value);
-        })
-        .style("fill", function(data) { return data.color; })
-        .duration(300);
-
-        this.baseBars.data(this.chartdata)
         .transition()
         .attr('height', function (data) {
             return 5*data.value;

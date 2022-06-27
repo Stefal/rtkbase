@@ -158,17 +158,6 @@ $(document).ready(function () {
             chart.roverUpdate(msg);
     });
 
-    socket.on("satellite broadcast base", function(msg) {
-        // check if the browser tab and app tab are active
-        
-        console.groupCollapsed('Base satellite msg received:');
-            for (var k in msg)
-                console.log(k + ':' + msg[k]);
-        console.groupEnd();
-
-        chart.baseUpdate(msg);
-    });
-
     // ####################### HANDLE COORDINATE MESSAGES #######################
 
     socket.on("coordinate broadcast", function(msg) {
