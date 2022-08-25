@@ -318,9 +318,21 @@ configure_gnss(){
         if [[ ${#detected_gnss[*]} -eq 2 ]]
         then
           echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
+
+          # Stop all services so we can configure the receiver
+          systemctl is-active --quiet str2str_ntrip.service && systemctl stop str2str_ntrip.service && restart_str2str_ntrip=true
+          systemctl is-active --quiet str2str_local_ntrip_caster.service && systemctl stop str2str_local_ntrip_caster.service && restart_str2str_local_ntrip_caster=true
+          systemctl is-active --quiet str2str_rtcm_serial.service && systemctl stop str2str_rtcm_serial.service && restart_str2str_rtcm_serial=true
+          systemctl is-active --quiet str2str_rtcm_svr.service && systemctl stop str2str_rtcm_svr.service && restart_str2str_rtcm_svr=true
+          systemctl is-active --quiet str2str_file.service && systemctl stop str2str_file.service && restart_str2str_file=true
+          # Stop str2str_tcp last as other services depend on it
+          systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service && restart_str2str_tcp=true && echo 'Stopped systemd services so we can configure the receiver'
+
           if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
           then
             gnss_format='ubx'
+            #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
+            "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
           fi
           if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -E "^com_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
           then
@@ -331,7 +343,6 @@ configure_gnss(){
             sudo -u "$(logname)" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
             sudo -u "$(logname)" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
             sudo -u "$(logname)" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
@@ -340,13 +351,17 @@ configure_gnss(){
             sudo -u "$(logname)" printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
 
           fi
+
+          # Restart services if they were stopped before, str2str_tcp is started first as others depend on it
+          [[ $restart_str2str_tcp == true ]] && systemctl start str2str_tcp.service && echo 'Restarting services'
+          [[ $restart_str2str_ntrip == true ]] && systemctl start str2str_ntrip.service
+          [[ $restart_str2str_local_ntrip_caster == true ]] && systemctl start str2str_local_ntrip_caster.service
+          [[ $restart_str2str_rtcm_serial == true ]] && systemctl start str2str_rtcm_serial.service
+          [[ $restart_str2str_rtcm_svr == true ]] && systemctl start str2str_rtcm_svr.service
+          [[ $restart_str2str_file == true ]] && systemctl start str2str_file.service
+
         else
           echo 'NO GNSS RECEIVER DETECTED, WE CAN'\''T CONFIGURE IT!'
-        fi
-        #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
-        if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
-        then
-          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
         fi
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
