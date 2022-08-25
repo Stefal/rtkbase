@@ -396,8 +396,8 @@ main() {
     echo 'The logname command return an empty value. Please reboot and retry.'
     exit 1
   fi
-  # check if there is enough space available
-  if [[ $(df -kP ~/ | grep -v '^Filesystem' | awk '{ print $4 }') -lt 300000 ]]
+  # check if there is atleast 300MB of free space on the root partition to install rtkbase
+  if [[ $(df "$HOME" | awk 'NR==2 { print $4 }') -lt 300000 ]]
   then
     echo 'Available space is lower than 300MB.'
     echo 'Exiting...'
