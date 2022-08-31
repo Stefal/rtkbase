@@ -75,14 +75,22 @@ $(document).ready(function () {
     var map = L.map('map').setView({lon: 0, lat: 0}, 2);
 
     var osmLayer = L.tileLayer('https://osm.vtech.fr/hot/{z}/{x}/{y}.png?uuid=2fc148f4-7018-4fd0-ac34-6b626cdc97a1', {
-        maxZoom: 20,
+        maxZoom: 21,
+        maxNativeZoom: 20,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ' +
             '| <a href="https://cloud.empreintedigitale.fr" target="_blank">Empreinte digitale</a>',
         tileSize: 256,      
     });
 
+    var osm2Layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 21,
+        maxNativeZoom: 19,
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ',
+        tileSize: 256,      
+    });
+
     var orthoHrLayer = L.tileLayer('https://wms.openstreetmap.fr/tms/1.0.0/tous_fr/{z}/{x}/{y} ', {
-        maxZoom: 20,
+        maxZoom: 21,
         attribution: '<a href="https://wiki.openstreetmap.org/wiki/FR:Serveurs/wms.openstreetmap.fr" target="_blank">Ortho HR</a> ' + 
             '| &copy; <a href="https://geoservices.ign.fr/documentation/diffusion/documentation-offre.html#bdortho_orthohr target="_blank">IGN</a> ',
         tileSize: 256,       
@@ -93,22 +101,24 @@ $(document).ready(function () {
         tileSize: 512,
         zoomOffset: -1,
         minZoom: 1,
-        maxZoom: 20,
+        maxZoom: 21,
+        maxNativeZoom: 20,
         attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>',
         crossOrigin: true
       });
     };
     
     var baseMaps = {
-        "OpenStreetMap": osmLayer, 
-        "Ortho HR (fr)": orthoHrLayer
+        "OpenStreetMap (Hot)": osmLayer,
+        "OpenStreetMap (Osm)": osm2Layer,
+        "Ortho HR (France)": orthoHrLayer
     };
 
     if (typeof(aerialLayer) !== 'undefined') {
         baseMaps["Aerial_Hybrid"] = aerialLayer;
     };
     L.control.layers(baseMaps).addTo(map);
-    osmLayer.addTo(map);
+    osm2Layer.addTo(map);
     
     // Add Base station crosshair
     var crossIcon = L.icon({
@@ -130,7 +140,7 @@ $(document).ready(function () {
         const markerBounds = L.latLngBounds(baseMark.getLatLng(), locMark.getLatLng())
         if (reduceBounds.contains(markerBounds.getCenter()) != true) {
             console.log("location marker is outside the bound, moving the map");
-            map.flyToBounds(markerBounds, 20);
+            map.flyToBounds(markerBounds, 19);
         }
     });
 

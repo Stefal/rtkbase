@@ -57,7 +57,7 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 from threading import Thread
 from flask_bootstrap import Bootstrap
 from flask import Flask, render_template, session, request, flash, url_for
-from flask import send_file, send_from_directory, safe_join, redirect, abort
+from flask import send_file, send_from_directory, redirect, abort
 from flask import g
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField, SubmitField
@@ -70,6 +70,7 @@ import psutil
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.urls import url_parse
+from werkzeug.utils import safe_join
 
 app = Flask(__name__)
 app.debug = False
@@ -222,6 +223,17 @@ def get_volume_usage(volume = rtk.logm.log_path):
         volume_info = psutil.disk_usage("/")
     return volume_info
 
+def get_sbc_model():
+    """
+        Try to detect the single board computer used
+        :return the model name or unknown if not detected
+    """
+    answer = subprocess.run(["cat", "/proc/device-tree/model"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if answer.returncode == 0:
+        sbc_model = answer.stdout.split("\n").pop().strip()
+    else:
+        sbc_model = "unknown"
+    return sbc_model
 
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=False, emit = True):
@@ -333,6 +345,7 @@ def inject_release():
         Insert the RTKBase release number as a global variable for Flask/Jinja
     """
     g.version = rtkbaseconfig.get("general", "version")
+    g.sbc_model = get_sbc_model()
 
 @login.user_loader
 def load_user(id):
@@ -526,11 +539,13 @@ def deleteLog(json_msg):
 
 #### Convert ubx file to rinex for Ign ####
 @socketio.on("rinex IGN", namespace="/test")
-def rinex_ign(json_msg):
+def rinex_ign(json_msg, rinex_preset):
+    #print("DEBUG: json convbin: ", json_msg)
     raw_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
     mnt_name = rtkbaseconfig.get("ntrip_A", "mnt_name_A").strip("'")
+    rinex_type = {"ign_rinex" : "ign"}.get(rinex_preset)
     convpath = os.path.abspath(os.path.join(os.path.dirname(__file__), "../tools/convbin.sh"))
-    answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "rinex_file=" in answer.stdout:
         rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
         result = {"result" : "success", "file" : rinex_file}
@@ -756,6 +771,12 @@ if __name__ == "__main__":
         services_list = load_units(services_list)
         #Update standard user in settings.conf
         update_std_user(services_list)
+        #check if we run RTKBase for the first time after an update
+        #and restart some services to let them send the new release number.
+        if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
+            restartServices(["ntrip", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
+            rtkbaseconfig.remove_option("general", "updated")
+            rtkbaseconfig.write_file()
         #Start a "manager" thread
         manager_thread = Thread(target=manager, daemon=True)
         manager_thread.start()

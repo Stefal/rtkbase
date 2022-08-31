@@ -9,7 +9,7 @@ Frontend's main features are:
 
 + View the satellites signal levels
 + View the base location on a map
-+ Start/stop various services (Sending data to a Ntrip caster, Ntrip caster, Rtcm server, Sending Rtcm stream on radio link, Log raw data to files)
++ Start/stop various services (Sending data to a Ntrip caster, Ntrip caster, Rtcm server, Sending Rtcm stream on a radio link, Log raw data to files)
 + Edit the services settings
 + Download/delete raw data
 
@@ -25,6 +25,8 @@ Frontend's main features are:
 Other images are available in the ./images folder.
 
 ## Ready to flash release:
+A ready to flash image is available for Orange Pi Zero SBC : [Armbian_22.02 bullseye current 5.15.24](https://rtkbase.eu/armbian_rtkbase/Armbian_22.02.0-trunk_Orangepizero_bullseye_current_5.15.24_minimal.zip)
+
 If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases).
 
 ## Easy installation:
@@ -39,19 +41,19 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
    $ sudo ./install.sh --all
    ```
 
-+ Go grab a coffee, it's gonna take a while. The script will install the needed softwares, and if you use a Usb-connected U-Blox ZED-F9P receiver, it'll be detected and set to work as a base station. If you don't use a F9P, you will have to configure your receiver manually (see step 7 in manual installation), and choose the correct port from the settings page.
++ Go grab a coffee, it's gonna take a while. The script will install the needed software, and if you use a Usb-connected U-Blox ZED-F9P receiver, it'll be detected and set to work as a base station. If you don't use a F9P, you will have to configure your receiver manually (see step 7 in manual installation), and choose the correct port from the settings page.
 
-+ Open a web browser to `http://ip_of_your_sbc` (the script will try to show you this ip address). Default password is `admin`. The settings page allow you to enter your own settings for the base coordinates, ntrip credentials and so on...
++ Open a web browser to `http://ip_of_your_sbc` (the script will try to show you this ip address). Default password is `admin`. The settings page allows you to enter your own settings for the base coordinates, ntrip credentials and so on...
 
    <img src="./images/web_all_settings.png" alt="all settings" width="600" />
 
-   If you don't already know your base precise coordinates, it's time to read one of theses tutorial:
+   If you don't already know your base precise coordinates, it's time to read one of these tutorials:
    - [rtklibexplorer - Post-processing RTK - for single and dual frequency receivers](https://rtklibexplorer.wordpress.com/2020/02/05/rtklib-tips-for-using-a-cors-station-as-base/)
    - [rtklibexplorer - PPP - for dual frequency receivers](https://rtklibexplorer.wordpress.com/2017/11/23/ppp-solutions-with-the-swiftnav-piksi-multi/)
    - [Centipede documentation (in french)](https://jancelin.github.io/docs-centipedeRTK/docs/base/positionnement.html)
 
 ## Manual installation: 
-The `install.sh` script can be use without the `--all` option to split the installation process into several differents steps:
+The `install.sh` script can be used without the `--all` option to split the installation process into several different steps:
 ```bash
    $ ./install.sh --help
    ################################
@@ -120,7 +122,7 @@ So, if you really want it, let's go for a manual installation with some explanat
 
    + compile and install str2str:
 
-      Optionnaly, you can edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
+      Optionally, you can edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
       
       ```bash
       $ cd RTKLIB/app/str2str/gcc
@@ -154,7 +156,7 @@ So, if you really want it, let's go for a manual installation with some explanat
 
 1. Install the systemd services with `sudo ./install.sh --unit-files`, or do it manually with:
    + Edit them (`rtkbase/unit/`) to replace `{user}` with your username.
-   + If you log the raw data inside the base station, you may want to compress these data and delete the too old archives. `archive_and_clean.sh` will do it for you. The default settings compress the previous day data and delete all archives older than 90 days. To automate these 2 tasks, enable the `rtkbase_archive.timer`. The default value runs the script everyday at 04H00.
+   + If you log the raw data inside the base station, you may want to compress these data and delete the too old archives. `archive_and_clean.sh` will do it for you. The default settings compress the previous day data and delete all archives older than 90 days. To automate these 2 tasks, enable the `rtkbase_archive.timer`. The default value runs the script every day at 04H00.
    + Copy these services to `/etc/systemd/system/` then enable the web server, str2str_tcp and rtkbase_archive.timer:
    ```bash
    $ sudo systemctl daemon-reload
@@ -170,7 +172,7 @@ So, if you really want it, let's go for a manual installation with some explanat
      Edit the chrony unit file. You should set `After=gpsd.service`
    + Install a gpsd release >= 3.2 or it won't work with a F9P. Its conf file should contains:
    ```
-      # Devices gpsd should collect to at boot time.
+      # Devices gpsd should connect to at boot time.
       # They need to be read/writeable, either by user gpsd or the group dialout.
       DEVICES="tcp://127.0.0.1:5015"
 
@@ -178,7 +180,7 @@ So, if you really want it, let's go for a manual installation with some explanat
       GPSD_OPTIONS="-n -b"
 
    ```
-   Edit the gpsd unit file. You should have someting like this in the "[Unit]" section: 
+   Edit the gpsd unit file. You should have something like this in the "[Unit]" section: 
    ```
       [Unit]
       Description=GPS (Global Positioning System) Daemon
@@ -195,7 +197,7 @@ So, if you really want it, let's go for a manual installation with some explanat
 
 1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox usb receiver, you can use `sudo ./install.sh --detect-usb-gnss`. Write down the result, you may need it later.
 
-1. If you didn't have already configure your gnss receiver you must set it to output raw data:
+1. If you didn't have already configure your gnss receiver, you must set it to output raw data:
    
    If it's a U-Blox ZED-F9P (usb), you can use 
    ```bash
@@ -232,18 +234,18 @@ RTKBase use several RTKLIB `str2str` instances started with `run_cast.sh` as sys
 + `str2str_ntrip.service` get the data from the main instance, convert the data to rtcm and stream them to a Ntrip caster.
 + `str2str_local_ntrip_caster.service` get the data from the main instance, convert the data to rtcm, and act as a local Ntrip caster.
 + `str2str_rtcm_svr.service` get the data from the main instance, convert the data to rtcm and stream them to clients
-+ `str2str_rtcm_serial.service` get the data from the main instance, convert the data to rtcm and stream them to a serial port (radio link, or other peripheral)
++ `str2str_rtcm_serial.service` get the data from the main instance, convert the data to rtcm and stream them to a serial port (radio link, or other peripherals)
 + `str2str_file.service` get the data from the main instance, and log the data to files.
 
 <img src="./images/internal.png" alt="internal"/>
 
-The web gui is available when the `rtkbase_web` service is running.
+The web GUI is available when the `rtkbase_web` service is running.
 
 ## Advanced:
 + Aerial images:
 The default map background is OpenStreetMap, but you can switch to a worldwide aerial layer if you have a Maptiler key. To enable this layer, create a free account on [Maptiler](https://www.maptiler.com/), create a key and add it to `settings.conf` inside the `[general]` section:
 `maptiler_key=your_key`
-+ Receiver options: str2str accept some receiver dependent options. If you use a U-Blox, the `-TADJ=1` parameter is recommended as a workaround to non-rounded second values in Rtcm and Ntrip outputs. You can enter this parameter inside the settings forms. More informations [here](https://rtklibexplorer.wordpress.com/2017/02/01/a-fix-for-the-rtcm-time-tag-issue/) and [here](https://github.com/Stefal/rtkbase/issues/80).
++ Receiver options: str2str accept some receiver dependent options. If you use a U-Blox, the `-TADJ=1` parameter is recommended as a workaround to non-rounded second values in Rtcm and Ntrip outputs. You can enter this parameter inside the settings forms. More information [here](https://rtklibexplorer.wordpress.com/2017/02/01/a-fix-for-the-rtcm-time-tag-issue/) and [here](https://github.com/Stefal/rtkbase/issues/80).
 
     <img src="./images/ntrip_settings.png" alt="status" width="450"/>
 ## Development release:
@@ -309,7 +311,7 @@ See the [changelog](./CHANGELOG.md)
 ## License:
 RTKBase is licensed under AGPL 3 (see [LICENSE](./LICENSE) file).
 
-RTKBase uses some parts of others software:
+RTKBase uses some parts of other software:
 + [RTKLIB](https://github.com/tomojitakasu/RTKLIB) (BSD-2-Clause)
 + [ReachView](https://github.com/emlid/ReachView) (GPL v3)
 + [Flask](https://palletsprojects.com/p/flask/) [Jinja](https://palletsprojects.com/p/jinja/) [Werkzeug](https://palletsprojects.com/p/werkzeug/) (BSD-3-Clause)

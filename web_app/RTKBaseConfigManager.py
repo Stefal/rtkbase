@@ -181,6 +181,12 @@ class RTKBaseConfigManager:
         """
         return self.config.get(*args, **kwargs)
 
+    def remove_option(self, *args, **kwargs):
+        """
+            a wrapper around configparser.remove_options()
+        """
+        return self.config.remove_option(*args, **kwargs)
+    
     def update_setting(self, section, setting, value, write_file=True):
         """
             Update a setting in the config file and write the file (default)
