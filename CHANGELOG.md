@@ -3,8 +3,8 @@
 ## [2.3.5] - not released
 ### Added
 ### Changed
-- Flask upgraded to v2.0.3 and other dependencies upgraded too.
-- SocketIO upgraded to v4.1.1
+- Flask upgraded to v2.2.2 and other dependencies upgraded too.
+- SocketIO upgraded to v4.4.1
 - Bootstrap upgraded to v4.6.1
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
