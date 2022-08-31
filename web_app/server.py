@@ -94,7 +94,8 @@ rtk = RTKLIB(socketio,
             )
 
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
-                 {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
+                 {"service_unit" : "str2str_ntrip_A.service", "name" : "ntrip_A"},
+                 {"service_unit" : "str2str_ntrip_B.service", "name" : "ntrip_B"},
                  {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
                  {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
@@ -369,14 +370,16 @@ def settings_page():
         The settings page where you can manage the various services, the parameters, update, power...
     """
     main_settings = rtkbaseconfig.get_main_settings()
-    ntrip_settings = rtkbaseconfig.get_ntrip_settings()
+    ntrip_A_settings = rtkbaseconfig.get_ntrip_A_settings()
+    ntrip_B_settings = rtkbaseconfig.get_ntrip_B_settings()
     local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
     file_settings = rtkbaseconfig.get_file_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
     rtcm_serial_settings = rtkbaseconfig.get_rtcm_serial_settings()
 
     return render_template("settings.html", main_settings = main_settings,
-                                            ntrip_settings = ntrip_settings,
+                                            ntrip_A_settings = ntrip_A_settings,
+                                            ntrip_B_settings = ntrip_B_settings,
                                             local_ntripc_settings = local_ntripc_settings,
                                             file_settings = file_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
@@ -539,7 +542,7 @@ def deleteLog(json_msg):
 def rinex_ign(json_msg, rinex_preset):
     #print("DEBUG: json convbin: ", json_msg)
     raw_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
-    mnt_name = rtkbaseconfig.get("ntrip", "mnt_name").strip("'")
+    mnt_name = rtkbaseconfig.get("ntrip_A", "mnt_name_A").strip("'")
     rinex_type = {"ign_rinex" : "ign"}.get(rinex_preset)
     convpath = os.path.abspath(os.path.join(os.path.dirname(__file__), "../tools/convbin.sh"))
     answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -741,9 +744,11 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip", "local_ntrip_caster", "rtcm_svr", "file", "rtcm_serial"))  
-        elif source_section == "ntrip":
-            restartServices(("ntrip",))
+            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "file", "rtcm_serial"))  
+        elif source_section == "ntrip_A":
+            restartServices(("ntrip_A",))
+        elif source_section == "ntrip_B":
+            restartServices(("ntrip_B",))
         elif source_section == "local_ntrip_caster":
             restartServices(("local_ntrip_caster",))
         elif source_section == "rtcm_svr":
