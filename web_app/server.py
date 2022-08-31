@@ -774,7 +774,7 @@ if __name__ == "__main__":
         #check if we run RTKBase for the first time after an update
         #and restart some services to let them send the new release number.
         if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
-            restartServices(["ntrip", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
+            restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
             rtkbaseconfig.remove_option("general", "updated")
             rtkbaseconfig.write_file()
         #Start a "manager" thread
