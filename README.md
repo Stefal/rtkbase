@@ -25,6 +25,8 @@ Frontend's main features are:
 Other images are available in the ./images folder.
 
 ## Ready to flash release:
+A ready to flash image is available for Orange Pi Zero SBC : [Armbian_22.02 bullseye current 5.15.24](https://rtkbase.eu/armbian_rtkbase/Armbian_22.02.0-trunk_Orangepizero_bullseye_current_5.15.24_minimal.zip)
+
 If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases).
 
 ## Easy installation:
