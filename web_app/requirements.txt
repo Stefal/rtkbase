@@ -1,11 +1,11 @@
-cryptography==36.0.1
-itsdangerous==2.0.1
-Flask==2.0.3
-Flask-SocketIO==5.1.1
-eventlet==0.33.0
-Bootstrap-Flask==2.0.1
-Flask-WTF==1.0.0
-Flask-Login==0.5.0
+cryptography==37.0.4
+itsdangerous==2.1.2
+Flask==2.2.2
+Flask-SocketIO==5.3.0
+eventlet==0.33.1
+Bootstrap-Flask==2.1.0
+Flask-WTF==1.0.1
+Flask-Login==0.6.2
 #On some linux distribution, pexpect and psutil are already installed
 #and can't be upgraded with pip. In these cases, pip fail, leaving
 #some package uninstalled.
@@ -16,4 +16,4 @@ psutil<=5.9.0
 pyOpenSSL==22.0.0
 pyserial==3.5
 pystemd==0.10.0
-requests==2.27.1
+requests==2.28.1

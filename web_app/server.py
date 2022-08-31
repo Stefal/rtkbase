@@ -57,7 +57,7 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 from threading import Thread
 from flask_bootstrap import Bootstrap
 from flask import Flask, render_template, session, request, flash, url_for
-from flask import send_file, send_from_directory, safe_join, redirect, abort
+from flask import send_file, send_from_directory, redirect, abort
 from flask import g
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField, SubmitField
@@ -70,6 +70,7 @@ import psutil
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.urls import url_parse
+from werkzeug.utils import safe_join
 
 app = Flask(__name__)
 app.debug = False
