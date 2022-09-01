@@ -282,6 +282,62 @@ $(document).ready(function () {
         $('#start_button').removeClass('ui-disabled');
     })
 
+    // ############### HANDLE DETECT/CONFIGURE GNSS ################
+
+    $('#detect_receiver_button').on("click", function (){
+        detectApplyBtnElt.innerText = "Apply";
+        detectApplyBtnElt.setAttribute('disabled', '');
+        detectApplyBtnElt.removeAttribute('data-dismiss');
+        socket.emit("detect_receiver");
+    });
+   
+    var detectModalElt = document.getElementById('detectModal');
+    var detectBodyElt = detectModalElt.querySelector('.modal-body > p');
+    var detectApplyBtnElt = detectModalElt.querySelector('#apply-button');
+
+    socket.on("gnss_detection_result", function(msg) {
+        // open modal box with detection result and asking for configuration if detection is a success and a u-blox receiver
+        response = JSON.parse(msg);
+        console.log(response);
+        if (response['result'] === 'success') {
+            detectBodyElt.innerHTML = response['gnss_type'] + ' USB GNSS receiver detected on ' + response['port'] + '<br>' + 'Do you want to apply and configure the receiver?';
+            detectApplyBtnElt.onclick = function (){
+                document.querySelector('#com_port').value = response['port'];
+                document.querySelector('#main > .clearfix > button').removeAttribute('disabled');
+                document.querySelector('#main > .clearfix > button').click();
+                socket.emit("configure_receiver");
+                detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
+                detectApplyBtnElt.setAttribute('disabled', '');
+            };
+            detectApplyBtnElt.removeAttribute('disabled');
+        } else {
+            detectApplyBtnElt.setAttribute('disabled', '');
+            detectBodyElt.innerHTML = 'No USB GNSS receiver detected';
+            // TODO add a way to send the configuration even though the receiver isn't detected. It could be useful for F9P connected with Uart.
+            //detectBodyElt.innerHTML = 'No GNSS receiver detected. <br> would you still like to try to configure the receiver?';
+            //detectApplyBtnElt.onclick = function (){
+            //    socket.emit("configure_receiver");
+            //    detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
+            //    detectApplyBtnElt.setAttribute('disabled', '');
+            //};
+            //detectApplyBtnElt.removeAttribute('disabled');
+        }
+        $('#detectModal').modal();
+    })
+   
+    socket.on("gnss_configuration_result", function(msg) {
+        response = JSON.parse(msg);
+        if (response['result'] === 'success') {
+            detectBodyElt.innerHTML = "GNSS receiver successfully configured";
+            detectApplyBtnElt.onclick = function (){}; //remove the previous attached event which launched the gnss configuration
+            detectApplyBtnElt.removeAttribute('disabled');
+            detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
+            detectApplyBtnElt.innerText = "Close";
+        } else {
+            detectBodyElt.innerHTML = "GNSS receiver configuration failed"
+        }
+    });
+    
     // ####################### HANDLE UPDATE #######################
 
     $('#check_update_button').on("click", function (){
