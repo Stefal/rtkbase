@@ -52,16 +52,17 @@ $(document).ready(function () {
 
     //Enable "Save" button when form value is changed
     $("form").on('input', 'input, select', function() {
-        console.log("change detected")
-          $(this).closest("form").find("button").removeAttr("disabled");
+        console.log("change detected");
+        $(this).closest("form").find("button").removeAttr("disabled");
         });
 
     // Send saved settings to back-end
     $("form").submit(function(e) {
         var formdata = $( this ).serializeArray();
-      formdata.push({"source_form" : e.currentTarget.id});
-      socket.emit("form data", formdata);
-      e.preventDefault();
+        formdata.push({"source_form" : e.currentTarget.id});
+        socket.emit("form data", formdata);
+        e.preventDefault();
+        $(this).closest("form").find("button").prop("disabled", true);
       });
     
     // ####################### HANDLE RTKBASE SERVICES    #######################
@@ -100,39 +101,67 @@ $(document).ready(function () {
             socket.emit("services switch", {"name" : "main", "active" : switchStatus});          
         })
 
-        // ####################  NTRIP service Switch #########################
-        var ntripSwitch = $('#ntrip-switch');
+        // ####################  NTRIP A service Switch #########################
+        var ntrip_A_Switch = $('#ntrip_A-switch');
         // set the switch to on/off depending of the service status
         if (servicesStatus[1].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
-            ntripSwitch.bootstrapToggle('on', true);
+            ntrip_A_Switch.bootstrapToggle('on', true);
         } else {
             //document.querySelector("#main-switch").bootstrapToggle('off');
-            ntripSwitch.bootstrapToggle('off', true);
+            ntrip_A_Switch.bootstrapToggle('off', true);
         }
         //console.log(servicesStatus[1]);
         if (servicesStatus[1].btn_color) {
-            ntripSwitch.bootstrapToggle('setOnStyle', servicesStatus[1].btn_color);
+            ntrip_A_Switch.bootstrapToggle('setOnStyle', servicesStatus[1].btn_color);
         }
         if (servicesStatus[1].btn_off_color) {
-            ntripSwitch.bootstrapToggle('setOffStyle', servicesStatus[1].btn_off_color);
+            ntrip_A_Switch.bootstrapToggle('setOffStyle', servicesStatus[1].btn_off_color);
         }
         
         // event for switching on/off service on user mouse click
         //TODO When the switch changes its position, this event seems attached before
         //the switch finish its transition, then fire another event.
-        $( "#ntrip-switch" ).one("change", function(e) {
+        $( "#ntrip_A-switch" ).one("change", function(e) {
             var switchStatus = $(this).prop('checked');
             //console.log(" e : " + e);
             //console.log("Ntrip SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "ntrip", "active" : switchStatus});           
+            socket.emit("services switch", {"name" : "ntrip_A", "active" : switchStatus});           
+        })
+
+        // ####################  NTRIP B service Switch #########################
+        var ntrip_B_Switch = $('#ntrip_B-switch');
+        // set the switch to on/off depending of the service status
+        if (servicesStatus[2].active === true) {
+            //document.querySelector("#main-switch").bootstrapToggle('on');
+            ntrip_B_Switch.bootstrapToggle('on', true);
+        } else {
+            //document.querySelector("#main-switch").bootstrapToggle('off');
+            ntrip_B_Switch.bootstrapToggle('off', true);
+        }
+        //console.log(servicesStatus[2]);
+        if (servicesStatus[2].btn_color) {
+            ntrip_B_Switch.bootstrapToggle('setOnStyle', servicesStatus[2].btn_color);
+        }
+        if (servicesStatus[2].btn_off_color) {
+            ntrip_B_Switch.bootstrapToggle('setOffStyle', servicesStatus[2].btn_off_color);
+        }
+        
+        // event for switching on/off service on user mouse click
+        //TODO When the switch changes its position, this event seems attached before
+        //the switch finish its transition, then fire another event.
+        $( "#ntrip_B-switch" ).one("change", function(e) {
+            var switchStatus = $(this).prop('checked');
+            //console.log(" e : " + e);
+            //console.log("Ntrip SwitchStatus : " + switchStatus);
+            socket.emit("services switch", {"name" : "ntrip_B", "active" : switchStatus});           
         })
 
         // ################  Local NTRIP Caster service Switch #####################
 
         var ntripcSwitch = $('#ntripc-switch');
         // set the switch to on/off depending of the service status
-        if (servicesStatus[2].active === true) {
+        if (servicesStatus[3].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
             ntripcSwitch.bootstrapToggle('on', true);
         } else {
@@ -141,11 +170,11 @@ $(document).ready(function () {
         }
         
         //console.log(servicesStatus[2]);
-        if (servicesStatus[2].btn_color) {
-            ntripcSwitch.bootstrapToggle('setOnStyle', servicesStatus[2].btn_color);
+        if (servicesStatus[3].btn_color) {
+            ntripcSwitch.bootstrapToggle('setOnStyle', servicesStatus[3].btn_color);
         }
-        if (servicesStatus[2].btn_off_color) {
-            ntripcSwitch.bootstrapToggle('setOffStyle', servicesStatus[2].btn_off_color);
+        if (servicesStatus[3].btn_off_color) {
+            ntripcSwitch.bootstrapToggle('setOffStyle', servicesStatus[3].btn_off_color);
         }
         
         // event for switching on/off service on user mouse click
@@ -162,7 +191,7 @@ $(document).ready(function () {
 
         var rtcmSvrSwitch = $('#rtcm_svr-switch');
         // set the switch to on/off depending of the service status
-        if (servicesStatus[3].active === true) {
+        if (servicesStatus[4].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
             rtcmSvrSwitch.bootstrapToggle('on', true);
         } else {
@@ -170,11 +199,11 @@ $(document).ready(function () {
             rtcmSvrSwitch.bootstrapToggle('off', true);
         }
         //console.log(servicesStatus[3]);
-        if (servicesStatus[3].btn_color) {
-            rtcmSvrSwitch.bootstrapToggle('setOnStyle', servicesStatus[3].btn_color);
+        if (servicesStatus[4].btn_color) {
+            rtcmSvrSwitch.bootstrapToggle('setOnStyle', servicesStatus[4].btn_color);
         }
-        if (servicesStatus[3].btn_off_color) {
-            rtcmSvrSwitch.bootstrapToggle('setOffStyle', servicesStatus[3].btn_off_color);
+        if (servicesStatus[4].btn_off_color) {
+            rtcmSvrSwitch.bootstrapToggle('setOffStyle', servicesStatus[4].btn_off_color);
         }
         
         // event for switching on/off service on user mouse click
@@ -191,7 +220,7 @@ $(document).ready(function () {
         
         var rtcmSerialSwitch = $('#rtcm_serial-switch');
         // set the switch to on/off depending of the service status
-        if (servicesStatus[4].active === true) {
+        if (servicesStatus[5].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
             rtcmSerialSwitch.bootstrapToggle('on', true);
         } else {
@@ -199,11 +228,11 @@ $(document).ready(function () {
             rtcmSerialSwitch.bootstrapToggle('off', true);
         }
         //console.log(servicesStatus[4]);
-        if (servicesStatus[4].btn_color) {
-            rtcmSerialSwitch.bootstrapToggle('setOnStyle', servicesStatus[4].btn_color);
+        if (servicesStatus[5].btn_color) {
+            rtcmSerialSwitch.bootstrapToggle('setOnStyle', servicesStatus[5].btn_color);
         }
-        if (servicesStatus[4].btn_off_color) {
-            rtcmSerialSwitch.bootstrapToggle('setOffStyle', servicesStatus[4].btn_off_color);
+        if (servicesStatus[5].btn_off_color) {
+            rtcmSerialSwitch.bootstrapToggle('setOffStyle', servicesStatus[5].btn_off_color);
         }
         
         // event for switching on/off service on user mouse click
@@ -220,7 +249,7 @@ $(document).ready(function () {
 
         var fileSwitch = $('#file-switch');
         // set the switch to on/off depending of the service status
-        if (servicesStatus[5].active === true) {
+        if (servicesStatus[6].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
             fileSwitch.bootstrapToggle('on', true);
         } else {
@@ -228,11 +257,11 @@ $(document).ready(function () {
             fileSwitch.bootstrapToggle('off', true);
         }
         //console.log(servicesStatus[5]);
-        if (servicesStatus[5].btn_color) {
-            fileSwitch.bootstrapToggle('setOnStyle', servicesStatus[5].btn_color);
+        if (servicesStatus[6].btn_color) {
+            fileSwitch.bootstrapToggle('setOnStyle', servicesStatus[6].btn_color);
         }
-        if (servicesStatus[5].btn_off_color) {
-            fileSwitch.bootstrapToggle('setOffStyle', servicesStatus[5].btn_off_color);
+        if (servicesStatus[6].btn_off_color) {
+            fileSwitch.bootstrapToggle('setOffStyle', servicesStatus[6].btn_off_color);
         }
         
         // event for switching on/off service on user mouse click

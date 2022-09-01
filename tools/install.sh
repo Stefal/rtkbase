@@ -128,20 +128,18 @@ install_gpsd_chrony() {
       #Setting correct input for gpsd
       sed -i 's/^DEVICES=.*/DEVICES="tcp:\/\/127.0.0.1:5015"/' /etc/default/gpsd
       #Adding example for using pps
-      grep -q 'DEVICES="tcp:/120.0.0.1:5015 /dev/pps0' /etc/default/gpsd || sed -i '/^DEVICES=.*/a #DEVICES="tcp:\/\/127.0.0.1:5015 \/dev\/pps0"' /etc/default/gpsd
+      grep -qi 'DEVICES="tcp:/120.0.0.1:5015 /dev/pps0' /etc/default/gpsd || sed -i '/^DEVICES=.*/a #DEVICES="tcp:\/\/127.0.0.1:5015 \/dev\/pps0"' /etc/default/gpsd
       #gpsd should always run, in read only mode
       sed -i 's/^GPSD_OPTIONS=.*/GPSD_OPTIONS="-n -b"/' /etc/default/gpsd
       #Overriding gpsd.service with custom dependency
       cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
       sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
-      if grep -qxF '^BindsTo=' /etc/systemd/system/gpsd.service
-      then
-        #Change the BindsTo value
-        sed -i 's/^BindsTo=.*/BindsTo=str2str_tcp.service/' /etc/systemd/system/gpsd.service
-      else
-        #Add the BindsTo value
-        sed -i '/^After=.*/i BindsTo=str2str_tcp.service' /etc/systemd/system/gpsd.service
-      fi
+      sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
+      #Add restart condition
+      grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+      grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+      #Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
+      grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
 
       #Reload systemd services and enable chrony and gpsd
       systemctl daemon-reload
@@ -352,20 +350,20 @@ configure_gnss(){
           if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -E "^com_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
           then
             #change the com port value inside settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'${gnss_format}\'/ "${rtkbase_path}"/settings.conf
-            #add option -TADJ=1 on rtcm/ntrip/serial outputs
-            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_receiver_options=.*/ntrip_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
 
+            sudo -u "$(logname)" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
+            #add option -TADJ=1 on rtcm/ntrip_A/ntrip_Bserial outputs
+            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_A_receiver_options=.*/ntrip_A_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_B_receiver_options=.*/ntrip_B_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
             sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format='"${gnss_format}"'\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
-            #add option -TADJ=1 on rtcm/ntrip/serial outputs
-            sudo -u "${RTKBASE_USER}" printf "[ntrip]\nntrip_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
+            #add option -TADJ=1 on rtcm/ntrip_A/ntrip_B/serial outputs
+            sudo -u "${RTKBASE_USER}" printf "[ntrip_A]\nntrip_A_receiver_options='-TADJ=1'\n[ntrip_B]\nntrip_B_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
 
           fi
         else

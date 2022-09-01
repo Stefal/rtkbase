@@ -1,5 +1,41 @@
 # Changelog
 
+## [2.3.5] - not released
+### Added
+### Changed
+- Flask upgraded to v2.2.2 and other dependencies upgraded too.
+- SocketIO upgraded to v4.4.1
+- Bootstrap upgraded to v4.6.1
+### Fixed
+- GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
+- GUI: After a RTKBase update, the browser won't use the old javascript files anymore (cache busting). #217
+
+### Security
+
+## [2.3.4] - 2022-04-01
+### Fixed 
+- Failure with some python dependancies. #215
+- More fixes with Gpsd service restart. #94
+
+## [2.3.3] - 2022-02-28
+### Fixed
+- Fix the Rinex conversion failure. #206
+- Restart Ntrip/Rtcm services after an update. #171
+- When the Main service restart, Gpsd service restart too #94
+
+## [2.3.2] - 2022-02-22
+### Added
+- GUI -> Status: Added a new default map background : Osm "standard", from osm.org.
+- GUI: The footer include a link to the github repo. #191
+- GUI -> Settings : Board name is displayed in the System Settings section. #194
+### Changed
+- Leafletjs upgraded to release 1.7
+- GUI -> Status: Ortho HR (aerial images) max zoom changed from 20 to 21.
+### Fixed
+- GUI -> Settings: "Save" buttons are disabled when a new setting is saved. #193
+- The Rinex conversion is more robust and error message is more understandable.
+- GUI -> Rinex conversion is now enabled only for zip files.
+
 ## [2.3.1] - 2021-07-25
 ### Fixed
 - Local ntrip caster was not started with the right user/password syntax. #166

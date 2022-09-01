@@ -55,9 +55,9 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 #import reach_bluetooth.tcp_bridge
 
 from threading import Thread
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap4
 from flask import Flask, render_template, session, request, flash, url_for
-from flask import send_file, send_from_directory, safe_join, redirect, abort
+from flask import send_file, send_from_directory, redirect, abort
 from flask import g
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField, SubmitField
@@ -70,6 +70,7 @@ import psutil
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.urls import url_parse
+from werkzeug.utils import safe_join
 
 app = Flask(__name__)
 app.debug = False
@@ -83,7 +84,7 @@ path_to_rtklib = "/usr/local/bin" #TODO find path with which or another tool
 login=LoginManager(app)
 login.login_view = 'login_page'
 socketio = SocketIO(app)
-bootstrap = Bootstrap(app)
+bootstrap = Bootstrap4(app)
 
 #Get settings from settings.conf.default and settings.conf
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf"))
@@ -94,7 +95,8 @@ rtk = RTKLIB(socketio,
             )
 
 services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
-                 {"service_unit" : "str2str_ntrip.service", "name" : "ntrip"},
+                 {"service_unit" : "str2str_ntrip_A.service", "name" : "ntrip_A"},
+                 {"service_unit" : "str2str_ntrip_B.service", "name" : "ntrip_B"},
                  {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
                  {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
@@ -222,6 +224,17 @@ def get_volume_usage(volume = rtk.logm.log_path):
         volume_info = psutil.disk_usage("/")
     return volume_info
 
+def get_sbc_model():
+    """
+        Try to detect the single board computer used
+        :return the model name or unknown if not detected
+    """
+    answer = subprocess.run(["cat", "/proc/device-tree/model"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if answer.returncode == 0:
+        sbc_model = answer.stdout.split("\n").pop().strip()
+    else:
+        sbc_model = "unknown"
+    return sbc_model
 
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=False, emit = True):
@@ -332,6 +345,7 @@ def inject_release():
         Insert the RTKBase release number as a global variable for Flask/Jinja
     """
     g.version = rtkbaseconfig.get("general", "version")
+    g.sbc_model = get_sbc_model()
 
 @login.user_loader
 def load_user(id):
@@ -356,14 +370,16 @@ def settings_page():
         The settings page where you can manage the various services, the parameters, update, power...
     """
     main_settings = rtkbaseconfig.get_main_settings()
-    ntrip_settings = rtkbaseconfig.get_ntrip_settings()
+    ntrip_A_settings = rtkbaseconfig.get_ntrip_A_settings()
+    ntrip_B_settings = rtkbaseconfig.get_ntrip_B_settings()
     local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
     file_settings = rtkbaseconfig.get_file_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
     rtcm_serial_settings = rtkbaseconfig.get_rtcm_serial_settings()
 
     return render_template("settings.html", main_settings = main_settings,
-                                            ntrip_settings = ntrip_settings,
+                                            ntrip_A_settings = ntrip_A_settings,
+                                            ntrip_B_settings = ntrip_B_settings,
                                             local_ntripc_settings = local_ntripc_settings,
                                             file_settings = file_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
@@ -561,11 +577,13 @@ def configure_receiver(brand="u-blox", model="F9P"):
 
 #### Convert ubx file to rinex for Ign ####
 @socketio.on("rinex IGN", namespace="/test")
-def rinex_ign(json_msg):
+def rinex_ign(json_msg, rinex_preset):
+    #print("DEBUG: json convbin: ", json_msg)
     raw_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
-    mnt_name = rtkbaseconfig.get("ntrip", "mnt_name").strip("'")
+    mnt_name = rtkbaseconfig.get("ntrip_A", "mnt_name_A").strip("'")
+    rinex_type = {"ign_rinex" : "ign"}.get(rinex_preset)
     convpath = os.path.abspath(os.path.join(rtkbase_path, "tools", "convbin.sh"))
-    answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "rinex_file=" in answer.stdout:
         rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
         result = {"result" : "success", "file" : rinex_file}
@@ -764,9 +782,11 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip", "local_ntrip_caster", "rtcm_svr", "file", "rtcm_serial"))  
-        elif source_section == "ntrip":
-            restartServices(("ntrip",))
+            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "file", "rtcm_serial"))  
+        elif source_section == "ntrip_A":
+            restartServices(("ntrip_A",))
+        elif source_section == "ntrip_B":
+            restartServices(("ntrip_B",))
         elif source_section == "local_ntrip_caster":
             restartServices(("local_ntrip_caster",))
         elif source_section == "rtcm_svr":
@@ -789,6 +809,12 @@ if __name__ == "__main__":
         services_list = load_units(services_list)
         #Update standard user in settings.conf
         update_std_user(services_list)
+        #check if we run RTKBase for the first time after an update
+        #and restart some services to let them send the new release number.
+        if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
+            restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
+            rtkbaseconfig.remove_option("general", "updated")
+            rtkbaseconfig.write_file()
         #Start a "manager" thread
         manager_thread = Thread(target=manager, daemon=True)
         manager_thread.start()
