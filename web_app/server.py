@@ -55,7 +55,7 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 #import reach_bluetooth.tcp_bridge
 
 from threading import Thread
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap4
 from flask import Flask, render_template, session, request, flash, url_for
 from flask import send_file, send_from_directory, redirect, abort
 from flask import g
@@ -83,7 +83,7 @@ path_to_rtklib = "/usr/local/bin"
 login=LoginManager(app)
 login.login_view = 'login_page'
 socketio = SocketIO(app)
-bootstrap = Bootstrap(app)
+bootstrap = Bootstrap4(app)
 
 #Get settings from settings.conf.default and settings.conf
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(os.path.dirname(__file__), "../settings.conf.default"), os.path.join(os.path.dirname(__file__), "../settings.conf"))
