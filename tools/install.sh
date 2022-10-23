@@ -296,8 +296,9 @@ detect_usb_gnss() {
     echo '################################'
     echo 'GNSS RECEIVER DETECTION'
     echo '################################'
-      #This function put the (USB) detected gnss receiver informations in detected_gnss
-      #If there are several receiver, only the last one will be present in the variable
+      #This function try to detect a gnss receiver and write the port/format inside settings.conf
+      #If the receiver is a U-Blox, it will add the TADJ=1 option on all ntrip/rtcm outputs.
+      #If there are several receiver, the last one detected will be add to settings.conf.
       for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
           ID_SERIAL=''
           syspath="${sysdevpath%/dev}"
@@ -314,33 +315,17 @@ detect_usb_gnss() {
       done
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
           vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
-          if [[ -z "$vendor_and_product_ids" ]]; then return; fi
+          if [[ -z "$vendor_and_product_ids" ]]; then 
+            echo 'NO GNSS RECEIVER DETECTED'
+            return
+          fi
           devname=$(get_device_path "$vendor_and_product_ids")
           detected_gnss[0]=$devname
           detected_gnss[1]='u-blox'
           echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
       fi
-}
-
-get_device_path() {
-    id_Vendor=${1%:*}
-    id_Product=${1#*:}
-    for path in $(find /sys/devices/ -name idVendor | rev | cut -d/ -f 2- | rev); do
-        if grep -q "$id_Vendor" "$path"/idVendor; then
-            if grep -q "$id_Product" "$path"/idProduct; then
-                find "$path" -name 'device' | rev | cut -d / -f 2 | rev
-            fi
-        fi
-    done
-}
-
-configure_gnss(){
-    echo '################################'
-    echo 'CONFIGURE GNSS RECEIVER'
-    echo '################################'
-      if [ -d "${rtkbase_path}" ]
-      then 
-        if [[ ${#detected_gnss[*]} -eq 2 ]]
+      #Write Gnss receiver settings inside settings.conf
+      if [[ ${#detected_gnss[*]} -eq 2 ]]
         then
           echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
           if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
@@ -366,13 +351,34 @@ configure_gnss(){
             sudo -u "${RTKBASE_USER}" printf "[ntrip_A]\nntrip_A_receiver_options='-TADJ=1'\n[ntrip_B]\nntrip_B_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
 
           fi
-        else
-          echo 'NO GNSS RECEIVER DETECTED, WE CAN'\''T CONFIGURE IT!'
         fi
+}
+
+get_device_path() {
+    id_Vendor=${1%:*}
+    id_Product=${1#*:}
+    for path in $(find /sys/devices/ -name idVendor | rev | cut -d/ -f 2- | rev); do
+        if grep -q "$id_Vendor" "$path"/idVendor; then
+            if grep -q "$id_Product" "$path"/idProduct; then
+                find "$path" -name 'device' | rev | cut -d / -f 2 | rev
+            fi
+        fi
+    done
+}
+
+configure_gnss(){
+    echo '################################'
+    echo 'CONFIGURE GNSS RECEIVER'
+    echo '################################'
+      if [ -d "${rtkbase_path}" ]
+      then
+        source "${rtkbase_path}"/settings.conf
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
-        if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
+        if [[ ${receiver_format} =~ 'u-blox' ]]
         then
-          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
+          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
+        else
+          echo 'No Gnss receiver has been set. We can'\''t configure'
         fi
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
