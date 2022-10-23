@@ -372,6 +372,7 @@ configure_gnss(){
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
         then
+          systemctl stop str2str_tcp.service
           "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${detected_gnss[0]} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
         fi
       else
