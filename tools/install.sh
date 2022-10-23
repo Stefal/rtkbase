@@ -315,14 +315,14 @@ detect_usb_gnss() {
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
           vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then return; fi
-          devname=$(get_device_path "$vendor_and_product_ids")
+          devname=$(_get_device_path "$vendor_and_product_ids")
           detected_gnss[0]=$devname
           detected_gnss[1]='u-blox'
           echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
       fi
 }
 
-get_device_path() {
+_get_device_path() {
     id_Vendor=${1%:*}
     id_Product=${1#*:}
     for path in $(find /sys/devices/ -name idVendor | rev | cut -d/ -f 2- | rev); do
