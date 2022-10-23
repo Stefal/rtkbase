@@ -65,7 +65,7 @@ man_help(){
     exit 0
 }
 
-check_user() {
+_check_user() {
   if [ "${1}" != 0 ] ; then
     RTKBASE_USER="${1}"
       #TODO check if user exists and/or path exists ?
@@ -181,7 +181,7 @@ rtkbase_repo(){
       sudo -u "${RTKBASE_USER}" git clone https://github.com/stefal/rtkbase.git
     fi
     sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
-    add_rtkbase_path_to_environment
+    _add_rtkbase_path_to_environment
 
 }
 
@@ -190,7 +190,7 @@ rtkbase_release(){
     sudo -u "${RTKBASE_USER}" wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
     sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
     sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
-    add_rtkbase_path_to_environment
+    _add_rtkbase_path_to_environment
 
 }
 
@@ -236,7 +236,7 @@ install_rtkbase_from_release() {
       fi
 }
 
-add_rtkbase_path_to_environment(){
+_add_rtkbase_path_to_environment(){
     echo '################################'
     echo 'ADDING RTKBASE PATH TO ENVIRONMENT'
     echo '################################'
@@ -472,8 +472,8 @@ main() {
       esac
     done
   [ $ARG_HELP -eq 1 ] && man_help
-  RTKBASE_USER=$(check_user "${ARG_USER}"); echo 'user devient: ' "${RTKBASE_USER}"
-  #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; check_user "${ARG_USER}"; else ;fi
+  RTKBASE_USER=$(_check_user "${ARG_USER}"); echo 'user devient: ' "${RTKBASE_USER}"
+  #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; _check_user "${ARG_USER}"; else ;fi
   [ $ARG_DEPENDENCIES -eq 1 ] && install_dependencies
   [ $ARG_RTKLIB -eq 1 ] && install_rtklib
   [ $ARG_RTKBASE_RELEASE -eq 1 ] && install_rtkbase_from_release && rtkbase_requirements
