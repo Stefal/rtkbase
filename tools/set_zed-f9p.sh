@@ -25,7 +25,7 @@ set_F9P() {
             python3 ${BASEDIR}/ubxtool -s 115200 -z $setting
         done <${CONFIG}
         sleep 2
-        echo 'Done'
+        echo 'GNSS Configuration: done'
     fi
 }
 
