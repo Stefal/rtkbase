@@ -372,7 +372,7 @@ configure_gnss(){
     echo '################################'
       if [ -d "${rtkbase_path}" ]
       then
-        source "${rtkbase_path}"/settings.conf
+        source <( grep = "${rtkbase_path}"/settings.conf ) 
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ ${receiver_format} =~ 'u-blox' ]]
         then
