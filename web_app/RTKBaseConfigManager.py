@@ -14,6 +14,7 @@ class RTKBaseConfigManager:
             :param user_settings_path: path to the user settings file 
         """
         self.user_settings_path = user_settings_path
+        self.default_settings_path = default_settings_path
         self.config = self.merge_default_and_user(default_settings_path, user_settings_path)
         self.expand_path()
         self.write_file(self.config)
@@ -22,8 +23,7 @@ class RTKBaseConfigManager:
         """
             After a software update if there is some new entries in the default settings file,
             we need to add them to the user settings file. This function will do this: It loads
-            the default settings then overwrite the existing values from the user settings. Then
-            the function write these settings on disk.
+            the default settings then overwrite the existing values from the user settings.
 
             :param default: path to the default settings file 
             :param user: path to the user settings file
@@ -37,13 +37,14 @@ class RTKBaseConfigManager:
         return config
 
 
-    def parseconfig(self, settings_path):
+    def reload_settings(self, settings_path=None):
         """
             Parse the config file with interpolation=None or it will break run_cast.sh
         """
+        settings_path = self.user_settings_path if settings_path is None else settings_path
         config = ConfigParser(interpolation=None)
         config.read(settings_path)
-        return config
+        self.config=config
 
     def expand_path(self):
         """
