@@ -317,7 +317,7 @@ detect_usb_gnss() {
           vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then 
             echo 'NO GNSS RECEIVER DETECTED'
-            return
+            #return
           fi
           devname=$(get_device_path "$vendor_and_product_ids")
           detected_gnss[0]=$devname
@@ -325,7 +325,8 @@ detect_usb_gnss() {
           echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
       fi
       #Write Gnss receiver settings inside settings.conf
-      if [[ ${#detected_gnss[*]} -eq 2 ]]
+      #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
+      if [[ ${#detected_gnss[*]} -eq 2 ]] && [[ "${1}" -eq 0 ]]
         then
           echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
           if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
@@ -439,12 +440,13 @@ main() {
   ARG_UNIT=0
   ARG_GPSD_CHRONY=0
   ARG_DETECT_USB_GNSS=0
+  ARG_NO_WRITE_PORT=0
   ARG_CONFIGURE_GNSS=0
   ARG_START_SERVICES=0
   ARG_ALLDEV=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:tgecsv:a --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,unit-files,gpsd-chrony,detect-usb-gnss,configure-gnss,start-services,alldev:,all -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:tgencsv:a --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,alldev:,all -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -466,6 +468,7 @@ main() {
         -t | --unit-files) ARG_UNIT=1                 ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1         ; shift   ;;
         -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1 ; shift   ;;
+        -n | --no-write-port) ARG_NO_WRITE_PORT=1    ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1   ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1   ; shift   ;;
         -v | --alldev) ARG_ALLDEV="${2}"              ; shift 2 ;;
@@ -487,7 +490,7 @@ main() {
   if [ $ARG_RTKBASE_REPO != 0 ] ; then install_rtkbase_from_repo "${ARG_RTKBASE_REPO}";fi
   [ $ARG_UNIT -eq 1 ] && install_unit_files
   [ $ARG_GPSD_CHRONY -eq 1 ] && install_gpsd_chrony
-  [ $ARG_DETECT_USB_GNSS -eq 1 ] && detect_usb_gnss
+  [ $ARG_DETECT_USB_GNSS -eq 1 ] && detect_usb_gnss "${ARG_NO_WRITE_PORT}"
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && configure_gnss
   [ $ARG_START_SERVICES -eq 1 ] && start_services
   if [ $ARG_ALLDEV != 0 ] ; then install_dependencies              && \
