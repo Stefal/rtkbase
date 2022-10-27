@@ -173,7 +173,7 @@ install_rtklib() {
       fi
 }
 
-rtkbase_repo(){
+_rtkbase_repo(){
     #Get rtkbase repository
     if [[ -n "${1}" ]]; then
       sudo -u "${RTKBASE_USER}" git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
@@ -185,7 +185,7 @@ rtkbase_repo(){
 
 }
 
-rtkbase_release(){
+_(){
     #Get rtkbase latest release
     sudo -u "${RTKBASE_USER}" wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
     sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
@@ -207,11 +207,11 @@ install_rtkbase_from_repo() {
         else
           echo "RtkBase repo: NO, rm release & git clone rtkbase"
           rm -r "${rtkbase_path}"
-          rtkbase_repo "${1}"
+          _rtkbase_repo "${1}"
         fi
       else
         echo "RtkBase repo: NO, git clone rtkbase"
-        rtkbase_repo "${1}"
+        _rtkbase_repo "${1}"
       fi
 }
 
@@ -225,14 +225,14 @@ install_rtkbase_from_release() {
         then
           echo "RtkBase release: NO, rm repo & download last release"
           rm -r "${rtkbase_path}"
-          rtkbase_release
+          _rtkbase_release
         else
           echo "RtkBase release: YES, rm & deploy last release"
-          rtkbase_release
+          _
         fi
       else
         echo "RtkBase release: NO, download & deploy last release"
-        rtkbase_release
+        _
       fi
 }
 
@@ -428,7 +428,7 @@ main() {
   ARG_USER=0
   ARG_DEPENDENCIES=0
   ARG_RTKLIB=0
-  ARG_RTKBASE_RELEASE=0
+  ARG__=0
   ARG_RTKBASE_REPO=0
   ARG_UNIT=0
   ARG_GPSD_CHRONY=0
@@ -455,7 +455,7 @@ main() {
         -u | --user)   ARG_USER="${2}"                ; shift 2 ;;
         -d | --dependencies) ARG_DEPENDENCIES=1       ; shift   ;;
         -r | --rtklib) ARG_RTKLIB=1                   ; shift   ;;
-        -b | --rtkbase-release) ARG_RTKBASE_RELEASE=1 ; shift   ;;
+        -b | --rtkbase-release) ARG__=1 ; shift   ;;
         -i | --rtkbase-repo) ARG_RTKBASE_REPO="${2}"  ; shift 2 ;;
         -t | --unit-files) ARG_UNIT=1                 ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1         ; shift   ;;
@@ -477,7 +477,7 @@ main() {
   #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; _check_user "${ARG_USER}"; else ;fi
   [ $ARG_DEPENDENCIES -eq 1 ] && install_dependencies
   [ $ARG_RTKLIB -eq 1 ] && install_rtklib
-  [ $ARG_RTKBASE_RELEASE -eq 1 ] && install_rtkbase_from_release && rtkbase_requirements
+  [ $ARG__ -eq 1 ] && install_rtkbase_from_release && rtkbase_requirements
   if [ $ARG_RTKBASE_REPO != 0 ] ; then install_rtkbase_from_repo "${ARG_RTKBASE_REPO}";fi
   [ $ARG_UNIT -eq 1 ] && install_unit_files
   [ $ARG_GPSD_CHRONY -eq 1 ] && install_gpsd_chrony
