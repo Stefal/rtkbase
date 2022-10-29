@@ -373,10 +373,11 @@ configure_gnss(){
       if [ -d "${rtkbase_path}" ]
       then
         source <( grep = "${rtkbase_path}"/settings.conf ) 
+        systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
-        if [[ ${receiver_format} =~ 'u-blox' ]]
+        #!!!!!!!!!  CHECK THIS ON A REAL raspberry/orange Pi !!!!!!!!!!!
+        if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then
-          systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service
           "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
           #now that the receiver is configured, we can set the right values inside settings.conf
           sudo -u "$(logname)" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf
