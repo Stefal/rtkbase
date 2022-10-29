@@ -317,7 +317,7 @@ detect_usb_gnss() {
           vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then 
             echo 'NO GNSS RECEIVER DETECTED'
-            return 0
+            return 1
           fi
           devname=$(get_device_path "$vendor_and_product_ids")
           detected_gnss[0]=$devname
@@ -488,18 +488,19 @@ main() {
           usage ;;
       esac
     done
+  cumulative_exit=0
   [ $ARG_HELP -eq 1 ] && man_help
-  RTKBASE_USER=$(check_user "${ARG_USER}"); echo 'user devient: ' "${RTKBASE_USER}"
+  RTKBASE_USER=$(check_user "${ARG_USER}")#; echo 'user devient: ' "${RTKBASE_USER}"
   #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; check_user "${ARG_USER}"; else ;fi
-  [ $ARG_DEPENDENCIES -eq 1 ] && install_dependencies
-  [ $ARG_RTKLIB -eq 1 ] && install_rtklib
-  [ $ARG_RTKBASE_RELEASE -eq 1 ] && install_rtkbase_from_release && rtkbase_requirements
-  if [ $ARG_RTKBASE_REPO != 0 ] ; then install_rtkbase_from_repo "${ARG_RTKBASE_REPO}";fi
-  [ $ARG_UNIT -eq 1 ] && install_unit_files
-  [ $ARG_GPSD_CHRONY -eq 1 ] && install_gpsd_chrony
-  [ $ARG_DETECT_USB_GNSS -eq 1 ] && detect_usb_gnss "${ARG_NO_WRITE_PORT}"
-  [ $ARG_CONFIGURE_GNSS -eq 1 ] && configure_gnss
-  [ $ARG_START_SERVICES -eq 1 ] && start_services
+  [ $ARG_DEPENDENCIES -eq 1 ] && { install_dependencies ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_RTKLIB -eq 1 ] && { install_rtklib ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_RTKBASE_RELEASE -eq 1 ] && { install_rtkbase_from_release && rtkbase_requirements ; ((cumulative_exit+=$?)) ;}
+  if [ $ARG_RTKBASE_REPO != 0 ] ; then install_rtkbase_from_repo "${ARG_RTKBASE_REPO}";((cumulative_exit+=$?));fi
+  [ $ARG_UNIT -eq 1 ] && { install_unit_files ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
   if [ $ARG_ALLDEV != 0 ] ; then install_dependencies              && \
                         install_rtklib                             && \
                         install_rtkbase_from_repo "${ARG_ALLDEV}"  && \
@@ -508,8 +509,9 @@ main() {
                         install_gpsd_chrony                        && \
                         detect_usb_gnss                            && \
                         configure_gnss                             && \
-                        start_services                             ;fi
-  [ $ARG_ALL -eq 1 ] && install_dependencies          && \
+                        start_services                             
+                        ((cumulative_exit+=$?))                   ;fi
+  [ $ARG_ALL -eq 1 ] && { install_dependencies          && \
                         install_rtklib                && \
                         install_rtkbase_from_release  && \
                         rtkbase_requirements          && \
@@ -517,8 +519,10 @@ main() {
                         install_gpsd_chrony           && \
                         detect_usb_gnss               && \
                         configure_gnss                && \
-                        start_services  
+                        start_services
+                        ((cumulative_exit+=$?)) ;}
 }
 
 main "$@"
-exit 0
+echo 'cumulative_exit: ' $cumulative_exit
+exit $cumulative_exit
