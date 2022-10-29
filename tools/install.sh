@@ -317,7 +317,7 @@ detect_usb_gnss() {
           vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then 
             echo 'NO GNSS RECEIVER DETECTED'
-            return
+            return 0
           fi
           devname=$(get_device_path "$vendor_and_product_ids")
           detected_gnss[0]=$devname
@@ -379,15 +379,18 @@ configure_gnss(){
         #!!!!!!!!!  CHECK THIS ON A REAL raspberry/orange Pi !!!!!!!!!!!
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then
-          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
+          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg && \
           #now that the receiver is configured, we can set the right values inside settings.conf
-          sudo -u "$(logname)" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf
+          sudo -u "$(logname)" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf  && \
           sudo -u "$(logname)" sed -i s/^receiver_format=.*/receiver_format=\'"${gnss_format}"\'/ "${rtkbase_path}"/settings.conf
+          return $?
         else
           echo 'No Gnss receiver has been set. We can'\''t configure'
+          return 1
         fi
       else
         echo 'RtkBase not installed, use option --rtkbase-release'
+        return 1
       fi
 }
 
