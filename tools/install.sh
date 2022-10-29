@@ -338,11 +338,11 @@ detect_usb_gnss() {
             #change the com port value inside settings.conf
             sudo -u "$(logname)" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
             #add option -TADJ=1 on rtcm/ntrip_A/ntrip_Bserial outputs
-            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_A_receiver_options=.*/ntrip_A_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_B_receiver_options=.*/ntrip_B_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ ${rtkbase_path}/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_A_receiver_options=.*/ntrip_A_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_B_receiver_options=.*/ntrip_B_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
