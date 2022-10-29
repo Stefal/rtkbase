@@ -24,8 +24,12 @@ set_F9P() {
         while read setting; do
             python3 ${BASEDIR}/ubxtool -s 115200 -z $setting
         done <${CONFIG}
+        config_return=$?
         sleep 2
         echo 'GNSS Configuration: done'
+        return $config_return
+    else
+        return 1
     fi
 }
 
@@ -38,9 +42,9 @@ then
     #Overwrite UBXOPTS with the settings from the command line
     export UBXOPTS="-f ${GPS} -s ${DEVICE_SPEED} -v 0"
     set_F9P
+    exit $?
 else
     echo "usage:   set_zed-f9p.sh device baudrate config_file.txt"
     echo "example: set_zed-f9p.sh /dev/ttyACM0 115200 config_file.txt"
     exit 1
 fi
-exit 0
