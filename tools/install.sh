@@ -337,7 +337,7 @@ detect_usb_gnss() {
           then
             #change the com port value inside settings.conf
             sudo -u "$(logname)" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
-            #add option -TADJ=1 on rtcm/ntrip_a/ntrip_bserial outputs
+            #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
             sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
