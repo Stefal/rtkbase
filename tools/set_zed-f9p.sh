@@ -44,7 +44,7 @@ then
     #Overwrite UBXOPTS with the settings from the command line
     export UBXOPTS="-f ${GPS} -s ${DEVICE_SPEED} -v 0"
     
-    if [[ $(set_F9P) ]]
+    if set_F9P
     then 
         echo 'GNSS Configuration: done'
         exit 0
