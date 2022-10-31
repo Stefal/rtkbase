@@ -490,7 +490,7 @@ main() {
     done
   cumulative_exit=0
   [ $ARG_HELP -eq 1 ] && man_help
-  RTKBASE_USER=$(check_user "${ARG_USER}")#; echo 'user devient: ' "${RTKBASE_USER}"
+  RTKBASE_USER=$(check_user "${ARG_USER}") #; echo 'user devient: ' "${RTKBASE_USER}"
   #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; check_user "${ARG_USER}"; else ;fi
   [ $ARG_DEPENDENCIES -eq 1 ] && { install_dependencies ; ((cumulative_exit+=$?)) ;}
   [ $ARG_RTKLIB -eq 1 ] && { install_rtklib ; ((cumulative_exit+=$?)) ;}
