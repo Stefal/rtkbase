@@ -29,9 +29,9 @@ com_port=''
 #gnss receiver com port settings
 com_port_settings='115200:8:n:1'
 #receiver model
-receiver='U-blox_ZED-F9P'
+receiver='unknown'
 #gnss receiver format
-receiver_format=''
+receiver_format='unknown'
 #Antenna info, id, serial number. Without space inside the strings
 antenna_info='ADVNULLANTENNA'
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
