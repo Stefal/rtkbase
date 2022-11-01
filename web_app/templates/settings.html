@@ -39,8 +39,13 @@
             <input id="com_port" type="text" name="com_port" class="form-control" value="{{ main_settings[1].com_port }}" title="Gnss receiver com port (without /dev/)" pattern="\w+[^|><\/\s]*" required>
             <div class="invalid-feedback">Gnss receiver com port (without /dev/)</div>
         </div>
-        <div class="col-sm-3">
-          <button id="detect_receiver_button" class="btn btn-secondary" type="button">Detect/Configure</button>
+        <div class="col-sm-3 dropdown">
+          <button class="btn btn-secondary dropdown-toggle float-right" type="button" id="dropdowndetect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Try to detect and/or configure the GNSS receiver. It works only with USB GNSS receiver">Detect/Configure</button>
+          <div class="dropdown-menu" aria-labelledby="dropdowndetect">
+            <a class="dropdown-item" id="detect_receiver_button" href="#">Detect</a>
+            <a class="dropdown-item" id="configure_receiver_button" href="#">Configure</a>
+            <a class="dropdown-item" id="detect_and_configure_receiver_button" href="#">Detect and Configure</a>
+          </div>
         </div>
     </div>
     <div class="form-group row">
@@ -542,12 +547,12 @@
 </div>
 
 <!-- The Detect/configure Gnss receiver Modal dialog box-->
-<div class="modal" id="detectModal">
+<div class="modal" id="detectModal" data-backdrop="static">
   <div class="modal-dialog">
     <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
-          <h4 class="modal-title">Receiver detection</h4>
+          <h4 class="modal-title">GNSS Receiver detection/configuration</h4>
         </div>
         <!-- Modal body -->
         <div class="modal-body">
@@ -563,7 +568,7 @@
 </div>
 
 <!-- The update Modal dialog box-->
-<div class="modal" id="updateModal">
+<div class="modal" id="updateModal" data-backdrop="static">
     <div class="modal-dialog">
       <div class="modal-content">     
         <!-- Modal Header -->

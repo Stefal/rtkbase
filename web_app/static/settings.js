@@ -62,7 +62,7 @@ $(document).ready(function () {
         formdata.push({"source_form" : e.currentTarget.id});
         socket.emit("form data", formdata);
         e.preventDefault();
-        $(this).closest("form").find("button").prop("disabled", true);
+        $(this).closest("form").find(":submit").prop("disabled", true);
       });
     
     // ####################### HANDLE RTKBASE SERVICES    #######################
@@ -282,32 +282,39 @@ $(document).ready(function () {
         $('#start_button').removeClass('ui-disabled');
     })
 
-    // ############### HANDLE DETECT/CONFIGURE GNSS ################
+    // ############### HANDLE DETECT GNSS ################
 
     $('#detect_receiver_button').on("click", function (){
         detectApplyBtnElt.innerText = "Apply";
         detectApplyBtnElt.setAttribute('disabled', '');
         detectApplyBtnElt.removeAttribute('data-dismiss');
-        socket.emit("detect_receiver");
+        socket.emit("detect_receiver", {"then_configure" : false});
     });
    
     var detectModalElt = document.getElementById('detectModal');
     var detectBodyElt = detectModalElt.querySelector('.modal-body > p');
     var detectApplyBtnElt = detectModalElt.querySelector('#apply-button');
+    var detectCancelBtnElt = detectModalElt.querySelector('#cancel-button');
 
     socket.on("gnss_detection_result", function(msg) {
         // open modal box with detection result and asking for configuration if detection is a success and a u-blox receiver
         response = JSON.parse(msg);
         console.log(response);
+        detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = response['gnss_type'] + ' USB GNSS receiver detected on ' + response['port'] + '<br>' + 'Do you want to apply and configure the receiver?';
+            detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
             detectApplyBtnElt.onclick = function (){
-                document.querySelector('#com_port').value = response['port'];
+                document.querySelector('#com_port').value = response['port'].replace(/^\/dev\//, '');
                 document.querySelector('#main > .clearfix > button').removeAttribute('disabled');
                 document.querySelector('#main > .clearfix > button').click();
-                socket.emit("configure_receiver");
-                detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
-                detectApplyBtnElt.setAttribute('disabled', '');
+                if (response['then_configure']) {
+                    // We need to wait for the service stop/restart after the previous click on form save button.
+                    // Yes, it's dirty...
+                    setTimeout(() => { document.querySelector('#configure_receiver_button').click(); }, 2000);
+        
+                }
+                // detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
+                // detectApplyBtnElt.setAttribute('disabled', '');
             };
             detectApplyBtnElt.removeAttribute('disabled');
         } else {
@@ -324,20 +331,43 @@ $(document).ready(function () {
         }
         $('#detectModal').modal();
     })
-   
+
+    // ############### HANDLE CONFIGURE GNSS ################
+
+    $('#configure_receiver_button').on("click", function (){
+        detectApplyBtnElt.onclick = function (){}; //remove the previous attached event which launched the gnss configuration
+        detectApplyBtnElt.innerText = "Close";
+        detectApplyBtnElt.setAttribute('disabled', '');
+        detectCancelBtnElt.remove();
+        detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
+        socket.emit("configure_receiver");
+        $('#detectModal').modal();
+    })
     socket.on("gnss_configuration_result", function(msg) {
         response = JSON.parse(msg);
+        detectApplyBtnElt.removeAttribute('disabled');
+        detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
+        detectApplyBtnElt.innerText = "Close";
         if (response['result'] === 'success') {
             detectBodyElt.innerHTML = "GNSS receiver successfully configured";
-            detectApplyBtnElt.onclick = function (){}; //remove the previous attached event which launched the gnss configuration
-            detectApplyBtnElt.removeAttribute('disabled');
-            detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
-            detectApplyBtnElt.innerText = "Close";
+            detectApplyBtnElt.removeAttribute('data-dismiss');
+            detectApplyBtnElt.onclick = function() {
+                window.location.reload();
+            }
         } else {
             detectBodyElt.innerHTML = "GNSS receiver configuration failed"
         }
     });
     
+    // ############### HANDLE DETECT/CONFIGURE GNSS ################
+    $('#detect_and_configure_receiver_button').on("click", function (){
+        detectApplyBtnElt.innerText = "Apply then configure";
+        detectApplyBtnElt.setAttribute('disabled', '');
+        detectApplyBtnElt.removeAttribute('data-dismiss');
+        detectApplyBtnElt.onclick = function (){}; //remove the previous attached event
+        socket.emit("detect_receiver" ,{"then_configure" : true});
+    });
+
     // ####################### HANDLE UPDATE #######################
 
     $('#check_update_button').on("click", function (){

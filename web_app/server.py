@@ -539,38 +539,49 @@ def deleteLog(json_msg):
 
 #### Detect GNSS receiver button handler ####
 @socketio.on("detect_receiver", namespace="/test")
-def detect_receiver():
+def detect_receiver(json_msg):
     print("Detecting gnss receiver")
-    #TODO stop main service !!!!!!!!!!!!!??
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    #print("DEBUG json_msg: ", json_msg)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
-        print("DEBUG ok stdout: ", answer.stdout)
-        port, gnss_type = answer.stdout.split("\n").pop(-2).strip("/dev/").split(" - ")
-        result = {"result" : "success", "port" : port.strip(), "gnss_type" : gnss_type}
+        #print("DEBUG ok stdout: ", answer.stdout)
+        try:
+            device_info = next(x for x in answer.stdout.splitlines() if x.startswith('/dev/')).split(' - ')
+            port, gnss_type = [x.strip() for x in device_info]
+            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type}
+            result.update(json_msg)
+        except Exception:
+            result = {"result" : "failed"}
     else:
         print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
     #result = {"result" : "failed"}
-    result = {"result" : "success", "port" : "bestport", "gnss_type" : "F12P"}
+    #result = {"result" : "success", "port" : "bestport", "gnss_type" : "F12P"}
+    #print('DEBUG result: ', result)
     socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
 
 @socketio.on("configure_receiver", namespace="/test")
 def configure_receiver(brand="u-blox", model="F9P"):
     # only ZED-F9P could be configured automaticaly
-    #TODO stop main service !!!!!!!!!!!!!??
     main_service = services_list[0]
-    restart_main = False
     if main_service.get("active") is True:
         main_service["unit"].stop()
         restart_main = True
-    print("configure {} gnss receiver model {}".format(brand, model))
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss", "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    if answer.returncode == 0 and "Done" in answer.stdout:
+    else:
+        restart_main = False
+
+    print("configuring {} gnss receiver model {}".format(brand, model))
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    #print("DEBUG - stdout: ", answer.stdout)
+    #print("DEBUG - returncode: ", answer.returncode)
+
+    if answer.returncode == 0: # and "Done" in answer.stdout:
         result = {"result" : "success"}
+        rtkbaseconfig.reload_settings()
     else:
         result = {"result" : "failed"}
     if restart_main is True:
-        print("DEBUG: Restarting main service after F9P configuration")
+        #print("DEBUG: Restarting main service after F9P configuration")
         main_service["unit"].start()
     #result = {"result" : "success"}
     socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test")
