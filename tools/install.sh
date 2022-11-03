@@ -66,18 +66,21 @@ man_help(){
 }
 
 check_user() {
+  # RTKBASE_USER is a global variable
   if [ "${1}" != 0 ] ; then
     RTKBASE_USER="${1}"
       #TODO check if user exists and/or path exists ?
       # warning for image creation, do the path exist ?
-
+  elif  pstree -s $PPID | grep -Fwq systemd ; then
+    RTKBASE_USER="${USER}"
+    #when running this script from server.py which is executed with systemd as parent, logname return is empty so we test this case with pstree
+    # In this case, RTKBASE_USER should contain the user set in the rtkbase_web unit file.
   elif [[ -z $(logname) ]] ; then
     echo 'The logname command return an empty value. Please reboot and retry.'
     exit 1
   else
     RTKBASE_USER=$(logname)
   fi
-  echo "${RTKBASE_USER}"
 }
 
 install_dependencies() {
@@ -492,7 +495,7 @@ main() {
     done
   cumulative_exit=0
   [ $ARG_HELP -eq 1 ] && man_help
-  RTKBASE_USER=$(check_user "${ARG_USER}") #; echo 'user devient: ' "${RTKBASE_USER}"
+  check_user "${ARG_USER}" #; echo 'user devient: ' "${RTKBASE_USER}"
   #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; check_user "${ARG_USER}"; else ;fi
   [ $ARG_DEPENDENCIES -eq 1 ] && { install_dependencies ; ((cumulative_exit+=$?)) ;}
   [ $ARG_RTKLIB -eq 1 ] && { install_rtklib ; ((cumulative_exit+=$?)) ;}
