@@ -130,9 +130,10 @@ $(document).ready(function () {
     
     //the baseCoordinates variable comes from status.html
     var baseMark = L.marker(baseCoordinates, {icon: crossIcon, zIndexOffset: 0}).addTo(map);
-
+    baseMark.bindTooltip("Base coordinates", {offset : L.point({x: 20, y: 0})});
     // Add realtime localisation marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
+    locMark.bindTooltip("Realtime coordinates \n (PPP, no correction, itrf@now)");
 
     // Move map view with markers bounds
     locMark.addEventListener("move", function() {

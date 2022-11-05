@@ -65,7 +65,7 @@ man_help(){
     exit 0
 }
 
-check_user() {
+_check_user() {
   # RTKBASE_USER is a global variable
   if [ "${1}" != 0 ] ; then
     RTKBASE_USER="${1}"
@@ -88,7 +88,7 @@ install_dependencies() {
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get update 
-      apt-get install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip
+      apt-get install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip pkg-config
 }
 
 install_gpsd_chrony() {
@@ -176,7 +176,7 @@ install_rtklib() {
       fi
 }
 
-rtkbase_repo(){
+_rtkbase_repo(){
     #Get rtkbase repository
     if [[ -n "${1}" ]]; then
       sudo -u "${RTKBASE_USER}" git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
@@ -184,16 +184,16 @@ rtkbase_repo(){
       sudo -u "${RTKBASE_USER}" git clone https://github.com/stefal/rtkbase.git
     fi
     sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
-    add_rtkbase_path_to_environment
+    _add_rtkbase_path_to_environment
 
 }
 
-rtkbase_release(){
+_(){
     #Get rtkbase latest release
     sudo -u "${RTKBASE_USER}" wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
     sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
     sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
-    add_rtkbase_path_to_environment
+    _add_rtkbase_path_to_environment
 
 }
 
@@ -210,11 +210,11 @@ install_rtkbase_from_repo() {
         else
           echo "RtkBase repo: NO, rm release & git clone rtkbase"
           rm -r "${rtkbase_path}"
-          rtkbase_repo "${1}"
+          _rtkbase_repo "${1}"
         fi
       else
         echo "RtkBase repo: NO, git clone rtkbase"
-        rtkbase_repo "${1}"
+        _rtkbase_repo "${1}"
       fi
 }
 
@@ -228,18 +228,18 @@ install_rtkbase_from_release() {
         then
           echo "RtkBase release: NO, rm repo & download last release"
           rm -r "${rtkbase_path}"
-          rtkbase_release
+          _rtkbase_release
         else
           echo "RtkBase release: YES, rm & deploy last release"
-          rtkbase_release
+          _
         fi
       else
         echo "RtkBase release: NO, download & deploy last release"
-        rtkbase_release
+        _
       fi
 }
 
-add_rtkbase_path_to_environment(){
+_add_rtkbase_path_to_environment(){
     echo '################################'
     echo 'ADDING RTKBASE PATH TO ENVIRONMENT'
     echo '################################'
@@ -359,7 +359,7 @@ detect_usb_gnss() {
         fi
 }
 
-get_device_path() {
+_get_device_path() {
     id_Vendor=${1%:*}
     id_Product=${1#*:}
     for path in $(find /sys/devices/ -name idVendor | rev | cut -d/ -f 2- | rev); do
@@ -447,7 +447,7 @@ main() {
   ARG_USER=0
   ARG_DEPENDENCIES=0
   ARG_RTKLIB=0
-  ARG_RTKBASE_RELEASE=0
+  ARG__=0
   ARG_RTKBASE_REPO=0
   ARG_UNIT=0
   ARG_GPSD_CHRONY=0
@@ -475,7 +475,7 @@ main() {
         -u | --user)   ARG_USER="${2}"                ; shift 2 ;;
         -d | --dependencies) ARG_DEPENDENCIES=1       ; shift   ;;
         -r | --rtklib) ARG_RTKLIB=1                   ; shift   ;;
-        -b | --rtkbase-release) ARG_RTKBASE_RELEASE=1 ; shift   ;;
+        -b | --rtkbase-release) ARG__=1 ; shift   ;;
         -i | --rtkbase-repo) ARG_RTKBASE_REPO="${2}"  ; shift 2 ;;
         -t | --unit-files) ARG_UNIT=1                 ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1         ; shift   ;;
@@ -506,6 +506,7 @@ main() {
   [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
+
   if [ $ARG_ALLDEV != 0 ] ; then install_dependencies              && \
                         install_rtklib                             && \
                         install_rtkbase_from_repo "${ARG_ALLDEV}"  && \
