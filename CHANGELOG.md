@@ -2,14 +2,17 @@
 
 ## [2.3.5] - not released
 ### Added
-- GUi -> Settings: Added a button to detect and/or configure the gnss receiver. #70
+- GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
+- GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
 ### Changed
 - Flask upgraded to v2.2.2 and other dependencies upgraded too.
 - SocketIO upgraded to v4.4.1
 - Bootstrap upgraded to v4.6.1
+- Command line: Many changes on install.sh arguments/options. See install.sh --help
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
 - GUI: After a RTKBase update, the browser won't use the old javascript files anymore (cache busting). #217
+- Remaining space check could not work with non english shell. Thanks to @GwnDaan #213
 
 ### Security
 
