@@ -447,7 +447,7 @@ main() {
   ARG_USER=0
   ARG_DEPENDENCIES=0
   ARG_RTKLIB=0
-  ARG__=0
+  ARG_RTKBASE_RELEASE=0
   ARG_RTKBASE_REPO=0
   ARG_UNIT=0
   ARG_GPSD_CHRONY=0
@@ -475,7 +475,7 @@ main() {
         -u | --user)   ARG_USER="${2}"                ; shift 2 ;;
         -d | --dependencies) ARG_DEPENDENCIES=1       ; shift   ;;
         -r | --rtklib) ARG_RTKLIB=1                   ; shift   ;;
-        -b | --rtkbase-release) ARG__=1 ; shift   ;;
+        -b | --rtkbase-release) ARG_RTKBASE_RELEASE=1 ; shift   ;;
         -i | --rtkbase-repo) ARG_RTKBASE_REPO="${2}"  ; shift 2 ;;
         -t | --unit-files) ARG_UNIT=1                 ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1         ; shift   ;;
@@ -495,7 +495,7 @@ main() {
     done
   cumulative_exit=0
   [ $ARG_HELP -eq 1 ] && man_help
-  check_user "${ARG_USER}" #; echo 'user devient: ' "${RTKBASE_USER}"
+  _check_user "${ARG_USER}" #; echo 'user devient: ' "${RTKBASE_USER}"
   #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; check_user "${ARG_USER}"; else ;fi
   [ $ARG_DEPENDENCIES -eq 1 ] && { install_dependencies ; ((cumulative_exit+=$?)) ;}
   [ $ARG_RTKLIB -eq 1 ] && { install_rtklib ; ((cumulative_exit+=$?)) ;}
