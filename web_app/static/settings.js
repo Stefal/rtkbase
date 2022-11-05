@@ -305,13 +305,12 @@ $(document).ready(function () {
             detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
             detectApplyBtnElt.onclick = function (){
                 document.querySelector('#com_port').value = response['port'].replace(/^\/dev\//, '');
-                document.querySelector('#main > .clearfix > button').removeAttribute('disabled');
-                document.querySelector('#main > .clearfix > button').click();
+                // NEW METHOD from https://stackoverflow.com/questions/35154348/trigger-form-submission-with-javascript
+                document.getElementById("main").dispatchEvent(new SubmitEvent('submit', {cancelable: true}));
                 if (response['then_configure']) {
                     // We need to wait for the service stop/restart after the previous click on form save button.
                     // Yes, it's dirty...
                     setTimeout(() => { document.querySelector('#configure_receiver_button').click(); }, 2000);
-        
                 }
                 // detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
                 // detectApplyBtnElt.setAttribute('disabled', '');
