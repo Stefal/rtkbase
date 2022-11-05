@@ -2,6 +2,7 @@
 
 ## [2.3.5] - not released
 ### Added
+- GUi -> Settings: Added a button to detect and/or configure the gnss receiver. #70
 ### Changed
 - Flask upgraded to v2.2.2 and other dependencies upgraded too.
 - SocketIO upgraded to v4.4.1
