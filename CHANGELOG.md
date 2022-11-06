@@ -2,6 +2,7 @@
 
 ## [2.3.5] - not released
 ### Added
+- Added a 2nd NTRIP output. #240
 - GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
 ### Changed
