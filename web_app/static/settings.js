@@ -64,6 +64,48 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).closest("form").find(":submit").prop("disabled", true);
       });
+
+    // View password button - Ntrip A
+    $("#svr_pwd_A_button").on("click", function (e) {
+        e.preventDefault();
+        if ($('#svr_pwd_A').attr("type") == "text") {
+            $('#svr_pwd_A').attr('type', 'password');
+            $('#svr_pwd_A_button i').addClass("bi bi-eye-slash");
+            $('#svr_pwd_A_button i').removeClass("bi bi-eye");
+        } else if ($('#svr_pwd_A').attr("type") == "password") {
+            $('#svr_pwd_A').attr('type', 'text');
+            $('#svr_pwd_A_button i').removeClass("bi bi-eye-slash");
+            $('#svr_pwd_A_button i').addClass("bi bi-eye");
+        }
+    });
+
+    // View password button - Ntrip B
+    $("#svr_pwd_B_button").on("click", function (e) {
+        e.preventDefault();
+        if ($('#svr_pwd_B').attr("type") == "text") {
+            $('#svr_pwd_B').attr('type', 'password');
+            $('#svr_pwd_B_button i').addClass("bi bi-eye-slash");
+            $('#svr_pwd_B_button i').removeClass("bi bi-eye");
+        } else if ($('#svr_pwd_B').attr("type") == "password") {
+            $('#svr_pwd_B').attr('type', 'text');
+            $('#svr_pwd_B_button i').removeClass("bi bi-eye-slash");
+            $('#svr_pwd_B_button i').addClass("bi bi-eye");
+        }
+    });
+
+    // View password button - local caster
+    $("#local_ntripc_pwd_button").on("click", function (e) {
+        e.preventDefault();
+        if ($('#local_ntripc_pwd').attr("type") == "text") {
+            $('#local_ntripc_pwd').attr('type', 'password');
+            $('#local_ntripc_pwd_button i').addClass("bi bi-eye-slash");
+            $('#local_ntripc_pwd_button i').removeClass("bi bi-eye");
+        } else if ($('#local_ntripc_pwd').attr("type") == "password") {
+            $('#local_ntripc_pwd').attr('type', 'text');
+            $('#local_ntripc_pwd_button i').removeClass("bi bi-eye-slash");
+            $('#local_ntripc_pwd_button i').addClass("bi bi-eye");
+        }
+    });
     
     // ####################### HANDLE RTKBASE SERVICES    #######################
 
