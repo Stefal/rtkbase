@@ -715,7 +715,6 @@ class RTKLIB:
             #print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
 
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
-            #self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
             count += 1
             self.sleep_count +=1
             time.sleep(1)
