@@ -376,8 +376,12 @@ $(document).ready(function () {
     socket.on("new release", function(msg) {
         // open modal box asking for starting update
         response = JSON.parse(msg);
-        console.log(response);
-        if (response.new_release) {
+        console.log(JSON.stringify(response));
+        if (response.error) {
+            $("#updateModal .modal-title").text("Update error!");
+            $("#updateModal .modal-body").append(response['error']);
+            $("#updateModal").modal();
+        }else if (response.new_release) {
             $("#updateModal .modal-title").text("Update available!");
             $("#updateModal .modal-body").append('<p class="text-center">Do you want to install <b>' + response['new_release'] +'</b>? <br>It will take a few minutes.</p>');                    
             var newFeaturesArray = response['comment'].split('\r\n');

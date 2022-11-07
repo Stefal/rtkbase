@@ -268,6 +268,7 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
              
     except Exception as e:
         print("Check update error: ", e)
+        new_release = { "error" : repr(e)}
         
     if emit:
         socketio.emit("new release", json.dumps(new_release), namespace="/test")
