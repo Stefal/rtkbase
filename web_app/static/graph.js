@@ -180,48 +180,46 @@ function Chart() {
         // The keys of the msg object as an array.
         var keys = Object.keys(msg);
 
+        // Temporary array to store the data for the bar chart.
+        var chartData = [];
+
         // Extract info from the msg: level, name, and define their color depending on the level,
         // we then show the entry in the bar chart.
-        for (var i = 0; i < NUMBER_OF_SATELLITES; i++) {
+        for (var i = 0; i < Math.min(NUMBER_OF_SATELLITES, keys.length); i++) {
+            var name = keys[i];
 
-            // Check if there is still enough satellites to plot.
-            if (i < keys.length) {
-                var name = keys[i];
-                this.labeldata[i] = name;
+            // for some reason I sometimes get undefined here. So plot zero just to be safe
+            var level = parseInt(msg[name]) || 0;
 
-                // for some reason I sometimes get undefined here. So plot zero just to be safe
-                var level = parseInt(msg[name]) || 0;
-                this.chartdata[i]['value'] = level;
+            // Initialise a dict in the array to access later.
+            chartData[i] = { label: name, level: level };
 
-                // Set the color of the bar depending on the level.
-                if (level < 20) {
-                    this.chartdata[i]['color'] = "#FF1403"; // Red
-                } else if (level >= 20 && level <= 33) {
-                    this.chartdata[i]['color'] = "#FFDE00"; // Yellow
-                } else if (level > 33) {
-                    this.chartdata[i]['color'] = "#62C902"; // Green
-                }
-            } else {
-                // If there are not enough satellites to plot, hide the bar.
-                this.chartdata[i]['value'] = 0;
-                this.labeldata[i] = "";
+            // Set the color of the bar depending on the level.
+            if (level < 20) {
+                chartData[i].color = "#FF1403"; // Red
+            } else if (level >= 20 && level <= 33) {
+                chartData[i].color = "#FFDE00"; // Yellow
+            } else if (level > 33) {
+                chartData[i].color = "#62C902"; // Green
             }
         }
 
-        this.roverBars.data(this.chartdata)
+        this.roverBars.data(chartData)
             .transition()
             .attr('height', function (data) {
-                return 5 * data.value;
+                return 5 * data.level;
             })
             .attr('y', function (data) {
-                return (55 * 5 - 5 * data.value);
+                return (55 * 5 - 5 * data.level);
             })
-            .style("fill", function (data) { return data.color; })
+            .style("fill", function (data) {
+                return data.color;
+            })
             .duration(300);
 
-        this.labels.data(this.labeldata)
-            .text(function (d) {
-                return d;
+        this.labels.data(chartData)
+            .text(function (data) {
+                return data.label;
             });
     }
 
