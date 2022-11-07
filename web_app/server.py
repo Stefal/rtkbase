@@ -146,6 +146,10 @@ def manager():
     max_cpu_temp = 0
     services_status = getServicesStatus(emit_pingback=False)
     while True:
+        # Make sure max_cpu_temp is always updated
+        cpu_temp = get_cpu_temp()
+        max_cpu_temp = max(cpu_temp, max_cpu_temp)
+
         if connected_clients > 0:
             # We only need to emit to the socket if there are clients able to receive it.
             updated_services_status = getServicesStatus(emit_pingback=False)
@@ -154,8 +158,6 @@ def manager():
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
                 print("service status", services_status)
 
-            cpu_temp = get_cpu_temp()
-            max_cpu_temp = max(cpu_temp, max_cpu_temp)
             volume_usage = get_volume_usage()
             sys_infos = {"cpu_temp" : cpu_temp,
                         "max_cpu_temp" : max_cpu_temp,
