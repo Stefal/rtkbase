@@ -144,32 +144,34 @@ def manager():
         And it sends various system informations to the web interface
     """
     max_cpu_temp = 0
-    services_status = getServicesStatus()
+    services_status = getServicesStatus(emit_pingback=False)
     while True:
         if connected_clients > 0:
-            updated_services_status = getServicesStatus(emit_pingback=True)
+            # We only need to emit to the socket if there are clients able to receive it.
+            updated_services_status = getServicesStatus(emit_pingback=False)
             if  services_status != updated_services_status:
-                services_status = repaint_services_button(updated_services_status)
+                services_status = updated_services_status
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
                 print("service status", services_status)
 
+            cpu_temp = get_cpu_temp()
+            max_cpu_temp = max(cpu_temp, max_cpu_temp)
+            volume_usage = get_volume_usage()
+            sys_infos = {"cpu_temp" : cpu_temp,
+                        "max_cpu_temp" : max_cpu_temp,
+                        "uptime" : get_uptime(),
+                        "volume_free" : round(volume_usage.free / 10E8, 2),
+                        "volume_used" : round(volume_usage.used / 10E8, 2),
+                        "volume_total" : round(volume_usage.total / 10E8, 2),
+                        "volume_percent_used" : volume_usage.percent}
+            socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
+        
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
             print("Trying to stop rtkrcv")
             if rtk.stopBase() == 1:
                 rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
             print("I'd like to stop rtkrcv (sleep_count = {}), but rtk.state is: {}".format(rtk.sleep_count, rtk.state))
-        cpu_temp = get_cpu_temp()
-        max_cpu_temp = max(cpu_temp, max_cpu_temp)
-        volume_usage = get_volume_usage()
-        sys_infos = {"cpu_temp" : cpu_temp,
-                    "max_cpu_temp" : max_cpu_temp,
-                    "uptime" : get_uptime(),
-                    "volume_free" : round(volume_usage.free / 10E8, 2),
-                    "volume_used" : round(volume_usage.used / 10E8, 2),
-                    "volume_total" : round(volume_usage.total / 10E8, 2),
-                    "volume_percent_used" : volume_usage.percent}
-        socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
         time.sleep(1)
 
 def repaint_services_button(services_list):
@@ -703,10 +705,14 @@ def restartServices(restart_services_list):
     getServicesStatus()
 
 @socketio.on("get services status", namespace="/test")
-def getServicesStatus(emit_pingback=False):
+def getServicesStatus(emit_pingback=True):
     """
         Get the status of services listed in services_list
         (services_list is global)
+        
+        :param emit_pingback: whether or not the services status is sent to clients 
+            (defaults to true as the socketio.on() should receive back the information)
+        :return The gathered services status list
     """
 
     #print("Getting services status")
