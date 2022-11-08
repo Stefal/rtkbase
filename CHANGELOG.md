@@ -5,6 +5,7 @@
 - Added a 2nd NTRIP output. #240
 - GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
+- More informations are available in the local caster source table. #183
 ### Changed
 - Flask upgraded to v2.2.2 and other dependencies upgraded too.
 - SocketIO upgraded to v4.4.1
@@ -14,6 +15,8 @@
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
 - GUI: After a RTKBase update, the browser won't use the old javascript files anymore (cache busting). #217
 - Remaining space check could not work with non english shell. Thanks to @GwnDaan #213
+- GUI -> Settings: No more "bounce" issues with the switches. Thanks to @GwnDaan
+- Max Cpu temp was not updated when no user where connected. Thanks to @GwnDaan
 
 ### Security
 
