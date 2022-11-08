@@ -355,7 +355,7 @@ detect_usb_gnss() {
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
-            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver=''\nreceiver_format=''\nreceiver_frequency=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
             #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
             sudo -u "${RTKBASE_USER}" printf "[ntrip_a]\nntrip_a_receiver_options='-TADJ=1'\n[ntrip_b]\nntrip_b_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
 
@@ -391,7 +391,8 @@ configure_gnss(){
           #now that the receiver is configured, we can set the right values inside settings.conf
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf  && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                  && \
-          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'ubx\'/ "${rtkbase_path}"/settings.conf
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'ubx\'/ "${rtkbase_path}"/settings.conf               && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_frequency=.*/receiver_frequency=\'L1-L2\'/ "${rtkbase_path}"/settings.conf       && \
           return $?
         else
           echo 'No Gnss receiver has been set. We can'\''t configure'
