@@ -392,7 +392,7 @@ configure_gnss(){
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf  && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                  && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'ubx\'/ "${rtkbase_path}"/settings.conf               && \
-          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_frequency=.*/receiver_frequency=\'L1-L2\'/ "${rtkbase_path}"/settings.conf       && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_frequency=.*/receiver_frequency=\'L1-L2\'/ "${rtkbase_path}"/settings.conf
           return $?
         else
           echo 'No Gnss receiver has been set. We can'\''t configure'
