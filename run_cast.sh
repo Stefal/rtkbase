@@ -20,9 +20,11 @@ out_caster_A="ntrips://:${svr_pwd_a}@${svr_addr_a}:${svr_port_a}/${mnt_name_a}#r
 out_caster_B="ntrips://:${svr_pwd_b}@${svr_addr_b}:${svr_port_b}/${mnt_name_b}#rtcm3 -msg ${rtcm_msg_b} -p ${position}"
 #add receiver options if it exists
 [[ ! -z "${ntrip_b_receiver_options}" ]] && out_caster_B=""${out_caster_B}" -opt "${ntrip_b_receiver_options}""
+
+
 array_pos=(${position})
 #out_local_caster_source_table="${local_ntripc_mnt_name};rtcm3;${local_ntripc_msg};2;GPS+GLO+GAL+BDS+QZS;NONE;NONE;${array_pos[0]};${array_pos[1]};0;0;${version};NONE;N;N;;"
-out_local_caster_source_table="${local_ntripc_mnt_name};rtcm3;${local_ntripc_msg};2;GPS+GLO+GAL+BDS+QZS;NONE;NONE;${array_pos[0]};${array_pos[1]};0;0;RTKBase;NONE;N;N;;"
+out_local_caster_source_table="${local_ntripc_mnt_name};rtcm3;${local_ntripc_msg};${receiver_frequency_count};GPS+GLO+GAL+BDS+QZS;NONE;NONE;${array_pos[0]};${array_pos[1]};0;0;RTKBase;NONE;N;N;;"
 #out_local_caster="ntripc://${local_ntripc_user}:${local_ntripc_pwd}@:${local_ntripc_port}/${local_ntripc_mnt_name}:${out_local_caster_source_table}""#rtcm3 -msg ${local_ntripc_msg} -p ${position}"
 out_local_caster="ntripc://${local_ntripc_user}:${local_ntripc_pwd}@:${local_ntripc_port}/${local_ntripc_mnt_name}:${out_local_caster_source_table}#rtcm3 -msg ${local_ntripc_msg} -p ${position}"
 #out_local_caster="${out_local_caster}#rtcm3 -msg ${local_ntripc_msg} -p ${position}"
