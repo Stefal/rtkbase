@@ -21,16 +21,17 @@ out_caster_B="ntrips://:${svr_pwd_b}@${svr_addr_b}:${svr_port_b}/${mnt_name_b}#r
 #add receiver options if it exists
 [[ ! -z "${ntrip_b_receiver_options}" ]] && out_caster_B=""${out_caster_B}" -opt "${ntrip_b_receiver_options}""
 
-
 array_pos=(${position})
-#out_local_caster_source_table="${local_ntripc_mnt_name};rtcm3;${local_ntripc_msg};2;GPS+GLO+GAL+BDS+QZS;NONE;NONE;${array_pos[0]};${array_pos[1]};0;0;${version};NONE;N;N;;"
-out_local_caster_source_table="${local_ntripc_mnt_name};rtcm3;${local_ntripc_msg};${receiver_frequency_count};GPS+GLO+GAL+BDS+QZS;NONE;NONE;${array_pos[0]};${array_pos[1]};0;0;RTKBase;NONE;N;N;;"
-#out_local_caster="ntripc://${local_ntripc_user}:${local_ntripc_pwd}@:${local_ntripc_port}/${local_ntripc_mnt_name}:${out_local_caster_source_table}""#rtcm3 -msg ${local_ntripc_msg} -p ${position}"
+if [[ ${local_ntripc_user} == '' ]] && [[ ${local_ntripc_pwd} == '' ]]
+  then
+    local_ntripc_auth='N'
+  else
+    local_ntripc_auth='B' #Basic authentification
+fi
+out_local_caster_source_table="${local_ntripc_mnt_name};rtcm3;${local_ntripc_msg};${receiver_frequency_count};GPS+GLO+GAL+BDS+QZS;NONE;NONE;${array_pos[0]};${array_pos[1]};0;0;RTKBase_${receiver},${version};NONE;${local_ntripc_auth};N;;"
 out_local_caster="ntripc://${local_ntripc_user}:${local_ntripc_pwd}@:${local_ntripc_port}/${local_ntripc_mnt_name}:${out_local_caster_source_table}#rtcm3 -msg ${local_ntripc_msg} -p ${position}"
-#out_local_caster="${out_local_caster}#rtcm3 -msg ${local_ntripc_msg} -p ${position}"
 #add receiver options if it exists
 [[ ! -z "${local_ntripc_receiver_options}" ]] && out_local_caster="${out_local_caster} -opt ${local_ntripc_receiver_options}"
-#exit 0
 out_tcp="tcpsvr://:${tcp_port}"
 
 out_file="file://${datadir}/${file_name}.${receiver_format}::T::S=${file_rotate_time} -f ${file_overlap_time}"
@@ -62,7 +63,7 @@ mkdir -p ${logdir}
     ;;
 
   out_local_caster)
-    echo ${cast} -in ${!1} -out "${out_local_caster}"
+    #echo ${cast} -in ${!1} -out "${out_local_caster}"
     ${cast} -in ${!1} -out ${out_local_caster} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip.log &
     ;;
 
