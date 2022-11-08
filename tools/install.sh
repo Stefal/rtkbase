@@ -345,20 +345,10 @@ detect_usb_gnss() {
             #change the com port value/settings inside settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf
-            #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
-            #TODO: write these parameters only if the gnss receiver is a U-blox? Move this after the gnss configuration?
-            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
             sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver=''\nreceiver_format=''\nreceiver_frequency_count=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
-            #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
-            sudo -u "${RTKBASE_USER}" printf "[ntrip_a]\nntrip_a_receiver_options='-TADJ=1'\n[ntrip_b]\nntrip_b_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
-
           fi
         fi
 }
@@ -373,6 +363,23 @@ _get_device_path() {
             fi
         fi
     done
+}
+
+_add_tadj_option(){
+  #Add -TADJ=1 option on all ntrip/rtcm output
+  if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -qE "^\[ntrip.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
+    then
+      #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
+      sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+      sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+      sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+      sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+      sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+    else
+      # write these -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs to a new or an existing settings.conf file
+      sudo -u "${RTKBASE_USER}" printf "[ntrip_A]\nntrip_a_receiver_options='-TADJ=1'\n[ntrip_B]\nntrip_b_receiver_options='-TADJ=1'\n[local_ntrip_caster]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
+  fi
+
 }
 
 configure_gnss(){
@@ -392,7 +399,8 @@ configure_gnss(){
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf  && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                  && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'ubx\'/ "${rtkbase_path}"/settings.conf               && \
-          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_frequency_count=.*/receiver_frequency_count=\'2\'/ "${rtkbase_path}"/settings.conf
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_frequency_count=.*/receiver_frequency_count=\'2\'/ "${rtkbase_path}"/settings.conf && \
+          _add_tadj_option
           return $?
         else
           echo 'No Gnss receiver has been set. We can'\''t configure'
