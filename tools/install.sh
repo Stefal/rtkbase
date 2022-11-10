@@ -473,13 +473,14 @@ main() {
 
   PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:tgencsv:a --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,alldev:,all -- "$@")
   VALID_ARGUMENTS=$?
-  if [ "$VALID_ARGUMENTS" != "0" ]; then
-    #man_help
-    echo 'Try '\''install.sh --help'\'' for more information'
+
+  # If the parsing failed OR no arguments where passed, then display help
+  if [[ "$VALID_ARGUMENTS" != "0" ]] || [[ "$PARSED_ARGUMENTS" == " --" ]]; then
+    echo 'Invalid usage, try '\''install.sh --help'\'' for more information'
     exit 1
   fi
 
-  echo "PARSED_ARGUMENTS is $PARSED_ARGUMENTS"
+  echo "PARSED_ARGUMENTS is '$PARSED_ARGUMENTS'"
   eval set -- "$PARSED_ARGUMENTS"
   while :
     do
