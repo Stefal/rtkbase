@@ -40,7 +40,7 @@ convert_to_rinex_nrcan() {
 }
 
 # Rinex v3.04 - 30s -  GPS + GLONASS + GALILEO + BEIDOU + QZSS + NAVIC + SBAS
-convert_to_rinex_full() {
+convert_to_rinex_30s_full() {
   RINEX_FILE=${filedate}'-'${MOUNT_NAME}'.obs'
   echo "- CREATING RINEX " "${RINEX_FILE}"
   "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}" -hm "${MOUNT_NAME}"    \
@@ -53,7 +53,7 @@ convert_to_rinex_full() {
 test -z "${CONVBIN_PATH}" && echo 'Error: Convbin not found' && exit 1
 if [[ ${RINEX_TYPE} == 'ign' ]] ; then rnx_conversion_func='convert_to_rinex_ign'
 elif [[ ${RINEX_TYPE} == 'nrcan' ]] ; then rnx_conversion_func='convert_to_rinex_nrcan'
-elif [[ ${RINEX_TYPE} == 'full' ]] ; then rnx_conversion_func='convert_to_rinex_full'
+elif [[ ${RINEX_TYPE} == '30s_full' ]] ; then rnx_conversion_func='convert_to_rinex_30s_full'
 fi
 
 #go to directory
