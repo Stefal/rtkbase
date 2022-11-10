@@ -134,7 +134,7 @@
         <label for="svr_pwd_A" class="col-sm-3 col-form-label">Caster password: </label>
         <div class="col-sm-9">
           <div class="input-group">
-            <input id="svr_pwd_A" type="password" name="svr_pwd_A" class="form-control" value="{{ ntrip_B_settings[2].svr_pwd_A }}" title="caster password" required>
+            <input id="svr_pwd_A" type="password" name="svr_pwd_A" class="form-control" value="{{ ntrip_A_settings[2].svr_pwd_A }}" title="caster password" required>
               <span class="input-group-append">
                 <button class="btn btn-outline-secondary" id="svr_pwd_A_button" type="button">
                   <i class="bi bi-eye-slash" aria-hidden="true"></i>
@@ -267,7 +267,7 @@
         <label for="local_ntripc_pwd" class="col-sm-3 col-form-label">Local caster password: </label>
         <div class="col-sm-9">
           <div class="input-group">
-            <input id="local_ntripc_pwd" type="text" name="local_ntripc_pwd" class="form-control" value="{{ local_ntripc_settings[1].local_ntripc_pwd }}" title="local Ntrip caster password for the rover" pattern="\w+[^|><\s]*">
+            <input id="local_ntripc_pwd" type="password" name="local_ntripc_pwd" class="form-control" value="{{ local_ntripc_settings[1].local_ntripc_pwd }}" title="local Ntrip caster password for the rover" pattern="\w+[^|><\s]*">
               <span class="input-group-append">
                 <button class="btn btn-outline-secondary" id="local_ntripc_pwd_button" type="button">
                   <i class="bi bi-eye-slash" aria-hidden="true"></i>
