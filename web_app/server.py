@@ -832,6 +832,16 @@ if __name__ == "__main__":
         #check if we run RTKBase for the first time after an update
         #and restart some services to let them send the new release number.
         if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
+            if "ntrip" in rtkbaseconfig.sections():
+                #transfering settings from ntrip section to ntrip_A section
+                rtkbaseconfig.config['ntrip_A']['svr_addr_a'] = rtkbaseconfig.get('ntrip', 'svr_addr')
+                rtkbaseconfig.config['ntrip_A']['svr_port_a'] = rtkbaseconfig.get('ntrip', 'svr_port')
+                rtkbaseconfig.config['ntrip_A']['svr_pwd_a'] = rtkbaseconfig.get('ntrip', 'svr_pwd')
+                rtkbaseconfig.config['ntrip_A']['mnt_name_a'] = rtkbaseconfig.get('ntrip', 'mnt_name')
+                rtkbaseconfig.config['ntrip_A']['rtcm_msg_a'] = rtkbaseconfig.get('ntrip', 'rtcm_msg')
+                rtkbaseconfig.config['ntrip_A']['ntrip_a_receiver_options'] = rtkbaseconfig.get('ntrip', 'ntrip_receiver_options')
+                #remove old ntrip section
+                rtkbaseconfig.remove_section('ntrip')
             restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
             rtkbaseconfig.remove_option("general", "updated")
             rtkbaseconfig.write_file()

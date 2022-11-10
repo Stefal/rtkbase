@@ -176,6 +176,12 @@ class RTKBaseConfigManager:
         
         return SECRET_KEY
 
+    def sections(self, *args, **kwargs):
+        """
+            a wrapper around configparser.sections()
+        """
+        return self.config.sections()
+
     def get(self, *args, **kwargs):
         """
             a wrapper around configparser.get()
@@ -184,9 +190,15 @@ class RTKBaseConfigManager:
 
     def remove_option(self, *args, **kwargs):
         """
-            a wrapper around configparser.remove_options()
+            a wrapper around configparser.remove_option()
         """
         return self.config.remove_option(*args, **kwargs)
+    
+    def remove_section(self, *args, **kwargs):
+        """
+            a wrapper around configparser.remove_section()
+        """
+        return self.config.remove_section(*args, **kwargs)
     
     def update_setting(self, section, setting, value, write_file=True):
         """
