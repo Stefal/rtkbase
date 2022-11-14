@@ -59,11 +59,38 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         
-        <!-- Modal body -->
-        <div class="modal-body text-center ">
-          <p>Rinex file v2.11 interval 30s for <a href="http://rgp.ign.fr/SERVICES/calcul_online.php" target="_blank">IGN</a> 
-            <button id="rinex-ign-button" type="button" class="btn btn-primary" disabled>Create</button><br>
-          </p>
+         <!-- Modal body -->
+         <div class="modal-body text-center ">
+          <p>blabla</p>
+            <div class="rinex-table" role="tabpanel">
+              <div class="row">
+                <div class="col-4">
+                  <div class="list-group" id="list-tab" role="tablist">
+                    <a class="list-group-item list-group-item-action active" id="list-rinex-ign" data-toggle="tab" href="#detail-rinex-ign" role="tab" aria-controls="detail-rinex-ign" data-rinex-preset="rinex_ign">Ign</a>
+                    <a class="list-group-item list-group-item-action" id="list-rinex-nrcan" data-toggle="tab" href="#detail-rinex-nrcan" role="tab" aria-controls="detail-rinex-nrcan" data-rinex-preset="rinex_nrcan">Nrcan</a>
+                    <a class="list-group-item list-group-item-action" id="list-rinex-full_30s" data-toggle="tab" href="#detail-rinex-full_30s" role="tab" aria-controls="detail-rinex-full_30s" data-rinex-preset="rinex_30s_full">Full 30s</a>
+                    <a class="list-group-item list-group-item-action" id="list-rinex-full_1s" data-toggle="tab" href="#detail-rinex-full_1s" role="tab" aria-controls="detail-rinex-full_1s" data-rinex-preset="rinex_1s_full">Full 1s</a>
+                  </div>
+                </div>
+                <div class="col-8">
+                  <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="detail-rinex-ign" role="tabpanel" aria-labelledby="list-rinex-ign">
+                      <p>IGN conversion information</p>
+                    </div>
+                    <div class="tab-pane fade" id="detail-rinex-nrcan" role="tabpanel" aria-labelledby="list-rinex-nrcan">
+                      <p>NRCAN conversion information</p>
+                    </div>
+                    <div class="tab-pane fade" id="detail-rinex-full_30s" role="tabpanel" aria-labelledby="list-rinex-full_30s">
+                      <p>30s full conversion information</p>
+                    </div>
+                    <div class="tab-pane fade" id="detail-rinex-full_1s" role="tabpanel" aria-labelledby="list-rinex-full_1s">
+                      <p>1s full conversion information</p>
+                    </div>
+                    <div><button type="button" id="create-rinex-button" class="btn btn-primary">Create Rinex file</button></div>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
         
         <!-- Modal footer -->

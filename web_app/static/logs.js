@@ -3,6 +3,8 @@ function actionFormatter (value,row,index) {
     return value
 }
 
+var createRinexBtnElt = document.getElementById('create-rinex-button');
+
 window.operateEvents = {
     'click #log_delete': function (e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
@@ -10,18 +12,20 @@ window.operateEvents = {
         //put filename inside button attribute data.row to get it when the user
         // click on the confirm delete button.
         $('#confirm-delete-button').data.row = row;
+        //document.getElementById("confirm-delete-button").dataset.row = row.name;
     },
     'click #log_edit': function(e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
         console.log(row.format);
         if ( row.format.split(".").pop() === "ZIP") {
-            $('#rinex-ign-button').removeAttr("disabled");
+            createRinexBtnElt.removeAttribute('disabled');
         }
         else {
-            $('#rinex-ign-button').prop("disabled", true);;
+            createRinexBtnElt.setAttribute('disabled', '');
         }
         $('#editModal').modal();
-        $('#rinex-ign-button').data.row = row;
+        createRinexBtnElt.dataset.filename = row.name;
+        //$('#rinex-create-button').data.row = row;
     }
 };
 
@@ -29,10 +33,10 @@ $('#confirm-delete-button').on("click", function (){
     socket.emit("delete log", $('#confirm-delete-button').data.row);
 });
 
-$('#rinex-ign-button').on("click", function (){
-    socket.emit("rinex IGN", $('#rinex-ign-button').data.row, 'ign_rinex');
+createRinexBtnElt.onclick = function (){
+    socket.emit("rinex conversion", {"filename": createRinexBtnElt.dataset.filename, "rinex-preset" : document.querySelector("#editModal a.active").dataset.rinexPreset});
     $(this).html('<span class="spinner-border spinner-border-sm"></span> Creating Rinex...');
-});
+};
 
 $(document).ready(function () {
 
@@ -130,16 +134,35 @@ $(document).ready(function () {
 
        // ################" SOCKETS ##########################"
    
+       function downloadURI(uri, name) {
+            var link = document.createElement("a");
+            // If you don't know the name or want to use
+            // the webserver default set name = ''
+            link.setAttribute('download', name);
+            link.href = uri;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            };
+
         // server return the raw to rinex result
-       socket.on('ign rinex ready', function(msg){
+       socket.on('rinex ready', function(msg){
         response = JSON.parse(msg);
         console.log(response);
         if (response.result == "success") {           
-            $('#rinex-ign-button').html('Create');
-            location.href = "/logs/download/" + response.file;
+            $('#create-rinex-button').html('Create Rinex file');
+            //location.href = "/logs/download/" + response.file;
+            (function(){
+                var link = document.createElement("a");
+            link.setAttribute('download', '');
+            link.href = "/logs/download/" + response.file;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            })();
         }
         else if (response.result == "failed") {
-            $('#rinex-ign-button').html('Create');
+            $('#create-rinex-button').html('Create Rinex file');
 
             var failedTitleElt = document.createElement("h5");
             failedTitleElt.classList.add("text-danger");

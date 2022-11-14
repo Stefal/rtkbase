@@ -591,22 +591,23 @@ def configure_receiver(brand="u-blox", model="F9P"):
     #result = {"result" : "success"}
     socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test")
 
-#### Convert ubx file to rinex for Ign ####
-@socketio.on("rinex IGN", namespace="/test")
-def rinex_ign(json_msg, rinex_preset):
-    #print("DEBUG: json convbin: ", json_msg)
+#### Convert ubx file to rinex ####
+@socketio.on("rinex conversion", namespace="/test")
+def rinex_ign(json_msg):
+    print("DEBUG: json convbin: ", json_msg)
     raw_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
     mnt_name = rtkbaseconfig.get("ntrip_A", "mnt_name_A").strip("'")
-    rinex_type = {"ign_rinex" : "ign", "nrcan_rinex" : "nrcan", "30s_full" : "30s_full", "1s_full" : "1s_full"}.get(rinex_preset)
+    rinex_type = {"rinex_ign" : "ign", "rinex_nrcan" : "nrcan", "rinex_30s_full" : "30s_full", "rinex_1s_full" : "1s_full"}.get(json_msg.get("rinex-preset"))
     convpath = os.path.abspath(os.path.join(rtkbase_path, "tools", "convbin.sh"))
-    answer = subprocess.run([convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    print("DEBUG", convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type, rinex_type)
+    answer = subprocess.run([convpath, json_msg.get("filename"), rtk.logm.log_path, mnt_name, raw_type, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "rinex_file=" in answer.stdout:
         rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
         result = {"result" : "success", "file" : rinex_file}
     else:
         result = {"result" : "failed", "msg" : answer.stderr}
-    socketio.emit("ign rinex ready", json.dumps(result), namespace="/test")
-
+    print("DEBUG: ", result)
+    socketio.emit("rinex ready", json.dumps(result), namespace="/test")
 #### Download and convert log handlers ####
 
 @socketio.on("process log", namespace="/test")
