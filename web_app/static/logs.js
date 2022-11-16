@@ -3,7 +3,7 @@ function actionFormatter (value,row,index) {
     return value
 }
 
-var createRinexBtnElt = document.getElementById('create-rinex-button');
+const createRinexBtnElt = document.getElementById('create-rinex-button');
 
 window.operateEvents = {
     'click #log_delete': function (e, value, row, index) {
@@ -60,7 +60,7 @@ $(document).ready(function () {
         console.log('disconnected');
     });
 
-    //Clean edit modal content when closing it, if there is a failed message
+    //Clean edit modal content when closing it
     $("#editModal").on('hidden.bs.modal', function(){
         socket.emit("get logs list");
         var failedTitleElt = document.getElementById("failed_title");
@@ -71,6 +71,8 @@ $(document).ready(function () {
         if (failedMsgElt != null) {
             failedMsgElt.remove();
         };
+        document.getElementById("rinex-conversion-msg").replaceChildren();
+        $('#create-rinex-button').html('Create Rinex file');
       });
 
        // ################" TABLE ##########################"
@@ -148,24 +150,42 @@ $(document).ready(function () {
             };
 
         // server return the raw to rinex result
-       socket.on('rinex ready', function(msg){
+        socket.on('rinex ready', function(msg){
         response = JSON.parse(msg);
         console.log(response);
         if (response.result == "success") {           
             $('#create-rinex-button').html('Create Rinex file');
             //location.href = "/logs/download/" + response.file;
-            (function(){
+            const SuccessTitleElt = document.createElement("h5");
+            SuccessTitleElt.classList.add("text-success");
+            SuccessTitleElt.textContent = "Success!";
+            SuccessTitleElt.id = "success_title";
+            $('#rinex-conversion-msg').append(SuccessTitleElt);
+
+            const SuccessElt = document.createElement("p");
+            SuccessElt.classList.add("text-left");
+            SuccessElt.appendChild(document.createTextNode("Your Rinex file is ready "));
+            var rinexDownBtnElt = document.createElement("a");
+            rinexDownBtnElt.text = "Download it!";
+            //rinexDownBtnElt.href = "/logs/download/" + response.file;
+            //rinexDownBtnElt.target = "_blank";
+            rinexDownBtnElt.setAttribute("title", "download rinex file");
+            rinexDownBtnElt.classList.add("btn", "btn-primary");
+            rinexDownBtnElt.id="download-rinex-btn";
+            SuccessElt.appendChild(rinexDownBtnElt);
+            SuccessElt.id = "success_msg";
+            $('#rinex-conversion-msg').append(SuccessElt);
+            rinexDownBtnElt.onclick = function (){
                 var link = document.createElement("a");
-            link.setAttribute('download', '');
-            link.href = "/logs/download/" + response.file;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            })();
+                link.setAttribute('download', '');
+                link.href = "/logs/download/" + response.file;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }       
         }
         else if (response.result == "failed") {
             $('#create-rinex-button').html('Create Rinex file');
-
             const failedTitleElt = document.createElement("h5");
             failedTitleElt.classList.add("text-danger");
             failedTitleElt.textContent = "Failed!";
@@ -177,7 +197,7 @@ $(document).ready(function () {
             failedElt.appendChild(document.createTextNode(response.msg));
             failedElt.id = "failed_msg";
             $('#rinex-conversion-msg').append(failedElt);
-        }
+        };
     });
 
 })
