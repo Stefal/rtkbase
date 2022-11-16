@@ -163,18 +163,19 @@ $(document).ready(function () {
         }
         else if (response.result == "failed") {
             $('#create-rinex-button').html('Create Rinex file');
-
-            var failedTitleElt = document.createElement("h5");
+            document.getElementById("rinex-conversion-msg").replaceChildren();
+            
+            const failedTitleElt = document.createElement("h5");
             failedTitleElt.classList.add("text-danger");
             failedTitleElt.textContent = "Failed!";
             failedTitleElt.id = "failed_title";
-            $('#editModal .modal-body').append(failedTitleElt);
+            $('#rinex-conversion-msg').append(failedTitleElt);
 
-            var failedElt = document.createElement("p");
+            const failedElt = document.createElement("p");
             failedElt.classList.add("text-left");
             failedElt.appendChild(document.createTextNode(response.msg));
             failedElt.id = "failed_msg";
-            $('#editModal .modal-body').append(failedElt);
+            $('#rinex-conversion-msg').append(failedElt);
         }
     });
 
