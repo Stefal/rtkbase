@@ -36,6 +36,8 @@ $('#confirm-delete-button').on("click", function (){
 createRinexBtnElt.onclick = function (){
     socket.emit("rinex conversion", {"filename": createRinexBtnElt.dataset.filename, "rinex-preset" : document.querySelector("#editModal a.active").dataset.rinexPreset});
     $(this).html('<span class="spinner-border spinner-border-sm"></span> Creating Rinex...');
+    // Cleaning messages if previous conversion failed
+    document.getElementById("rinex-conversion-msg").replaceChildren();
 };
 
 $(document).ready(function () {
@@ -163,8 +165,7 @@ $(document).ready(function () {
         }
         else if (response.result == "failed") {
             $('#create-rinex-button').html('Create Rinex file');
-            document.getElementById("rinex-conversion-msg").replaceChildren();
-            
+
             const failedTitleElt = document.createElement("h5");
             failedTitleElt.classList.add("text-danger");
             failedTitleElt.textContent = "Failed!";
