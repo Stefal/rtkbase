@@ -11,7 +11,7 @@ CONVBIN_PATH=$(type -P convbin)
 
 extract_raw_file() {
   raw_file=$(unzip -l "${RAW_ARCHIVE}" "*.${RAW_TYPE}" | awk '/-----/ {p = ++p % 2; next} p {print $NF}')
-  test $(echo "${raw_file}" | wc -l) -gt 1 && echo 'Error: More than 1 file in the archive' && return 1
+  test $(echo "${raw_file}" | wc -l) -gt 1 && echo 'Error: More than 1 file in the archive' 1>&2 && exit 1
   echo "- Extracting	" "${raw_file}"
   unzip -o "${RAW_ARCHIVE}" "${raw_file}"
   return $?
