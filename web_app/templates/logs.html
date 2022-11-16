@@ -55,13 +55,12 @@
       
         <!-- Modal Header -->
         <div class="modal-header">
-          <h4 class="modal-title">Edit</h4>
+          <h4 class="modal-title">Convert raw file to rinex file</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         
          <!-- Modal body -->
          <div class="modal-body text-center ">
-          <p>blabla</p>
             <div class="rinex-table" role="tabpanel">
               <div class="row">
                 <div class="col-4">
@@ -74,28 +73,29 @@
                 </div>
                 <div class="col-8">
                   <div class="tab-content" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="detail-rinex-ign" role="tabpanel" aria-labelledby="list-rinex-ign">
-                      <p>IGN conversion information</p>
+                    <div class="tab-pane fade show active text-left" id="detail-rinex-ign" role="tabpanel" aria-labelledby="list-rinex-ign">
+                      <ul><li>Rinex v2.11</li><li>GPS only</li><li>Time interval: 30 seconds</li><li>preset for <a href="http://rgp.ign.fr/SERVICES/calcul_online.php" target="_blank">Ign</a> service</li></ul>
                     </div>
-                    <div class="tab-pane fade" id="detail-rinex-nrcan" role="tabpanel" aria-labelledby="list-rinex-nrcan">
-                      <p>NRCAN conversion information</p>
+                    <div class="tab-pane fade text-left" id="detail-rinex-nrcan" role="tabpanel" aria-labelledby="list-rinex-nrcan">
+                      <ul><li>Rinex v3.04</li><li>GPS + Glonass</li><li>Time interval: 30 seconds</li><li>preset for <a href="https://webapp.csrs-scrs.nrcan-rncan.gc.ca/geod/tools-outils/ppp.php" target="_blank">Nrcan</a> service</li></ul>
                     </div>
-                    <div class="tab-pane fade" id="detail-rinex-full_30s" role="tabpanel" aria-labelledby="list-rinex-full_30s">
-                      <p>30s full conversion information</p>
+                    <div class="tab-pane fade text-left" id="detail-rinex-full_30s" role="tabpanel" aria-labelledby="list-rinex-full_30s">
+                      <ul><li>Rinex v3.04</li><li>All supported GNSS constellations</li><li>Time interval: 30 seconds</li></ul>
                     </div>
-                    <div class="tab-pane fade" id="detail-rinex-full_1s" role="tabpanel" aria-labelledby="list-rinex-full_1s">
-                      <p>1s full conversion information</p>
+                    <div class="tab-pane fade text-left" id="detail-rinex-full_1s" role="tabpanel" aria-labelledby="list-rinex-full_1s">
+                      <ul><li>Rinex v3.04</li><li>All supported GNSS constellations</li><li>Time interval: 1 second</li></ul>
                     </div>
-                    <div><button type="button" id="create-rinex-button" class="btn btn-primary">Create Rinex file</button></div>
                   </div>
                 </div>
               </div>
             </div>
+            <div><button type="button" id="create-rinex-button" class="btn btn-primary">Create Rinex file</button></div>
+
         </div>
         
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
-          <button id="edit-button" type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          <button id="edit-button" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           
         </div>
         
