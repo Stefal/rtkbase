@@ -16,7 +16,7 @@ window.operateEvents = {
     },
     'click #log_edit': function(e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
-        console.log(row.format);
+        //console.log(row.format);
         if ( row.format.split(".").pop() === "ZIP") {
             createRinexBtnElt.removeAttribute('disabled');
         }
@@ -53,7 +53,7 @@ $(document).ready(function () {
         socket.emit("browser connected", {data: "I'm connected"});
     });
 
-    console.log("log.js Asking for the available logs");
+    //console.log("log.js Asking for the available logs");
     socket.emit("get logs list");
 
     socket.on('disconnect', function(){
@@ -78,7 +78,7 @@ $(document).ready(function () {
        // ################" TABLE ##########################"
 
     socket.on('available logs', function(msg){
-        console.log("New log list available");
+        //console.log("New log list available");
         
         var actionDownloadElt = document.createElement("a");
         actionDownloadElt.href = "#";
@@ -131,9 +131,9 @@ $(document).ready(function () {
         $('#logtable').bootstrapTable('removeAll');
         
         $('#logtable').bootstrapTable('load', msg);
-        var zz = $('#logtable').bootstrapTable('getData');
-        console.log(" table data : ");
-        console.log(zz);
+        //var zz = $('#logtable').bootstrapTable('getData');
+        //console.log(" table data : ");
+        //console.log(zz);
         })
 
        // ################" SOCKETS ##########################"
