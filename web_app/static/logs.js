@@ -194,8 +194,10 @@ $(document).ready(function () {
 
             const failedElt = document.createElement("p");
             failedElt.classList.add("text-left");
-            failedElt.appendChild(document.createTextNode(response.msg));
-            failedElt.id = "failed_msg";
+            if (response.msg.includes("more than 1 file")) {
+                failedElt.appendChild(document.createTextNode("There is more than 1 file in the archive you want to convert. The reason could be a power outage or a main service stop/start. Please try with an archive containing only one file"));
+                failedElt.id = "failed_msg";
+            };
             $('#rinex-conversion-msg').append(failedElt);
         };
     });
