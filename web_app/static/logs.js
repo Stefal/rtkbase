@@ -101,7 +101,7 @@ $(document).ready(function () {
             var editImg = document.createElement("img");
             editImg.setAttribute("src", "../static/images/pencil.svg");
             editImg.setAttribute("alt", "edit");
-            editImg.setAttribute("title", "Edit");
+            editImg.setAttribute("title", "Convert to Rinex");
             editImg.setAttribute("width", "25");
             editImg.setAttribute("height", "25");
         actionEditElt.appendChild(editImg);
