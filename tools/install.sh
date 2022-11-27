@@ -3,6 +3,8 @@
 ### RTKBASE INSTALLATION SCRIPT ###
 declare -a detected_gnss
 declare RTKBASE_USER
+APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
+
 man_help(){
     echo '################################'
     echo 'RTKBASE INSTALLATION HELP'
@@ -91,15 +93,15 @@ install_dependencies() {
     echo '################################'
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
-      apt-get update 
-      apt-get install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip pkg-config
+      apt-get "${APT_TIMEOUT}" update 
+      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip pkg-config
 }
 
 install_gpsd_chrony() {
     echo '################################'
     echo 'CONFIGURING FOR USING GPSD + CHRONY'
     echo '################################'
-      apt-get install chrony -y
+      apt-get "${APT_TIMEOUT}" install chrony -y
       #Disabling and masking systemd-timesyncd
       systemctl stop systemd-timesyncd
       systemctl disable systemd-timesyncd
@@ -123,12 +125,12 @@ install_gpsd_chrony() {
           #Adding buster-backports
           echo 'deb http://httpredir.debian.org/debian buster-backports main contrib' > /etc/apt/sources.list.d/backports.list
           apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-          apt-get update
+          apt-get "${APT_TIMEOUT}" update
         fi
-        apt-get -t buster-backports install gpsd -y
+        apt-get "${APT_TIMEOUT}" -t buster-backports install gpsd -y
       else
         #We hope that the release is more recent than buster and provide gpsd 3.20 or >
-        apt-get install gpsd -y
+        apt-get "${APT_TIMEOUT}" install gpsd -y
       fi
       #disable hotplug
       sed -i 's/^USBAUTO=.*/USBAUTO="false"/' /etc/default/gpsd
@@ -273,7 +275,7 @@ rtkbase_requirements(){
       if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
       then
         # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
-        apt-get install -y libssl-dev libffi-dev
+        apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev
       fi
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       python3 -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
@@ -345,10 +347,20 @@ detect_usb_gnss() {
             #change the com port value/settings inside settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf
+            #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
+            #TODO: write these parameters only if the gnss receiver is a U-blox? Move this after the gnss configuration?
+            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
-            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver=''\nreceiver_format=''\nreceiver_frequency_count=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
+            #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
+            sudo -u "${RTKBASE_USER}" printf "[ntrip_a]\nntrip_a_receiver_options='-TADJ=1'\n[ntrip_b]\nntrip_b_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
+
           fi
         fi
 }
@@ -363,23 +375,6 @@ _get_device_path() {
             fi
         fi
     done
-}
-
-_add_tadj_option(){
-  #Add -TADJ=1 option on all ntrip/rtcm output
-  if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -qE "^\[ntrip.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
-    then
-      #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
-      sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-      sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-      sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-      sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-      sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
-    else
-      # write these -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs to a new or an existing settings.conf file
-      sudo -u "${RTKBASE_USER}" printf "[ntrip_A]\nntrip_a_receiver_options='-TADJ=1'\n[ntrip_B]\nntrip_b_receiver_options='-TADJ=1'\n[local_ntrip_caster]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
-  fi
-
 }
 
 configure_gnss(){
@@ -398,9 +393,7 @@ configure_gnss(){
           #now that the receiver is configured, we can set the right values inside settings.conf
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf  && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                  && \
-          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'ubx\'/ "${rtkbase_path}"/settings.conf               && \
-          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_frequency_count=.*/receiver_frequency_count=\'2\'/ "${rtkbase_path}"/settings.conf && \
-          _add_tadj_option
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'ubx\'/ "${rtkbase_path}"/settings.conf
           return $?
         else
           echo 'No Gnss receiver has been set. We can'\''t configure'
@@ -473,14 +466,13 @@ main() {
 
   PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:tgencsv:a --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,alldev:,all -- "$@")
   VALID_ARGUMENTS=$?
-
-  # If the parsing failed OR no arguments where passed, then display help
-  if [[ "$VALID_ARGUMENTS" != "0" ]] || [[ "$PARSED_ARGUMENTS" == " --" ]]; then
-    echo 'Invalid usage, try '\''install.sh --help'\'' for more information'
+  if [ "$VALID_ARGUMENTS" != "0" ]; then
+    #man_help
+    echo 'Try '\''install.sh --help'\'' for more information'
     exit 1
   fi
 
-  echo "PARSED_ARGUMENTS is '$PARSED_ARGUMENTS'"
+  echo "PARSED_ARGUMENTS is $PARSED_ARGUMENTS"
   eval set -- "$PARSED_ARGUMENTS"
   while :
     do
