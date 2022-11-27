@@ -93,15 +93,15 @@ install_dependencies() {
     echo '################################'
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
-      apt-get "${APT_TIMEOUT}" update 
-      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip pkg-config
+      apt-get "${APT_TIMEOUT}" update || exit 1
+      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip pkg-config || exit 1
 }
 
 install_gpsd_chrony() {
     echo '################################'
     echo 'CONFIGURING FOR USING GPSD + CHRONY'
     echo '################################'
-      apt-get "${APT_TIMEOUT}" install chrony -y
+      apt-get "${APT_TIMEOUT}" install chrony -y || exit 1
       #Disabling and masking systemd-timesyncd
       systemctl stop systemd-timesyncd
       systemctl disable systemd-timesyncd
@@ -125,12 +125,12 @@ install_gpsd_chrony() {
           #Adding buster-backports
           echo 'deb http://httpredir.debian.org/debian buster-backports main contrib' > /etc/apt/sources.list.d/backports.list
           apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-          apt-get "${APT_TIMEOUT}" update
+          apt-get "${APT_TIMEOUT}" update || exit 1
         fi
-        apt-get "${APT_TIMEOUT}" -t buster-backports install gpsd -y
+        apt-get "${APT_TIMEOUT}" -t buster-backports install gpsd -y || exit 1
       else
         #We hope that the release is more recent than buster and provide gpsd 3.20 or >
-        apt-get "${APT_TIMEOUT}" install gpsd -y
+        apt-get "${APT_TIMEOUT}" install gpsd -y || exit 1
       fi
       #disable hotplug
       sed -i 's/^USBAUTO=.*/USBAUTO="false"/' /etc/default/gpsd
@@ -275,7 +275,7 @@ rtkbase_requirements(){
       if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
       then
         # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
-        apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev
+        apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
       fi
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       python3 -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
