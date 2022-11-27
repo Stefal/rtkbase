@@ -20,6 +20,7 @@
 - GUI -> Settings: No more "bounce" issues with the switches. Thanks to @GwnDaan
 - Max Cpu temp was not updated when no user where connected. Thanks to @GwnDaan
 - GUI -> Settings: Check update now display an error in case of a connection error. Thanks to @GwnDaan #221
+- GUI -> Logs: Better logs table behaviour on mobile devices.
 
 ### Security
 
