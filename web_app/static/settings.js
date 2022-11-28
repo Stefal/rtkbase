@@ -532,6 +532,16 @@ $(document).ready(function () {
         };
         return returntext.trim();
     }
+
+    // #################### HANDLE SETTINGS BACKUP LOAD RESET #################
+
+    document.getElementById('confirm-reset-button').onclick = function (){
+        socket.emit("reset settings");
+    }
+    socket.on("settings_reset", function() {
+        location.href = 'logout';
+    })
+
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
     $("#reboot-button").on("click", function() {

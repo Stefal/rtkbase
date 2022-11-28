@@ -526,6 +526,17 @@
 
   <div class="row py-2 align-items-center">
     <div class="col-sm-4">
+      <span class="col-sm-3">Settings:</span>
+    </div>
+    <div class="col-sm-8">
+        <button id="backup-button" class="btn btn-secondary" type="button">Backup</button>
+        <button id="restore-button" class="btn btn-secondary" type="button">Restore</button>
+        <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#reset-modal">Reset</button>
+    </div>
+  </div>
+
+  <div class="row py-2 align-items-center">
+    <div class="col-sm-4">
       <span class="col-sm-3">Diagnostic:</span>
     </div>
     <div class="col-sm-8">
@@ -629,22 +640,21 @@
   </div>
 </div>
 
-<!-- The shutdown Modal dialog box-->
-<div class="modal" id="shutdownModal">
+<!-- The Reset settings Modal dialog box-->
+<div class="modal" id="reset-modal">
   <div class="modal-dialog">
     <div class="modal-content">
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title">Shutdown</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Reset settings</h4>
       </div>
       <!-- Modal body -->
-      <div class="modal-body text-center ">Shutdown the GNSS Base. Are you sure?          
+      <div class="modal-body text-center ">Reset to default settings (including password). Are you sure?          
       </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
-        <button id="confirm-shutdown-button" type="button" class="btn btn-danger">Shutdown</button>
-        <button id="shutdown-cancel-button" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="confirm-reset-button" type="button" class="btn btn-danger">Reset</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>     
     </div>
   </div>

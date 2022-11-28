@@ -60,8 +60,6 @@ class RTKBaseConfigManager:
             exp_logdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", logdir.strip("$BASEDIR/")))
             self.update_setting("log", "logdir", exp_logdir)
 
-
-
     def listvalues(self):
         """
             print all keys/values from all sections in the settings

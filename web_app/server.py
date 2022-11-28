@@ -528,6 +528,7 @@ def stopBase():
 @socketio.on("on graph", namespace="/test")
 def continueBase():
     rtk.sleep_count = 0
+
 #### Free space handler
 
 @socketio.on("get available space", namespace="/test")
@@ -543,6 +544,7 @@ def deleteLog(json_msg):
     getAvailableLogs()
 
 #### Detect GNSS receiver button handler ####
+
 @socketio.on("detect_receiver", namespace="/test")
 def detect_receiver(json_msg):
     print("Detecting gnss receiver")
@@ -591,7 +593,17 @@ def configure_receiver(brand="u-blox", model="F9P"):
     #result = {"result" : "success"}
     socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test")
 
+#### Settings Backup Restore Reset ####
+
+@socketio.on("reset settings", namespace="/test")
+def reset_settings():
+    switchService({"name":"main", "active":False})
+    rtkbaseconfig.config = rtkbaseconfig.merge_default_and_user(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf.default"))
+    rtkbaseconfig.write_file()
+    socketio.emit("settings_reset", namespace="/test")
+
 #### Convert ubx file to rinex ####
+
 @socketio.on("rinex conversion", namespace="/test")
 def rinex_ign(json_msg):
     #print("DEBUG: json convbin: ", json_msg)
@@ -608,6 +620,7 @@ def rinex_ign(json_msg):
         result = {"result" : "failed", "msg" : answer.stderr}
     #print("DEBUG: ", result)
     socketio.emit("rinex ready", json.dumps(result), namespace="/test")
+
 #### Download and convert log handlers ####
 
 @socketio.on("process log", namespace="/test")
