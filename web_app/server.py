@@ -506,10 +506,14 @@ def shutdownBase():
 
 @socketio.on("start base", namespace="/test")
 def startBase():
+    saved_input_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
+    #check if the main service is running and the gnss format is correct. If not, don't try to start rtkrcv with startBase() 
+    if services_list[0].get("active") is False or saved_input_type not in ["rtcm2","rtcm3","nov","oem3","ubx","ss2","hemis","stq","javad","nvs","binex","rt17","sbf"]:
+        print("DEBUG: Can't start rtkrcv as main service isn't enabled or gnss format is wrong")
+        return
     # We must start rtkcv before trying to modify an option
     rtk.startBase()
     saved_input_path = "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'")
-    saved_input_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
     if rtk.get_rtkcv_option("inpstr1-path") != saved_input_path:
         rtk.set_rtkcv_option("inpstr1-path", saved_input_path)
         rtk.set_rtkcv_pending_refresh(True)
@@ -758,7 +762,7 @@ def switchService(json_msg):
         param: json_msg: A json var from the web front end containing one or more service
         name with their new status.
     """
-    print("Received service to switch", json_msg)
+    #print("Received service to switch", json_msg)
     try:
         for service in services_list:
             if json_msg["name"] == service["name"] and json_msg["active"] == True:
@@ -783,9 +787,9 @@ def update_settings(json_msg):
         Then restart the services which have a dependency with these parameters.
         param json_msg: A json variable containing the source form and the new paramaters
     """
-    print("received settings form", json_msg)
+    #print("received settings form", json_msg)
     source_section = json_msg.pop().get("source_form")
-    print("section: ", source_section)
+    #print("section: ", source_section)
     if source_section == "change_password":
         if json_msg[0].get("value") == json_msg[1].get("value"):
             rtkbaseconfig.update_setting("general", "new_web_password", json_msg[0].get("value"))
@@ -796,8 +800,8 @@ def update_settings(json_msg):
             print("ERROR, WRONG PASSWORD!")
     else:
         for form_input in json_msg:
-            print("name: ", form_input.get("name"))
-            print("value: ", form_input.get("value"))
+            #print("name: ", form_input.get("name"))
+            #print("value: ", form_input.get("value"))
             rtkbaseconfig.update_setting(source_section, form_input.get("name"), form_input.get("value"), write_file=False)
         rtkbaseconfig.write_file()
 
