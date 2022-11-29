@@ -602,6 +602,11 @@ def reset_settings():
     rtkbaseconfig.write_file()
     socketio.emit("settings_reset", namespace="/test")
 
+@app.route("/logs/download/settings")
+def backup_settings():
+    settings_file_name = "RTKBase_settings_" + time.strftime("%Y-%m-%d_%HH%M") + ".conf"
+    return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
+
 #### Convert ubx file to rinex ####
 
 @socketio.on("rinex conversion", namespace="/test")

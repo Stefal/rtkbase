@@ -542,6 +542,16 @@ $(document).ready(function () {
         location.href = 'logout';
     })
 
+    document.getElementById('backup-button').onclick = function () {
+        //Using this js function to download, because a <a href=.. disconnect socketio
+        var link = document.createElement("a");
+                link.setAttribute('download', '');
+                link.href = "/logs/download/settings";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+    }
+
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
     $("#reboot-button").on("click", function() {
