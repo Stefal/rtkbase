@@ -603,6 +603,7 @@ def reset_settings():
     socketio.emit("settings_reset", namespace="/test")
 
 @app.route("/logs/download/settings")
+@login_required
 def backup_settings():
     settings_file_name = "RTKBase_settings_" + time.strftime("%Y-%m-%d_%HH%M") + ".conf"
     return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
