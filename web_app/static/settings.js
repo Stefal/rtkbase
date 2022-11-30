@@ -58,6 +58,11 @@ $(document).ready(function () {
 
     // Send saved settings to back-end
     $("form").submit(function(e) {
+        if (this.id === "restore_form") {
+            // we dont want to manage restore settings with socketio but
+            // with a standard POST method
+            return;
+        }
         var formdata = $( this ).serializeArray();
         formdata.push({"source_form" : e.currentTarget.id});
         socket.emit("form data", formdata);

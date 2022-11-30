@@ -530,7 +530,7 @@
     </div>
     <div class="col-sm-8">
         <button id="backup-button" class="btn btn-secondary" type="button">Backup</button>
-        <button id="restore-button" class="btn btn-secondary" type="button">Restore</button>
+        <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#restore_settings">Restore</button>
         <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#reset-modal">Reset</button>
     </div>
   </div>
@@ -618,6 +618,33 @@
     </div>
   </div>
 </div>
+
+  <!-- The restore settings Modal dialog box-->
+  <div class="modal" id="restore_settings">
+    <div class="modal-dialog">
+      <div class="modal-content">     
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Restore saved settings</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>       
+        <!-- Modal body -->
+        <div class="modal-body text-center ">
+          <form id="restore_form" method="POST" action="restore_settings" enctype="multipart/form-data">
+            <p><input type="file" name="file" class="btn btn-success" role="button">
+              <input type="submit" class="btn btn-success" role="button" value="Restore">
+            </p>
+            <p></p>
+        </form>
+        </div>       
+        <!-- Modal footer -->
+        <div class="modal-footer mx-auto">
+          <!--<button id="restore-button" type="button" class="btn btn-primary" disabled>Restore</button>-->
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>      
+      </div>
+    </div>
+  </div>
 
   <!-- The reboot Modal dialog box-->
 <div class="modal" id="rebootModal">

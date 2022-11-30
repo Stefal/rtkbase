@@ -78,6 +78,9 @@ app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 128
+app.config['UPLOAD_EXTENSIONS'] = ['.conf', '.txt', 'ini']
+
 rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 path_to_rtklib = "/usr/local/bin" #TODO find path with which or another tool
 
@@ -607,6 +610,21 @@ def reset_settings():
 def backup_settings():
     settings_file_name = "RTKBase_settings_" + time.strftime("%Y-%m-%d_%HH%M") + ".conf"
     return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
+
+@app.route('/restore_settings', methods=['POST'])       
+@login_required
+def restore_settings():
+    print
+    if request.method == 'POST':
+        uploaded_settings = request.files['file']
+        if uploaded_settings.filename != '':
+            import tempfile
+            fp = tempfile.NamedTemporaryFile()
+            uploaded_settings.save(fp.name)
+            rtkbaseconfig.config = rtkbaseconfig.merge_default_and_user(os.path.join(rtkbase_path, "settings.conf.default"), fp.name)
+            rtkbaseconfig.write_file()
+            #setting_objfile.close()
+        return redirect(url_for('logout'))
 
 #### Convert ubx file to rinex ####
 
