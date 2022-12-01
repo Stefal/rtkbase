@@ -608,7 +608,7 @@ def reset_settings():
 @app.route("/logs/download/settings")
 @login_required
 def backup_settings():
-    settings_file_name = str("RTKBase_{}_{}_{}.conf".format(rtkbaseconfig.get("general", "version"), rtkbaseconfig.get("ntrip_A", "mnt_name_a"), time.strftime("%Y-%m-%d_%HH%M")))
+    settings_file_name = str("RTKBase_{}_{}_{}.conf".format(rtkbaseconfig.get("general", "version"), rtkbaseconfig.get("ntrip_A", "mnt_name_a").strip("'"), time.strftime("%Y-%m-%d_%HH%M")))
     return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
 
 @app.route('/restore_settings', methods=['POST'])       
