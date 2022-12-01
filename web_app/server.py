@@ -601,14 +601,14 @@ def configure_receiver(brand="u-blox", model="F9P"):
 @socketio.on("reset settings", namespace="/test")
 def reset_settings():
     switchService({"name":"main", "active":False})
-    rtkbaseconfig.config = rtkbaseconfig.merge_default_and_user(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf.default"))
+    rtkbaseconfig.merge_default_and_user(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf.default"))
     rtkbaseconfig.write_file()
     socketio.emit("settings_reset", namespace="/test")
 
 @app.route("/logs/download/settings")
 @login_required
 def backup_settings():
-    settings_file_name = "RTKBase_settings_" + time.strftime("%Y-%m-%d_%HH%M") + ".conf"
+    settings_file_name = str("RTKBase_{}_{}_{}.conf".format(rtkbaseconfig.get("general", "version"), rtkbaseconfig.get("ntrip_A", "mnt_name_a"), time.strftime("%Y-%m-%d_%HH%M")))
     return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
 
 @app.route('/restore_settings', methods=['POST'])       
@@ -619,11 +619,9 @@ def restore_settings():
         uploaded_settings = request.files['file']
         if uploaded_settings.filename != '':
             import tempfile
-            fp = tempfile.NamedTemporaryFile()
-            uploaded_settings.save(fp.name)
-            rtkbaseconfig.config = rtkbaseconfig.merge_default_and_user(os.path.join(rtkbase_path, "settings.conf.default"), fp.name)
-            rtkbaseconfig.write_file()
-            #setting_objfile.close()
+            tmp_file = tempfile.NamedTemporaryFile()
+            uploaded_settings.save(tmp_file.name)
+            rtkbaseconfig.restore_settings(os.path.join(rtkbase_path, "settings.conf.default"), tmp_file.name)
         return redirect(url_for('logout'))
 
 #### Convert ubx file to rinex ####
