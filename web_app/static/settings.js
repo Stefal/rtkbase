@@ -59,15 +59,15 @@ $(document).ready(function () {
     // Send saved settings to back-end
     $("form").submit(function(e) {
         if (this.id === "restore_form") {
-            // we dont want to manage restore settings with socketio but
-            // with a standard POST method
-            return;
+            socket.emit("restore settings", {"filename": this.file.files[0].name, "data" : this.file.files[0]})
         }
-        var formdata = $( this ).serializeArray();
-        formdata.push({"source_form" : e.currentTarget.id});
-        socket.emit("form data", formdata);
+        else {
+            var formdata = $( this ).serializeArray();
+            formdata.push({"source_form" : e.currentTarget.id});
+            socket.emit("form data", formdata);
+            $(this).closest("form").find(":submit").prop("disabled", true);
+        }
         e.preventDefault();
-        $(this).closest("form").find(":submit").prop("disabled", true);
       });
     
     // ####################### HANDLE RTKBASE SERVICES    #######################
@@ -557,6 +557,33 @@ $(document).ready(function () {
                 link.remove();
     }
 
+    socket.on("restore_settings_result", function(msg) {
+        response = JSON.parse(msg);
+        console.log('restore setting result')
+        console.log(response.msg)
+        reset_answer_p();
+        var restoreFailureElt = document.getElementById("restoration_server_answer");
+        if (response['result'] === 'failed') {
+            restoreFailureElt.setAttribute("class", "text-danger");
+            restoreFailureElt.appendChild(document.createTextNode("Error: " + response.msg));
+            document.querySelector("#restore_settings div.modal-body").append(restoreFailureElt);
+        }
+        else if (response['result'] === 'success') {
+            restoreFailureElt.setAttribute("class", "text-success");
+            restoreFailureElt.appendChild(document.createTextNode("Success! automatic logout in 5 seconds"));
+            document.querySelector("#restore_settings div.modal-body").append(restoreFailureElt);
+        }
+    });
+    
+    // Cleaning restore settings modal box when closing it
+    $("#restore_settings").on('hidden.bs.modal', reset_answer_p);
+
+    function reset_answer_p () {
+        var ansElement = document.getElementById("restoration_server_answer");
+        while (ansElement.firstChild) {
+            ansElement.removeChild(ansElement.firstChild);
+          }
+      }
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
     $("#reboot-button").on("click", function() {

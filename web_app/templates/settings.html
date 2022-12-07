@@ -531,7 +531,7 @@
     <div class="col-sm-8">
         <button id="backup-button" class="btn btn-secondary" type="button">Backup</button>
         <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#restore_settings">Restore</button>
-        <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#reset-modal">Reset</button>
+        <button id="reset-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#reset-modal">Reset</button>
     </div>
   </div>
 
@@ -630,11 +630,10 @@
         </div>       
         <!-- Modal body -->
         <div class="modal-body text-center ">
-          <form id="restore_form" method="POST" action="restore_settings" enctype="multipart/form-data">
+          <form id="restore_form" method="POST" action="settings" enctype="multipart/form-data">
             <p><input type="file" name="file">
               <input type="submit" class="btn btn-danger" role="button" value="Restore">
-            </p>
-            <p></p>
+            </p><p id="restoration_server_answer"></p>
         </form>
         </div>       
         <!-- Modal footer -->

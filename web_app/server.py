@@ -40,6 +40,7 @@ import shutil
 import signal
 import sys
 import requests
+import tempfile
 
 from threading import Thread
 from RTKLIB import RTKLIB
@@ -73,7 +74,7 @@ from werkzeug.urls import url_parse
 from werkzeug.utils import safe_join
 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
@@ -611,18 +612,34 @@ def backup_settings():
     settings_file_name = str("RTKBase_{}_{}_{}.conf".format(rtkbaseconfig.get("general", "version"), rtkbaseconfig.get("ntrip_A", "mnt_name_a").strip("'"), time.strftime("%Y-%m-%d_%HH%M")))
     return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
 
-@app.route('/restore_settings', methods=['POST'])       
-@login_required
-def restore_settings():
-    print
-    if request.method == 'POST':
-        uploaded_settings = request.files['file']
-        if uploaded_settings.filename != '':
-            import tempfile
-            tmp_file = tempfile.NamedTemporaryFile()
-            uploaded_settings.save(tmp_file.name)
-            rtkbaseconfig.restore_settings(os.path.join(rtkbase_path, "settings.conf.default"), tmp_file.name)
-        return redirect(url_for('logout'))
+@socketio.on("restore settings", namespace="/test")
+def restore_settings_file(json_msg):
+    print("DEBUG: type: ", type(json_msg))
+    #print("DEBUG: print msg: ", msg)
+    print("DEBUG: filename: ", json_msg["filename"])
+    try:
+        if not json_msg["filename"].lower().endswith(".conf"):
+            raise TypeError("Wrong file type")
+        if not "[general]" in json_msg["data"].decode():
+            raise ValueError(("Not a valid RTKBase settings file"))
+        tmp_file = tempfile.NamedTemporaryFile()
+        with open(tmp_file.name, 'wb') as file:
+            file.write(json_msg["data"])
+        rtkbaseconfig.restore_settings(os.path.join(rtkbase_path, "settings.conf.default"), tmp_file.name)
+    except TypeError as e:
+        print("DEBUG: ", e)
+        result= {"result" : "failed", "msg" : "The file should be a .conf filetype"}
+    except ValueError as e:
+        print("DEBUG: ", e)
+        result= {"result" : "failed", "msg" : "The file is invalid"}
+    except Exception as e:
+        print("DEBUG: Settings restoration error")
+        print("DEBUG: ", e)
+        result= {"result" : "failed", "msg" : "Unknown error"}
+    else:
+        result= {"result" : "success", "msg" : "Successful restoration, You will be redirect to the login page in 5 seconds"}
+    finally:
+        socketio.emit("restore_settings_result", json.dumps(result), namespace="/test")
 
 #### Convert ubx file to rinex ####
 
