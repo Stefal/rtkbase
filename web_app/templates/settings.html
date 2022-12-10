@@ -530,8 +530,8 @@
     </div>
     <div class="col-sm-8">
         <button id="backup-button" class="btn btn-secondary" type="button">Backup</button>
-        <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#restore_settings">Restore</button>
-        <button id="reset-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#reset-modal">Reset</button>
+        <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#restoreSettingsModal">Restore</button>
+        <button id="reset-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#resetModal">Reset</button>
     </div>
   </div>
 
@@ -620,7 +620,7 @@
 </div>
 
   <!-- The restore settings Modal dialog box-->
-  <div class="modal" id="restore_settings">
+  <div class="modal" id="restoreSettingsModal" data-backdrop="static">
     <div class="modal-dialog">
       <div class="modal-content">     
         <!-- Modal Header -->
@@ -630,16 +630,18 @@
         </div>       
         <!-- Modal body -->
         <div class="modal-body text-center ">
-          <form id="restore_form" method="POST" action="settings" enctype="multipart/form-data">
+          <form id="restore-form" method="POST" action="settings" enctype="multipart/form-data">
             <p><input type="file" name="file">
-              <input type="submit" class="btn btn-danger" role="button" value="Restore">
+              <!--<input type="submit" class="btn btn-danger" role="button" value="Restore">-->
             </p><p id="restoration_server_answer"></p>
         </form>
         </div>       
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
-          <!--<button id="restore-button" type="button" class="btn btn-primary" disabled>Restore</button>-->
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <a href="{{ url_for('logout') }}" id="restore-logout-button" class="btn btn-success" role="button" style="display: none;">Logout</a>
+          <!--<button id="restore-logout-button" type="button" class="btn btn-success" style="display: none;">Logout</button> -->
+          <button id="restore-settings-button" type="button" class="btn btn-danger" disabled>Restore Settings</button>
+          <button type="button" id="restore-cancel-button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
         </div>      
       </div>
     </div>
@@ -667,7 +669,7 @@
 </div>
 
 <!-- The Reset settings Modal dialog box-->
-<div class="modal" id="reset-modal">
+<div class="modal" id="resetModal">
   <div class="modal-dialog">
     <div class="modal-content">
       <!-- Modal Header -->

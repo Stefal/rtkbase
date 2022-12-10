@@ -45,7 +45,6 @@ $(document).ready(function () {
     });
     console.log("main.js Asking for service status");
     socket.emit("get services status");
-
     socket.on('disconnect', function(){
         console.log('disconnected');
     });
@@ -58,15 +57,10 @@ $(document).ready(function () {
 
     // Send saved settings to back-end
     $("form").submit(function(e) {
-        if (this.id === "restore_form") {
-            socket.emit("restore settings", {"filename": this.file.files[0].name, "data" : this.file.files[0]})
-        }
-        else {
-            var formdata = $( this ).serializeArray();
-            formdata.push({"source_form" : e.currentTarget.id});
-            socket.emit("form data", formdata);
-            $(this).closest("form").find(":submit").prop("disabled", true);
-        }
+        var formdata = $( this ).serializeArray();
+        formdata.push({"source_form" : e.currentTarget.id});
+        socket.emit("form data", formdata);
+        $(this).closest("form").find(":submit").prop("disabled", true);
         e.preventDefault();
       });
     
@@ -539,14 +533,14 @@ $(document).ready(function () {
     }
 
     // #################### HANDLE SETTINGS BACKUP LOAD RESET #################
-
+            // #### RESET
     document.getElementById('confirm-reset-button').onclick = function (){
         socket.emit("reset settings");
     }
     socket.on("settings_reset", function() {
         location.href = 'logout';
     })
-
+            // #### BACKUP
     document.getElementById('backup-button').onclick = function () {
         //Using this js function to download, because a <a href=.. disconnect socketio
         var link = document.createElement("a");
@@ -556,34 +550,68 @@ $(document).ready(function () {
                 link.click();
                 link.remove();
     }
+            // #### RESTORE
+    var formElt = document.getElementById('restore-form');
+    var logoutBtn = document.getElementById('restore-logout-button');
+    var restorBtn = document.getElementById('restore-settings-button');
+    var restoreFailureElt = document.getElementById("restoration_server_answer");
+    var restoreCancelBtn = document.getElementById("restore-cancel-button");
+   
+    formElt.addEventListener('change', function(){
+        restorBtn.setAttribute("disabled", "True");
+        reset_answer_p();
+        // test file size on client side as it could crash silently.
+        if (this.file.files[0].size > 100000) {
+            restoreFailureElt.setAttribute("class", "text-danger");
+            restoreFailureElt.appendChild(document.createTextNode("Error: " + "file size too big"));
+            document.querySelector("#restoreSettingsModal div.modal-body").append(restoreFailureElt);
+        }
+        else {
+        restorBtn.removeAttribute("disabled");
+        }
+    });
+    
+    restorBtn.onclick = function (){  
+        socket.emit("restore settings", {"filename": formElt.file.files[0].name, "data" : formElt.file.files[0]})
+    };
 
     socket.on("restore_settings_result", function(msg) {
         response = JSON.parse(msg);
         console.log('restore setting result')
         console.log(response.msg)
         reset_answer_p();
-        var restoreFailureElt = document.getElementById("restoration_server_answer");
         if (response['result'] === 'failed') {
             restoreFailureElt.setAttribute("class", "text-danger");
             restoreFailureElt.appendChild(document.createTextNode("Error: " + response.msg));
-            document.querySelector("#restore_settings div.modal-body").append(restoreFailureElt);
+            document.querySelector("#restoreSettingsModal div.modal-body").append(restoreFailureElt);
         }
         else if (response['result'] === 'success') {
             restoreFailureElt.setAttribute("class", "text-success");
-            restoreFailureElt.appendChild(document.createTextNode("Success! automatic logout in 5 seconds"));
-            document.querySelector("#restore_settings div.modal-body").append(restoreFailureElt);
+            restoreFailureElt.appendChild(document.createTextNode("Success! Please logout."));
+            document.querySelector("#restoreSettingsModal div.modal-body").append(restoreFailureElt);
+            restorBtn.style.display = "none";
+            logoutBtn.style.display="block";
+            restoreCancelBtn.setAttribute("disabled", "True");
         }
     });
     
     // Cleaning restore settings modal box when closing it
-    $("#restore_settings").on('hidden.bs.modal', reset_answer_p);
+    $("#restore_settings").on('hidden.bs.modal', function() {
+        reset_answer_p();
+        restorBtn.setAttribute("disabled", "True");
+        restoreCancelBtn.removeAttribute("disabled");
+        formElt.reset();
+        restorBtn.style.display = "block";
+        logoutBtn.style.display="none";
+    });
 
     function reset_answer_p () {
         var ansElement = document.getElementById("restoration_server_answer");
         while (ansElement.firstChild) {
             ansElement.removeChild(ansElement.firstChild);
-          }
-      }
+          };
+      };
+
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
     $("#reboot-button").on("click", function() {
