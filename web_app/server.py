@@ -614,9 +614,9 @@ def backup_settings():
 
 @socketio.on("restore settings", namespace="/test")
 def restore_settings_file(json_msg):
-    print("DEBUG: type: ", type(json_msg))
+    #print("DEBUG: type: ", type(json_msg))
     #print("DEBUG: print msg: ", msg)
-    print("DEBUG: filename: ", json_msg["filename"])
+    #print("DEBUG: filename: ", json_msg["filename"])
     try:
         if not json_msg["filename"].lower().endswith(".conf"):
             raise TypeError("Wrong file type")
@@ -627,17 +627,18 @@ def restore_settings_file(json_msg):
             file.write(json_msg["data"])
         rtkbaseconfig.restore_settings(os.path.join(rtkbase_path, "settings.conf.default"), tmp_file.name)
     except TypeError as e:
-        print("DEBUG: ", e)
+        #print("DEBUG: ", e)
         result= {"result" : "failed", "msg" : "The file should be a .conf filetype"}
     except ValueError as e:
-        print("DEBUG: ", e)
+        #print("DEBUG: ", e)
         result= {"result" : "failed", "msg" : "The file is invalid"}
     except Exception as e:
-        print("DEBUG: Settings restoration error")
-        print("DEBUG: ", e)
+        #print("DEBUG: Settings restoration error")
+        #print("DEBUG: ", e)
         result= {"result" : "failed", "msg" : "Unknown error"}
     else:
         result= {"result" : "success", "msg" : "Successful restoration, You will be redirect to the login page in 5 seconds"}
+        restartServices()
     finally:
         socketio.emit("restore_settings_result", json.dumps(result), namespace="/test")
 
@@ -739,13 +740,15 @@ def update_std_user(services):
     user = service["unit"].getUser()
     rtkbaseconfig.update_setting("general", "user", user)
 
-def restartServices(restart_services_list):
+def restartServices(restart_services_list=None):
     """
         Restart already running services
         This function will refresh all services status, then compare the global services_list and 
         the restart_services_list to find the services we need to restart.
         #TODO I don't really like this global services_list use.
     """
+    if restart_services_list == None:
+        restart_services_list = [unit["name"] for unit in services_list if unit["name"] not in ("archive_timer", "archive_service")]
     #Update services status
     for service in services_list:
         service["active"] = service["unit"].isActive()
