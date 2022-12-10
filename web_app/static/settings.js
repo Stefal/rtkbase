@@ -45,14 +45,13 @@ $(document).ready(function () {
     });
     console.log("main.js Asking for service status");
     socket.emit("get services status");
-
     socket.on('disconnect', function(){
         console.log('disconnected');
     });
 
     //Enable "Save" button when form value is changed
     $("form").on('input', 'input, select', function() {
-        console.log("change detected");
+        //console.log("change detected");
         $(this).closest("form").find("button").removeAttr("disabled");
         });
 
@@ -61,8 +60,8 @@ $(document).ready(function () {
         var formdata = $( this ).serializeArray();
         formdata.push({"source_form" : e.currentTarget.id});
         socket.emit("form data", formdata);
-        e.preventDefault();
         $(this).closest("form").find(":submit").prop("disabled", true);
+        e.preventDefault();
       });
     
     // ####################### HANDLE RTKBASE SERVICES    #######################
@@ -70,7 +69,7 @@ $(document).ready(function () {
     socket.on("services status", function(msg) {
         // gestion des services
         var servicesStatus = JSON.parse(msg);
-        console.log("service status: " + servicesStatus);
+        //console.log("service status: " + servicesStatus);
         
         // ################ MAiN service Switch  ######################
         //console.log("REFRESHING  service switch");
@@ -532,6 +531,85 @@ $(document).ready(function () {
         };
         return returntext.trim();
     }
+
+    // #################### HANDLE SETTINGS BACKUP LOAD RESET #################
+            // #### RESET
+    document.getElementById('confirm-reset-button').onclick = function (){
+        socket.emit("reset settings");
+    }
+    socket.on("settings_reset", function() {
+        location.href = 'logout';
+    })
+            // #### BACKUP
+    document.getElementById('backup-button').onclick = function () {
+        //Using this js function to download, because a <a href=.. disconnect socketio
+        var link = document.createElement("a");
+                link.setAttribute('download', '');
+                link.href = "/logs/download/settings";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+    }
+            // #### RESTORE
+    var formElt = document.getElementById('restore-form');
+    var logoutBtn = document.getElementById('restore-logout-button');
+    var restorBtn = document.getElementById('restore-settings-button');
+    var restoreFailureElt = document.getElementById("restoration_server_answer");
+    var restoreCancelBtn = document.getElementById("restore-cancel-button");
+   
+    formElt.addEventListener('change', function(){
+        restorBtn.setAttribute("disabled", "True");
+        reset_answer_p();
+        // test file size on client side as it could crash silently.
+        if (this.file.files[0].size > 100000) {
+            restoreFailureElt.setAttribute("class", "text-danger");
+            restoreFailureElt.appendChild(document.createTextNode("Error: " + "file size too big"));
+            document.querySelector("#restoreSettingsModal div.modal-body").append(restoreFailureElt);
+        }
+        else {
+        restorBtn.removeAttribute("disabled");
+        }
+    });
+    
+    restorBtn.onclick = function (){  
+        socket.emit("restore settings", {"filename": formElt.file.files[0].name, "data" : formElt.file.files[0]})
+    };
+
+    socket.on("restore_settings_result", function(msg) {
+        response = JSON.parse(msg);
+        reset_answer_p();
+        if (response['result'] === 'failed') {
+            restoreFailureElt.setAttribute("class", "text-danger");
+            restoreFailureElt.appendChild(document.createTextNode("Error: " + response.msg));
+            document.querySelector("#restoreSettingsModal div.modal-body").append(restoreFailureElt);
+        }
+        else if (response['result'] === 'success') {
+            restoreFailureElt.setAttribute("class", "text-success");
+            restoreFailureElt.appendChild(document.createTextNode("Success! Please logout."));
+            document.querySelector("#restoreSettingsModal div.modal-body").append(restoreFailureElt);
+            restorBtn.style.display = "none";
+            logoutBtn.style.display="block";
+            restoreCancelBtn.setAttribute("disabled", "True");
+        }
+    });
+    
+    // Cleaning restore settings modal box when closing it
+    $("#restore_settings").on('hidden.bs.modal', function() {
+        reset_answer_p();
+        restorBtn.setAttribute("disabled", "True");
+        restoreCancelBtn.removeAttribute("disabled");
+        formElt.reset();
+        restorBtn.style.display = "block";
+        logoutBtn.style.display="none";
+    });
+
+    function reset_answer_p () {
+        var ansElement = document.getElementById("restoration_server_answer");
+        while (ansElement.firstChild) {
+            ansElement.removeChild(ansElement.firstChild);
+          };
+      };
+
     // ####################### HANDLE REBOOT & SHUTDOWN #######################
 
     $("#reboot-button").on("click", function() {

@@ -15,7 +15,8 @@ class RTKBaseConfigManager:
         """
         self.user_settings_path = user_settings_path
         self.default_settings_path = default_settings_path
-        self.config = self.merge_default_and_user(default_settings_path, user_settings_path)
+        self.config = None
+        self.merge_default_and_user(default_settings_path, user_settings_path)
         self.expand_path()
         self.write_file(self.config)
 
@@ -34,8 +35,31 @@ class RTKBaseConfigManager:
         #if there is no existing user settings file, config.read return
         #an empty object.
         config.read(user)
-        return config
+        self.config=config
 
+    def restore_settings(self, default, to_restore):
+        """
+            Restore backuped settings. Some settings have to be removed in case of restore from
+            and older release.
+
+            :param default: path to the default settings file 
+            :param to_restore: path to the settings file to restore
+        """
+        restore_config = ConfigParser(interpolation=None)
+        restore_config.read(to_restore)
+        restore_config.remove_option("general", "version")
+        restore_config.remove_option("general", "checkpoint_version")
+        #we don't know if the actual user is the same as the one in the config file
+        restore_config.remove_option("general", "user")
+        if not os.path.exists(restore_config.get("local_storage", "datadir")):
+            restore_config.remove_option("local_storage", "datadir")
+        if not os.path.exists(restore_config.get("log", "logdir")):
+            restore_config.remove_option("log", "logdir")
+        #write restored settings to the current settings
+        for section in restore_config.sections():
+            for k, v in restore_config[section].items():
+                self.config[section][k] = v
+        self.write_file()
 
     def reload_settings(self, settings_path=None):
         """
@@ -59,8 +83,6 @@ class RTKBaseConfigManager:
         if "$BASEDIR" in logdir:
             exp_logdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", logdir.strip("$BASEDIR/")))
             self.update_setting("log", "logdir", exp_logdir)
-
-
 
     def listvalues(self):
         """

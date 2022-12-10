@@ -40,6 +40,7 @@ import shutil
 import signal
 import sys
 import requests
+import tempfile
 
 from threading import Thread
 from RTKLIB import RTKLIB
@@ -78,6 +79,9 @@ app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 128
+app.config['UPLOAD_EXTENSIONS'] = ['.conf', '.txt', 'ini']
+
 rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 path_to_rtklib = "/usr/local/bin" #TODO find path with which or another tool
 
@@ -532,6 +536,7 @@ def stopBase():
 @socketio.on("on graph", namespace="/test")
 def continueBase():
     rtk.sleep_count = 0
+
 #### Free space handler
 
 @socketio.on("get available space", namespace="/test")
@@ -547,6 +552,7 @@ def deleteLog(json_msg):
     getAvailableLogs()
 
 #### Detect GNSS receiver button handler ####
+
 @socketio.on("detect_receiver", namespace="/test")
 def detect_receiver(json_msg):
     print("Detecting gnss receiver")
@@ -595,7 +601,53 @@ def configure_receiver(brand="u-blox", model="F9P"):
     #result = {"result" : "success"}
     socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test")
 
+#### Settings Backup Restore Reset ####
+
+@socketio.on("reset settings", namespace="/test")
+def reset_settings():
+    switchService({"name":"main", "active":False})
+    rtkbaseconfig.merge_default_and_user(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf.default"))
+    rtkbaseconfig.write_file()
+    socketio.emit("settings_reset", namespace="/test")
+
+@app.route("/logs/download/settings")
+@login_required
+def backup_settings():
+    settings_file_name = str("RTKBase_{}_{}_{}.conf".format(rtkbaseconfig.get("general", "version"), rtkbaseconfig.get("ntrip_A", "mnt_name_a").strip("'"), time.strftime("%Y-%m-%d_%HH%M")))
+    return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
+
+@socketio.on("restore settings", namespace="/test")
+def restore_settings_file(json_msg):
+    #print("DEBUG: type: ", type(json_msg))
+    #print("DEBUG: print msg: ", msg)
+    #print("DEBUG: filename: ", json_msg["filename"])
+    try:
+        if not json_msg["filename"].lower().endswith(".conf"):
+            raise TypeError("Wrong file type")
+        if not "[general]" in json_msg["data"].decode():
+            raise ValueError(("Not a valid RTKBase settings file"))
+        tmp_file = tempfile.NamedTemporaryFile()
+        with open(tmp_file.name, 'wb') as file:
+            file.write(json_msg["data"])
+        rtkbaseconfig.restore_settings(os.path.join(rtkbase_path, "settings.conf.default"), tmp_file.name)
+    except TypeError as e:
+        #print("DEBUG: ", e)
+        result= {"result" : "failed", "msg" : "The file should be a .conf filetype"}
+    except ValueError as e:
+        #print("DEBUG: ", e)
+        result= {"result" : "failed", "msg" : "The file is invalid"}
+    except Exception as e:
+        #print("DEBUG: Settings restoration error")
+        #print("DEBUG: ", e)
+        result= {"result" : "failed", "msg" : "Unknown error"}
+    else:
+        result= {"result" : "success", "msg" : "Successful restoration, You will be redirect to the login page in 5 seconds"}
+        restartServices()
+    finally:
+        socketio.emit("restore_settings_result", json.dumps(result), namespace="/test")
+
 #### Convert ubx file to rinex ####
+
 @socketio.on("rinex conversion", namespace="/test")
 def rinex_ign(json_msg):
     #print("DEBUG: json convbin: ", json_msg)
@@ -612,6 +664,7 @@ def rinex_ign(json_msg):
         result = {"result" : "failed", "msg" : answer.stderr}
     #print("DEBUG: ", result)
     socketio.emit("rinex ready", json.dumps(result), namespace="/test")
+
 #### Download and convert log handlers ####
 
 @socketio.on("process log", namespace="/test")
@@ -691,13 +744,15 @@ def update_std_user(services):
     user = service["unit"].getUser()
     rtkbaseconfig.update_setting("general", "user", user)
 
-def restartServices(restart_services_list):
+def restartServices(restart_services_list=None):
     """
         Restart already running services
         This function will refresh all services status, then compare the global services_list and 
         the restart_services_list to find the services we need to restart.
         #TODO I don't really like this global services_list use.
     """
+    if restart_services_list == None:
+        restart_services_list = [unit["name"] for unit in services_list if unit["name"] not in ("archive_timer", "archive_service")]
     #Update services status
     for service in services_list:
         service["active"] = service["unit"].isActive()

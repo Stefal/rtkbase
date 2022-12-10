@@ -526,6 +526,17 @@
 
   <div class="row py-2 align-items-center">
     <div class="col-sm-4">
+      <span class="col-sm-3">Settings:</span>
+    </div>
+    <div class="col-sm-8">
+        <button id="backup-button" class="btn btn-secondary" type="button">Backup</button>
+        <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#restoreSettingsModal">Restore</button>
+        <button id="reset-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#resetModal">Reset</button>
+    </div>
+  </div>
+
+  <div class="row py-2 align-items-center">
+    <div class="col-sm-4">
       <span class="col-sm-3">Diagnostic:</span>
     </div>
     <div class="col-sm-8">
@@ -608,6 +619,57 @@
   </div>
 </div>
 
+  <!-- The restore settings Modal dialog box-->
+  <div class="modal" id="restoreSettingsModal" data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">     
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Restore saved settings</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>       
+        <!-- Modal body -->
+        <div class="modal-body text-center ">
+          <p>Restore RTKBase with previously saved settings.</p>
+          <form id="restore-form" method="POST" action="settings" enctype="multipart/form-data">
+            <p><input type="file" name="file">
+              <!--<input type="submit" class="btn btn-danger" role="button" value="Restore">-->
+            </p><p id="restoration_server_answer"></p>
+        </form>
+        </div>       
+        <!-- Modal footer -->
+        <div class="modal-footer mx-auto">
+          <a href="{{ url_for('logout') }}" id="restore-logout-button" class="btn btn-success" role="button" style="display: none;">Logout</a>
+          <!--<button id="restore-logout-button" type="button" class="btn btn-success" style="display: none;">Logout</button> -->
+          <button id="restore-settings-button" type="button" class="btn btn-danger" disabled>Restore Settings</button>
+          <button type="button" id="restore-cancel-button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>      
+      </div>
+    </div>
+  </div>
+
+<!-- The Reset settings Modal dialog box-->
+<div class="modal" id="resetModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Reset settings</h4>
+      </div>
+      <!-- Modal body -->
+      <div class="modal-body text-center ">
+        <p>Reset RTKBase to default settings (including password). You will be redirected to the login page.</p>
+        <p>Are you sure?</p>          
+      </div>
+      <!-- Modal footer -->
+      <div class="modal-footer mx-auto">
+        <button id="confirm-reset-button" type="button" class="btn btn-danger">Reset</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>     
+    </div>
+  </div>
+</div>
+
   <!-- The reboot Modal dialog box-->
 <div class="modal" id="rebootModal">
   <div class="modal-dialog">
@@ -624,27 +686,6 @@
       <div class="modal-footer mx-auto">
         <button id="confirm-reboot-button" type="button" class="btn btn-danger">Reboot</button>
         <button id="reboot-cancel-button" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-      </div>     
-    </div>
-  </div>
-</div>
-
-<!-- The shutdown Modal dialog box-->
-<div class="modal" id="shutdownModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Shutdown</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <!-- Modal body -->
-      <div class="modal-body text-center ">Shutdown the GNSS Base. Are you sure?          
-      </div>
-      <!-- Modal footer -->
-      <div class="modal-footer mx-auto">
-        <button id="confirm-shutdown-button" type="button" class="btn btn-danger">Shutdown</button>
-        <button id="shutdown-cancel-button" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>     
     </div>
   </div>

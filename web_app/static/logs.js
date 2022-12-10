@@ -176,6 +176,7 @@ $(document).ready(function () {
             SuccessElt.id = "success_msg";
             $('#rinex-conversion-msg').append(SuccessElt);
             rinexDownBtnElt.onclick = function (){
+                //Using this js function to download, because a <a href=.. disconnect socketio
                 var link = document.createElement("a");
                 link.setAttribute('download', '');
                 link.href = "/logs/download/" + response.file;
