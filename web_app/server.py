@@ -74,7 +74,7 @@ from werkzeug.urls import url_parse
 from werkzeug.utils import safe_join
 
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
