@@ -51,7 +51,7 @@ $(document).ready(function () {
 
     //Enable "Save" button when form value is changed
     $("form").on('input', 'input, select', function() {
-        console.log("change detected");
+        //console.log("change detected");
         $(this).closest("form").find("button").removeAttr("disabled");
         });
 
@@ -69,7 +69,7 @@ $(document).ready(function () {
     socket.on("services status", function(msg) {
         // gestion des services
         var servicesStatus = JSON.parse(msg);
-        console.log("service status: " + servicesStatus);
+        //console.log("service status: " + servicesStatus);
         
         // ################ MAiN service Switch  ######################
         //console.log("REFRESHING  service switch");
@@ -577,8 +577,6 @@ $(document).ready(function () {
 
     socket.on("restore_settings_result", function(msg) {
         response = JSON.parse(msg);
-        console.log('restore setting result')
-        console.log(response.msg)
         reset_answer_p();
         if (response['result'] === 'failed') {
             restoreFailureElt.setAttribute("class", "text-danger");
