@@ -5,6 +5,7 @@
 - GUI -> Settings: Added a 2nd NTRIP output. #240
 - GUI -> Settings: Added features to backup, restore and reset RTKBase settings.
 - GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
+- GUI -> Settings: Added a button to show/hide the Ntrip passwords. #208 Thanks to @GwnDaan
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
 - GUI -> Logs: Added 3 more Rinex presets, and modified rinex window layout. #43 #134 #190 #200
 - More informations are available in the local caster source table. #183
@@ -14,6 +15,7 @@
 - Bootstrap upgraded to v4.6.1
 - Bootstrap-table upgraded to v1.21.1
 - Command line: Many changes on install.sh arguments/options. See install.sh --help
+- Password for local caster isn't mandatory anymore. #210 Thanks to @GwnDaan
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
 - GUI: After a RTKBase update, the browser won't use the old javascript files anymore (cache busting). #217
