@@ -194,7 +194,7 @@ _rtkbase_repo(){
 
 }
 
-_(){
+_rtkbase_release(){
     #Get rtkbase latest release
     sudo -u "${RTKBASE_USER}" wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
     sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
@@ -237,11 +237,11 @@ install_rtkbase_from_release() {
           _rtkbase_release
         else
           echo "RtkBase release: YES, rm & deploy last release"
-          _
+          _rtkbase_release
         fi
       else
         echo "RtkBase release: NO, download & deploy last release"
-        _
+        _rtkbase_release
       fi
 }
 
