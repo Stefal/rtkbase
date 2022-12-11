@@ -45,6 +45,9 @@ man_help(){
     echo '        -i | --rtkbase-repo <branch>'
     echo '                         Clone RTKBASE from github with the <branch> parameter used to select the branch.'
     echo ''
+    echo '        -f | --rtkbase-custom <source>'
+    echo '                         Get RTKBASE from an url.'
+    echo ''
     echo '        -t | --unit-files'
     echo '                         Deploy services.'
     echo ''
@@ -207,42 +210,59 @@ install_rtkbase_from_repo() {
     echo '################################'
     echo 'INSTALLING RTKBASE FROM REPO'
     echo '################################'
-      if [ -d "${rtkbase_path}" ]
+    if [ -d "${rtkbase_path}" ]
+    then
+      if [ -d "${rtkbase_path}"/.git ]
       then
-        if [ -d "${rtkbase_path}"/.git ]
-        then
-          echo "RtkBase repo: YES, git pull"
-          git -C "${rtkbase_path}" pull
-        else
-          echo "RtkBase repo: NO, rm release & git clone rtkbase"
-          rm -r "${rtkbase_path}"
-          _rtkbase_repo "${1}"
-        fi
+        echo "RtkBase repo: YES, git pull"
+        git -C "${rtkbase_path}" pull
       else
-        echo "RtkBase repo: NO, git clone rtkbase"
+        echo "RtkBase repo: NO, rm release & git clone rtkbase"
+        rm -r "${rtkbase_path}"
         _rtkbase_repo "${1}"
       fi
+    else
+      echo "RtkBase repo: NO, git clone rtkbase"
+      _rtkbase_repo "${1}"
+    fi
 }
 
 install_rtkbase_from_release() {
     echo '################################'
     echo 'INSTALLING RTKBASE FROM RELEASE'
     echo '################################'
-      if [ -d "${rtkbase_path}" ]
+    if [ -d "${rtkbase_path}" ]
+    then
+      if [ -d "${rtkbase_path}"/.git ]
       then
-        if [ -d "${rtkbase_path}"/.git ]
-        then
-          echo "RtkBase release: NO, rm repo & download last release"
-          rm -r "${rtkbase_path}"
-          _rtkbase_release
-        else
-          echo "RtkBase release: YES, rm & deploy last release"
-          _rtkbase_release
-        fi
+        echo "RtkBase release: NO, rm repo & download last release"
+        rm -r "${rtkbase_path}"
+        _rtkbase_release
       else
-        echo "RtkBase release: NO, download & deploy last release"
+        echo "RtkBase release: YES, rm & deploy last release"
         _rtkbase_release
       fi
+    else
+      echo "RtkBase release: NO, download & deploy last release"
+      _rtkbase_release
+    fi
+}
+
+install_rtkbase_custom_source() {
+    echo '################################'
+    echo 'INSTALLING RTKBASE FROM A CUSTOM SOURCE'
+    echo '################################'
+    if [ -d "${rtkbase_path}" ]
+    then
+      echo "RtkBase folder already exists. Please clean the system, then retry"
+      echo "(Don't forget to remove the systemd services)"
+      exit 1
+    else
+      sudo -u "${RTKBASE_USER}" wget "${1}" -O rtkbase.tar.gz.prout
+      sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
+      sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
+      _add_rtkbase_path_to_environment
+    fi
 }
 
 _add_rtkbase_path_to_environment(){
@@ -464,7 +484,7 @@ main() {
   ARG_ALLDEV=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:tgencsv:a --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,alldev:,all -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:f:tgencsv:a --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-custom:,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,alldev:,all -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -483,10 +503,11 @@ main() {
         -r | --rtklib) ARG_RTKLIB=1                   ; shift   ;;
         -b | --rtkbase-release) ARG_RTKBASE_RELEASE=1 ; shift   ;;
         -i | --rtkbase-repo) ARG_RTKBASE_REPO="${2}"  ; shift 2 ;;
+        -f | --rtkbase-custom) ARG_RTKBASE_SRC="${2}"  ; shift 2 ;;
         -t | --unit-files) ARG_UNIT=1                 ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1         ; shift   ;;
         -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1 ; shift   ;;
-        -n | --no-write-port) ARG_NO_WRITE_PORT=1    ; shift   ;;
+        -n | --no-write-port) ARG_NO_WRITE_PORT=1     ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1   ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1   ; shift   ;;
         -v | --alldev) ARG_ALLDEV="${2}"              ; shift 2 ;;
@@ -507,6 +528,7 @@ main() {
   [ $ARG_RTKLIB -eq 1 ] && { install_rtklib ; ((cumulative_exit+=$?)) ;}
   [ $ARG_RTKBASE_RELEASE -eq 1 ] && { install_rtkbase_from_release && rtkbase_requirements ; ((cumulative_exit+=$?)) ;}
   if [ $ARG_RTKBASE_REPO != 0 ] ; then install_rtkbase_from_repo "${ARG_RTKBASE_REPO}";((cumulative_exit+=$?));fi
+  if [ $ARG_RTKBASE_SRC != 0 ] ; then install_rtkbase_custom_source "${ARG_RTKBASE_SRC}";((cumulative_exit+=$?));fi
   [ $ARG_UNIT -eq 1 ] && { install_unit_files ; ((cumulative_exit+=$?)) ;}
   [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
