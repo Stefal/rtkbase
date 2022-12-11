@@ -2,7 +2,8 @@
 
 ## [2.3.5] - not released
 ### Added
-- Added a 2nd NTRIP output. #240
+- GUI -> Settings: Added a 2nd NTRIP output. #240
+- GUI -> Settings: Added features to backup, restore and reset RTKBase settings.
 - GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
 - GUI -> Logs: Added 3 more Rinex presets, and modified rinex window layout. #43 #134 #190 #200
