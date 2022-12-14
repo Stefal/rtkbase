@@ -258,7 +258,7 @@ install_rtkbase_custom_source() {
       echo "(Don't forget to remove the systemd services)"
       exit 1
     else
-      sudo -u "${RTKBASE_USER}" wget "${1}" -O rtkbase.tar.gz.prout
+      sudo -u "${RTKBASE_USER}" wget "${1}" -O rtkbase.tar.gz
       sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
       sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
       _add_rtkbase_path_to_environment
@@ -527,8 +527,8 @@ main() {
   [ $ARG_DEPENDENCIES -eq 1 ] && { install_dependencies ; ((cumulative_exit+=$?)) ;}
   [ $ARG_RTKLIB -eq 1 ] && { install_rtklib ; ((cumulative_exit+=$?)) ;}
   [ $ARG_RTKBASE_RELEASE -eq 1 ] && { install_rtkbase_from_release && rtkbase_requirements ; ((cumulative_exit+=$?)) ;}
-  if [ $ARG_RTKBASE_REPO != 0 ] ; then install_rtkbase_from_repo "${ARG_RTKBASE_REPO}";((cumulative_exit+=$?));fi
-  if [ $ARG_RTKBASE_SRC != 0 ] ; then install_rtkbase_custom_source "${ARG_RTKBASE_SRC}";((cumulative_exit+=$?));fi
+  if [ $ARG_RTKBASE_REPO != 0 ] ; then { install_rtkbase_from_repo "${ARG_RTKBASE_REPO}" && rtkbase_requirements ; ((cumulative_exit+=$?)) ;} ;fi
+  if [ $ARG_RTKBASE_SRC != 0 ] ; then { install_rtkbase_custom_source "${ARG_RTKBASE_SRC}" && rtkbase_requirements ; ((cumulative_exit+=$?)) ;} ;fi
   [ $ARG_UNIT -eq 1 ] && { install_unit_files ; ((cumulative_exit+=$?)) ;}
   [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
