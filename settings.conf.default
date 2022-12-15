@@ -11,6 +11,8 @@ user=
 BASEDIR=$(dirname "$0")
 #path to the caster application
 cast=/usr/local/bin/str2str
+#Web frontend port
+web_port=80
 #set true if you want to enter a password to open the web gui.
 web_authentification=true
 #enter here your new password for web gui 
