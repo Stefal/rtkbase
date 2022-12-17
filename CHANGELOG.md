@@ -9,12 +9,13 @@
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
 - GUI -> Logs: Added 3 more Rinex presets, and modified rinex window layout. #43 #134 #190 #200
 - More informations are available in the local caster source table. #183
+- Port number for the web server is configurable in settings.conf
 ### Changed
+- Command line: Many changes on install.sh arguments/options. See `install.sh --help`
 - Flask upgraded to v2.2.2 and other dependencies upgraded too.
 - SocketIO upgraded to v4.4.1
 - Bootstrap upgraded to v4.6.1
 - Bootstrap-table upgraded to v1.21.1
-- Command line: Many changes on install.sh arguments/options. See `install.sh --help`
 - Password for local caster isn't mandatory anymore. #210 Thanks to @GwnDaan
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
