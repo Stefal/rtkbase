@@ -34,12 +34,12 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 
 + Open a terminal and:
 
-   ```bash
-   $ cd ~
-   $ wget https://raw.githubusercontent.com/Stefal/rtkbase/master/tools/install.sh -O install.sh
-   $ chmod +x install.sh
-   $ sudo ./install.sh --all
-   ```
+  ```bash
+  cd ~
+  wget https://raw.githubusercontent.com/Stefal/rtkbase/master/tools/install.sh -O install.sh
+  chmod +x install.sh
+  sudo ./install.sh --all
+  ```
 
 + Go grab a coffee, it's gonna take a while. The script will install the needed software, and if you use a Usb-connected U-Blox ZED-F9P receiver, it'll be detected and set to work as a base station. If you don't use a F9P, you will have to configure your receiver manually (see step 7 in manual installation), and choose the correct port from the settings page.
 
@@ -55,7 +55,7 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 ## Manual installation: 
 The `install.sh` script can be used without the `--all` option to split the installation process into several different steps:
 ```bash
-   $ ./install.sh --help
+   ./install.sh --help
    ################################
    RTKBASE INSTALLATION HELP
    ################################
@@ -108,16 +108,16 @@ The `install.sh` script can be used without the `--all` option to split the inst
 So, if you really want it, let's go for a manual installation with some explanations:
 1. Install dependencies with `sudo ./install.sh --dependencies`, or do it manually with:
    ```bash
-   $ sudo apt update
-   $ sudo apt install -y  git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
+    sudo apt update
+    sudo apt install -y  git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
    ```
 
 1. Install RTKLIB with `sudo ./install.sh --rtklib`, or:
    + clone [RTKlib](https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3)
 
       ```bash
-      $ cd ~
-      $ git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
+      cd ~
+      git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
       ```
 
    + compile and install str2str:
@@ -125,8 +125,8 @@ So, if you really want it, let's go for a manual installation with some explanat
       Optionally, you can edit the CTARGET line in makefile in RTKLIB/app/str2str/gcc
       
       ```bash
-      $ cd RTKLIB/app/str2str/gcc
-      $ nano makefile
+      cd RTKLIB/app/str2str/gcc
+      nano makefile
       ```
       
       For an Orange Pi Zero SBC, i use:
@@ -136,33 +136,33 @@ So, if you really want it, let's go for a manual installation with some explanat
       Then you can compile and install str2str:
       
       ```bash  
-      $ make
-      $ sudo make install
+      make
+      sudo make install
       ```
    + Compile/install `rtkrcv` and `convbin` the same way as `str2str`.
 
 1. Get latest rtkbase release `sudo ./install.sh --rtkbase-release`, or:
    ```bash
-   $ wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
-   $ tar -xvf rtkbase.tar.gz
+   wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
+   tar -xvf rtkbase.tar.gz
 
    ```
    If you prefer, you can clone this repository to get the latest code.
 
 1. Install the rtkbase requirements:
    ```bash
-   $ python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
-   $ python3 -m pip install -r rtkbase/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
+   python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
+   python3 -m pip install -r rtkbase/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
 
 1. Install the systemd services with `sudo ./install.sh --unit-files`, or do it manually with:
    + Edit them (`rtkbase/unit/`) to replace `{user}` with your username.
    + If you log the raw data inside the base station, you may want to compress these data and delete the too old archives. `archive_and_clean.sh` will do it for you. The default settings compress the previous day data and delete all archives older than 90 days. To automate these 2 tasks, enable the `rtkbase_archive.timer`. The default value runs the script every day at 04H00.
    + Copy these services to `/etc/systemd/system/` then enable the web server, str2str_tcp and rtkbase_archive.timer:
    ```bash
-   $ sudo systemctl daemon-reload
-   $ sudo systemctl enable rtkbase_web
-   $ sudo systemctl enable str2str_tcp
-   $ sudo systemctl enable rtkbase_archive.timer
+   sudo systemctl daemon-reload
+   sudo systemctl enable rtkbase_web
+   sudo systemctl enable str2str_tcp
+   sudo systemctl enable rtkbase_archive.timer
    ```
 1. Install and configure chrony and gpsd with `sudo ./install.sh --gpsd-chrony`, or:
    + Install chrony with `sudo apt install chrony` then add this parameter in the chrony conf file (/etc/chrony/chrony.conf):
@@ -190,9 +190,9 @@ So, if you really want it, let's go for a manual installation with some explanat
    ```
    + Reload the services and enable them:
    ```bash
-      $ sudo systemctl daemon-reload
-      $ sudo systemctl enable chrony
-      $ sudo systemctl enable gpsd
+      sudo systemctl daemon-reload
+      sudo systemctl enable chrony
+      sudo systemctl enable gpsd
    ```
 
 1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox usb receiver, you can use `sudo ./install.sh --detect-usb-gnss`. Write down the result, you may need it later.
@@ -201,29 +201,29 @@ So, if you really want it, let's go for a manual installation with some explanat
    
    If it's a U-Blox ZED-F9P (usb), you can use 
    ```bash
-   $ sudo ./install.sh -detect-usb-gnss --configure-gnss
+   sudo ./install.sh -detect-usb-gnss --configure-gnss
    ```
 
    If it's a U-Blox ZED-F9P (uart), you can use this command (change the ttyS1 and 115200 value if needed)):
    ```bash
-   $ rtkbase/tools/set_zed-f9p.sh /dev/ttyS1 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
+   rtkbase/tools/set_zed-f9p.sh /dev/ttyS1 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
    ```
      
    If you need to use a config tool from another computer (like U-center), you can use `socat`:
 
    ```bash
-   $ sudo socat tcp-listen:128,reuseaddr /dev/ttyS1,b115200,raw,echo=0
+   sudo socat tcp-listen:128,reuseaddr /dev/ttyS1,b115200,raw,echo=0
    ```
    
    Change the ttyS1 and 115200 value if needed. Then you can use a network connection in U-center with the base station ip address and the port n°128.
 
 1. Now you can start the services with `sudo ./install.sh --start-services`, or:
    ```bash
-      $ sudo systemctl start rtkbase_web
-      $ sudo systemctl start str2str_tcp
-      $ sudo systemctl start gpsd
-      $ sudo systemctl start chrony
-      $ sudo systemctl start rtkbase_archive.timer
+   sudo systemctl start rtkbase_web
+   sudo systemctl start str2str_tcp
+   sudo systemctl start gpsd
+   sudo systemctl start chrony
+   sudo systemctl start rtkbase_archive.timer
    ```
 
    Everything should be ready, now you can open a web browser to your base station ip address.
@@ -251,10 +251,10 @@ The default map background is OpenStreetMap, but you can switch to a worldwide a
 ## Development release:
 If you want to install RTKBase from the dev branch, you can do it with these commands:
 ```bash
-   $ cd ~
-   $ wget https://raw.githubusercontent.com/Stefal/rtkbase/dev/tools/install.sh -O install.sh
-   $ chmod +x install.sh
-   $ sudo ./install.sh --alldev
+cd ~
+wget https://raw.githubusercontent.com/Stefal/rtkbase/dev/tools/install.sh -O install.sh
+chmod +x install.sh
+sudo ./install.sh --alldev
 ```
 
 ## Other usages:
@@ -321,4 +321,4 @@ RTKBase uses some parts of other software:
 + [pystemd](https://github.com/facebookincubator/pystemd) (L-GPL 2.1)
 + [gpsd](https://gitlab.com/gpsd/gpsd) (BSD-2-Clause)
 
-RTKBase uses [OpenStreetMap](https://www.openstreetmap.org) tiles, courtesy of [Empreinte digitale](https://cloud.empreintedigitale.fr).
+RTKBase uses [OpenStreetMap](https://www.openstreetmap.org) tiles.
