@@ -765,7 +765,13 @@ def restartServices(restart_services_list=None):
         for service in services_list:
             if service["name"] == restart_service and service["active"] is True:
                 print("Restarting service: ", service["name"])
-                service["unit"].restart()
+                if service["name"] == "main":
+                    #the main service should be stopped during at least 1 second to let rtkrcv stop too.
+                    service["unit"].stop()
+                    time.sleep(1.5)
+                    service["unit"].start()
+                else:
+                    service["unit"].restart()
     
     #refresh service status
     getServicesStatus()
