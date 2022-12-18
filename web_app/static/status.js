@@ -43,6 +43,13 @@ $(document).ready(function () {
 
     //Ask server for starting rtkrcv or we won't have any data
     socket.emit("start base");
+    socket.on("base starting", function(msg){
+        response = JSON.parse(msg);
+        console.log("base starting return ", response);
+        if ( response['result'] === 'failed') {
+            $('#mainServiceOffModal').modal('show');
+        }
+    })
 
     socket.on('disconnect', function(){
         console.log('disconnected');

@@ -517,6 +517,8 @@ def startBase():
     #check if the main service is running and the gnss format is correct. If not, don't try to start rtkrcv with startBase() 
     if services_list[0].get("active") is False or saved_input_type not in ["rtcm2","rtcm3","nov","oem3","ubx","ss2","hemis","stq","javad","nvs","binex","rt17","sbf"]:
         print("DEBUG: Can't start rtkrcv as main service isn't enabled or gnss format is wrong")
+        result = {"result" : "failed"}
+        socketio.emit("base starting", json.dumps(result), namespace="/test")
         return
     # We must start rtkcv before trying to modify an option
     rtk.startBase()
