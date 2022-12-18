@@ -149,6 +149,7 @@ def manager():
     """
     max_cpu_temp = 0
     services_status = getServicesStatus(emit_pingback=False)
+    main_service = {}
     while True:
         # Make sure max_cpu_temp is always updated
         cpu_temp = get_cpu_temp()
@@ -157,6 +158,7 @@ def manager():
         if connected_clients > 0:
             # We only need to emit to the socket if there are clients able to receive it.
             updated_services_status = getServicesStatus(emit_pingback=False)
+            main_service = updated_services_status[0]
             if  services_status != updated_services_status:
                 services_status = updated_services_status
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
@@ -172,8 +174,9 @@ def manager():
                         "volume_percent_used" : volume_usage.percent}
             socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
         
-        if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive":
-            print("Trying to stop rtkrcv")
+        if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive" or \
+                 main_service.get("active") == False and rtk.state != "inactive":
+            print("DEBUG Stopping rtkrcv")
             if rtk.stopBase() == 1:
                 rtk.sleep_count = 0
         elif rtk.sleep_count > rtkcv_standby_delay:
