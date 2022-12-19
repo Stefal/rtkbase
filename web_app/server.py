@@ -769,6 +769,7 @@ def restartServices(restart_services_list=None):
                 print("Restarting service: ", service["name"])
                 if service["name"] == "main":
                     #the main service should be stopped during at least 1 second to let rtkrcv stop too.
+                    #another solution would be to call rtk.stopbase()
                     service["unit"].stop()
                     time.sleep(1.5)
                     service["unit"].start()
