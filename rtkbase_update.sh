@@ -172,7 +172,7 @@ upd_2.3.3() {
 
 upgrade_rtklib() {
   bin_path=$(dirname $(command -v str2str))
-  arch_package=$(dpkg -print-architecture)
+  arch_package=$(dpkg --print-architecture)
   rm ${bin_path}'/str2str' ${bin_path}'/rtkrcv' ${bin_path}'/convbin'
   if [[ -d ${destination_directory}'/tools/bin/'${arch_package} ]]
   then
@@ -180,13 +180,14 @@ upgrade_rtklib() {
     cp str2str rtkrcv convbin ${bin_path}
   else
     echo 'No binary available for ' ${arch_package} '. We will build it from source'
-    ${destination_directory}'/tools/install.sh' --rtklib
+    ${destination_directory}'/tools/install.sh' --user "${standard_user}" --rtklib
+  fi
 }
 
 upd_2.3.4() {
   systemctl stop str2str_tcp
   #Add new requirements for v2.4
-  ${destination_directory}'/tools/install.sh' --requirements
+  ${destination_directory}'/tools/install.sh' --user "${standard_user}" --dependencies
   # Copy new services
   rm /etc/systemd/system/str2str_ntrip.service
   file_path=${destination_directory}'/unit/str2str_ntrip_A.service'
