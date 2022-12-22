@@ -170,9 +170,39 @@ upd_2.3.3() {
  upd_2.3.4 "$@"
 }
 
+upgrade_rtklib() {
+  bin_path=$(dirname $(command -v str2str))
+  arch_package=$(dpkg --print-architecture)
+  rm ${bin_path}'/str2str' ${bin_path}'/rtkrcv' ${bin_path}'/convbin'
+  if [[ -d ${destination_directory}'/tools/bin/'${arch_package} ]]
+  then
+    echo 'Copying new rtklib binary for ' ${arch_package}
+    cp str2str rtkrcv convbin ${bin_path}
+  else
+    echo 'No binary available for ' ${arch_package} '. We will build it from source'
+    ${destination_directory}'/tools/install.sh' --user "${standard_user}" --rtklib
+  fi
+}
+
 upd_2.3.4() {
+  systemctl stop str2str_tcp
+  #Add new requirements for v2.4
+  ${destination_directory}'/tools/install.sh' --user "${standard_user}" --dependencies
+  # Copy new services
+  rm /etc/systemd/system/str2str_ntrip.service
+  file_path=${destination_directory}'/unit/str2str_ntrip_A.service'
+  file_name=$(basename ${file_path})
+  echo copying ${file_name}
+  sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  file_path=${destination_directory}'/unit/str2str_ntrip_B.service'
+  file_name=$(basename ${file_path})
+  echo copying ${file_name}
+  sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  systemctl daemon-reload
+#update rtklib binary to the one from rtklibexplorer fork.
+  upgrade_rtklib
 #update python module
-    python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
+  python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
 }
 
 # standard update

@@ -20,7 +20,7 @@ man_help(){
     echo ''
     echo 'Options:'
     echo '        -a | --all'
-    echo '                         Install all you need to run RTKBase : dependencies, Rtklib, last release of Rtkbase, services,'
+    echo '                         Install all you need to run RTKBase : dependencies, RTKlib, last release of Rtkbase, services,'
     echo '                         crontab jobs, detect your GNSS receiver and configure it.'
     echo ''
     echo '        -v | --alldev <branch>'
@@ -35,8 +35,8 @@ man_help(){
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
     echo '        -r | --rtklib'
-    echo '                         Get RTKlib 2.4.3 from github and compile it.'
-    echo '                         https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3'
+    echo '                         Get RTKlib 2.4.3b34g from github and compile it.'
+    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/b34g'
     echo ''
     echo '        -b | --rtkbase-release'
     echo '                         Get last release of RTKBase:'
@@ -168,18 +168,18 @@ install_rtklib() {
       # str2str already exist?
       if [ ! -f /usr/local/bin/str2str ]
       then 
-        #Get Rtklib 2.4.3 b34 release
-        sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/tomojitakasu/RTKLIB/archive/v2.4.3-b34.tar.gz | tar -xvz
+        #Get Rtklib 2.4.3 b34g release
+        sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34g.tar.gz | tar -xvz
         #Install Rtklib app
         #TODO add correct CTARGET in makefile?
-        make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc
-        make --directory=RTKLIB-2.4.3-b34/app/consapp/str2str/gcc install
-        make --directory=RTKLIB-2.4.3-b34/app/consapp/rtkrcv/gcc
-        make --directory=RTKLIB-2.4.3-b34/app/consapp/rtkrcv/gcc install
-        make --directory=RTKLIB-2.4.3-b34/app/consapp/convbin/gcc
-        make --directory=RTKLIB-2.4.3-b34/app/consapp/convbin/gcc install
+        make --directory=RTKLIB-b34g/app/consapp/str2str/gcc
+        make --directory=RTKLIB-b34g/app/consapp/str2str/gcc install
+        make --directory=RTKLIB-b34g/app/consapp/rtkrcv/gcc
+        make --directory=RTKLIB-b34g/app/consapp/rtkrcv/gcc install
+        make --directory=RTKLIB-b34g/app/consapp/convbin/gcc
+        make --directory=RTKLIB-b34g/app/consapp/convbin/gcc install
         #deleting RTKLIB
-        rm -rf RTKLIB-2.4.3-b34/
+        rm -rf RTKLIB-b34g/
       else
         echo 'str2str already exist'
       fi
@@ -310,7 +310,7 @@ install_unit_files() {
       if [ -d "${rtkbase_path}" ]
       then 
         #Install unit files
-        "${rtkbase_path}"/copy_unit.sh
+        "${rtkbase_path}"/tools/copy_unit.sh
         systemctl enable rtkbase_web.service
         systemctl enable rtkbase_archive.timer
         systemctl daemon-reload

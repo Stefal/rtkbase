@@ -46,7 +46,7 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
 
-for file_path in "${BASEDIR}"/unit/*.service "${BASEDIR}"/unit/*.timer
+for file_path in "${BASEDIR}"/../unit/*.service "${BASEDIR}"/../unit/*.timer
     do
         file_name=$(basename "${file_path}")
         echo copying "${file_name}"
