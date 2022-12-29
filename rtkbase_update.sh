@@ -173,14 +173,16 @@ upd_2.3.3() {
 upgrade_rtklib() {
   bin_path=$(dirname $(command -v str2str))
   arch_package=$(dpkg --print-architecture)
-  rm ${bin_path}'/str2str' ${bin_path}'/rtkrcv' ${bin_path}'/convbin'
-  if [[ -d ${destination_directory}'/tools/bin/'${arch_package} ]]
+  rm "${bin_path}"'/str2str' "${bin_path}"'/rtkrcv' "${bin_path}"'/convbin'
+  if [[ -f "${destination_directory}"'/tools/bin/rtklib_b34g/'"${arch_package}"'/str2str' ]]
   then
-    echo 'Copying new rtklib binary for ' ${arch_package}
-    cp str2str rtkrcv convbin ${bin_path}
+    echo 'Copying new rtklib binary for ' "${arch_package}"
+    cp "${destination_directory}"'/tools/bin/rtklib_b34g/'"${arch_package}"/str2str "${bin_path}"
+    cp "${destination_directory}"'/tools/bin/rtklib_b34g/'"${arch_package}"/rtkrcv "${bin_path}"
+    cp "${destination_directory}"'/tools/bin/rtklib_b34g/'"${arch_package}"/convbin "${bin_path}"
   else
-    echo 'No binary available for ' ${arch_package} '. We will build it from source'
-    ${destination_directory}'/tools/install.sh' --user "${standard_user}" --rtklib
+    echo 'No binary available for ' "${arch_package}" '. We will build it from source'
+    "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtklib
   fi
 }
 
