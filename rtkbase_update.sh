@@ -185,6 +185,7 @@ upgrade_rtklib() {
 }
 
 upd_2.3.4() {
+  str2str_active=$(systemctl is-active str2str_tcp)
   systemctl stop str2str_tcp
   #Add new requirements for v2.4
   ${destination_directory}'/tools/install.sh' --user "${standard_user}" --dependencies
@@ -203,6 +204,11 @@ upd_2.3.4() {
   upgrade_rtklib
 #update python module
   python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
+#restart str2str if it was active before upgrading rtklib
+  if [ $str2str_active = "active" ]
+  then
+    systemctl start str2str_tcp
+  fi
 }
 
 # standard update
