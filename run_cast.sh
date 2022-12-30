@@ -55,11 +55,11 @@ mkdir -p ${logdir}
 
   out_caster_A)
     #echo ${cast} -in ${!1} -out $out_caster
-    ${cast} -in ${!1} -out "${out_caster_A}" -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_A.log &
+    ${cast} -in ${!1} -out ${out_caster_A} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_A.log &
     ;;
 
   out_caster_B)
-    ${cast} -in ${!1} -out "${out_caster_B}" -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_B.log &
+    ${cast} -in ${!1} -out ${out_caster_B} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_B.log &
     ;;
 
   out_local_caster)
