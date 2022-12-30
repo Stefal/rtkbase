@@ -81,11 +81,11 @@ $(document).ready(function () {
 
     var map = L.map('map').setView({lon: 0, lat: 0}, 2);
 
-    var osmLayer = L.tileLayer('https://osm.vtech.fr/hot/{z}/{x}/{y}.png?uuid=2fc148f4-7018-4fd0-ac34-6b626cdc97a1', {
+    var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         maxZoom: 21,
         maxNativeZoom: 20,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ' +
-            '| <a href="https://cloud.empreintedigitale.fr" target="_blank">Empreinte digitale</a>',
+            '| &copy; <a href="https://hot.openstreetmap.org" target="_blank">Humanitarian OpenStreetMap Team</a> ' ,
         tileSize: 256,      
     });
 
