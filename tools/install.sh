@@ -379,7 +379,7 @@ detect_usb_gnss() {
             #as it could start before the web server merge settings.conf.default and settings.conf
             sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver_format=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
             #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
-            sudo -u "${RTKBASE_USER}" printf "[ntrip_a]\nntrip_a_receiver_options='-TADJ=1'\n[ntrip_b]\nntrip_b_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" printf "[ntrip_A]\nntrip_a_receiver_options='-TADJ=1'\n[ntrip_B]\nntrip_b_receiver_options='-TADJ=1'\n[local_ntrip]\nlocal_ntripc_receiver_options='-TADJ=1'\n[rtcm_svr]\nrtcm_receiver_options='-TADJ=1'\n[rtcm_serial]\nrtcm_serial_receiver_options='-TADJ=1'\n" >> "${rtkbase_path}"/settings.conf
 
           fi
         fi
