@@ -37,7 +37,7 @@ receiver_format=''
 #gnss receiver firmware release
 receiver_firmware=''
 #gnss receiver frequency available
-receiver_frequency_count=''
+receiver_carrier=''
 #Antenna info, id, serial number. Without space inside the strings
 antenna_info='ADVNULLANTENNA'
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
