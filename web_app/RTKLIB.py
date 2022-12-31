@@ -717,7 +717,12 @@ class RTKLIB:
 #            if count % 10 == 0:
             #print("Sending sat rover levels:\n" + str(self.rtkc.obs_rover))
             #print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
-
+            
+            #Remove gps_time from the obs_rover dict
+            try:
+                del(self.rtkc.obs_rover["gps_time"])
+            except:
+                pass
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
             #self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
             count += 1
