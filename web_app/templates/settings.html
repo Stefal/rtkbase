@@ -69,7 +69,7 @@
 
         <label for="receiver_format" class="col-sm-3 col-form-label">Receiver format: </label>
         <div class="col-sm-9">
-            <input id="receiver_format" type="text" name="receiver_format" class="form-control" value="{{ main_settings[4].receiver_format }}" title="Gnss receiver format (ubx,stq,rtcm3,tersus,...)" pattern="\w[^|><\/]*" required>
+            <input id="receiver_format" type="text" name="receiver_format" class="form-control" value="{{ main_settings[5].receiver_format }}" title="Gnss receiver format (ubx,stq,rtcm3,tersus,...)" pattern="\w[^|><\/]*" required>
             <div class="invalid-feedback">Gnss receiver format (ubx,stq,rtcm3,tersus,...)</div>
 
         </div>
@@ -79,7 +79,7 @@
 
       <label for="antenna_info" class="col-sm-3 col-form-label">Antenna info: </label>
       <div class="col-sm-9">
-          <input id="antenna_info" type="text" name="antenna_info" class="form-control" value="{{ main_settings[5].antenna_info }}" title="Antenna information (model,serial number)" pattern="\w[^|><\/]*" required>
+          <input id="antenna_info" type="text" name="antenna_info" class="form-control" value="{{ main_settings[6].antenna_info }}" title="Antenna information (model,serial number)" pattern="\w[^|><\/]*" required>
           <div class="invalid-feedback">Antenna information (model,serial number) - default value is NULLANTENNA</div>
 
       </div>
@@ -89,7 +89,7 @@
 
         <label for="tcp_port" class="col-sm-3 col-form-label">Tcp port: </label>
         <div class="col-sm-9">
-            <input id="tcp_port" type="text" name="tcp_port" class="form-control" value="{{ main_settings[6].tcp_port }}" title="local tcp port" pattern="[0-9]{4,5}" required>
+            <input id="tcp_port" type="text" name="tcp_port" class="form-control" value="{{ main_settings[7].tcp_port }}" title="local tcp port" pattern="[0-9]{4,5}" required>
             <div class="invalid-feedback">Local tcp port</div>
 
         </div>
@@ -514,6 +514,15 @@
         </form>
       </div>
     </div>
+
+  <div class="row py-2 align-items-center">
+    <div class="col-sm-4">
+      <span class="col-sm-3">Gnss receiver:</span>
+    </div>
+    <div class="col-sm-8">
+      <span>{{ main_settings[3].receiver }} - {{ main_settings[4].receiver_firmware }}</span>
+    </div>
+  </div>
 
   <div class="row py-2 align-items-center">
     <div class="col-sm-4">
