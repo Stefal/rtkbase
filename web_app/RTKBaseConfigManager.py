@@ -99,7 +99,7 @@ class RTKBaseConfigManager:
             and remove the single quotes.      
         """
         ordered_main = [{"source_section" : "main"}]
-        for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_format", "antenna_info", "tcp_port"):
+        for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_firmware", "receiver_format", "antenna_info", "tcp_port"):
             ordered_main.append({key : self.config.get('main', key).strip("'")})
         return ordered_main
 

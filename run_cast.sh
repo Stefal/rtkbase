@@ -7,7 +7,7 @@
 BASEDIR=$(dirname "$0")
 source <( grep = ${BASEDIR}/settings.conf )  #import settings
 
-receiver_info="RTKBase ${receiver},${version}"
+receiver_info="RTKBase ${receiver},${version} ${receiver_firmware}"
 in_serial="serial://${com_port}:${com_port_settings}#${receiver_format}"
 in_tcp="tcpcli://127.0.0.1:${tcp_port}#${receiver_format}"
 #in_ext_tcp is mainly for dev purpose to receive a raw stream from another base
