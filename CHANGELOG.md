@@ -5,20 +5,25 @@
 - GUI -> Settings: Added a 2nd NTRIP output. #240
 - GUI -> Settings: Added features to backup, restore and reset RTKBase settings.
 - GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
-- GUI -> Settings: Added a button to show/hide the Ntrip passwords. #208 Thanks to @GwnDaan
+- GUI -> Settings: Added a button to show/hide the Ntrip passwords. Thanks to @GwnDaan #208 
+- GUI -> Settings: Added Gnss receiver informations (Model and firmware release).
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
+- GUI -> Status: Added an alert if the main service isn't active.
 - GUI -> Logs: Added 3 more Rinex presets, and modified rinex window layout. #43 #134 #190 #200
 - More informations are available in the local caster source table. #183
 - Port number for the web server is configurable in settings.conf
 ### Changed
+- RTKLib upgrade to release b34g from rtklibexplorer. #222
 - Command line: Many changes on install.sh arguments/options. See `install.sh --help`
 - Flask upgraded to v2.2.2 and other dependencies upgraded too.
 - SocketIO upgraded to v4.4.1
 - Bootstrap upgraded to v4.6.1
 - Bootstrap-table upgraded to v1.21.1
-- Password for local caster isn't mandatory anymore. #210 Thanks to @GwnDaan
+- Password for local caster isn't mandatory anymore. Thanks to @GwnDaan #210
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
+- GUI -> Status: Sat. levels are left align. Thanks to @GwnDaan #72
+- GUI -> Status: New provider for OpenStreetMap HOT tiles.
 - GUI: After a RTKBase update, the browser won't use the old javascript files anymore (cache busting). #217
 - Remaining space check could not work with non english shell. Thanks to @GwnDaan #213
 - GUI -> Settings: No more "bounce" issues with the switches. Thanks to @GwnDaan
