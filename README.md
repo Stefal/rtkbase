@@ -9,8 +9,10 @@ Frontend's main features are:
 
 + View the satellites signal levels
 + View the base location on a map
-+ Start/stop various services (Sending data to a Ntrip caster, Ntrip caster, Rtcm server, Sending Rtcm stream on a radio link, Log raw data to files)
++ Detect and configure the Gnss receiver (F9P)
++ Start/stop various services (Sending data to a Ntrip caster, internal Ntrip caster, Rtcm server, Sending Rtcm stream on a radio link, Log raw data to files)
 + Edit the services settings
++ Convert raw data to Rinex
 + Download/delete raw data
 
 ## Base example:
@@ -69,55 +71,72 @@ The `install.sh` script can be used without the `--all` option to split the inst
          sudo ./install.sh
 
    Options:
-        --all
-                         Install all dependencies, Rtklib, last release of Rtkbase, gpsd, chrony, services,
+        -a | --all
+                         Install all you need to run RTKBase : dependencies, RTKlib, last release of Rtkbase, services,
                          crontab jobs, detect your GNSS receiver and configure it.
 
-        --dependencies
+        -v | --alldev <branch>
+                         Install all as --all option, but use the rtkbase github repo instead of the release
+                         You have to select the git branch you want to install.
+
+        -u | --user
+                         Use this username as User= inside service unit and for path to rtkbase:
+                         --user=john will install rtkbase in /home/john/rtkbase
+
+        -d | --dependencies
                          Install all dependencies like git build-essential python3-pip ...
 
-        --rtklib
-                         Clone RTKlib 2.4.3 from github and compile it.
-                         https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3
+        -r | --rtklib
+                         Get RTKlib 2.4.3b34g from github and compile it.
+                         https://github.com/rtklibexplorer/RTKLIB/tree/b34g
 
-        --rtkbase-release
-                         Get last release of RTKBASE:
+        -b | --rtkbase-release
+                         Get last release of RTKBase:
                          https://github.com/Stefal/rtkbase/releases
 
-        --rtkbase-repo
-                         Clone RTKBASE from github:
-                         https://github.com/Stefal/rtkbase/tree/web_gui
+        -i | --rtkbase-repo <branch>
+                         Clone RTKBASE from github with the <branch> parameter used to select the branch.
 
-        --unit-files
+        -f | --rtkbase-custom <source>
+                         Get RTKBASE from an url.
+
+        -t | --unit-files
                          Deploy services.
 
-        --gpsd-chrony
+        -g | --gpsd-chrony
                          Install gpsd and chrony to set date and time
                          from the gnss receiver.
 
-        --detect-usb-gnss
-                         Detect your GNSS receiver.
+        -e | --detect-usb-gnss
+                         Detect your GNSS receiver. It works only with usb-connected receiver like ZED-F9P.
 
-        --configure-gnss
+        -n | --no-write-port
+                         Doesn't write the detected port inside settings.conf.
+                         Only relevant with --detect-usb-gnss argument.
+
+        -c | --configure-gnss
                          Configure your GNSS receiver.
 
-        --start-services
+        -s | --start-services
                          Start services (rtkbase_web, str2str_tcp, gpsd, chrony)
+
+        -h | --help
+                          Display this help message.
 
    ```
 So, if you really want it, let's go for a manual installation with some explanations:
 1. Install dependencies with `sudo ./install.sh --dependencies`, or do it manually with:
    ```bash
     sudo apt update
-    sudo apt install -y  git build-essential python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat
+    sudo apt install -y  git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc
    ```
 
 1. Install RTKLIB with `sudo ./install.sh --rtklib`, or:
-   + clone [RTKlib](https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3)
+   + get [RTKlib](https://github.com/rtklibexplorer/RTKLIB)
 
       ```bash
       cd ~
-      git clone -b rtklib_2.4.3 --single-branch https://github.com/tomojitakasu/RTKLIB
+      wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34g.tar.gz | tar -xvz
       ```
 
    + compile and install str2str:
@@ -231,7 +250,8 @@ So, if you really want it, let's go for a manual installation with some explanat
 ## How it works:
 RTKBase use several RTKLIB `str2str` instances started with `run_cast.sh` as systemd services. `run_cast.sh` gets its settings from `settings.conf`
 + `str2str_tcp.service` is the main instance. It is connected to the gnss receiver and broadcast the raw data on TCP for all the others services.
-+ `str2str_ntrip.service` get the data from the main instance, convert the data to rtcm and stream them to a Ntrip caster.
++ `str2str_ntrip_A.service` get the data from the main instance, convert the data to rtcm and stream them to a Ntrip caster.
++ `str2str_ntrip_B.service` get the data from the main instance, convert the data to rtcm and stream them to another Ntrip caster.
 + `str2str_local_ntrip_caster.service` get the data from the main instance, convert the data to rtcm, and act as a local Ntrip caster.
 + `str2str_rtcm_svr.service` get the data from the main instance, convert the data to rtcm and stream them to clients
 + `str2str_rtcm_serial.service` get the data from the main instance, convert the data to rtcm and stream them to a serial port (radio link, or other peripherals)
@@ -254,7 +274,7 @@ If you want to install RTKBase from the dev branch, you can do it with these com
 cd ~
 wget https://raw.githubusercontent.com/Stefal/rtkbase/dev/tools/install.sh -O install.sh
 chmod +x install.sh
-sudo ./install.sh --alldev
+sudo ./install.sh --alldev dev
 ```
 
 ## Other usages:
@@ -321,4 +341,4 @@ RTKBase uses some parts of other software:
 + [pystemd](https://github.com/facebookincubator/pystemd) (L-GPL 2.1)
 + [gpsd](https://gitlab.com/gpsd/gpsd) (BSD-2-Clause)
 
-RTKBase uses [OpenStreetMap](https://www.openstreetmap.org) tiles.
+RTKBase uses [OpenStreetMap](https://www.openstreetmap.org) tiles. Thank you to all the contributors!
