@@ -2,9 +2,9 @@
 
 [general]
 # Version
-version=2.3.5
+version=2.4
 # Rtkbase upgrade mandatory "checkpoint"
-checkpoint_version=2.4.0
+checkpoint_version=2.5
 # User who runs str2str_file service
 user=
 # NTRIP caster program
