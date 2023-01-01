@@ -56,7 +56,7 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 
 ## Manual installation: 
 The `install.sh` script can be used without the `--all` option to split the installation process into several different steps:
-```bash
+```
    ./install.sh --help
    ################################
    RTKBASE INSTALLATION HELP
