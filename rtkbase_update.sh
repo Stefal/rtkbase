@@ -206,6 +206,15 @@ upd_2.3.4() {
   upgrade_rtklib
 #update python module
   python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
+# Get F9P firmware release
+  source <( grep = "${destination_directory}"/settings.conf )
+  if [[ $(python3 "${destination_directory}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
+  then
+    echo 'Get F9P firmware release'
+    firmware=$(python3 "${destination_directory}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
+    grep -q "^receiver_firmware" ${destination_directory}/settings.conf || \
+      sed -i "/^receiver_format=.*/a receiver_firmware=\'${firmware}\'" ${destination_directory}/settings.conf
+  fi
 #restart str2str if it was active before upgrading rtklib
   if [ $str2str_active = "active" ]
   then
@@ -213,10 +222,17 @@ upd_2.3.4() {
   fi
 }
 
+upd_2.4b() {
+  echo 'Calling upd2.3.4'
+  upd_2.3.4 "$@"
+}
+
 # standard update
 update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
-upd_${old_version} "$@"
+upd_"${old_version/b*/b}" "$@"
+#note for older me:
+#When dealing with beta version, "${oldversion/b*/b}" will call function 2.4b when we use a release 2.4b1 or 2.4b2 or 2.4beta99
 
 # The new version numbers will be imported from settings.conf.default during the web server startup.
 echo "Delete the line version= and checkpoint_version= in settings.conf"
