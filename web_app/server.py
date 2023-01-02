@@ -912,6 +912,7 @@ if __name__ == "__main__":
                 rtkbaseconfig.config['ntrip_A']['mnt_name_a'] = rtkbaseconfig.get('ntrip', 'mnt_name')
                 rtkbaseconfig.config['ntrip_A']['rtcm_msg_a'] = rtkbaseconfig.get('ntrip', 'rtcm_msg')
                 rtkbaseconfig.config['ntrip_A']['ntrip_a_receiver_options'] = rtkbaseconfig.get('ntrip', 'ntrip_receiver_options')
+                rtkbaseconfig.config['ntrip_B']['ntrip_B_receiver_options'] = rtkbaseconfig.get('ntrip', 'ntrip_receiver_options')
                 #remove old ntrip section
                 rtkbaseconfig.remove_section('ntrip')
             restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
