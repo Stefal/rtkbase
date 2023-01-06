@@ -140,7 +140,7 @@ $(document).ready(function () {
     baseMark.bindTooltip("Base registered location", {offset : L.point({x: 20, y: 0})});
     // Add realtime localisation marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
-    locMark.bindTooltip("Realtime location without correction \n (PPP, itrf@now)");
+    locMark.bindTooltip("Base realtime location without correction \n (PPP, itrf@now)");
 
     // Move map view with markers bounds
     locMark.addEventListener("move", function() {
