@@ -192,7 +192,10 @@ upd_2.3.4() {
   #Add new requirements for v2.4
   ${destination_directory}'/tools/install.sh' --user "${standard_user}" --dependencies
   # Copy new services
+  systemctl stop str2str_ntrip.service
+  systemctl disable str2str_ntrip.service
   rm /etc/systemd/system/str2str_ntrip.service
+  systemctl reset-failed
   file_path=${destination_directory}'/unit/str2str_ntrip_A.service'
   file_name=$(basename ${file_path})
   echo copying ${file_name}
