@@ -348,7 +348,7 @@ detect_usb_gnss() {
             echo 'NO GNSS RECEIVER DETECTED'
             return 1
           fi
-          devname=$(get_device_path "$vendor_and_product_ids")
+          devname=$(_get_device_path "$vendor_and_product_ids")
           detected_gnss[0]=$devname
           detected_gnss[1]='u-blox'
           echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
