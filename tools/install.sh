@@ -16,16 +16,17 @@ man_help(){
     echo '* Before install, connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart.'
     echo '* Running install script with sudo'
     echo ''
-    echo '        sudo ./install.sh'
+    echo 'Easy installation: sudo ./install.sh --all release'
     echo ''
     echo 'Options:'
-    echo '        -a | --all'
+    echo '        -a | --all <rtkbase source>'
     echo '                         Install all you need to run RTKBase : dependencies, RTKlib, last release of Rtkbase, services,'
     echo '                         crontab jobs, detect your GNSS receiver and configure it.'
-    echo ''
-    echo '        -v | --alldev <branch>'
-    echo '                         Install all as --all option, but use the rtkbase github repo instead of the release'
-    echo '                         You have to select the git branch you want to install.'
+    echo '                         <rtkbase source> could be:'
+    echo '                             release  (get the latest available release)'
+    echo '                             repo     (you need to add the --rtkbase-repo argument with a branch name)'
+    echo '                             url      (you need to add the --rtkbase-custom-source argument with an url)'
+    echo '                             bundled  (available if the rtkbase archive is bundled with the install script)'
     echo ''
     echo '        -u | --user'
     echo '                         Use this username as User= inside service unit and for path to rtkbase:'
@@ -44,6 +45,9 @@ man_help(){
     echo ''
     echo '        -i | --rtkbase-repo <branch>'
     echo '                         Clone RTKBASE from github with the <branch> parameter used to select the branch.'
+    echo ''
+    echo '        -j | --rtkbase-bundled'
+    echo '                         Extract the rtkbase files bundled with this script, if available.'
     echo ''
     echo '        -f | --rtkbase-custom <source>'
     echo '                         Get RTKBASE from an url.'
@@ -265,6 +269,25 @@ install_rtkbase_custom_source() {
     fi
 }
 
+install_rtkbase_bundled() {
+    echo '################################'
+    echo 'INSTALLING BUNDLED RTKBASE'
+    echo '################################'
+    if [ -d "${rtkbase_path}" ]
+    then
+      echo "RtkBase folder already exists. Please clean the system, then retry"
+      echo "(Don't forget to remove the systemd services)"
+      #exit 1
+    fi
+    # Find __ARCHIVE__ marker, read archive content and decompress it
+    ARCHIVE=$(awk '/^__ARCHIVE__/ {print NR + 1; exit 0; }' "${0}")
+    # Check if there is some content after __ARCHIVE__ marker (more than 100 lines)
+    [[ $(sed -n '/__ARCHIVE__/,$p' "${0}" | wc -l) -lt 100 ]] && echo "RTKBASE isn't bundled inside install.sh. Please choose another source" && exit 1  
+    sudo -u "${RTKBASE_USER}" tail -n+${ARCHIVE} "${0}" | tar xpJv && \
+    sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
+    #_add_rtkbase_path_to_environment
+}
+
 _add_rtkbase_path_to_environment(){
     echo '################################'
     echo 'ADDING RTKBASE PATH TO ENVIRONMENT'
@@ -478,6 +501,7 @@ main() {
   ARG_RTKLIB=0
   ARG_RTKBASE_RELEASE=0
   ARG_RTKBASE_REPO=0
+  ARG_RTKBASE_BLD=0
   ARG_RTKBASE_SRC=0
   ARG_UNIT=0
   ARG_GPSD_CHRONY=0
@@ -485,10 +509,9 @@ main() {
   ARG_NO_WRITE_PORT=0
   ARG_CONFIGURE_GNSS=0
   ARG_START_SERVICES=0
-  ARG_ALLDEV=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:f:tgencsv:a --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-custom:,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,alldev:,all -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:tgencsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,all: -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -507,20 +530,20 @@ main() {
         -r | --rtklib) ARG_RTKLIB=1                   ; shift   ;;
         -b | --rtkbase-release) ARG_RTKBASE_RELEASE=1 ; shift   ;;
         -i | --rtkbase-repo) ARG_RTKBASE_REPO="${2}"  ; shift 2 ;;
-        -f | --rtkbase-custom) ARG_RTKBASE_SRC="${2}"  ; shift 2 ;;
+        -j | --rtkbase-bundled) ARG_RTKBASE_BLD=1     ; shift   ;;
+        -f | --rtkbase-custom) ARG_RTKBASE_SRC="${2}" ; shift 2 ;;
         -t | --unit-files) ARG_UNIT=1                 ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1         ; shift   ;;
         -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1 ; shift   ;;
         -n | --no-write-port) ARG_NO_WRITE_PORT=1     ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1   ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1   ; shift   ;;
-        -v | --alldev) ARG_ALLDEV="${2}"              ; shift 2 ;;
-        -a | --all) ARG_ALL=1                         ; shift   ;;
+        -a | --all) ARG_ALL="${2}"                    ; shift 2 ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
         --) shift; break ;;
         # If invalid options were passed, then getopt should have reported an error,
         # which we checked as VALID_ARGUMENTS when getopt was called...
-        *) echo "Unexpected option: $1 - this should not happen."
+        *) echo "Unexpected option: $1"
           usage ;;
       esac
     done
@@ -528,39 +551,59 @@ main() {
   [ $ARG_HELP -eq 1 ] && man_help
   _check_user "${ARG_USER}" #; echo 'user devient: ' "${RTKBASE_USER}"
   #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; check_user "${ARG_USER}"; else ;fi
+  if [ $ARG_ALL != 0 ] 
+  then
+    # test if rtkbase source option is correct
+    [[ ' release repo url bundled'  =~ (^|[[:space:]])$ARG_ALL($|[[:space:]]) ]] || { echo 'wrong option, please choose release, repo, url or bundled' ; exit 1 ;}
+    [[ $ARG_ALL == 'repo' ]] && [[ "${ARG_RTKBASE_REPO}" -eq 0 ]] && { echo 'you have to specify the branch with --rtkbase-repo' ; exit 1 ;}
+    [[ $ARG_ALL == 'url' ]] && [[ "${ARG_RTKBASE_SRC}" -eq 0 ]] && { echo 'you have to specify the url with --rtkbase-custom' ; exit 1 ;}
+
+    install_dependencies          && \
+    install_rtklib                && \
+    case $ARG_ALL in
+      release)
+        echo 'release'
+        install_rtkbase_from_release ; ((cumulative_exit+=$?)) 
+        ;;
+      repo)
+        echo 'repo'
+        install_rtkbase_from_repo "${ARG_RTKBASE_REPO}" ; ((cumulative_exit+=$?))
+        ;;
+      url)
+        echo 'url'
+        install_rtkbase_custom_source "${ARG_RTKBASE_SRC}" ; ((cumulative_exit+=$?))
+          ;;
+      bundled)
+        echo 'bundled' 
+        # https://www.matteomattei.com/create-self-contained-installer-in-bash-that-extracts-archives-and-perform-actitions/
+        install_rtkbase_bundled ; ((cumulative_exit+=$?))
+        ;;
+    esac                          && \
+    rtkbase_requirements          && \
+    install_unit_files            && \
+    install_gpsd_chrony           && \
+    detect_usb_gnss               && \
+    configure_gnss                && \
+    start_services
+    ((cumulative_exit+=$?))
+    exit $cumulative_exit
+ fi
+
   [ $ARG_DEPENDENCIES -eq 1 ] && { install_dependencies ; ((cumulative_exit+=$?)) ;}
   [ $ARG_RTKLIB -eq 1 ] && { install_rtklib ; ((cumulative_exit+=$?)) ;}
   [ $ARG_RTKBASE_RELEASE -eq 1 ] && { install_rtkbase_from_release && rtkbase_requirements ; ((cumulative_exit+=$?)) ;}
   if [ $ARG_RTKBASE_REPO != 0 ] ; then { install_rtkbase_from_repo "${ARG_RTKBASE_REPO}" && rtkbase_requirements ; ((cumulative_exit+=$?)) ;} ;fi
+  [ $ARG_RTKBASE_BLD -eq 1 ] && { install_rtkbase_bundled && rtkbase_requirements ; ((cumulative_exit+=$?)) ;}
   if [ $ARG_RTKBASE_SRC != 0 ] ; then { install_rtkbase_custom_source "${ARG_RTKBASE_SRC}" && rtkbase_requirements ; ((cumulative_exit+=$?)) ;} ;fi
   [ $ARG_UNIT -eq 1 ] && { install_unit_files ; ((cumulative_exit+=$?)) ;}
   [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
-
-  if [ $ARG_ALLDEV != 0 ] ; then install_dependencies              && \
-                        install_rtklib                             && \
-                        install_rtkbase_from_repo "${ARG_ALLDEV}"  && \
-                        rtkbase_requirements                       && \
-                        install_unit_files                         && \
-                        install_gpsd_chrony                        && \
-                        detect_usb_gnss                            && \
-                        configure_gnss                             && \
-                        start_services                             
-                        ((cumulative_exit+=$?))                   ;fi
-  [ $ARG_ALL -eq 1 ] && { install_dependencies          && \
-                        install_rtklib                && \
-                        install_rtkbase_from_release  && \
-                        rtkbase_requirements          && \
-                        install_unit_files            && \
-                        install_gpsd_chrony           && \
-                        detect_usb_gnss               && \
-                        configure_gnss                && \
-                        start_services
-                        ((cumulative_exit+=$?)) ;}
 }
 
 main "$@"
 #echo 'cumulative_exit: ' $cumulative_exit
 exit $cumulative_exit
+
+__ARCHIVE__
