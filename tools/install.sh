@@ -554,8 +554,8 @@ main() {
   then
     # test if rtkbase source option is correct
     [[ ' release repo url bundled'  =~ (^|[[:space:]])$ARG_ALL($|[[:space:]]) ]] || { echo 'wrong option, please choose release, repo, url or bundled' ; exit 1 ;}
-    [[ $ARG_ALL == 'repo' ]] && [[ "${ARG_RTKBASE_REPO}" == "" ]] && { echo 'you have to specify the branch with --rtkbase-repo' ; exit 1 ;}
-    [[ $ARG_ALL == 'url' ]] && [[ "${ARG_RTKBASE_SRC}" == "" ]] && { echo 'you have to specify the url with --rtkbase-custom' ; exit 1 ;}
+    [[ $ARG_ALL == 'repo' ]] && [[ "${ARG_RTKBASE_REPO}" == "0" ]] && { echo 'you have to specify the branch with --rtkbase-repo' ; exit 1 ;}
+    [[ $ARG_ALL == 'url' ]] && [[ "${ARG_RTKBASE_SRC}" == "0" ]] && { echo 'you have to specify the url with --rtkbase-custom' ; exit 1 ;}
     # What is this || true ? It's because if ((..)) result is 0, exit code is 1. See https://www.shellcheck.net/wiki/SC2219
     install_dependencies && \
     install_rtklib   && \
