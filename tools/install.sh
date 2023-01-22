@@ -84,7 +84,7 @@ _check_user() {
     RTKBASE_USER="${1}"
       #TODO check if user exists and/or path exists ?
       # warning for image creation, do the path exist ?
-  elif  pstree -s $PPID | grep -Fwq systemd ; then
+  elif  pstree -s $PPID 2>/dev/null | grep -Fwq systemd ; then
     RTKBASE_USER="${USER}"
     #when running this script from server.py which is executed with systemd as parent, logname return is empty so we test this case with pstree
     # In this case, RTKBASE_USER should contain the user set in the rtkbase_web unit file.
@@ -160,9 +160,8 @@ install_gpsd_chrony() {
       #Reload systemd services and enable chrony and gpsd
       systemctl daemon-reload
       systemctl enable gpsd
-      systemctl enable chrony
-      #Enable chrony can fail but it works, so let's return 0 to not break the script.
-      return 0
+      #systemctl enable chrony # chrony is already enabled
+      #return 0
 }
 
 install_rtklib() {
@@ -285,7 +284,7 @@ install_rtkbase_bundled() {
     [[ $(sed -n '/__ARCHIVE__/,$p' "${0}" | wc -l) -lt 100 ]] && echo "RTKBASE isn't bundled inside install.sh. Please choose another source" && exit 1  
     sudo -u "${RTKBASE_USER}" tail -n+${ARCHIVE} "${0}" | tar xpJv && \
     sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
-    #_add_rtkbase_path_to_environment
+    _add_rtkbase_path_to_environment
 }
 
 _add_rtkbase_path_to_environment(){
@@ -555,37 +554,34 @@ main() {
   then
     # test if rtkbase source option is correct
     [[ ' release repo url bundled'  =~ (^|[[:space:]])$ARG_ALL($|[[:space:]]) ]] || { echo 'wrong option, please choose release, repo, url or bundled' ; exit 1 ;}
-    [[ $ARG_ALL == 'repo' ]] && [[ "${ARG_RTKBASE_REPO}" -eq 0 ]] && { echo 'you have to specify the branch with --rtkbase-repo' ; exit 1 ;}
-    [[ $ARG_ALL == 'url' ]] && [[ "${ARG_RTKBASE_SRC}" -eq 0 ]] && { echo 'you have to specify the url with --rtkbase-custom' ; exit 1 ;}
-
-    install_dependencies          && \
-    install_rtklib                && \
+    [[ $ARG_ALL == 'repo' ]] && [[ "${ARG_RTKBASE_REPO}" == "" ]] && { echo 'you have to specify the branch with --rtkbase-repo' ; exit 1 ;}
+    [[ $ARG_ALL == 'url' ]] && [[ "${ARG_RTKBASE_SRC}" == "" ]] && { echo 'you have to specify the url with --rtkbase-custom' ; exit 1 ;}
+    # What is this || true ? It's because if ((..)) result is 0, exit code is 1. See https://www.shellcheck.net/wiki/SC2219
+    install_dependencies && \
+    install_rtklib   && \
     case $ARG_ALL in
       release)
-        echo 'release'
-        install_rtkbase_from_release ; ((cumulative_exit+=$?)) 
+        install_rtkbase_from_release
         ;;
       repo)
-        echo 'repo'
-        install_rtkbase_from_repo "${ARG_RTKBASE_REPO}" ; ((cumulative_exit+=$?))
+        install_rtkbase_from_repo "${ARG_RTKBASE_REPO}"
         ;;
       url)
-        echo 'url'
-        install_rtkbase_custom_source "${ARG_RTKBASE_SRC}" ; ((cumulative_exit+=$?))
-          ;;
-      bundled)
-        echo 'bundled' 
-        # https://www.matteomattei.com/create-self-contained-installer-in-bash-that-extracts-archives-and-perform-actitions/
-        install_rtkbase_bundled ; ((cumulative_exit+=$?))
+        install_rtkbase_custom_source "${ARG_RTKBASE_SRC}"
         ;;
-    esac                          && \
-    rtkbase_requirements          && \
-    install_unit_files            && \
-    install_gpsd_chrony           && \
-    detect_usb_gnss               && \
-    configure_gnss                && \
-    start_services
-    ((cumulative_exit+=$?))
+      bundled)
+        # https://www.matteomattei.com/create-self-contained-installer-in-bash-that-extracts-archives-and-perform-actitions/
+        install_rtkbase_bundled
+        ;;
+    esac                      && \
+    rtkbase_requirements      && \
+    install_unit_files        && \
+    install_gpsd_chrony
+    [[ $? != 0 ]] && ((cumulative_exit+=$?))
+    detect_usb_gnss           && \
+    configure_gnss
+    start_services ; ((cumulative_exit+=$?))
+    [[ $cumulative_exit != 0 ]] && echo -e '\n\n Warning! Some errors happened during installation!'
     exit $cumulative_exit
  fi
 
