@@ -29,6 +29,9 @@ rm /usr/bin/str2str
 rm /usr/bin/conv2bin
 rm /usr/bin/rtkrcv
 
+#removing Python modules
+# Too dangerous without running RTKBase in a venv ?
+
 #removing rtkbase folder
 echo 'Deleting rtkbase directory'
 rtkbase_dir=$(builtin cd "${BASEDIR}"/.. ; pwd)
