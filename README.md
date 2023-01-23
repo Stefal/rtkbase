@@ -201,7 +201,7 @@ So, if you really want it, let's go for a manual installation with some explanat
    
    If it's a U-Blox ZED-F9P (usb), you can use 
    ```bash
-   $ sudo ./install.sh -detect-usb-gnss --configure-gnss
+   $ sudo ./install.sh --detect-usb-gnss --configure-gnss
    ```
 
    If it's a U-Blox ZED-F9P (uart), you can use this command (change the ttyS1 and 115200 value if needed)):
