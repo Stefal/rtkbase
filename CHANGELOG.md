@@ -10,6 +10,7 @@
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
 - GUI -> Status: Added an alert if the main service isn't active.
 - GUI -> Logs: Added 3 more Rinex presets, and modified rinex window layout. #43 #134 #190 #200
+- Bidirectionnal communication with the gnss receiver is enabled. #277
 - More informations are available in the local caster source table. #183
 - Port number for the web server is configurable in settings.conf
 ### Changed
