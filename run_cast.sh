@@ -50,7 +50,7 @@ mkdir -p ${logdir}
     out_tcp)
     #echo ${cast} -in ${!1} -out $out_tcp
     # What is this ${!1} ? It's variable indirection
-    ${cast} -in ${!1} -out ${out_tcp} -t ${level} -fl ${logdir}/str2str_tcp.log &
+    ${cast} -in ${!1} -out ${out_tcp} -b 1 -t ${level} -fl ${logdir}/str2str_tcp.log &
     ;;
 
   out_caster_A)
