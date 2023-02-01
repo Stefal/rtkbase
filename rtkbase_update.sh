@@ -208,6 +208,7 @@ upd_2.3.4() {
 #update rtklib binary to the one from rtklibexplorer fork.
   upgrade_rtklib
 #update python module
+  python3 -m pip install pip --upgrade
   python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
 # Get F9P firmware release
   source <( grep = "${destination_directory}"/settings.conf )
