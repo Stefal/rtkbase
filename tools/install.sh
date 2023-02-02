@@ -87,9 +87,12 @@ _check_user() {
   elif  pstree -s $PPID 2>/dev/null | grep -Fwq systemd ; then
     RTKBASE_USER="${USER}"
     #when running this script from server.py which is executed with systemd as parent, logname return is empty so we test this case with pstree
-    # In this case, RTKBASE_USER should contain the user set in the rtkbase_web unit file.
+    # In this case, RTKBASE_USER will use the $USER variable set in the rtkbase_web unit file.
   elif [[ -z $(logname) ]] ; then
     echo 'The logname command return an empty value. Please reboot and retry.'
+    exit 1
+  elif [[ $(logname) == 'root' ]]; then
+    echo 'The logname command return "root". Please reboot or use --user argument to choose the correct user which should run rtkbase services'
     exit 1
   else
     RTKBASE_USER=$(logname)
@@ -102,6 +105,7 @@ install_dependencies() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" update || exit 1
       apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc || exit 1
+      #apt-get "${APT_TIMEOUT}" upgrade -y
 }
 
 install_gpsd_chrony() {
@@ -168,24 +172,35 @@ install_rtklib() {
     echo '################################'
     echo 'INSTALLING RTKLIB'
     echo '################################'
-      # str2str already exist?
-      if [ ! -f /usr/local/bin/str2str ]
-      then 
-        #Get Rtklib 2.4.3 b34g release
-        sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34g.tar.gz | tar -xvz
-        #Install Rtklib app
-        #TODO add correct CTARGET in makefile?
-        make --directory=RTKLIB-b34g/app/consapp/str2str/gcc
-        make --directory=RTKLIB-b34g/app/consapp/str2str/gcc install
-        make --directory=RTKLIB-b34g/app/consapp/rtkrcv/gcc
-        make --directory=RTKLIB-b34g/app/consapp/rtkrcv/gcc install
-        make --directory=RTKLIB-b34g/app/consapp/convbin/gcc
-        make --directory=RTKLIB-b34g/app/consapp/convbin/gcc install
-        #deleting RTKLIB
-        rm -rf RTKLIB-b34g/
-      else
-        echo 'str2str already exist'
-      fi
+    arch_package=$(dpkg --print-architecture)
+    if [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"'/str2str' ]]
+    then
+      echo 'Copying new rtklib binary for ' "${arch_package}"
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"/str2str /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"/rtkrcv /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"/convbin /usr/local/bin/
+    else
+      echo 'No binary available for ' "${arch_package}" '. We will build it from source'
+      _compil_rtklib
+    fi
+}
+
+_compil_rtklib() {
+    echo '################################'
+    echo 'COMPILING RTKLIB'
+    echo '################################'
+    #Get Rtklib 2.4.3 b34g release
+    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34g.tar.gz | tar -xvz
+    #Install Rtklib app
+    #TODO add correct CTARGET in makefile?
+    make --directory=RTKLIB-b34g/app/consapp/str2str/gcc
+    make --directory=RTKLIB-b34g/app/consapp/str2str/gcc install
+    make --directory=RTKLIB-b34g/app/consapp/rtkrcv/gcc
+    make --directory=RTKLIB-b34g/app/consapp/rtkrcv/gcc install
+    make --directory=RTKLIB-b34g/app/consapp/convbin/gcc
+    make --directory=RTKLIB-b34g/app/consapp/convbin/gcc install
+    #deleting RTKLIB
+    rm -rf RTKLIB-b34g/
 }
 
 _rtkbase_repo(){
@@ -314,7 +329,7 @@ rtkbase_requirements(){
       #the same user
       # In the meantime, we install pystemd dev wheel for armv7 platform
       platform=$(uname -m)
-      if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
+       if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
       then
         # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
         apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
@@ -484,8 +499,8 @@ main() {
     fi
   fi
   
-  # check if there is enough space available
-  if [[ $(df -kP ~/ | grep -v '^Filesystem' | awk '{ print $4 }') -lt 300000 ]]
+  # check if there is at least 300MB of free space on the root partition to install rtkbase
+  if [[ $(df "$HOME" | awk 'NR==2 { print $4 }') -lt 300000 ]]
   then
     echo 'Available space is lower than 300MB.'
     echo 'Exiting...'
@@ -558,7 +573,6 @@ main() {
     [[ $ARG_ALL == 'url' ]] && [[ "${ARG_RTKBASE_SRC}" == "0" ]] && { echo 'you have to specify the url with --rtkbase-custom' ; exit 1 ;}
     #Okay launching installation
     install_dependencies && \
-    install_rtklib   && \
     case $ARG_ALL in
       release)
         install_rtkbase_from_release
@@ -575,6 +589,7 @@ main() {
         ;;
     esac                      && \
     rtkbase_requirements      && \
+    install_rtklib            && \
     install_unit_files        && \
     install_gpsd_chrony
     [[ $? != 0 ]] && ((cumulative_exit+=$?))
