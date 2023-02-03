@@ -383,6 +383,7 @@ detect_usb_gnss() {
           vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then 
             echo 'NO GNSS RECEIVER DETECTED'
+            echo 'YOU CAN REDETECT IT FROM THE WEB UI'
             return 1
           fi
           devname=$(_get_device_path "$vendor_and_product_ids")
