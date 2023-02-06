@@ -18,3 +18,4 @@ pyserial==3.5
 pystemd==0.10.0
 requests==2.28.1
 dnspython==2.3.0
+distro==1.8.0

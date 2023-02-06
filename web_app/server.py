@@ -67,6 +67,7 @@ from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_socketio import SocketIO, emit, disconnect
 import subprocess
 import psutil
+import distro
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -395,7 +396,8 @@ def settings_page():
                                             local_ntripc_settings = local_ntripc_settings,
                                             file_settings = file_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
-                                            rtcm_serial_settings = rtcm_serial_settings,)
+                                            rtcm_serial_settings = rtcm_serial_settings,
+                                            os_infos = distro.info(),)
 
 @app.route('/logs')
 @login_required
