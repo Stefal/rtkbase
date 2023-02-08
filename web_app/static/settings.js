@@ -63,6 +63,18 @@ $(document).ready(function () {
         $(this).closest("form").find(":submit").prop("disabled", true);
         e.preventDefault();
       });
+    
+    // Warn user if some changed settings are not saved before leaving the page
+    window.addEventListener('beforeunload', function (e) {
+        btnList = document.querySelectorAll("button[type=submit]")
+        for (let i = 0; i < btnList.length; i++) {
+            if (btnList[i].hasAttribute("disabled") != true) {
+                console.log("Warning: unsaved settings!!!")
+                e.preventDefault();
+                break;}
+          }
+    });
+    
 
     // View/hide password buttons for: Ntrip A, Ntrip B and Local caster
     document.querySelectorAll(".input-group-append").forEach(function(e) {
