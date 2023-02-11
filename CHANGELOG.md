@@ -7,6 +7,7 @@
 - GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
 - GUI -> Settings: Added a button to show/hide the Ntrip passwords. Thanks to @GwnDaan #208 
 - GUI -> Settings: Added Gnss receiver informations (Model and firmware release).
+- GUI -> Settings: Alert when user wants to leave the page with unsaved settings. #235
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
 - GUI -> Status: Added an alert if the main service isn't active.
 - GUI -> Logs: Added 3 more Rinex presets, and modified rinex window layout. #43 #134 #190 #200
