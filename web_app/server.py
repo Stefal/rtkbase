@@ -261,7 +261,7 @@ def check_update(source_url = None, current_release = None, prerelease=False, em
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
-    current_release = current_release.replace("-beta", "").replace("-alpha", "").replace("-rc", "")
+    current_release = current_release.split("-beta", 1)[0].split("-alpha", 1)[0].split("-rc", 1)[0].split("b", 1)[0]
     
     try:    
         response = requests.get(source_url)
