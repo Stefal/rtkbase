@@ -249,7 +249,7 @@ def get_sbc_model():
     return sbc_model
 
 @socketio.on("check update", namespace="/test")
-def check_update(source_url = None, current_release = None, prerelease=False, emit = True):
+def check_update(source_url = None, current_release = None, prerelease=rtkbaseconfig.getboolean("general", "prerelease"), emit = True):
     """
         Check if a RTKBase update exists
         :param source_url: the url where we will try to find an update. It uses the github api.

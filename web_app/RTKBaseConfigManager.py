@@ -209,6 +209,12 @@ class RTKBaseConfigManager:
             a wrapper around configparser.get()
         """
         return self.config.get(*args, **kwargs)
+    
+    def getboolean(self, *args, **kwargs):
+        """
+            a wrapper around configparser.getboolean()
+        """
+        return self.config.getboolean(*args, **kwargs)
 
     def remove_option(self, *args, **kwargs):
         """
