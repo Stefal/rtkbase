@@ -424,7 +424,7 @@ $(document).ready(function () {
             $("#updateModal").modal();
         }else if (response.new_release) {
             $("#updateModal .modal-title").text("Update available!");
-            $("#updateModal .modal-body").append('<p class="text-center">Do you want to install <b>' + response['new_release'] +'</b>? <br>It will take a few minutes.</p>');                    
+            $("#updateModal .modal-body").append('<p class="text-center">Do you want to install RTKBase <b>' + response['new_release'] +'</b>? <br>It will take a few minutes.</p>');                    
             var newFeaturesArray = response['comment'].split('\r\n');
             $("#updateModal .modal-body").append('<p><ul id="newFeatures">Content:</ul></p>');
             $.each( newFeaturesArray, function( index, value ){
