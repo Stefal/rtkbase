@@ -172,18 +172,8 @@ upd_2.3.3() {
 
 upgrade_rtklib() {
   bin_path=$(dirname $(command -v str2str))
-  arch_package=$(dpkg --print-architecture)
   rm "${bin_path}"'/str2str' "${bin_path}"'/rtkrcv' "${bin_path}"'/convbin'
-  if [[ -f "${destination_directory}"'/tools/bin/rtklib_b34g/'"${arch_package}"'/str2str' ]]
-  then
-    echo 'Copying new rtklib binary for ' "${arch_package}"
-    cp "${destination_directory}"'/tools/bin/rtklib_b34g/'"${arch_package}"/str2str "${bin_path}"
-    cp "${destination_directory}"'/tools/bin/rtklib_b34g/'"${arch_package}"/rtkrcv "${bin_path}"
-    cp "${destination_directory}"'/tools/bin/rtklib_b34g/'"${arch_package}"/convbin "${bin_path}"
-  else
-    echo 'No binary available for ' "${arch_package}" '. We will build it from source'
-    "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtklib
-  fi
+  "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtklib
 }
 
 upd_2.3.4() {
@@ -208,8 +198,7 @@ upd_2.3.4() {
 #update rtklib binary to the one from rtklibexplorer fork.
   upgrade_rtklib
 #update python module
-  python3 -m pip install pip --upgrade
-  python3 -m pip install -r ${destination_directory}'/web_app/requirements.txt' --extra-index-url https://www.piwheels.org/simple
+  "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtkbase-requirements
 # Get F9P firmware release
   source <( grep = "${destination_directory}"/settings.conf )
   if [[ $(python3 "${destination_directory}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]

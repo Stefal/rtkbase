@@ -328,14 +328,21 @@ rtkbase_requirements(){
     echo '################################'
       #as we need to run the web server as root, we need to install the requirements with
       #the same user
-      # In the meantime, we install pystemd dev wheel for armv7 platform
       platform=$(uname -m)
-       if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
-      then
-        # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
-        apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
+      if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
+        then
+          # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
+          apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
       fi
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
+      # install prebuilt wheel for cryptography because it is unavailable on piwheels (2023/01)
+      if [[ $platform == 'armv7l' ]] && [[ $(python3 --version) =~ '3.7' ]]
+        then 
+          python3 -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv7l.whl
+      elif [[ $platform == 'armv6l' ]] && [[ $(python3 --version) =~ '3.7' ]]
+        then
+          python3 -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv6l.whl
+      fi
       python3 -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
@@ -519,6 +526,7 @@ main() {
   ARG_RTKBASE_REPO=0
   ARG_RTKBASE_BLD=0
   ARG_RTKBASE_SRC=0
+  ARG_RTKBASE_RQS=0
   ARG_UNIT=0
   ARG_GPSD_CHRONY=0
   ARG_DETECT_USB_GNSS=0
@@ -527,7 +535,7 @@ main() {
   ARG_START_SERVICES=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:tgencsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,all: -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,all: -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -540,21 +548,22 @@ main() {
   while :
     do
       case "$1" in
-        -h | --help)   ARG_HELP=1                     ; shift   ;;
-        -u | --user)   ARG_USER="${2}"                ; shift 2 ;;
-        -d | --dependencies) ARG_DEPENDENCIES=1       ; shift   ;;
-        -r | --rtklib) ARG_RTKLIB=1                   ; shift   ;;
-        -b | --rtkbase-release) ARG_RTKBASE_RELEASE=1 ; shift   ;;
-        -i | --rtkbase-repo) ARG_RTKBASE_REPO="${2}"  ; shift 2 ;;
-        -j | --rtkbase-bundled) ARG_RTKBASE_BLD=1     ; shift   ;;
-        -f | --rtkbase-custom) ARG_RTKBASE_SRC="${2}" ; shift 2 ;;
-        -t | --unit-files) ARG_UNIT=1                 ; shift   ;;
-        -g | --gpsd-chrony) ARG_GPSD_CHRONY=1         ; shift   ;;
-        -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1 ; shift   ;;
-        -n | --no-write-port) ARG_NO_WRITE_PORT=1     ; shift   ;;
-        -c | --configure-gnss) ARG_CONFIGURE_GNSS=1   ; shift   ;;
-        -s | --start-services) ARG_START_SERVICES=1   ; shift   ;;
-        -a | --all) ARG_ALL="${2}"                    ; shift 2 ;;
+        -h | --help)   ARG_HELP=1                      ; shift   ;;
+        -u | --user)   ARG_USER="${2}"                 ; shift 2 ;;
+        -d | --dependencies) ARG_DEPENDENCIES=1        ; shift   ;;
+        -r | --rtklib) ARG_RTKLIB=1                    ; shift   ;;
+        -b | --rtkbase-release) ARG_RTKBASE_RELEASE=1  ; shift   ;;
+        -i | --rtkbase-repo) ARG_RTKBASE_REPO="${2}"   ; shift 2 ;;
+        -j | --rtkbase-bundled) ARG_RTKBASE_BLD=1      ; shift   ;;
+        -f | --rtkbase-custom) ARG_RTKBASE_SRC="${2}"  ; shift 2 ;;
+        -q | --rtkbase-requirements) ARG_RTKBASE_RQS=1 ; shift   ;;
+        -t | --unit-files) ARG_UNIT=1                  ; shift   ;;
+        -g | --gpsd-chrony) ARG_GPSD_CHRONY=1          ; shift   ;;
+        -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1  ; shift   ;;
+        -n | --no-write-port) ARG_NO_WRITE_PORT=1      ; shift   ;;
+        -c | --configure-gnss) ARG_CONFIGURE_GNSS=1    ; shift   ;;
+        -s | --start-services) ARG_START_SERVICES=1    ; shift   ;;
+        -a | --all) ARG_ALL="${2}"                     ; shift 2 ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
         --) shift; break ;;
         # If invalid options were passed, then getopt should have reported an error,
@@ -608,6 +617,7 @@ main() {
   if [ $ARG_RTKBASE_REPO != 0 ] ; then { install_rtkbase_from_repo "${ARG_RTKBASE_REPO}" && rtkbase_requirements ; ((cumulative_exit+=$?)) ;} ;fi
   [ $ARG_RTKBASE_BLD -eq 1 ] && { install_rtkbase_bundled && rtkbase_requirements ; ((cumulative_exit+=$?)) ;}
   if [ $ARG_RTKBASE_SRC != 0 ] ; then { install_rtkbase_custom_source "${ARG_RTKBASE_SRC}" && rtkbase_requirements ; ((cumulative_exit+=$?)) ;} ;fi
+  [ $ARG_RTKBASE_RQS -eq 1 ] && { rtkbase_requirements ; ((cumulative_exit+=$?)) ;}
   [ $ARG_UNIT -eq 1 ] && { install_unit_files ; ((cumulative_exit+=$?)) ;}
   [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
