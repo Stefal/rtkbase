@@ -172,7 +172,8 @@ install_rtklib() {
     echo '################################'
     echo 'INSTALLING RTKLIB'
     echo '################################'
-    arch_package=$(dpkg --print-architecture)
+    arch_package=$(uname -m)
+    [[ $arch_package == 'x86_64' ]] && arch_package='x86'
     if [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"'/str2str' ]]
     then
       echo 'Copying new rtklib binary for ' "${arch_package}"
