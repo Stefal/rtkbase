@@ -80,7 +80,7 @@ app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
 app.config["LOGIN_DISABLED"] = False
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 128
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 128
 app.config['UPLOAD_EXTENSIONS'] = ['.conf', '.txt', 'ini']
 
 rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
