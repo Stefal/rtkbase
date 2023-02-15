@@ -27,7 +27,7 @@
     namespace = "/test";
 
     // initiate SocketIO connection
-    socket = io.connect("http://" + document.domain + ":" + location.port + namespace);
+    socket = io.connect(namespace);
     
     socket.on("updating_rtkbase", function() {
     $("#updating").text("Please wait...Updating...Refresh manually in a few minutes");

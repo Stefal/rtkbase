@@ -32,8 +32,8 @@ $(document).ready(function () {
     namespace = "/test";
 
     // initiate SocketIO connection
-    socket = io.connect("http://" + document.domain + ":" + location.port + namespace);
-
+    socket = io.connect(namespace);
+	
     // say hello on connect
     socket.on("connect", function () {
         socket.emit("browser connected", {data: "I'm connected"});
