@@ -32,7 +32,7 @@ $(document).ready(function () {
     namespace = "/test";
 
     // initiate SocketIO connection
-    socket = io.connect(location.protocol + "//" + document.domain + ":" + location.port + namespace);
+    socket = io.connect(namespace);
 	
     // say hello on connect
     socket.on("connect", function () {
