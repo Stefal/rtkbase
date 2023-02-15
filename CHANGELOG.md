@@ -7,6 +7,7 @@
 - GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
 - GUI -> Settings: Added a button to show/hide the Ntrip passwords. Thanks to @GwnDaan #208 
 - GUI -> Settings: Added Gnss receiver informations (Model and firmware release).
+- GUI -> Settings: Added Operating system informations.
 - GUI -> Settings: Alert when user wants to leave the page with unsaved settings. #235
 - GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
 - GUI -> Status: Added an alert if the main service isn't active.
@@ -15,13 +16,15 @@
 - More informations are available in the local caster source table. #183
 - Port number for the web server is configurable in settings.conf
 ### Changed
-- RTKLib upgrade to release b34g from rtklibexplorer. #222
+- RTKLib upgraded to release b34g from rtklibexplorer. #222
+- RTKLib binaries are bundled for armv6l, armv7l, aarch64, x86. Compilation from source isn't needed anymore for these platforms.
 - Command line: Many changes on install.sh arguments/options. See `install.sh --help`
 - Flask upgraded to v2.2.2 and other dependencies upgraded too.
 - SocketIO upgraded to v4.4.1
 - Bootstrap upgraded to v4.6.1
 - Bootstrap-table upgraded to v1.21.1
 - Password for local caster isn't mandatory anymore. Thanks to @GwnDaan #210
+- Change socketio connection method. Thanks to @jaapvandenhandel
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
 - GUI -> Status: Sat. levels are left align. Thanks to @GwnDaan #72
