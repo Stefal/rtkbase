@@ -1,5 +1,5 @@
 jinja2==3.0.3
-werkzeug==2.0.2
+werkzeug==2.2.3
 cryptography==3.3.2
 itsdangerous==1.1.0
 Flask==1.1.2
