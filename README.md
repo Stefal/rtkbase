@@ -193,7 +193,7 @@ So, if you really want it, let's go for a manual installation with some explanat
    ```
       # Devices gpsd should connect to at boot time.
       # They need to be read/writeable, either by user gpsd or the group dialout.
-      DEVICES="tcp://127.0.0.1:5015"
+      DEVICES="tcp://localhost:5015"
 
       # Other options you want to pass to gpsd
       GPSD_OPTIONS="-n -b"
