@@ -35,6 +35,7 @@
 - Max Cpu temp was not updated when no user were connected. Thanks to @GwnDaan
 - GUI -> Settings: Check update now display an error in case of a connection error. Thanks to @GwnDaan #221
 - GUI -> Logs: Better logs table behaviour on mobile devices.
+- Grep pattern fixed on PPS example. Thanks to @by.
 
 ### Security
 
