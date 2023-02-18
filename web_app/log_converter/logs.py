@@ -73,7 +73,7 @@ class LogMetadata:
         valid_messages = 0
 
         for msg_type, msg_count in list(self.navigation_messages.items()):
-            if msg_type is not "Errors":
+            if msg_type != "Errors":
                 valid_messages += int(msg_count)
 
         return valid_messages
