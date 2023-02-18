@@ -524,7 +524,7 @@ def startBase():
         return
     # We must start rtkcv before trying to modify an option
     rtk.startBase()
-    saved_input_path = "127.0.0.1" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'")
+    saved_input_path = "localhost" + ":" + rtkbaseconfig.get("main", "tcp_port").strip("'")
     if rtk.get_rtkcv_option("inpstr1-path") != saved_input_path:
         rtk.set_rtkcv_option("inpstr1-path", saved_input_path)
         rtk.set_rtkcv_pending_refresh(True)
@@ -925,7 +925,7 @@ if __name__ == "__main__":
         manager_thread.start()
 
         app.secret_key = rtkbaseconfig.get_secret_key()
-        socketio.run(app, host = "0.0.0.0", port = rtkbaseconfig.get("general", "web_port", fallback=80))
+        socketio.run(app, host = "INADDR_ANY", port = rtkbaseconfig.get("general", "web_port", fallback=80))
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
