@@ -355,14 +355,14 @@ install_unit_files() {
       if [ -d "${rtkbase_path}" ]
       then 
         #Install unit files
-        "${rtkbase_path}"/tools/copy_unit.sh
+        "${rtkbase_path}"/tools/copy_unit.sh --user "${RTKBASE_USER}"
         systemctl enable rtkbase_web.service
         systemctl enable rtkbase_archive.timer
         systemctl daemon-reload
         #Add dialout group to user
         usermod -a -G dialout "${RTKBASE_USER}"
       else
-        echo 'RtkBase not installed, use option --rtkbase-release'
+        echo 'RtkBase not installed, use option --rtkbase-release or any other rtkbase installation option.'
       fi
 }
 
