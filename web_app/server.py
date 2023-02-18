@@ -925,7 +925,7 @@ if __name__ == "__main__":
         manager_thread.start()
 
         app.secret_key = rtkbaseconfig.get_secret_key()
-        socketio.run(app, host = "INADDR_ANY", port = rtkbaseconfig.get("general", "web_port", fallback=80))
+        socketio.run(app, host = "::", port = rtkbaseconfig.get("general", "web_port", fallback=80)) # IPv6 "::" is mapped to IPv4
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
