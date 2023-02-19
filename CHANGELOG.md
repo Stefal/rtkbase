@@ -25,6 +25,7 @@
 - Bootstrap-table upgraded to v1.21.1
 - Password for local caster isn't mandatory anymore. Thanks to @GwnDaan #210
 - Change socketio connection method. Thanks to @jaapvandenhandel
+- Change 127.0.0.1 to localhost for better ipv6 support. Thanks to @by
 ### Fixed
 - GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
 - GUI -> Status: Sat. levels are left align. Thanks to @GwnDaan #72
