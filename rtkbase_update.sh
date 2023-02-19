@@ -177,7 +177,13 @@ upgrade_rtklib() {
 }
 
 upd_2.3.4() {
+  #store service status before stopping str2str
   str2str_active=$(systemctl is-active str2str_tcp)
+  str2str_ntrip_active=$(systemctl is-active str2str_ntrip)
+  str2str_local_caster=$(systemctl is-active str2str_local_ntrip_caster)
+  str2str_rtcm=$(systemctl is-active str2str_rtcm_svr)
+  str2str_serial=$(systemctl is-active str2str_rtcm_serial)
+  str2str_file=$(systemctl is-active str2str_file)
   systemctl stop str2str_tcp
   #Add new requirements for v2.4
   ${destination_directory}'/tools/install.sh' --user "${standard_user}" --dependencies
@@ -209,10 +215,23 @@ upd_2.3.4() {
       sed -i "/^receiver_format=.*/a receiver_firmware=\'${firmware}\'" ${destination_directory}/settings.conf
   fi
 #restart str2str if it was active before upgrading rtklib
-  if [ $str2str_active = "active" ]
-  then
-    systemctl start str2str_tcp
-  fi
+  [ $str2str_active = 'active' ] && systemctl start str2str_tcp
+#replace parameters from str2str_ntrip to str2str_ntrip_A service
+  sed -i 's/^\[ntrip\]/\[ntrip_A\]/' ${destination_directory}/settings.conf
+  sed -i 's/^svr_addr=/svr_addr_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^svr_port=/svr_port_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^svr_pwd=/svr_pwd_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^mnt_name=/mnt_name_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^rtcm_msg=/rtcm_msg_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^ntrip_receiver_options=/ntrip_a_receiver_options=/' ${destination_directory}/settings.conf
+
+#start str2str_ntrip_A if str2str_ntrip was active before upgrading rtklib.
+  [ $str2str_ntrip_active = 'active' ] && systemctl enable str2str_ntrip_A && systemctl start str2str_ntrip_A
+# restart previously running services
+  [ $str2str_local_caster = 'active' ] && systemctl start str2str_local_ntrip_caster
+  [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
+  [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
+  [ $str2str_file = 'active' ] && systemctl start str2str_file
 }
 
 upd_2.4b() {
