@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.4.0] - not released
+## [2.4.0] - 2023-02-20
 ### Added
 - GUI -> Settings: Added a 2nd NTRIP output. #240
 - GUI -> Settings: Added features to backup, restore and reset RTKBase settings.
