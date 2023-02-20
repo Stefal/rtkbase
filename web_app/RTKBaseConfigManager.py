@@ -14,7 +14,9 @@ class RTKBaseConfigManager:
             :param user_settings_path: path to the user settings file 
         """
         self.user_settings_path = user_settings_path
-        self.config = self.merge_default_and_user(default_settings_path, user_settings_path)
+        self.default_settings_path = default_settings_path
+        self.config = None
+        self.merge_default_and_user(default_settings_path, user_settings_path)
         self.expand_path()
         self.write_file(self.config)
 
@@ -22,8 +24,7 @@ class RTKBaseConfigManager:
         """
             After a software update if there is some new entries in the default settings file,
             we need to add them to the user settings file. This function will do this: It loads
-            the default settings then overwrite the existing values from the user settings. Then
-            the function write these settings on disk.
+            the default settings then overwrite the existing values from the user settings.
 
             :param default: path to the default settings file 
             :param user: path to the user settings file
@@ -34,16 +35,40 @@ class RTKBaseConfigManager:
         #if there is no existing user settings file, config.read return
         #an empty object.
         config.read(user)
-        return config
+        self.config=config
 
+    def restore_settings(self, default, to_restore):
+        """
+            Restore backuped settings. Some settings have to be removed in case of restore from
+            and older release.
 
-    def parseconfig(self, settings_path):
+            :param default: path to the default settings file 
+            :param to_restore: path to the settings file to restore
+        """
+        restore_config = ConfigParser(interpolation=None)
+        restore_config.read(to_restore)
+        restore_config.remove_option("general", "version")
+        restore_config.remove_option("general", "checkpoint_version")
+        #we don't know if the actual user is the same as the one in the config file
+        restore_config.remove_option("general", "user")
+        if not os.path.exists(restore_config.get("local_storage", "datadir")):
+            restore_config.remove_option("local_storage", "datadir")
+        if not os.path.exists(restore_config.get("log", "logdir")):
+            restore_config.remove_option("log", "logdir")
+        #write restored settings to the current settings
+        for section in restore_config.sections():
+            for k, v in restore_config[section].items():
+                self.config[section][k] = v
+        self.write_file()
+
+    def reload_settings(self, settings_path=None):
         """
             Parse the config file with interpolation=None or it will break run_cast.sh
         """
+        settings_path = self.user_settings_path if settings_path is None else settings_path
         config = ConfigParser(interpolation=None)
         config.read(settings_path)
-        return config
+        self.config=config
 
     def expand_path(self):
         """
@@ -58,8 +83,6 @@ class RTKBaseConfigManager:
         if "$BASEDIR" in logdir:
             exp_logdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", logdir.strip("$BASEDIR/")))
             self.update_setting("log", "logdir", exp_logdir)
-
-
 
     def listvalues(self):
         """
@@ -76,18 +99,29 @@ class RTKBaseConfigManager:
             and remove the single quotes.      
         """
         ordered_main = [{"source_section" : "main"}]
-        for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_format", "antenna_info", "tcp_port"):
+        for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_firmware", "receiver_format", "antenna_info", "tcp_port"):
             ordered_main.append({key : self.config.get('main', key).strip("'")})
         return ordered_main
 
-    def get_ntrip_settings(self):
+    def get_ntrip_A_settings(self):
         """
-            Get a subset of the settings from the ntrip section in an ordered object
+            Get a subset of the settings from the ntrip A section in an ordered object
             and remove the single quotes.    
         """
-        ordered_ntrip = [{"source_section" : "ntrip"}]
-        for key in ("svr_addr", "svr_port", "svr_pwd", "mnt_name", "rtcm_msg", "ntrip_receiver_options"):
-            ordered_ntrip.append({key : self.config.get('ntrip', key).strip("'")})
+        ordered_ntrip = [{"source_section" : "ntrip_A"}]
+        for key in ("svr_addr_A", "svr_port_A", "svr_pwd_A", "mnt_name_A", "rtcm_msg_A", "ntrip_A_receiver_options"):
+            ordered_ntrip.append({key : self.config.get('ntrip_A', key).strip("'")})
+        return ordered_ntrip
+    
+    def get_ntrip_B_settings(self):
+        """
+            Get a subset of the settings from the ntrip B section in an ordered object
+            and remove the single quotes.    
+        """
+        #TODO need refactoring with get_ntrip_A_settings
+        ordered_ntrip = [{"source_section" : "ntrip_B"}]
+        for key in ("svr_addr_B", "svr_port_B", "svr_pwd_B", "mnt_name_B", "rtcm_msg_B", "ntrip_B_receiver_options"):
+            ordered_ntrip.append({key : self.config.get('ntrip_B', key).strip("'")})
         return ordered_ntrip
 
     def get_local_ntripc_settings(self):
@@ -137,7 +171,8 @@ class RTKBaseConfigManager:
         """
         ordered_settings = {}
         ordered_settings['main'] = self.get_main_settings()
-        ordered_settings['ntrip'] = self.get_ntrip_settings()
+        ordered_settings['ntrip_A'] = self.get_ntrip_A_settings()
+        ordered_settings['ntrip_B'] = self.get_ntrip_B_settings()
         ordered_settings['local_ntripc'] = self.get_local_ntripc_settings()
         ordered_settings['file'] = self.get_file_settings()
         ordered_settings['rtcm_svr'] = self.get_rtcm_svr_settings()
@@ -157,18 +192,42 @@ class RTKBaseConfigManager:
             Return the flask secret key, or generate a new one if it doesn't exists
         """
         SECRET_KEY = self.config.get("general", "flask_secret_key", fallback='None')
-        if SECRET_KEY is 'None' or SECRET_KEY == '':
+        if SECRET_KEY == 'None' or SECRET_KEY == '':
             SECRET_KEY = token_urlsafe(48)
             self.update_setting("general", "flask_secret_key", SECRET_KEY)
         
         return SECRET_KEY
+
+    def sections(self, *args, **kwargs):
+        """
+            a wrapper around configparser.sections()
+        """
+        return self.config.sections()
 
     def get(self, *args, **kwargs):
         """
             a wrapper around configparser.get()
         """
         return self.config.get(*args, **kwargs)
+    
+    def getboolean(self, *args, **kwargs):
+        """
+            a wrapper around configparser.getboolean()
+        """
+        return self.config.getboolean(*args, **kwargs)
 
+    def remove_option(self, *args, **kwargs):
+        """
+            a wrapper around configparser.remove_option()
+        """
+        return self.config.remove_option(*args, **kwargs)
+    
+    def remove_section(self, *args, **kwargs):
+        """
+            a wrapper around configparser.remove_section()
+        """
+        return self.config.remove_section(*args, **kwargs)
+    
     def update_setting(self, section, setting, value, write_file=True):
         """
             Update a setting in the config file and write the file (default)

@@ -698,16 +698,31 @@ class RTKLIB:
     # and emits them to the connected browser as messages
     def broadcastSatellites(self):
         count = 0
+        no_signal_counter = 0
+        last_gps_timestamp=""
 
         while self.server_not_interrupted:
 
             # update satellite levels
             self.rtkc.getObs()
+            #check if gps time is the same (no signal input)
+            if last_gps_timestamp == self.rtkc.obs_rover.get("gps_time") and no_signal_counter > 2:
+                self.rtkc.obs_rover = {}
+            elif last_gps_timestamp == self.rtkc.obs_rover.get("gps_time") and no_signal_counter <= 2:
+                no_signal_counter += 1
+            else:
+                last_gps_timestamp = self.rtkc.obs_rover.get("gps_time")
+                no_signal_counter = 0
 
 #            if count % 10 == 0:
             #print("Sending sat rover levels:\n" + str(self.rtkc.obs_rover))
             #print("Sending sat base levels:\n" + str(self.rtkc.obs_base))
-
+            
+            #Remove gps_time from the obs_rover dict
+            try:
+                del(self.rtkc.obs_rover["gps_time"])
+            except:
+                pass
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
             #self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
             count += 1
@@ -718,11 +733,21 @@ class RTKLIB:
     # this function reads current rtklib status, coordinates and obs count
     def broadcastCoordinates(self):
         count = 0
-
+        no_signal_counter = 0
+        last_receiver_timestamp = ""
         while self.server_not_interrupted:
 
             # update RTKLIB status
             self.rtkc.getStatus()
+
+            #check if receiver time is the same (no signal input)
+            if last_receiver_timestamp == self.rtkc.status.get("time of receiver clock rover") and no_signal_counter > 2:
+                self.rtkc.status = {}
+            elif last_receiver_timestamp == self.rtkc.status.get("time of receiver clock rover") and no_signal_counter <= 2:
+                no_signal_counter += 1
+            else:
+                last_receiver_timestamp = self.rtkc.status.get("time of receiver clock rover")
+                no_signal_counter = 0
 
 #            if count % 10 == 0:
 #                print("Sending RTKLIB status select information:")

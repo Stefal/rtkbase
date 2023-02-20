@@ -169,95 +169,57 @@ function Chart() {
         this.hAxis(this.horizontalGuide)
     }
 
-    this.roverUpdate = function(msg){
+    this.roverUpdate = function (msg) {
 
         // msg object contains satellite data for rover in {"name0": "level0", "name1": "level1"} format
 
-        // we want to display the top ? results
-        var number_of_satellites = 37;
+        // TODO: make responsive to bar chart size
+        // The maximum number of bars that fit in the bar chart.
+        const NUMBER_OF_SATELLITES = 37;
 
-        // graph has a list of datasets. rover sat values are in the first one
-        var rover_dataset_number = 1;
+        // The keys of the msg object as an array.
+        var keys = Object.keys(msg);
 
-        // first, we convert the msg object into a list of satellites to make it sortable
+        // Temporary array to store the data for the bar chart.
+        var chartData = [];
 
-        var new_sat_values = [];
+        // Extract info from the msg: level, name, and define their color depending on the level,
+        // we then show the entry in the bar chart.
+        for (var i = 0; i < Math.min(NUMBER_OF_SATELLITES, keys.length); i++) {
+            var name = keys[i];
 
-        for (var k in msg) {
-            new_sat_values.push({sat:k, level:msg[k]});
-        }
+            // for some reason I sometimes get undefined here. So plot zero just to be safe
+            var level = parseInt(msg[name]) || 0;
 
-        // sort the sat levels by ascension
-//        new_sat_values.sort(function(a, b) {
-//            var diff = a.level - b.level;
-//            if (Math.abs(diff) < 3) {
-//                diff = 0;
-//            }
-//            return diff
-//         });
+            // Initialise a dict in the array to access later.
+            chartData[i] = { label: name, level: level };
 
-        // next step is to cycle through top 10 values if they exist
-        // and extract info about them: level, name, and define their color depending on the level
-
-        var new_sat_values_length = new_sat_values.length;
-        var new_sat_levels = [];
-        var new_sat_labels = [];
-        var new_sat_fillcolors = [];
-
-        for(var i = new_sat_values_length - number_of_satellites; i < new_sat_values_length; i++) {
-            // check if we actually have enough satellites to plot:
-            if (i <  0) {
-                // we have less than number_of_satellites to plot
-                // so we fill the first bars of the graph with zeroes and stuff
-                new_sat_levels.push(0);
-                new_sat_labels.push("");
-                new_sat_fillcolors.push("rgba(0, 0, 0, 0.9)");
-            } else {
-                // we have gotten to useful data!! let's add it to the the array too
-
-                // for some reason I sometimes get undefined here. So plot zero just to be safe
-                var current_level = parseInt(new_sat_values[i].level) || 0;
-                var current_fillcolor;
-
-                // determine the fill color depending on the sat level
-                switch(true) {
-                    case (current_level < 20):
-                        current_fillcolor = "#FF1403"; // Red
-                        break;
-                    case (current_level >= 20 && current_level <= 33):
-                        current_fillcolor = "#FFDE00"; // Yellow
-                        break;
-                    case (current_level >= 33):
-                        current_fillcolor = "#62C902"; // Green
-                        break;
-                }
-
-                new_sat_levels.push(current_level);
-                new_sat_labels.push(new_sat_values[i].sat);
-                new_sat_fillcolors.push(current_fillcolor);
+            // Set the color of the bar depending on the level.
+            if (level < 20) {
+                chartData[i].color = "#FF1403"; // Red
+            } else if (level >= 20 && level <= 33) {
+                chartData[i].color = "#FFDE00"; // Yellow
+            } else if (level > 33) {
+                chartData[i].color = "#62C902"; // Green
             }
         }
 
-        for (var i = 0; i < new_sat_levels.length; i++) {
-            this.chartdata[i]['value'] = new_sat_levels[i];
-            this.chartdata[i]['color'] = new_sat_fillcolors[i];
-            this.labeldata[i] = new_sat_labels[i];
-        };
+        this.roverBars.data(chartData)
+            .transition()
+            .attr('height', function (data) {
+                return 5 * data.level;
+            })
+            .attr('y', function (data) {
+                return (55 * 5 - 5 * data.level);
+            })
+            .style("fill", function (data) {
+                return data.color;
+            })
+            .duration(300);
 
-        this.roverBars.data(this.chartdata)
-        .transition()
-        .attr('height', function (data) {
-            return 5*data.value;
-        })
-        .attr('y', function (data) {
-            return (55*5 - 5*data.value);
-        })
-        .style("fill", function(data) { return data.color; })
-        .duration(300);
-
-        this.labels.data(this.labeldata)
-            .text(function(d) {
-                return d;
+        this.labels.data(chartData)
+            .text(function (data) {
+                return data.label;
             });
     }
 
@@ -376,8 +338,9 @@ function updateCoordinateGrid(msg) {
         var lat_value = coordinates[0].substring(0, 11) + Array(11 - coordinates[0].substring(0, 11).length + 1).join(" ");
         var lon_value = coordinates[1].substring(0, 11) + Array(11 - coordinates[1].substring(0, 11).length + 1).join(" ");
         var height_value = coordinates[2].substring(0, 11) + Array(11 - coordinates[2].substring(0, 11).length + 1 + 2).join(" ");
+        var solution_status = 'solution status' in msg ? msg['solution status'] : '-';
         $("#lat_value").html(lat_value + " °");
         $("#lon_value").html(lon_value + " °");
         $("#height_value").html(height_value + "m");
-        $("#solution_status").html(msg['solution status']);
+        $("#solution_status").html(solution_status);
 }

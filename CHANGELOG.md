@@ -1,8 +1,49 @@
 # Changelog
+
+## [2.4.0] - 2023-02-20
+### Added
+- GUI -> Settings: Added a 2nd NTRIP output. #240
+- GUI -> Settings: Added features to backup, restore and reset RTKBase settings.
+- GUI -> Settings: Added a button to detect and/or configure the gnss receiver. #70
+- GUI -> Settings: Added a button to show/hide the Ntrip passwords. Thanks to @GwnDaan #208 
+- GUI -> Settings: Added Gnss receiver informations (Model and firmware release).
+- GUI -> Settings: Added Operating system informations.
+- GUI -> Settings: Alert when user wants to leave the page with unsaved settings. #235
+- GUI -> Status: Added tooltip on the blue pin to explain that it's a coarse location. #247
+- GUI -> Status: Added an alert if the main service isn't active.
+- GUI -> Logs: Added 3 more Rinex presets, and modified rinex window layout. #43 #134 #190 #200
+- Bidirectionnal communication with the gnss receiver is enabled. #277
+- More informations are available in the local caster source table. #183
+- Port number for the web server is configurable in settings.conf
+### Changed
+- RTKLib upgraded to release b34g from rtklibexplorer. #222
+- RTKLib binaries are bundled for armv6l, armv7l, aarch64, x86. Compilation from source isn't needed anymore for these platforms.
+- Command line: Many changes on install.sh arguments/options. See `install.sh --help`
+- Flask upgraded to v2.2.2 and other dependencies upgraded too.
+- SocketIO upgraded to v4.4.1
+- Bootstrap upgraded to v4.6.1
+- Bootstrap-table upgraded to v1.21.1
+- Password for local caster isn't mandatory anymore. Thanks to @GwnDaan #210
+- Change socketio connection method. Thanks to @jaapvandenhandel
+- Change 127.0.0.1 to localhost for better ipv6 support. Thanks to @by
+### Fixed
+- GUI -> Status: Sat. levels and coordinates are set to zero in case of a signal interruption. #164
+- GUI -> Status: Sat. levels are left align. Thanks to @GwnDaan #72
+- GUI -> Status: New provider for OpenStreetMap HOT tiles.
+- GUI: After a RTKBase update, the browser won't use the old javascript files anymore (cache busting). #217
+- Remaining space check could not work with non english shell. Thanks to @GwnDaan #213
+- GUI -> Settings: No more "bounce" issues with the switches. Thanks to @GwnDaan
+- Max Cpu temp was not updated when no user were connected. Thanks to @GwnDaan
+- GUI -> Settings: Check update now display an error in case of a connection error. Thanks to @GwnDaan #221
+- GUI -> Logs: Better logs table behaviour on mobile devices.
+- Grep pattern fixed on PPS example. Thanks to @by.
+
+### Security
+
 ## [2.3.4] - 2022-04-01
 ### Fixed 
- - Failure with some python dependancies. #215
- - More fixes with Gpsd service restart. #94
+- Failure with some python dependancies. #215
+- More fixes with Gpsd service restart. #94
 
 ## [2.3.3] - 2022-02-28
 ### Fixed

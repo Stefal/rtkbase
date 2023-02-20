@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-table.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-table-1.21.1.min.css') }}">
 {{super()}}
 {% endblock %}
 
 {% block content %}
 <div class="container">
-    <table id="logtable" data-toggle="table">
+    <table id="logtable" data-mobile-responsive="true" data-toggle="table">
         
         <thead>
           <tr>
@@ -41,7 +41,7 @@
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
           <button id="confirm-delete-button" type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
         </div>
         
       </div>
@@ -55,20 +55,48 @@
       
         <!-- Modal Header -->
         <div class="modal-header">
-          <h4 class="modal-title">Edit</h4>
+          <h4 class="modal-title">Convert raw file archive (zip) to rinex file</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         
-        <!-- Modal body -->
-        <div class="modal-body text-center ">
-          <p>Rinex file v2.11 interval 30s for <a href="http://rgp.ign.fr/SERVICES/calcul_online.php" target="_blank">IGN</a> 
-            <button id="rinex-ign-button" type="button" class="btn btn-primary" disabled>Create</button><br>
-          </p>
+         <!-- Modal body -->
+         <div class="modal-body text-center ">
+            <div class="rinex-table" role="tabpanel">
+              <div class="row">
+                <div class="col-4">
+                  <div class="list-group" id="list-tab" role="tablist">
+                    <a class="list-group-item list-group-item-action active" id="list-rinex-ign" data-toggle="tab" href="#detail-rinex-ign" role="tab" aria-controls="detail-rinex-ign" data-rinex-preset="rinex_ign">Ign</a>
+                    <a class="list-group-item list-group-item-action" id="list-rinex-nrcan" data-toggle="tab" href="#detail-rinex-nrcan" role="tab" aria-controls="detail-rinex-nrcan" data-rinex-preset="rinex_nrcan">Nrcan</a>
+                    <a class="list-group-item list-group-item-action" id="list-rinex-full_30s" data-toggle="tab" href="#detail-rinex-full_30s" role="tab" aria-controls="detail-rinex-full_30s" data-rinex-preset="rinex_30s_full">Full 30s</a>
+                    <a class="list-group-item list-group-item-action" id="list-rinex-full_1s" data-toggle="tab" href="#detail-rinex-full_1s" role="tab" aria-controls="detail-rinex-full_1s" data-rinex-preset="rinex_1s_full">Full 1s</a>
+                  </div>
+                </div>
+                <div class="col-8">
+                  <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active text-left" id="detail-rinex-ign" role="tabpanel" aria-labelledby="list-rinex-ign">
+                      <ul><li>Rinex v2.11</li><li>GPS only</li><li>Time interval: 30 seconds</li><li>preset for <a href="http://rgp.ign.fr/SERVICES/calcul_online.php" target="_blank">Ign</a> service</li></ul>
+                    </div>
+                    <div class="tab-pane fade text-left" id="detail-rinex-nrcan" role="tabpanel" aria-labelledby="list-rinex-nrcan">
+                      <ul><li>Rinex v3.04</li><li>GPS + Glonass</li><li>Time interval: 30 seconds</li><li>preset for <a href="https://webapp.csrs-scrs.nrcan-rncan.gc.ca/geod/tools-outils/ppp.php" target="_blank">Nrcan</a> service</li></ul>
+                    </div>
+                    <div class="tab-pane fade text-left" id="detail-rinex-full_30s" role="tabpanel" aria-labelledby="list-rinex-full_30s">
+                      <ul><li>Rinex v3.04</li><li>All supported GNSS constellations</li><li>Time interval: 30 seconds</li></ul>
+                    </div>
+                    <div class="tab-pane fade text-left" id="detail-rinex-full_1s" role="tabpanel" aria-labelledby="list-rinex-full_1s">
+                      <ul><li>Rinex v3.04</li><li>All supported GNSS constellations</li><li>Time interval: 1 second</li></ul>
+                    </div>
+                    <div><button type="button" id="create-rinex-button" class="btn btn-primary">Create Rinex file</button></div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          <div id="rinex-conversion-msg"></div>
         </div>
         
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
-          <button id="edit-button" type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          <button id="edit-button" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           
         </div>
         
@@ -79,7 +107,8 @@
 
 {% block scripts %}
 {{super()}}
-<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-table.min.js') }}" charset="utf-8"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='logs.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-table-1.21.1.min.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-table-mobile-1.21.1.min.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='logs.js', v=g.version) }}" charset="utf-8"></script>
 
 {% endblock %}

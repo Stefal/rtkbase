@@ -2,15 +2,17 @@
 
 [general]
 # Version
-version=2.3.4
+version=2.4.0
 # Rtkbase upgrade mandatory "checkpoint"
-checkpoint_version=2.4.0
+checkpoint_version=2.5.0
 # User who runs str2str_file service
 user=
 # NTRIP caster program
 BASEDIR=$(dirname "$0")
 #path to the caster application
 cast=/usr/local/bin/str2str
+#Web frontend port
+web_port=80
 #set true if you want to enter a password to open the web gui.
 web_authentification=true
 #enter here your new password for web gui 
@@ -20,6 +22,8 @@ new_web_password=
 web_password_hash=pbkdf2:sha256:150000$kWdEE8eU$d30b1a75e5cf898684bad60b47a45a8058b6c33535560be005b6e0110b947cf6
 #key needed to add an aerial image layer
 maptiler_key=
+#Receive prerelease update (beta version)
+prerelease=False
 
 [main]
 #base coordinates: lat long height
@@ -29,9 +33,13 @@ com_port=''
 #gnss receiver com port settings
 com_port_settings='115200:8:n:1'
 #receiver model
-receiver='Ublox_ZED-F9P'
+receiver='unknown'
 #gnss receiver format
 receiver_format=''
+#gnss receiver firmware release
+receiver_firmware=''
+#gnss receiver frequency available
+receiver_carrier=''
 #Antenna info, id, serial number. Without space inside the strings
 antenna_info='ADVNULLANTENNA'
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
@@ -60,21 +68,37 @@ archive_rotate='60'
 #minum free space on device (in MB) before oldest archives are deleted
 min_free_space='500'
 
-[ntrip]
+[ntrip_A]
 
-# NTRIP caster options
+# NTRIP A caster options
 
-#ntrip caster url
-svr_addr='caster.centipede.fr'
-#ntrip caster port
-svr_port='2101'
-#ntrip caster password
-svr_pwd=''
+#ntrip A caster url
+svr_addr_a='caster.centipede.fr'
+#ntrip A caster port
+svr_port_a='2101'
+#ntrip A caster password
+svr_pwd_a=''
 #Mount name
-mnt_name='Your_mount_name'
-rtcm_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+mnt_name_a='Your_mount_name'
+rtcm_msg_a='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
 #Receiver dependent options
-ntrip_receiver_options=''
+ntrip_a_receiver_options=''
+
+[ntrip_B]
+
+# NTRIP B caster options
+
+#ntrip B caster url
+svr_addr_b='caster.centipede.fr'
+#ntrip B caster port
+svr_port_b='2101'
+#ntrip B caster password
+svr_pwd_b=''
+#Mount name
+mnt_name_b='Your_mount_name'
+rtcm_msg_b='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+#Receiver dependent options
+ntrip_b_receiver_options=''
 
 [local_ntrip_caster]
 

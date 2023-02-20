@@ -156,44 +156,108 @@ upd_2.3.2() {
 }
 
 upd_2.3.3() {
-#Overriding gpsd.service with custom dependency
-cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
-sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
-sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
-#Add restart condition
-grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
-grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
-#Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
-grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
+ #update gpsd unit file
+ cp /lib/systemd/system/gpsd.service /etc/systemd/system/gpsd.service
+ sed -i 's/^After=.*/After=str2str_tcp.service/' /etc/systemd/system/gpsd.service
+ sed -i '/^# Needed with chrony/d' /etc/systemd/system/gpsd.service
+ #Add restart condition
+ grep -qi '^Restart=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/a Restart=always' /etc/systemd/system/gpsd.service
+ grep -qi '^RestartSec=' /etc/systemd/system/gpsd.service || sed -i '/^Restart=always.*/a RestartSec=30' /etc/systemd/system/gpsd.service
+ #Add ExecStartPre condition to not start gpsd if str2str_tcp is not running. See https://github.com/systemd/systemd/issues/1312
+ grep -qi '^ExecStartPre=' /etc/systemd/system/gpsd.service || sed -i '/^ExecStart=.*/i ExecStartPre=systemctl is-active str2str_tcp.service' /etc/systemd/system/gpsd.service
+ systemctl daemon-reload
+ systemctl restart gpsd  
+ upd_2.3.4 "$@"
+}
 
-systemctl daemon-reload
-systemctl restart gpsd
+upgrade_rtklib() {
+  bin_path=$(dirname $(command -v str2str))
+  rm "${bin_path}"'/str2str' "${bin_path}"'/rtkrcv' "${bin_path}"'/convbin'
+  "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtklib
+}
+
+upd_2.3.4() {
+  #store service status before stopping str2str
+  str2str_active=$(systemctl is-active str2str_tcp)
+  str2str_ntrip_active=$(systemctl is-active str2str_ntrip)
+  str2str_local_caster=$(systemctl is-active str2str_local_ntrip_caster)
+  str2str_rtcm=$(systemctl is-active str2str_rtcm_svr)
+  str2str_serial=$(systemctl is-active str2str_rtcm_serial)
+  str2str_file=$(systemctl is-active str2str_file)
+  systemctl stop str2str_tcp
+  #Add new requirements for v2.4
+  ${destination_directory}'/tools/install.sh' --user "${standard_user}" --dependencies
+  # Copy new services
+  systemctl stop str2str_ntrip.service
+  systemctl disable str2str_ntrip.service
+  rm /etc/systemd/system/str2str_ntrip.service
+  systemctl reset-failed
+  file_path=${destination_directory}'/unit/str2str_ntrip_A.service'
+  file_name=$(basename ${file_path})
+  echo copying ${file_name}
+  sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  file_path=${destination_directory}'/unit/str2str_ntrip_B.service'
+  file_name=$(basename ${file_path})
+  echo copying ${file_name}
+  sed -e 's|{script_path}|'"$(readlink -f "$2")"'|' -e 's|{user}|'"${standard_user}"'|' ${file_path} > /etc/systemd/system/${file_name}
+  systemctl daemon-reload
+#update rtklib binary to the one from rtklibexplorer fork.
+  upgrade_rtklib
+#update python module
+  "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtkbase-requirements
+# Get F9P firmware release
+  source <( grep = "${destination_directory}"/settings.conf )
+  if [[ $(python3 "${destination_directory}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
+  then
+    echo 'Get F9P firmware release'
+    firmware=$(python3 "${destination_directory}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
+    grep -q "^receiver_firmware" ${destination_directory}/settings.conf || \
+      sed -i "/^receiver_format=.*/a receiver_firmware=\'${firmware}\'" ${destination_directory}/settings.conf
+  fi
+#restart str2str if it was active before upgrading rtklib
+  [ $str2str_active = 'active' ] && systemctl start str2str_tcp
+#replace parameters from str2str_ntrip to str2str_ntrip_A service
+  sed -i 's/^\[ntrip\]/\[ntrip_A\]/' ${destination_directory}/settings.conf
+  sed -i 's/^svr_addr=/svr_addr_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^svr_port=/svr_port_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^svr_pwd=/svr_pwd_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^mnt_name=/mnt_name_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^rtcm_msg=/rtcm_msg_a=/' ${destination_directory}/settings.conf
+  sed -i 's/^ntrip_receiver_options=/ntrip_a_receiver_options=/' ${destination_directory}/settings.conf
+
+#start str2str_ntrip_A if str2str_ntrip was active before upgrading rtklib.
+  [ $str2str_ntrip_active = 'active' ] && systemctl enable str2str_ntrip_A && systemctl start str2str_ntrip_A
+# restart previously running services
+  [ $str2str_local_caster = 'active' ] && systemctl start str2str_local_ntrip_caster
+  [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
+  [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
+  [ $str2str_file = 'active' ] && systemctl start str2str_file
+}
+
+upd_2.4b() {
+  echo 'Calling upd2.3.4'
+  upd_2.3.4 "$@"
 }
 
 # standard update
 update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
-upd_${old_version} "$@"
+upd_"${old_version/b*/b}" "$@"
+#note for older me:
+#When dealing with beta version, "${oldversion/b*/b}" will call function 2.4b when we use a release 2.4b1 or 2.4b2 or 2.4beta99
 
-# The new checkpoint_version number will be imported from settings.conf.default during the web server startup.
-echo "delete the line checkpoint_version= in settings.conf"
-sed -i '/checkpoint_version=/d' ${destination_directory}/settings.conf
-
-echo "update the release version in settings.conf"
-new_release=$(grep '^version=*' ${destination_directory}/settings.conf.default)
-sed -i 's/^version=.*/'${new_release}'/' ${destination_directory}/settings.conf
+# The new version numbers will be imported from settings.conf.default during the web server startup.
+echo "Delete the line version= and checkpoint_version= in settings.conf"
+sed -i '/^checkpoint_version=/d' ${destination_directory}/settings.conf
+sed -i '/^version=/d' ${destination_directory}/settings.conf
+echo 'Insert updated status in settings.conf'
+sed -i '/^\[general\]/a updated=true' ${destination_directory}/settings.conf
 
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
 
-echo 'restart ntrip/rtcm to send the new release number in the stream'
-systemctl is-active --quiet str2str_ntrip.service && systemctl restart str2str_ntrip.service
-systemctl is-active --quiet str2str_local_ntrip_caster.service && systemctl restart str2str_local_ntrip_caster.service
-systemctl is-active --quiet str2str_rtcm_svr.service && systemctl restart str2str_rtcm_svr.service
-systemctl is-active --quiet str2str_rtcm_serial.service && systemctl restart str2str_rtcm_serial.service
+#if a reboot is needed
+#systemctl reboot
 
 echo "Restart web server"
 systemctl restart rtkbase_web.service
-
-#if a reboot is needed
-#systemctl reboot

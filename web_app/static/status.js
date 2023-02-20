@@ -32,8 +32,8 @@ $(document).ready(function () {
     namespace = "/test";
 
     // initiate SocketIO connection
-    socket = io.connect("http://" + document.domain + ":" + location.port + namespace);
-
+    socket = io.connect(namespace);
+	
     // say hello on connect
     socket.on("connect", function () {
         socket.emit("browser connected", {data: "I'm connected"});
@@ -43,6 +43,13 @@ $(document).ready(function () {
 
     //Ask server for starting rtkrcv or we won't have any data
     socket.emit("start base");
+    socket.on("base starting", function(msg){
+        response = JSON.parse(msg);
+        console.log("base starting return ", response);
+        if ( response['result'] === 'failed') {
+            $('#mainServiceOffModal').modal('show');
+        }
+    })
 
     socket.on('disconnect', function(){
         console.log('disconnected');
@@ -74,11 +81,11 @@ $(document).ready(function () {
 
     var map = L.map('map').setView({lon: 0, lat: 0}, 2);
 
-    var osmLayer = L.tileLayer('https://osm.vtech.fr/hot/{z}/{x}/{y}.png?uuid=2fc148f4-7018-4fd0-ac34-6b626cdc97a1', {
+    var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         maxZoom: 21,
         maxNativeZoom: 20,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> ' +
-            '| <a href="https://cloud.empreintedigitale.fr" target="_blank">Empreinte digitale</a>',
+            '| &copy; <a href="https://hot.openstreetmap.org" target="_blank">Humanitarian OpenStreetMap Team</a> ' ,
         tileSize: 256,      
     });
 
@@ -130,9 +137,10 @@ $(document).ready(function () {
     
     //the baseCoordinates variable comes from status.html
     var baseMark = L.marker(baseCoordinates, {icon: crossIcon, zIndexOffset: 0}).addTo(map);
-
+    baseMark.bindTooltip("Base registered location", {offset : L.point({x: 20, y: 0})});
     // Add realtime localisation marker
     var locMark = L.marker({lng: 0, lat: 0}).addTo(map);
+    locMark.bindTooltip("Base realtime location without correction \n (PPP, itrf@now)");
 
     // Move map view with markers bounds
     locMark.addEventListener("move", function() {
