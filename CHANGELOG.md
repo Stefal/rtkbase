@@ -61,6 +61,7 @@
 - GUI -> Status: Ortho HR (aerial images) max zoom changed from 20 to 21.
 ### Fixed
 - GUI -> Settings: "Save" buttons are disabled when a new setting is saved. #193
+- Rtcm and Ntrip services are restarded after a RTKBase update. #171
 - The Rinex conversion is more robust and error message is more understandable.
 - GUI -> Rinex conversion is now enabled only for zip files.
 

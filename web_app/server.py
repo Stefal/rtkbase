@@ -943,4 +943,3 @@ if __name__ == "__main__":
 
 #        if rtk.led.blinker_thread is not None:
 #            rtk.led.blinker_thread.join()
-
