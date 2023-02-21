@@ -40,7 +40,7 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
   cd ~
   wget https://raw.githubusercontent.com/Stefal/rtkbase/master/tools/install.sh -O install.sh
   chmod +x install.sh
-  sudo ./install.sh --all
+  sudo ./install.sh --all release
   ```
 
 + Go grab a coffee, it's gonna take a while. The script will install the needed software, and if you use a Usb-connected U-Blox ZED-F9P receiver, it'll be detected and set to work as a base station. If you don't use a F9P, you will have to configure your receiver manually (see step 7 in manual installation), and choose the correct port from the settings page.
