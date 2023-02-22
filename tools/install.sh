@@ -479,7 +479,9 @@ start_services() {
   echo 'STARTING SERVICES'
   echo '################################'
   systemctl daemon-reload
+  systemctl enable rtkbase_web.service
   systemctl start rtkbase_web.service
+  systemctl enable str2str_tcp.service
   systemctl start str2str_tcp.service
   systemctl restart gpsd.service
   systemctl restart chrony.service
