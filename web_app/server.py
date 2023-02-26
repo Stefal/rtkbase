@@ -564,7 +564,7 @@ def deleteLog(json_msg):
 def detect_receiver(json_msg):
     print("Detecting gnss receiver")
     #print("DEBUG json_msg: ", json_msg)
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--detect-usb-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-usb-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
@@ -593,7 +593,7 @@ def configure_receiver(brand="u-blox", model="F9P"):
         restart_main = False
 
     print("configuring {} gnss receiver model {}".format(brand, model))
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     #print("DEBUG - stdout: ", answer.stdout)
     #print("DEBUG - returncode: ", answer.returncode)
 
@@ -906,17 +906,6 @@ if __name__ == "__main__":
         #check if we run RTKBase for the first time after an update
         #and restart some services to let them send the new release number.
         if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
-            if "ntrip" in rtkbaseconfig.sections():
-                #transfering settings from ntrip section to ntrip_A section
-                rtkbaseconfig.config['ntrip_A']['svr_addr_a'] = rtkbaseconfig.get('ntrip', 'svr_addr')
-                rtkbaseconfig.config['ntrip_A']['svr_port_a'] = rtkbaseconfig.get('ntrip', 'svr_port')
-                rtkbaseconfig.config['ntrip_A']['svr_pwd_a'] = rtkbaseconfig.get('ntrip', 'svr_pwd')
-                rtkbaseconfig.config['ntrip_A']['mnt_name_a'] = rtkbaseconfig.get('ntrip', 'mnt_name')
-                rtkbaseconfig.config['ntrip_A']['rtcm_msg_a'] = rtkbaseconfig.get('ntrip', 'rtcm_msg')
-                rtkbaseconfig.config['ntrip_A']['ntrip_a_receiver_options'] = rtkbaseconfig.get('ntrip', 'ntrip_receiver_options')
-                #remove old ntrip section
-                rtkbaseconfig.remove_section('ntrip')
-            rtkbaseconfig.config['ntrip_B']['ntrip_B_receiver_options'] = rtkbaseconfig.get('ntrip_A', 'ntrip_a_receiver_options')
             restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
             rtkbaseconfig.remove_option("general", "updated")
             rtkbaseconfig.write_file()
