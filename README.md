@@ -40,7 +40,7 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
   cd ~
   wget https://raw.githubusercontent.com/Stefal/rtkbase/master/tools/install.sh -O install.sh
   chmod +x install.sh
-  sudo ./install.sh --all
+  sudo ./install.sh --all release
   ```
 
 + Go grab a coffee, it's gonna take a while. The script will install the needed software, and if you use a Usb-connected U-Blox ZED-F9P receiver, it'll be detected and set to work as a base station. If you don't use a F9P, you will have to configure your receiver manually (see step 7 in manual installation), and choose the correct port from the settings page.
@@ -57,72 +57,74 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
 ## Manual installation: 
 The `install.sh` script can be used without the `--all` option to split the installation process into several different steps:
 ```
-   ./install.sh --help
-   ################################
-   RTKBASE INSTALLATION HELP
-   ################################
-   Bash script to install a simple gnss base station with a web frontend.
-
-
-
-   * Before install, connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart.
-   * Running install script with sudo
-
-         sudo ./install.sh
-
-   Options:
-        -a | --all
-                         Install all you need to run RTKBase : dependencies, RTKlib, last release of Rtkbase, services,
-                         crontab jobs, detect your GNSS receiver and configure it.
-
-        -v | --alldev <branch>
-                         Install all as --all option, but use the rtkbase github repo instead of the release
-                         You have to select the git branch you want to install.
-
-        -u | --user
-                         Use this username as User= inside service unit and for path to rtkbase:
-                         --user=john will install rtkbase in /home/john/rtkbase
-
-        -d | --dependencies
-                         Install all dependencies like git build-essential python3-pip ...
-
-        -r | --rtklib
-                         Get RTKlib 2.4.3b34g from github and compile it.
-                         https://github.com/rtklibexplorer/RTKLIB/tree/b34g
-
-        -b | --rtkbase-release
-                         Get last release of RTKBase:
-                         https://github.com/Stefal/rtkbase/releases
-
-        -i | --rtkbase-repo <branch>
-                         Clone RTKBASE from github with the <branch> parameter used to select the branch.
-
-        -f | --rtkbase-custom <source>
-                         Get RTKBASE from an url.
-
-        -t | --unit-files
-                         Deploy services.
-
-        -g | --gpsd-chrony
-                         Install gpsd and chrony to set date and time
-                         from the gnss receiver.
-
-        -e | --detect-usb-gnss
-                         Detect your GNSS receiver. It works only with usb-connected receiver like ZED-F9P.
-
-        -n | --no-write-port
-                         Doesn't write the detected port inside settings.conf.
-                         Only relevant with --detect-usb-gnss argument.
-
-        -c | --configure-gnss
-                         Configure your GNSS receiver.
-
-        -s | --start-services
-                         Start services (rtkbase_web, str2str_tcp, gpsd, chrony)
-
-        -h | --help
-                          Display this help message.
-
+    ################################
+    RTKBASE INSTALLATION HELP
+    ################################
+    Bash scripts to install a simple gnss base station with a web frontend.
+    
+    
+    
+    * Before install, connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart.
+    * Running install script with sudo
+    
+    Easy installation: sudo ./install.sh --all release
+    
+    Options:
+            -a | --all <rtkbase source>
+                             Install all you need to run RTKBase : dependencies, RTKlib, last release of Rtkbase, services,
+                             crontab jobs, detect your GNSS receiver and configure it.
+                             <rtkbase source> could be:
+                                 release  (get the latest available release)
+                                 repo     (you need to add the --rtkbase-repo argument with a branch name)
+                                 url      (you need to add the --rtkbase-custom-source argument with an url)
+                                 bundled  (available if the rtkbase archive is bundled with the install script)
+    
+            -u | --user
+                             Use this username as User= inside service unit and for path to rtkbase:
+                             --user=john will install rtkbase in /home/john/rtkbase
+    
+            -d | --dependencies
+                             Install all dependencies like git build-essential python3-pip ...
+    
+            -r | --rtklib
+                             Get RTKlib 2.4.3b34g from github and compile it.
+                             https://github.com/rtklibexplorer/RTKLIB/tree/b34g
+    
+            -b | --rtkbase-release
+                             Get last release of RTKBase:
+                             https://github.com/Stefal/rtkbase/releases
+    
+            -i | --rtkbase-repo <branch>
+                             Clone RTKBASE from github with the <branch> parameter used to select the branch.
+    
+            -j | --rtkbase-bundled
+                             Extract the rtkbase files bundled with this script, if available.
+    
+            -f | --rtkbase-custom <source>
+                             Get RTKBASE from an url.
+    
+            -t | --unit-files
+                             Deploy services.
+    
+            -g | --gpsd-chrony
+                             Install gpsd and chrony to set date and time
+                             from the gnss receiver.
+    
+            -e | --detect-usb-gnss
+                             Detect your GNSS receiver. It works only with usb-connected receiver like ZED-F9P.
+    
+            -n | --no-write-port
+                             Doesn'\''t write the detected port inside settings.conf.
+                             Only relevant with --detect-usb-gnss argument.
+    
+            -c | --configure-gnss
+                             Configure your GNSS receiver.
+    
+            -s | --start-services
+                             Start services (rtkbase_web, str2str_tcp, gpsd, chrony)
+    
+            -h | --help
+                              Display this help message.
    ```
 So, if you really want it, let's go for a manual installation with some explanations:
 1. Install dependencies with `sudo ./install.sh --dependencies`, or do it manually with:

@@ -84,10 +84,6 @@ _check_user() {
     RTKBASE_USER="${1}"
       #TODO check if user exists and/or path exists ?
       # warning for image creation, do the path exist ?
-  elif  pstree -s $PPID 2>/dev/null | grep -Fwq systemd ; then
-    RTKBASE_USER="${USER}"
-    #when running this script from server.py which is executed with systemd as parent, logname return is empty so we test this case with pstree
-    # In this case, RTKBASE_USER will use the $USER variable set in the rtkbase_web unit file.
   elif [[ -z $(logname) ]] ; then
     echo 'The logname command return an empty value. Please reboot and retry.'
     exit 1
@@ -576,7 +572,7 @@ main() {
     done
   cumulative_exit=0
   [ $ARG_HELP -eq 1 ] && man_help
-  _check_user "${ARG_USER}" #; echo 'user devient: ' "${RTKBASE_USER}"
+  _check_user "${ARG_USER}" ; echo 'user for RTKBase is: ' "${RTKBASE_USER}"
   #if [ $ARG_USER != 0 ] ;then echo 'user:' "${ARG_USER}"; check_user "${ARG_USER}"; else ;fi
   if [ $ARG_ALL != 0 ] 
   then
