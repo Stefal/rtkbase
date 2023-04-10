@@ -173,15 +173,22 @@ install_rtklib() {
     echo 'INSTALLING RTKLIB'
     echo '################################'
     arch_package=$(uname -m)
-    [[ $arch_package == 'x86_64' ]] && arch_package='x86'
-    if [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"'/str2str' ]]
+    #[[ $arch_package == 'x86_64' ]] && arch_package='x86'
+    computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
+    # convert "Raspberry Pi 3 Model B plus rev 1.3" or other Raspi model to the variable "Raspberry Pi"
+    [ -z "${computer_model##*'Raspberry Pi'*}" ] && computer_model='Raspberry Pi'
+    sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi')
+    #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
+    if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
+        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"'/str2str' ]] \
+        && lsb_release -c | grep -qE 'buster|bullseye'
     then
-      echo 'Copying new rtklib binary for ' "${arch_package}"
+      echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
       cp "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"/str2str /usr/local/bin/
       cp "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"/rtkrcv /usr/local/bin/
       cp "${rtkbase_path}"'/tools/bin/rtklib_b34g/'"${arch_package}"/convbin /usr/local/bin/
     else
-      echo 'No binary available for ' "${arch_package}" '. We will build it from source'
+      echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
       _compil_rtklib
     fi
 }
