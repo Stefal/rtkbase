@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.4.2] - not released
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+ - More tests before copying RTKLib binaries. #313
+### Security
+
+## [2.4.1] - 2023-02-26
+### Fixed
+- GUI -> Settings: Fixed GNSS detect & configure. #303
+
 ## [2.4.0] - 2023-02-20
 ### Added
 - GUI -> Settings: Added a 2nd NTRIP output. #240
