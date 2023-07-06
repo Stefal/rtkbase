@@ -53,4 +53,24 @@ _get_device_path() {
     done
 }
 
+function add_modem_port(){
+  if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -qE "^modem_at_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
+  then
+    #change the com port value/settings inside settings.conf
+    sudo -u "${RTKBASE_USER}" sed -i s\!^modem_at_port=.*\!modem_at_port=\'${modem_at_port}\'! "${rtkbase_path}"/settings.conf
+  elif [[ -f "${rtkbase_path}/settings.conf" ]]  && ! grep -qE "^modem_at_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists without modem_at_port entry
+  then
+    sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${modem_at_port}"'" >> "${rtkbase_path}"/settings.conf
+  elif [[ ! -f "${rtkbase_path}/settings.conf" ]]
+  then
+    #create settings.conf with the modem_at_port setting
+    sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${modem_at_port}"'" > "${rtkbase_path}"/settings.conf
+  fi
+}
+
+modem_at_port=/dev/ttyAT
+
+RTKBASE_USER=basegnss
+
 detect_usb_lte_simcom_modem
+add_modem_port
