@@ -1,1 +1,1 @@
-SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="1e0e", ENV{ID_MODEL_ID}=="9011", ENV{MINOR}=="1", ATTRS{interface}=="Mobile AT Interface", SYMLINK+="ttyAT%E{MINOR}", GROUP="dialout"
+SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="1e0e", ENV{ID_MODEL_ID}=="9011", ATTRS{interface}=="Mobile AT Interface", SYMLINK+="ttyAT%E{MINOR}", GROUP="dialout"
