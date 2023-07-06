@@ -68,7 +68,7 @@ function add_modem_port(){
   fi
 }
 
-modem_at_port=/dev/ttyAT
+modem_at_port=/dev/ttymodemAT
 
 RTKBASE_USER=basegnss
 
