@@ -75,13 +75,18 @@ function set_other_priority() {
     nmcli connection up "$(_nm_connection_of "${lte_device_if_name}")"
 }
 
+function informations() {
+    echo 'TODO'
+}
+
 function main() {
 ARG_HELP=0
 ARG_CON_RENAME=0
 ARG_LTE_PRIORITY=0
 ARG_OTHER_PRIORITY=0
+ARG_INFORMATIONS=0
 
-PARSED_ARGUMENTS=$(getopt --name lte_network_mgmt --options cloh --longoptions connection_rename,lte_priority,other_priority,help -- "$@")
+PARSED_ARGUMENTS=$(getopt --name lte_network_mgmt --options cloih --longoptions connection_rename,lte_priority,other_priority,informations,help -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -94,9 +99,10 @@ eval set -- "$PARSED_ARGUMENTS"
 while :
 do
     case "$1" in
-        -c | --connection_rename) ARG_CON_RENAME=1      ; shift   ;;
+        -c | --connection_rename) ARG_CON_RENAME=1     ; shift   ;;
         -l | --lte_priority) ARG_LTE_PRIORITY=1        ; shift   ;;
         -o | --other_priority) ARG_OTHER_PRIORITY=1    ; shift   ;;
+        -i | --informations) ARG_INFORMATIONS=1        ; shift   ;;
         -h | --help)   ARG_HELP=1                      ; shift   ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
         --) shift; break ;;
@@ -111,7 +117,7 @@ done
 [ $ARG_CON_RENAME -eq 1 ] && connection_rename
 [ $ARG_LTE_PRIORITY -eq 1 ] && set_lte_priority
 [ $ARG_OTHER_PRIORITY -eq 1 ] && set_other_priority
-
+[ $ARG_INFORMATIONS -eq 1 ] && informations
 }
 
 main "$@"
