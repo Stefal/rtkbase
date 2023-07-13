@@ -4,6 +4,7 @@
 declare -a detected_gnss
 declare RTKBASE_USER
 APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
+MODEM_AT_PORT=/dev/ttymodemAT
 
 man_help(){
     echo '################################'
@@ -68,6 +69,9 @@ man_help(){
     echo ''
     echo '        -c | --configure-gnss'
     echo '                         Configure your GNSS receiver.'
+    echo ''
+    echo '        -m | --detect-modem'
+    echo '                         Detect LTE/4G usb modem'
     echo ''
     echo '        -s | --start-services'
     echo '                         Start services (rtkbase_web, str2str_tcp, gpsd, chrony)'
@@ -470,6 +474,46 @@ configure_gnss(){
       fi
 }
 
+detect_usb_modem() {
+    echo '################################'
+    echo 'SIMCOM A76XX LTE MODEM DETECTION'
+    echo '################################'
+      #This function try to detect a simcom lte modem (A76XX serie) and write the port inside settings.conf
+  for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+          ID_MODEL=''
+          syspath="${sysdevpath%/dev}"
+          devname="$(udevadm info -q name -p "${syspath}")"
+          if [[ "$devname" == "bus/"* ]]; then continue; fi
+          eval "$(udevadm info -q property --export -p "${syspath}")"
+          #if [[ $MINOR != 1 ]]; then continue; fi
+          if [[ -z "$ID_MODEL" ]]; then continue; fi
+          if [[ "$ID_MODEL" =~ 'A76XX' ]]
+          then
+            detected_modem[0]=$devname
+            detected_modem[1]=$ID_SERIAL
+            echo '/dev/'"${detected_modem[0]}" ' - ' "${detected_modem[1]}"
+            #return 0
+            #TODO ajouter la vérification du résultat comme pour la détection gnss
+          fi
+      done
+      return $?
+  }
+
+add_modem_port(){
+  if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -qE "^modem_at_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
+  then
+    #change the com port value/settings inside settings.conf
+    sudo -u "${RTKBASE_USER}" sed -i s\!^modem_at_port=.*\!modem_at_port=\'${MODEM_AT_PORT}\'! "${rtkbase_path}"/settings.conf
+  elif [[ -f "${rtkbase_path}/settings.conf" ]]  && ! grep -qE "^modem_at_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists without modem_at_port entry
+  then
+    sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${MODEM_AT_PORT}"'" >> "${rtkbase_path}"/settings.conf
+  elif [[ ! -f "${rtkbase_path}/settings.conf" ]]
+  then
+    #create settings.conf with the modem_at_port setting
+    sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${MODEM_AT_PORT}"'" > "${rtkbase_path}"/settings.conf
+  fi
+}
+
 start_services() {
   echo '################################'
   echo 'STARTING SERVICES'
@@ -530,6 +574,7 @@ main() {
   ARG_DETECT_USB_GNSS=0
   ARG_NO_WRITE_PORT=0
   ARG_CONFIGURE_GNSS=0
+  ARG_DETECT_MODEM=0
   ARG_START_SERVICES=0
   ARG_ALL=0
 
@@ -559,6 +604,7 @@ main() {
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1          ; shift   ;;
         -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1  ; shift   ;;
         -n | --no-write-port) ARG_NO_WRITE_PORT=1      ; shift   ;;
+        -m | --detect-modem) ARG_DETECT_MODEM=1        ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1    ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1    ; shift   ;;
         -a | --all) ARG_ALL="${2}"                     ; shift 2 ;;
@@ -620,6 +666,7 @@ main() {
   [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_DETECT_MODEM -eq 1 ] && { detect_usb_modem ; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
 }
 
