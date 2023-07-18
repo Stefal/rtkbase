@@ -334,6 +334,11 @@ rtkbase_requirements(){
           # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
           apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
       fi
+      # Copying udev rules
+      [[ ! -d /etc/udev/rules.d ]] && mkdir /etc/udev/rules.d/
+      cp "${rtkbase_path}"/tools/90-usb-simcom-at.rules /etc/rules.d/
+      udevadm control --reload && udevadm trigger
+      
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       # install prebuilt wheel for cryptography because it is unavailable on piwheels (2023/01)
       if [[ $platform == 'armv7l' ]] && [[ $(python3 --version) =~ '3.7' ]]
@@ -479,27 +484,32 @@ detect_usb_modem() {
     echo 'SIMCOM A76XX LTE MODEM DETECTION'
     echo '################################'
       #This function try to detect a simcom lte modem (A76XX serie) and write the port inside settings.conf
+  MODEM_DETECTED=0
   for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
-          ID_MODEL=''
-          syspath="${sysdevpath%/dev}"
-          devname="$(udevadm info -q name -p "${syspath}")"
-          if [[ "$devname" == "bus/"* ]]; then continue; fi
-          eval "$(udevadm info -q property --export -p "${syspath}")"
-          #if [[ $MINOR != 1 ]]; then continue; fi
-          if [[ -z "$ID_MODEL" ]]; then continue; fi
-          if [[ "$ID_MODEL" =~ 'A76XX' ]]
-          then
-            detected_modem[0]=$devname
-            detected_modem[1]=$ID_SERIAL
-            echo '/dev/'"${detected_modem[0]}" ' - ' "${detected_modem[1]}"
-            #return 0
-            #TODO ajouter la vérification du résultat comme pour la détection gnss
-          fi
-      done
-      return $?
+      ID_MODEL=''
+      syspath="${sysdevpath%/dev}"
+      devname="$(udevadm info -q name -p "${syspath}")"
+      if [[ "$devname" == "bus/"* ]]; then continue; fi
+      eval "$(udevadm info -q property --export -p "${syspath}")"
+      #if [[ $MINOR != 1 ]]; then continue; fi
+      if [[ -z "$ID_MODEL" ]]; then continue; fi
+      if [[ "$ID_MODEL" =~ 'A76XX' ]]
+      then
+        detected_modem[0]=$devname
+        detected_modem[1]=$ID_SERIAL
+        echo '/dev/'"${detected_modem[0]}" ' - ' "${detected_modem[1]}"
+        MODEM_DETECTED=1
+      fi
+  done
+  if [[ $MODEM_DETECTED -eq 1 ]]; then
+    return 0
+  else
+    echo 'No modem detected'
+    return 1
+  fi
   }
 
-add_modem_port(){
+_add_modem_port(){
   if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -qE "^modem_at_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
   then
     #change the com port value/settings inside settings.conf
@@ -512,6 +522,11 @@ add_modem_port(){
     #create settings.conf with the modem_at_port setting
     sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${MODEM_AT_PORT}"'" > "${rtkbase_path}"/settings.conf
   fi
+}
+
+_configure_modem(){
+  python3 "${rtkbase_path}"/tools/modem_config.py --config
+  "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename --lte_priority
 }
 
 start_services() {
@@ -578,7 +593,7 @@ main() {
   ARG_START_SERVICES=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,all: -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,detect-modem,start-services,all: -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -604,8 +619,8 @@ main() {
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1          ; shift   ;;
         -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1  ; shift   ;;
         -n | --no-write-port) ARG_NO_WRITE_PORT=1      ; shift   ;;
-        -m | --detect-modem) ARG_DETECT_MODEM=1        ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1    ; shift   ;;
+        -m | --detect-modem) ARG_DETECT_MODEM=1        ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1    ; shift   ;;
         -a | --all) ARG_ALL="${2}"                     ; shift 2 ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
@@ -666,7 +681,7 @@ main() {
   [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
-  [ $ARG_DETECT_MODEM -eq 1 ] && { detect_usb_modem ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_DETECT_MODEM -eq 1 ] && { detect_usb_modem && _add_modem_port && _configure_modem ; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
 }
 
