@@ -1,5 +1,5 @@
 #!/bin/bash
-connection_name='LTE Modem'
+connection_name='Cellular Modem'
 modem_name=A76XX
 
 function man_help() {
@@ -80,44 +80,44 @@ function informations() {
 }
 
 function main() {
-ARG_HELP=0
-ARG_CON_RENAME=0
-ARG_LTE_PRIORITY=0
-ARG_OTHER_PRIORITY=0
-ARG_INFORMATIONS=0
+    ARG_HELP=0
+    ARG_CON_RENAME=0
+    ARG_LTE_PRIORITY=0
+    ARG_OTHER_PRIORITY=0
+    ARG_INFORMATIONS=0
 
-PARSED_ARGUMENTS=$(getopt --name lte_network_mgmt --options cloih --longoptions connection_rename,lte_priority,other_priority,informations,help -- "$@")
-VALID_ARGUMENTS=$?
-if [ "$VALID_ARGUMENTS" != "0" ]; then
-    #man_help
-    echo 'Try '\''--help'\'' for more information'
-    exit 1
-fi
+    PARSED_ARGUMENTS=$(getopt --name lte_network_mgmt --options cloih --longoptions connection_rename,lte_priority,other_priority,informations,help -- "$@")
+    VALID_ARGUMENTS=$?
+    if [ "$VALID_ARGUMENTS" != "0" ]; then
+        #man_help
+        echo 'Try '\''--help'\'' for more information'
+        exit 1
+    fi
 
-#echo "PARSED_ARGUMENTS is $PARSED_ARGUMENTS"
-eval set -- "$PARSED_ARGUMENTS"
-while :
-do
-    case "$1" in
-        -c | --connection_rename) ARG_CON_RENAME=1     ; shift   ;;
-        -l | --lte_priority) ARG_LTE_PRIORITY=1        ; shift   ;;
-        -o | --other_priority) ARG_OTHER_PRIORITY=1    ; shift   ;;
-        -i | --informations) ARG_INFORMATIONS=1        ; shift   ;;
-        -h | --help)   ARG_HELP=1                      ; shift   ;;
-        # -- means the end of the arguments; drop this, and break out of the while loop
-        --) shift; break ;;
-        # If invalid options were passed, then getopt should have reported an error,
-        # which we checked as VALID_ARGUMENTS when getopt was called...
-        *) echo "Unexpected option: $1"
-        usage ;;
-    esac
-done
+    #echo "PARSED_ARGUMENTS is $PARSED_ARGUMENTS"
+    eval set -- "$PARSED_ARGUMENTS"
+    while :
+    do
+        case "$1" in
+            -c | --connection_rename) ARG_CON_RENAME=1     ; shift   ;;
+            -l | --lte_priority) ARG_LTE_PRIORITY=1        ; shift   ;;
+            -o | --other_priority) ARG_OTHER_PRIORITY=1    ; shift   ;;
+            -i | --informations) ARG_INFORMATIONS=1        ; shift   ;;
+            -h | --help)   ARG_HELP=1                      ; shift   ;;
+            # -- means the end of the arguments; drop this, and break out of the while loop
+            --) shift; break ;;
+            # If invalid options were passed, then getopt should have reported an error,
+            # which we checked as VALID_ARGUMENTS when getopt was called...
+            *) echo "Unexpected option: $1"
+            usage ;;
+        esac
+    done
 
-[ $ARG_HELP -eq 1 ] && man_help
-[ $ARG_CON_RENAME -eq 1 ] && connection_rename
-[ $ARG_LTE_PRIORITY -eq 1 ] && set_lte_priority
-[ $ARG_OTHER_PRIORITY -eq 1 ] && set_other_priority
-[ $ARG_INFORMATIONS -eq 1 ] && informations
+    [ $ARG_HELP -eq 1 ] && man_help
+    [ $ARG_CON_RENAME -eq 1 ] && connection_rename
+    [ $ARG_LTE_PRIORITY -eq 1 ] && set_lte_priority
+    [ $ARG_OTHER_PRIORITY -eq 1 ] && set_other_priority
+    [ $ARG_INFORMATIONS -eq 1 ] && informations
 }
 
 main "$@"
