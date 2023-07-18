@@ -5,24 +5,30 @@ detect_usb_lte_simcom_modem() {
     echo 'SIMCOM A76XX LTE MODEM DETECTION'
     echo '################################'
       #This function try to detect a simcom lte modem (A76XX serie) and write the port inside settings.conf
-for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
-          ID_MODEL=''
-          syspath="${sysdevpath%/dev}"
-          devname="$(udevadm info -q name -p "${syspath}")"
-          if [[ "$devname" == "bus/"* ]]; then continue; fi
-          eval "$(udevadm info -q property --export -p "${syspath}")"
-          #if [[ $MINOR != 1 ]]; then continue; fi
-          if [[ -z "$ID_MODEL" ]]; then continue; fi
-          if [[ "$ID_MODEL" =~ 'A76XX' ]]
-          then
-            detected_modem[0]=$devname
-            detected_modem[1]=$ID_SERIAL
-            echo '/dev/'"${detected_modem[0]}" ' - ' "${detected_modem[1]}"
-            #return 0
-          fi
-      done
-      return $?
-    }
+  MODEM_DETECTED=0
+  for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+      ID_MODEL=''
+      syspath="${sysdevpath%/dev}"
+      devname="$(udevadm info -q name -p "${syspath}")"
+      if [[ "$devname" == "bus/"* ]]; then continue; fi
+      eval "$(udevadm info -q property --export -p "${syspath}")"
+      #if [[ $MINOR != 1 ]]; then continue; fi
+      if [[ -z "$ID_MODEL" ]]; then continue; fi
+      if [[ "$ID_MODEL" =~ 'A76XX' ]]
+      then
+        detected_modem[0]=$devname
+        detected_modem[1]=$ID_SERIAL
+        echo '/dev/'"${detected_modem[0]}" ' - ' "${detected_modem[1]}"
+        MODEM_DETECTED=1
+      fi
+  done
+  if [[ $MODEM_DETECTED -eq 1 ]]; then
+    return 0
+  else
+    echo 'No modem detected'
+    return 1
+  fi
+  }
 
 detect_with_lsusb() {
           vendor_and_product_ids=$(lsusb | grep -i "A76XX" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
@@ -73,4 +79,5 @@ modem_at_port=/dev/ttymodemAT
 RTKBASE_USER=basegnss
 
 detect_usb_lte_simcom_modem
+#echo 'retour: ' $?
 add_modem_port
