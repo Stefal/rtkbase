@@ -373,7 +373,7 @@ install_unit_files() {
 
 detect_usb_gnss() {
     echo '################################'
-    echo 'GNSS RECEIVER DETECTION'
+    echo 'USB GNSS RECEIVER DETECTION'
     echo '################################'
       #This function try to detect a gnss receiver and write the port/format inside settings.conf
       #If the receiver is a U-Blox, it will add the TADJ=1 option on all ntrip/rtcm outputs.
@@ -389,26 +389,53 @@ detect_usb_gnss() {
           then
             detected_gnss[0]=$devname
             detected_gnss[1]=$ID_SERIAL
-            echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"
+            #echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"
           fi
       done
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
           vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then 
-            echo 'NO GNSS RECEIVER DETECTED'
+            echo 'NO USB GNSS RECEIVER DETECTED'
             echo 'YOU CAN REDETECT IT FROM THE WEB UI'
-            return 1
+            #return 1
+          else
+            devname=$(_get_device_path "$vendor_and_product_ids")
+            detected_gnss[0]=$devname
+            detected_gnss[1]='u-blox'
+            #echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
           fi
-          devname=$(_get_device_path "$vendor_and_product_ids")
-          detected_gnss[0]=$devname
-          detected_gnss[1]='u-blox'
-          echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
       fi
+    # detection on uart port
+    echo '################################'
+    echo 'UART GNSS RECEIVER DETECTION'
+    echo '################################'
+      if [[ ${#detected_gnss[*]} -ne 2 ]]; then
+        systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
+        for port in ttyS1 serial0 ttyS2 ttyS3 ttyS0; do
+            for port_speed in 115200 57600 38400 19200 9600; do
+                echo 'DETECTION ON ' $port ' at ' $port_speed
+                if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/$port -s $port_speed -p MON-VER -w 5 2>/dev/null) =~ 'ZED-F9P' ]]; then
+                    detected_gnss[0]=$port
+                    detected_gnss[1]='u-blox'
+                    detected_gnss[2]=$port_speed
+                    #echo 'U-blox ZED-F9P DETECTED ON '$port $port_speed
+                    break
+                fi
+                sleep 1
+            done
+            #exit loop if a receiver is detected
+            [[ ${#detected_gnss[*]} -eq 3 ]] && break
+        done
+      fi
+      # Test if speed is in detected_gnss array. If not, add the default value.
+      [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
+      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"
+
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
-      if [[ ${#detected_gnss[*]} -eq 2 ]] && [[ "${1}" -eq 0 ]]
+      if [[ ${#detected_gnss[*]} -eq 3 ]] && [[ "${1}" -eq 0 ]]
         then
-          echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
+          echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}"
           #if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
           #then
           #  gnss_format='ubx'
@@ -417,16 +444,19 @@ detect_usb_gnss() {
           then
             #change the com port value/settings inside settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'${detected_gnss[2]}:8:n:1\'/ "${rtkbase_path}"/settings.conf
             
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
-            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver=''\nreceiver_format=''\nreceiver_firmware=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='"${detected_gnss[2]}":8:n:1'\nreceiver=''\nreceiver_format=''\nreceiver_firmware=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
             #add empty *_receiver_options on rtcm/ntrip_a/ntrip_b/serial outputs.
             sudo -u "${RTKBASE_USER}" printf "[ntrip_A]\nntrip_a_receiver_options=''\n[ntrip_B]\nntrip_b_receiver_options=''\n[local_ntrip_caster]\nlocal_ntripc_receiver_options=''\n[rtcm_svr]\nrtcm_receiver_options=''\n[rtcm_serial]\nrtcm_serial_receiver_options=''\n" >> "${rtkbase_path}"/settings.conf
           fi
-        fi
+      elif [[ ${#detected_gnss[*]} -ne 3 ]]
+        then
+          return 1
+      fi
 }
 
 _get_device_path() {
