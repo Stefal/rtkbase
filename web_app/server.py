@@ -569,13 +569,13 @@ def detect_receiver(json_msg):
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
             device_info = next(x for x in answer.stdout.splitlines() if x.startswith('/dev/')).split(' - ')
-            port, gnss_type = [x.strip() for x in device_info]
-            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type}
+            port, gnss_type, speed = [x.strip() for x in device_info]
+            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type, "port_speed" : speed}
             result.update(json_msg)
         except Exception:
             result = {"result" : "failed"}
     else:
-        print("DEBUG Not ok stdout: ", answer.stdout)
+        #print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
     #result = {"result" : "failed"}
     #result = {"result" : "success", "port" : "bestport", "gnss_type" : "F12P"}
@@ -594,8 +594,8 @@ def configure_receiver(brand="u-blox", model="F9P"):
 
     print("configuring {} gnss receiver model {}".format(brand, model))
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    #print("DEBUG - stdout: ", answer.stdout)
-    #print("DEBUG - returncode: ", answer.returncode)
+    print("DEBUG - stdout: ", answer.stdout)
+    print("DEBUG - returncode: ", answer.returncode)
 
     if answer.returncode == 0: # and "Done" in answer.stdout:
         result = {"result" : "success"}
