@@ -1,3 +1,0 @@
-[submodule "tools/sim-modem"]
-	path = tools/sim-modem
-	url = https://github.com/stefal/sim-modem.git

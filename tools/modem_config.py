@@ -2,8 +2,7 @@
 
 import sys
 import os
-rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-sys.path.insert(1, os.path.join(rtkbase_path, "sim-modem"))
+sys.path.insert(1, os.path.join(os.path.expanduser('~'), "sim-modem"))
 import argparse
 from src.sim_modem import *
 
