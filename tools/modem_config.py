@@ -68,7 +68,7 @@ if __name__ == '__main__':
             print("Modem is in ECM mode -> OK")
         else:
             print("Warning, the modem isn't in ECM mode but in {}".format(data_mode.name))
-
+        print("IP mode private(0)/public(1): ", modem.get_usbnetip_mode())
     if args.config:
         print("Configuring the modem in ECM Mode")
         print("It will reboot the modem !")
