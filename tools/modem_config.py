@@ -2,8 +2,13 @@
 
 import sys
 import os
-sys.path.insert(1, os.path.join(os.path.expanduser('~'), "sim-modem"))
 import argparse
+if os.getenv("SUDO_USER") is not None:
+    homedir = os.path.join("/home", os.getenv("SUDO_USER"))
+else:
+    homedir = os.path.expanduser('~')
+
+sys.path.insert(1, os.path.join(homedir, "sim-modem"))
 from src.sim_modem import *
 
 def arg_parse():
