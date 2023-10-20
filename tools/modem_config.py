@@ -55,7 +55,7 @@ def arg_parse():
 
 if __name__ == '__main__':
     args=arg_parse()
-    modem=modem = Modem(args.device, debug=args.debug)
+    modem = Modem(args.device, debug=args.debug)
     if args.informations:
         #modem=modem = Modem('/dev/ttymodemAT', debug=True)
         print("Manufacturer: ",modem.get_manufacturer_identification())
@@ -75,6 +75,7 @@ if __name__ == '__main__':
         else:
             print("Warning, the modem isn't in ECM mode but in {}".format(data_mode.name))
         print("IP mode private(0)/public(1): ", modem.get_usbnetip_mode())
+        print("Public IP Address : ", modem.get_ip_address())
     if args.config:
         print("Configuring the modem in ECM Mode")
         print("It will reboot the modem !")
