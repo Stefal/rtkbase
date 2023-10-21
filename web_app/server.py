@@ -564,7 +564,7 @@ def deleteLog(json_msg):
 def detect_receiver(json_msg):
     print("Detecting gnss receiver")
     #print("DEBUG json_msg: ", json_msg)
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-usb-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
         #print("DEBUG ok stdout: ", answer.stdout)
         try:

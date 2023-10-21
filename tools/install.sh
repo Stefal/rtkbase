@@ -60,12 +60,12 @@ man_help(){
     echo '                         Install gpsd and chrony to set date and time'
     echo '                         from the gnss receiver.'
     echo ''
-    echo '        -e | --detect-usb-gnss'
-    echo '                         Detect your GNSS receiver. It works only with usb-connected receiver like ZED-F9P.'
+    echo '        -e | --detect-gnss'
+    echo '                         Detect your GNSS receiver. It works only with receiver like ZED-F9P.'
     echo ''
     echo '        -n | --no-write-port'
     echo '                         Doesn'\''t write the detected port inside settings.conf.'
-    echo '                         Only relevant with --detect-usb-gnss argument.'
+    echo '                         Only relevant with --detect-gnss argument.'
     echo ''
     echo '        -c | --configure-gnss'
     echo '                         Configure your GNSS receiver.'
@@ -378,7 +378,7 @@ install_unit_files() {
       fi
 }
 
-detect_usb_gnss() {
+detect_gnss() {
     echo '################################'
     echo 'USB GNSS RECEIVER DETECTION'
     echo '################################'
@@ -623,14 +623,14 @@ main() {
   ARG_RTKBASE_RQS=0
   ARG_UNIT=0
   ARG_GPSD_CHRONY=0
-  ARG_DETECT_USB_GNSS=0
+  ARG_DETECT_GNSS=0
   ARG_NO_WRITE_PORT=0
   ARG_CONFIGURE_GNSS=0
   ARG_DETECT_MODEM=0
   ARG_START_SERVICES=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,detect-modem,start-services,all: -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-gnss,no-write-port,configure-gnss,detect-modem,start-services,all: -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -654,7 +654,7 @@ main() {
         -q | --rtkbase-requirements) ARG_RTKBASE_RQS=1 ; shift   ;;
         -t | --unit-files) ARG_UNIT=1                  ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1          ; shift   ;;
-        -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1  ; shift   ;;
+        -e | --detect-gnss) ARG_DETECT_GNSS=1  ; shift   ;;
         -n | --no-write-port) ARG_NO_WRITE_PORT=1      ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1    ; shift   ;;
         -m | --detect-modem) ARG_DETECT_MODEM=1        ; shift   ;;
@@ -700,7 +700,7 @@ main() {
     install_unit_files        && \
     install_gpsd_chrony
     [[ $? != 0 ]] && ((cumulative_exit+=$?))
-    detect_usb_gnss           && \
+    detect_gnss               && \
     configure_gnss
     start_services ; ((cumulative_exit+=$?))
     [[ $cumulative_exit != 0 ]] && echo -e '\n\n Warning! Some errors happened during installation!'
@@ -716,7 +716,7 @@ main() {
   [ $ARG_RTKBASE_RQS -eq 1 ] && { rtkbase_requirements ; ((cumulative_exit+=$?)) ;}
   [ $ARG_UNIT -eq 1 ] && { install_unit_files ; ((cumulative_exit+=$?)) ;}
   [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
-  [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_DETECT_GNSS -eq 1 ] &&  { detect_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_MODEM -eq 1 ] && { detect_usb_modem && _add_modem_port && _configure_modem ; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
