@@ -325,17 +325,19 @@ $(document).ready(function () {
 
     // ############### HANDLE DETECT GNSS ################
 
-    $('#detect_receiver_button').on("click", function (){
-        detectApplyBtnElt.innerText = "Apply";
-        detectApplyBtnElt.setAttribute('disabled', '');
-        detectApplyBtnElt.removeAttribute('data-dismiss');
-        socket.emit("detect_receiver", {"then_configure" : false});
-    });
-   
     var detectModalElt = document.getElementById('detectModal');
     var detectBodyElt = detectModalElt.querySelector('.modal-body > p');
     var detectApplyBtnElt = detectModalElt.querySelector('#apply-button');
     var detectCancelBtnElt = detectModalElt.querySelector('#cancel-button');
+
+    $('#detect_receiver_button').on("click", function (){
+        detectApplyBtnElt.innerText = "Apply";
+        detectApplyBtnElt.setAttribute('disabled', '');
+        detectApplyBtnElt.removeAttribute('data-dismiss');
+        detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Detecting GNSS receiver...';
+        socket.emit("detect_receiver", {"then_configure" : false});
+        $('#detectModal').modal();
+    });
 
     socket.on("gnss_detection_result", function(msg) {
         // open modal box with detection result and asking for configuration if detection is a success and a u-blox receiver
@@ -346,6 +348,7 @@ $(document).ready(function () {
             detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
             detectApplyBtnElt.onclick = function (){
                 document.querySelector('#com_port').value = response['port'].replace(/^\/dev\//, '');
+                document.querySelector('#com_port_settings').value = response['port_speed'] + ':8:n:1';
                 // NEW METHOD from https://stackoverflow.com/questions/35154348/trigger-form-submission-with-javascript
                 document.getElementById("main").dispatchEvent(new SubmitEvent('submit', {cancelable: true}));
                 if (response['then_configure']) {
@@ -359,7 +362,7 @@ $(document).ready(function () {
             detectApplyBtnElt.removeAttribute('disabled');
         } else {
             detectApplyBtnElt.setAttribute('disabled', '');
-            detectBodyElt.innerHTML = 'No USB GNSS receiver detected';
+            detectBodyElt.innerHTML = 'No GNSS receiver detected';
             // TODO add a way to send the configuration even though the receiver isn't detected. It could be useful for F9P connected with Uart.
             //detectBodyElt.innerHTML = 'No GNSS receiver detected. <br> would you still like to try to configure the receiver?';
             //detectApplyBtnElt.onclick = function (){
@@ -369,7 +372,6 @@ $(document).ready(function () {
             //};
             //detectApplyBtnElt.removeAttribute('disabled');
         }
-        $('#detectModal').modal();
     })
 
     // ############### HANDLE CONFIGURE GNSS ################
@@ -385,6 +387,7 @@ $(document).ready(function () {
     })
     socket.on("gnss_configuration_result", function(msg) {
         response = JSON.parse(msg);
+        console.log(response);
         detectApplyBtnElt.removeAttribute('disabled');
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         detectApplyBtnElt.innerText = "Close";
@@ -402,9 +405,11 @@ $(document).ready(function () {
     // ############### HANDLE DETECT/CONFIGURE GNSS ################
     $('#detect_and_configure_receiver_button').on("click", function (){
         detectApplyBtnElt.innerText = "Apply then configure";
+        detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Detecting GNSS receiver...';
         detectApplyBtnElt.setAttribute('disabled', '');
         detectApplyBtnElt.removeAttribute('data-dismiss');
         detectApplyBtnElt.onclick = function (){}; //remove the previous attached event
+        $('#detectModal').modal();
         socket.emit("detect_receiver" ,{"then_configure" : true});
     });
 

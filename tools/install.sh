@@ -4,6 +4,7 @@
 declare -a detected_gnss
 declare RTKBASE_USER
 APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
+MODEM_AT_PORT=/dev/ttymodemAT
 
 man_help(){
     echo '################################'
@@ -68,6 +69,9 @@ man_help(){
     echo ''
     echo '        -c | --configure-gnss'
     echo '                         Configure your GNSS receiver.'
+    echo ''
+    echo '        -m | --detect-modem'
+    echo '                         Detect LTE/4G usb modem'
     echo ''
     echo '        -s | --start-services'
     echo '                         Start services (rtkbase_web, str2str_tcp, gpsd, chrony)'
@@ -337,6 +341,11 @@ rtkbase_requirements(){
           # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
           apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
       fi
+      # Copying udev rules
+      [[ ! -d /etc/udev/rules.d ]] && mkdir /etc/udev/rules.d/
+      cp "${rtkbase_path}"/tools/90-usb-simcom-at.rules /etc/rules.d/
+      udevadm control --reload && udevadm trigger
+      
       python3 -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       # install prebuilt wheel for cryptography because it is unavailable on piwheels (2023/01)
       if [[ $platform == 'armv7l' ]] && [[ $(python3 --version) =~ '3.7' ]]
@@ -371,7 +380,7 @@ install_unit_files() {
 
 detect_usb_gnss() {
     echo '################################'
-    echo 'GNSS RECEIVER DETECTION'
+    echo 'USB GNSS RECEIVER DETECTION'
     echo '################################'
       #This function try to detect a gnss receiver and write the port/format inside settings.conf
       #If the receiver is a U-Blox, it will add the TADJ=1 option on all ntrip/rtcm outputs.
@@ -387,26 +396,53 @@ detect_usb_gnss() {
           then
             detected_gnss[0]=$devname
             detected_gnss[1]=$ID_SERIAL
-            echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"
+            #echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"
           fi
       done
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
           vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then 
-            echo 'NO GNSS RECEIVER DETECTED'
+            echo 'NO USB GNSS RECEIVER DETECTED'
             echo 'YOU CAN REDETECT IT FROM THE WEB UI'
-            return 1
+            #return 1
+          else
+            devname=$(_get_device_path "$vendor_and_product_ids")
+            detected_gnss[0]=$devname
+            detected_gnss[1]='u-blox'
+            #echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
           fi
-          devname=$(_get_device_path "$vendor_and_product_ids")
-          detected_gnss[0]=$devname
-          detected_gnss[1]='u-blox'
-          echo '/dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
       fi
+    # detection on uart port
+    echo '################################'
+    echo 'UART GNSS RECEIVER DETECTION'
+    echo '################################'
+      if [[ ${#detected_gnss[*]} -ne 2 ]]; then
+        systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
+        for port in ttyS1 serial0 ttyS2 ttyS3 ttyS0; do
+            for port_speed in 115200 57600 38400 19200 9600; do
+                echo 'DETECTION ON ' $port ' at ' $port_speed
+                if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/$port -s $port_speed -p MON-VER -w 5 2>/dev/null) =~ 'ZED-F9P' ]]; then
+                    detected_gnss[0]=$port
+                    detected_gnss[1]='u-blox'
+                    detected_gnss[2]=$port_speed
+                    #echo 'U-blox ZED-F9P DETECTED ON '$port $port_speed
+                    break
+                fi
+                sleep 1
+            done
+            #exit loop if a receiver is detected
+            [[ ${#detected_gnss[*]} -eq 3 ]] && break
+        done
+      fi
+      # Test if speed is in detected_gnss array. If not, add the default value.
+      [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
+      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"
+
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
-      if [[ ${#detected_gnss[*]} -eq 2 ]] && [[ "${1}" -eq 0 ]]
+      if [[ ${#detected_gnss[*]} -eq 3 ]] && [[ "${1}" -eq 0 ]]
         then
-          echo 'GNSS RECEIVER DETECTED: /dev/'${detected_gnss[0]} ' - ' ${detected_gnss[1]}
+          echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}"
           #if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
           #then
           #  gnss_format='ubx'
@@ -415,16 +451,19 @@ detect_usb_gnss() {
           then
             #change the com port value/settings inside settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'${detected_gnss[2]}:8:n:1\'/ "${rtkbase_path}"/settings.conf
             
           else
             #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
             #as it could start before the web server merge settings.conf.default and settings.conf
-            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='115200:8:n:1'\nreceiver=''\nreceiver_format=''\nreceiver_firmware=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='"${detected_gnss[2]}":8:n:1'\nreceiver=''\nreceiver_format=''\nreceiver_firmware=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
             #add empty *_receiver_options on rtcm/ntrip_a/ntrip_b/serial outputs.
             sudo -u "${RTKBASE_USER}" printf "[ntrip_A]\nntrip_a_receiver_options=''\n[ntrip_B]\nntrip_b_receiver_options=''\n[local_ntrip_caster]\nlocal_ntripc_receiver_options=''\n[rtcm_svr]\nrtcm_receiver_options=''\n[rtcm_serial]\nrtcm_serial_receiver_options=''\n" >> "${rtkbase_path}"/settings.conf
           fi
-        fi
+      elif [[ ${#detected_gnss[*]} -ne 3 ]]
+        then
+          return 1
+      fi
 }
 
 _get_device_path() {
@@ -455,7 +494,7 @@ configure_gnss(){
           firmware=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
           #configure the F9P for RTKBase
-          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} 115200 "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg                          && \
+          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} ${com_port_settings%%:*} "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg                          && \
           #now that the receiver is configured, we can set the right values inside settings.conf
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                                      && \
@@ -475,6 +514,56 @@ configure_gnss(){
         echo 'RtkBase not installed, use option --rtkbase-release'
         return 1
       fi
+}
+
+detect_usb_modem() {
+    echo '################################'
+    echo 'SIMCOM A76XX LTE MODEM DETECTION'
+    echo '################################'
+      #This function try to detect a simcom lte modem (A76XX serie) and write the port inside settings.conf
+  MODEM_DETECTED=0
+  for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+      ID_MODEL=''
+      syspath="${sysdevpath%/dev}"
+      devname="$(udevadm info -q name -p "${syspath}")"
+      if [[ "$devname" == "bus/"* ]]; then continue; fi
+      eval "$(udevadm info -q property --export -p "${syspath}")"
+      #if [[ $MINOR != 1 ]]; then continue; fi
+      if [[ -z "$ID_MODEL" ]]; then continue; fi
+      if [[ "$ID_MODEL" =~ 'A76XX' ]]
+      then
+        detected_modem[0]=$devname
+        detected_modem[1]=$ID_SERIAL
+        echo '/dev/'"${detected_modem[0]}" ' - ' "${detected_modem[1]}"
+        MODEM_DETECTED=1
+      fi
+  done
+  if [[ $MODEM_DETECTED -eq 1 ]]; then
+    return 0
+  else
+    echo 'No modem detected'
+    return 1
+  fi
+  }
+
+_add_modem_port(){
+  if [[ -f "${rtkbase_path}/settings.conf" ]]  && grep -qE "^modem_at_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists
+  then
+    #change the com port value/settings inside settings.conf
+    sudo -u "${RTKBASE_USER}" sed -i s\!^modem_at_port=.*\!modem_at_port=\'${MODEM_AT_PORT}\'! "${rtkbase_path}"/settings.conf
+  elif [[ -f "${rtkbase_path}/settings.conf" ]]  && ! grep -qE "^modem_at_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists without modem_at_port entry
+  then
+    sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${MODEM_AT_PORT}"'" >> "${rtkbase_path}"/settings.conf
+  elif [[ ! -f "${rtkbase_path}/settings.conf" ]]
+  then
+    #create settings.conf with the modem_at_port setting
+    sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${MODEM_AT_PORT}"'" > "${rtkbase_path}"/settings.conf
+  fi
+}
+
+_configure_modem(){
+  python3 "${rtkbase_path}"/tools/modem_config.py --config
+  "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename --lte_priority
 }
 
 start_services() {
@@ -537,10 +626,11 @@ main() {
   ARG_DETECT_USB_GNSS=0
   ARG_NO_WRITE_PORT=0
   ARG_CONFIGURE_GNSS=0
+  ARG_DETECT_MODEM=0
   ARG_START_SERVICES=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,start-services,all: -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-usb-gnss,no-write-port,configure-gnss,detect-modem,start-services,all: -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -567,6 +657,7 @@ main() {
         -e | --detect-usb-gnss) ARG_DETECT_USB_GNSS=1  ; shift   ;;
         -n | --no-write-port) ARG_NO_WRITE_PORT=1      ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1    ; shift   ;;
+        -m | --detect-modem) ARG_DETECT_MODEM=1        ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1    ; shift   ;;
         -a | --all) ARG_ALL="${2}"                     ; shift 2 ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
@@ -627,6 +718,7 @@ main() {
   [ $ARG_GPSD_CHRONY -eq 1 ] && { install_gpsd_chrony ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_USB_GNSS -eq 1 ] &&  { detect_usb_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_DETECT_MODEM -eq 1 ] && { detect_usb_modem && _add_modem_port && _configure_modem ; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
 }
 
