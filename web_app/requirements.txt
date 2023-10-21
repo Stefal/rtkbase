@@ -1,5 +1,6 @@
 cryptography==38.0.0
 itsdangerous==2.1.2
+Werkzeug==2.2.2
 Flask==2.2.2
 Flask-SocketIO==5.3.2
 eventlet==0.33.3
