@@ -334,7 +334,7 @@ rtkbase_requirements(){
     echo 'INSTALLING RTKBASE REQUIREMENTS'
     echo '################################'
       # create virtuel environnement for rtkbase
-      python3 -m venv "${rtkbase_path}"/venv
+      sudo -u "${RTKBASE_USER}" python3 -m venv "${rtkbase_path}"/venv
       python_venv="${rtkbase_path}"/venv/bin/python
       platform=$(uname -m)
       if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
@@ -344,19 +344,19 @@ rtkbase_requirements(){
       fi
       # Copying udev rules
       [[ ! -d /etc/udev/rules.d ]] && mkdir /etc/udev/rules.d/
-      cp "${rtkbase_path}"/tools/*.rules /etc/rules.d/
+      cp "${rtkbase_path}"/tools/*.rules /etc/udev/rules.d/
       udevadm control --reload && udevadm trigger
       
-      "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
+      sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       # install prebuilt wheel for cryptography because it is unavailable on piwheels (2023/01)
       if [[ $platform == 'armv7l' ]] && [[ $("${python_venv}" --version) =~ '3.7' ]]
         then 
-          "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv7l.whl
+          sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv7l.whl
       elif [[ $platform == 'armv6l' ]] && [[ $("${python_venv}" --version) =~ '3.7' ]]
         then
-          "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv6l.whl
+          sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv6l.whl
       fi
-      "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
+      sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
 }
@@ -368,7 +368,7 @@ install_unit_files() {
       if [ -d "${rtkbase_path}" ]
       then 
         #Install unit files
-        "${rtkbase_path}"/tools/copy_unit.sh --user "${RTKBASE_USER}"
+        "${rtkbase_path}"/tools/copy_unit.sh --python_path "${rtkbase_path}"/venv/bin/python --user "${RTKBASE_USER}"
         systemctl enable rtkbase_web.service
         systemctl enable rtkbase_archive.timer
         systemctl daemon-reload

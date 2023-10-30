@@ -7,8 +7,8 @@ man_help() {
  echo 'Options:'
  echo '        -h | --help'
  echo '        -p | --python_path'
- echo '                        path to the web app python venv directory'
- echo '                        (usually /home/your_username/rtkbase/venv)'
+ echo '                        path to the web app python venv binary'
+ echo '                        (usually /home/your_username/rtkbase/venv/bin/python)'
  echo '        -u | --user  <username>'
  echo '                        Specify user used in the service unit. Without this argument'
  echo '                        the user return by the logname command will be used.'
@@ -43,8 +43,7 @@ if [ "$VALID_ARGUMENTS" != "0" ]; then
       esac
     done
 [ $ARG_HELP -eq 1 ] && man_help
-[ "${ARG_PYPATH}" == 0 ] && echo 'Please enter the python venv directory with the -p argument' && exit
-ARG_PYPATH=$(realpath "${ARG_PYPATH}")'/bin/python'
+[ "${ARG_PYPATH}" == 0 ] && echo 'Please enter the python venv path with the -p argument' && exit
 [ "${ARG_USER}" == 0 ] && ARG_USER=$(logname)
 #echo 'user=' "${ARG_USER}"
 
@@ -57,8 +56,7 @@ for file_path in "${BASEDIR}"/../unit/*.service "${BASEDIR}"/../unit/*.timer
     do
         file_name=$(basename "${file_path}")
         echo copying "${file_name}"
-        #sed -e 's|{script_path}|'"$(dirname "$(dirname "$(readlink -f "$0")")")"'|' -e 's|{user}|'"${ARG_USER}"'|' -e 's|{python_path}|'"${ARG_PYPATH}"/bin/python'|' "${file_path}" > /etc/systemd/system/"${file_name}"
-        sed -e 's|{script_path}|'"$(dirname "$(dirname "$(readlink -f "$0")")")"'|' -e 's|{user}|'"${ARG_USER}"'|' -e 's|{python_path}|'"${ARG_PYPATH}"'|' "${file_path}"
+        sed -e 's|{script_path}|'"$(dirname "$(dirname "$(readlink -f "$0")")")"'|' -e 's|{user}|'"${ARG_USER}"'|' -e 's|{python_path}|'"${ARG_PYPATH}"'|' "${file_path}" > /etc/systemd/system/"${file_name}"
     done
 
-#systemctl daemon-reload
+systemctl daemon-reload
