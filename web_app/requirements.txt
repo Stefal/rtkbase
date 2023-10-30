@@ -1,23 +1,38 @@
-cryptography==38.0.0
-itsdangerous==2.1.2
-Werkzeug==2.2.2
-Flask==2.2.2
-Flask-SocketIO==5.3.2
-eventlet==0.33.3
-greenlet==1.1.3
-Bootstrap-Flask==2.2.0
-Flask-WTF==1.1.1
-Flask-Login==0.6.2
-#On some linux distribution, pexpect and psutil are already installed
-#and can't be upgraded with pip. In these cases, pip fail, leaving
-#some package uninstalled.
-#With pexpect <=4.8.0, pip will not fail.
-#With psutil <= 5.8.0, pip will not fail.
-pexpect<=4.8.0
-psutil<=5.9.4
-pyOpenSSL==23.0.0
-pyserial==3.5
-pystemd==0.10.0
-requests==2.28.1
-dnspython==2.3.0
+bidict==0.22.1
+blinker==1.6.3
+Bootstrap-Flask==2.3.2
+certifi==2023.7.22
+cffi==1.16.0
+charset-normalizer==3.3.1
+click==8.1.7
+cryptography==41.0.5
 distro==1.8.0
+dnspython==2.4.2
+eventlet==0.33.3
+Flask==3.0.0
+Flask-Login==0.6.3
+Flask-SocketIO==5.3.6
+Flask-WTF==1.2.1
+greenlet==3.0.1
+h11==0.14.0
+idna==3.4
+itsdangerous==2.1.2
+Jinja2==3.1.2
+lxml==4.9.3
+MarkupSafe==2.1.3
+pexpect==4.8.0
+psutil==5.9.6
+ptyprocess==0.7.0
+pycparser==2.21
+pyOpenSSL==23.3.0
+pyserial==3.5
+pystemd==0.13.2
+python-engineio==4.8.0
+python-socketio==5.10.0
+requests==2.31.0
+simple-websocket==1.0.0
+six==1.16.0
+urllib3==2.0.7
+Werkzeug==3.0.1
+wsproto==1.2.0
+WTForms==3.1.0
