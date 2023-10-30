@@ -65,13 +65,13 @@ from wtforms import PasswordField, BooleanField, SubmitField
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_socketio import SocketIO, emit, disconnect
+import urllib
 import subprocess
 import psutil
 import distro
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
-from werkzeug.urls import url_parse
 from werkzeug.utils import safe_join
 
 app = Flask(__name__)
@@ -430,7 +430,7 @@ def login_page():
         
         login_user(user, remember=loginform.remember_me.data)
         next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
+        if not next_page or urllib.parse.urlsplit(next_page).netloc != '':
             next_page = url_for('status_page')
 
         return redirect(next_page)
