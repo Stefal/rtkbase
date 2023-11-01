@@ -326,6 +326,8 @@ A gnss receiver with a timepulse output is a very accurate [stratum 0](https://e
       ^- kalimantan.ordimatic.net      3   6   177    16    -27ms[  -27ms] +/-   64ms
 
    ```
+## Requirements:
+Python >= 3.7
 
 ## History:
 See the [changelog](./CHANGELOG.md)

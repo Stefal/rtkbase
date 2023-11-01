@@ -65,6 +65,7 @@ from wtforms import PasswordField, BooleanField, SubmitField
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_socketio import SocketIO, emit, disconnect
+import urllib
 import subprocess
 import psutil
 import distro

@@ -1,16 +1,17 @@
 # Changelog
-## [2.4.3] - not released
+## [2.5] - not released
 ### Added
  - Added UART connected F9P detection and configuration.
  - Some scripts for using a base with a 4G Simcom A76XX modem. (Beta)
 ### Changed
- - --detect-usb-gnss renamed to --detect-gnss
+ - RTKBase now use a virtual environnement for the python environnement.
+ - install.sh -> --detect-usb-gnss renamed to --detect-gnss
 ### Deprecated
 ### Removed
 ### Fixed
  - More tests before copying RTKLib binaries. #313
- - Pin Werkzeug version to fix incompatibility with Flask. #330
 ### Security
+ - Update of various python modules.
 
 ## [2.4.2] - 2023-11-10
 ### Fixed
