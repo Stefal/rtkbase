@@ -31,7 +31,7 @@ position='47.0983869 -1.2655108 36.4'
 #gnss receiver com port
 com_port=''
 #gnss receiver com port settings
-com_port_settings='115200:8:n:1'
+com_port_settings='38400:8:n:1'
 #receiver model
 receiver='unknown'
 #gnss receiver format
@@ -146,3 +146,7 @@ rtcm_serial_receiver_options=''
 logdir=$BASEDIR/logs
 #log trace level (0: no trace)
 level=0
+
+[network]
+#lte modem port
+modem_at_port=''

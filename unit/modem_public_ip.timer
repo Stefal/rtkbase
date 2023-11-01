@@ -1,0 +1,9 @@
+[Unit]
+Description=Run modem_public_ip.service every hour
+
+[Timer]
+OnCalendar=*-*-* *:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

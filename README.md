@@ -110,12 +110,12 @@ The `install.sh` script can be used without the `--all` option to split the inst
                              Install gpsd and chrony to set date and time
                              from the gnss receiver.
     
-            -e | --detect-usb-gnss
-                             Detect your GNSS receiver. It works only with usb-connected receiver like ZED-F9P.
+            -e | --detect-gnss
+                             Detect your GNSS receiver. It works only with receiver like ZED-F9P.
     
             -n | --no-write-port
                              Doesn'\''t write the detected port inside settings.conf.
-                             Only relevant with --detect-usb-gnss argument.
+                             Only relevant with --detect-gnss argument.
     
             -c | --configure-gnss
                              Configure your GNSS receiver.
@@ -216,13 +216,13 @@ So, if you really want it, let's go for a manual installation with some explanat
       sudo systemctl enable gpsd
    ```
 
-1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox usb receiver, you can use `sudo ./install.sh --detect-usb-gnss`. Write down the result, you may need it later.
+1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox usb receiver, you can use `sudo ./install.sh --detect-gnss`. Write down the result, you may need it later.
 
 1. If you didn't have already configure your gnss receiver, you must set it to output raw data:
    
    If it's a U-Blox ZED-F9P (usb), you can use 
    ```bash
-   sudo ./install.sh --detect-usb-gnss --configure-gnss
+   sudo ./install.sh --detect-gnss --configure-gnss
    ```
 
    If it's a U-Blox ZED-F9P (uart), you can use this command (change the ttyS1 and 115200 value if needed)):

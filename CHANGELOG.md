@@ -1,4 +1,17 @@
 # Changelog
+## [2.4.3] - not released
+### Added
+ - Added UART connected F9P detection and configuration.
+ - Some scripts for using a base with a 4G Simcom A76XX modem. (Beta)
+### Changed
+ - --detect-usb-gnss renamed to --detect-gnss
+### Deprecated
+### Removed
+### Fixed
+ - More tests before copying RTKLib binaries. #313
+ - Pin Werkzeug version to fix incompatibility with Flask. #330
+### Security
+
 ## [2.4.2] - 2023-11-10
 ### Fixed
  - Pin Werkzeug module to v2.2.2 to fix dependencie failure. #330
