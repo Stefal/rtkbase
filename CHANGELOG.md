@@ -1,5 +1,4 @@
 # Changelog
-
 ## [2.5] - not released
 ### Added
  - Added UART connected F9P detection and configuration.
@@ -14,6 +13,10 @@
 ### Security
  - Update of various python modules.
 
+## [2.4.2] - 2023-11-10
+### Fixed
+ - Pin Werkzeug module to v2.2.2 to fix dependencie failure. #330
+ 
 ## [2.4.1] - 2023-02-26
 ### Fixed
 - GUI -> Settings: Fixed GNSS detect & configure. #303
