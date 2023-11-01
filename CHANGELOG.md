@@ -1,6 +1,5 @@
 # Changelog
-
-## [2.4.2] - not released
+## [2.4.3] - not released
 ### Added
  - Added UART connected F9P detection and configuration.
  - Some scripts for using a base with a 4G Simcom A76XX modem. (Beta)
@@ -13,6 +12,10 @@
  - Pin Werkzeug version to fix incompatibility with Flask. #330
 ### Security
 
+## [2.4.2] - 2023-11-10
+### Fixed
+ - Pin Werkzeug module to v2.2.2 to fix dependencie failure. #330
+ 
 ## [2.4.1] - 2023-02-26
 ### Fixed
 - GUI -> Settings: Fixed GNSS detect & configure. #303
