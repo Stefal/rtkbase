@@ -250,6 +250,23 @@ upd_2.4.1() {
   echo '####################'
   echo 'Update from 2.4.1'
   echo '####################'
+  upd_2.4.2 "$@"
+}
+
+upd_2.4.2() {
+  echo '####################'
+  echo 'Update from 2.4.2'
+  echo '####################'
+  ${destination_directory}/tools/install.sh --user "${standard_user}" --rtkbase-requirements --unit-files
+  #upgrade rtklib to b34h
+  upgrade_rtklib
+  #restart str2str if it was active before upgrading rtklib
+  [ $str2str_active = 'active' ] && systemctl start str2str_tcp
+  # restart previously running services
+  [ $str2str_local_caster = 'active' ] && systemctl start str2str_local_ntrip_caster
+  [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
+  [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
+  [ $str2str_file = 'active' ] && systemctl start str2str_file
 }
 
 # standard update
