@@ -58,7 +58,18 @@ class RTKBaseConfigManager:
         #write restored settings to the current settings
         for section in restore_config.sections():
             for k, v in restore_config[section].items():
-                self.config[section][k] = v
+                try:
+                    if self.config[section].get(k) is not None:
+                        self.config[section][k] = v
+                    else:
+                        raise ValueError(k)
+                except KeyError as e:
+                    #this section is skipped
+                    print("ignored section:", e)
+                    pass
+                except ValueError as e:
+                    print("ignored key", e)
+
         self.write_file()
 
     def reload_settings(self, settings_path=None):
