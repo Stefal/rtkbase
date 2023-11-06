@@ -105,6 +105,7 @@ install_dependencies() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" update || exit 1
       apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-venv python3-dev python3-setuptools python3-wheel libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc || exit 1
+      apt-get install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
       #apt-get "${APT_TIMEOUT}" upgrade -y
 }
 
@@ -129,7 +130,7 @@ install_gpsd_chrony() {
       sed -i s/^After=.*/After=gpsd.service/ /etc/systemd/system/chrony.service
 
       #If needed, adding backports repository to install a gpsd release that support the F9P
-      if lsb_release -c | grep -qE 'bionic|buster'
+      if lsb_release -sc | grep -qE 'bionic|buster'
       then
         if ! apt-cache policy | grep -qE 'buster-backports.* armhf'
         then
@@ -181,7 +182,7 @@ install_rtklib() {
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
         && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34h/'"${arch_package}"'/str2str' ]] \
-        && lsb_release -c | grep -qE 'buster|bullseye'
+        && lsb_release -c | grep -qE 'buster|bullseye|bookworm'
     then
       echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
       cp "${rtkbase_path}"'/tools/bin/rtklib_b34h/'"${arch_package}"/str2str /usr/local/bin/
@@ -218,7 +219,6 @@ _rtkbase_repo(){
     else
       sudo -u "${RTKBASE_USER}" git clone https://github.com/stefal/rtkbase.git
     fi
-    sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
     _add_rtkbase_path_to_environment
 
 }
@@ -227,7 +227,6 @@ _rtkbase_release(){
     #Get rtkbase latest release
     sudo -u "${RTKBASE_USER}" wget https://github.com/stefal/rtkbase/releases/latest/download/rtkbase.tar.gz -O rtkbase.tar.gz
     sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
-    sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
     _add_rtkbase_path_to_environment
 
 }
@@ -286,7 +285,6 @@ install_rtkbase_custom_source() {
     else
       sudo -u "${RTKBASE_USER}" wget "${1}" -O rtkbase.tar.gz
       sudo -u "${RTKBASE_USER}" tar -xvf rtkbase.tar.gz
-      sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
       _add_rtkbase_path_to_environment
     fi
 }
@@ -306,7 +304,6 @@ install_rtkbase_bundled() {
     # Check if there is some content after __ARCHIVE__ marker (more than 100 lines)
     [[ $(sed -n '/__ARCHIVE__/,$p' "${0}" | wc -l) -lt 100 ]] && echo "RTKBASE isn't bundled inside install.sh. Please choose another source" && exit 1  
     sudo -u "${RTKBASE_USER}" tail -n+${ARCHIVE} "${0}" | tar xpJv && \
-    sudo -u "${RTKBASE_USER}" touch rtkbase/settings.conf
     _add_rtkbase_path_to_environment
 }
 
@@ -346,7 +343,15 @@ rtkbase_requirements(){
       [[ ! -d /etc/udev/rules.d ]] && mkdir /etc/udev/rules.d/
       cp "${rtkbase_path}"/tools/*.rules /etc/udev/rules.d/
       udevadm control --reload && udevadm trigger
-      
+
+      #Copying settings.conf.default as settings.conf
+      if [[ ! -f "${rtkbase_path}/settings.conf" ]]
+      then
+        cp "${rtkbase_path}/settings.conf.default" "${rtkbase_path}/settings.conf"
+      fi
+      #Then launch check cpu temp script for OPI zero LTS
+      source "${rtkbase_path}/tools/opi_temp_offset.sh"
+      #venv module installation
       sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       # install prebuilt wheel for cryptography because it is unavailable on piwheels (2023/01)
       # not needed anymore (2023/11)
@@ -456,11 +461,8 @@ detect_gnss() {
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'${detected_gnss[2]}:8:n:1\'/ "${rtkbase_path}"/settings.conf
             
           else
-            #create settings.conf with the com_port setting and the settings needed to start str2str_tcp
-            #as it could start before the web server merge settings.conf.default and settings.conf
-            sudo -u "${RTKBASE_USER}" printf "[main]\ncom_port='"${detected_gnss[0]}"'\ncom_port_settings='"${detected_gnss[2]}":8:n:1'\nreceiver=''\nreceiver_format=''\nreceiver_firmware=''\ntcp_port='5015'\n" > "${rtkbase_path}"/settings.conf
-            #add empty *_receiver_options on rtcm/ntrip_a/ntrip_b/serial outputs.
-            sudo -u "${RTKBASE_USER}" printf "[ntrip_A]\nntrip_a_receiver_options=''\n[ntrip_B]\nntrip_b_receiver_options=''\n[local_ntrip_caster]\nlocal_ntripc_receiver_options=''\n[rtcm_svr]\nrtcm_receiver_options=''\n[rtcm_serial]\nrtcm_serial_receiver_options=''\n" >> "${rtkbase_path}"/settings.conf
+            echo 'settings.conf is missing'
+            return 1
           fi
       elif [[ ${#detected_gnss[*]} -ne 3 ]]
         then
@@ -559,7 +561,8 @@ _add_modem_port(){
   elif [[ ! -f "${rtkbase_path}/settings.conf" ]]
   then
     #create settings.conf with the modem_at_port setting
-    sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${MODEM_AT_PORT}"'" > "${rtkbase_path}"/settings.conf
+    echo 'settings.conf is missing'
+    return 1
   fi
 }
 

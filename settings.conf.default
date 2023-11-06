@@ -24,6 +24,8 @@ web_password_hash=pbkdf2:sha256:150000$kWdEE8eU$d30b1a75e5cf898684bad60b47a45a80
 maptiler_key=
 #Receive prerelease update (beta version)
 prerelease=False
+#Cpu temp offset for Orange Pi Zero LTS (+30°C)
+cpu_temp_offset=0
 
 [main]
 #base coordinates: lat long height

@@ -150,11 +150,12 @@ def manager():
         And it sends various system informations to the web interface
     """
     max_cpu_temp = 0
+    cpu_temp_offset = int(rtkbaseconfig.get("general", "cpu_temp_offset"))
     services_status = getServicesStatus(emit_pingback=False)
     main_service = {}
     while True:
         # Make sure max_cpu_temp is always updated
-        cpu_temp = get_cpu_temp()
+        cpu_temp = get_cpu_temp() + cpu_temp_offset
         max_cpu_temp = max(cpu_temp, max_cpu_temp)
 
         if connected_clients > 0:
