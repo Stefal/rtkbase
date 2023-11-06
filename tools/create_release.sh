@@ -23,6 +23,7 @@ tar --exclude-vcs \
     --exclude='rtkbase/.vscode' \
     --exclude='rtkbase/.github' \
     --exclude='rtkbase/settings.conf' \
+    --exclude='rtkbase/venv' \
     --exclude='test.sh' \
     --exclude='test.conf' \
     --exclude='*.pyc' \
