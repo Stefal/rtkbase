@@ -78,15 +78,18 @@ network_reg = check_network_registration()
 ip_in_use = get_in_use_ip_address()
 public_ip = get_public_ip_address()
 
-print("Ip address in use: ", ip_in_use)
-print("Public Ip address: ", public_ip)
+print("Internal Ip address in use: ", ip_in_use)
+print("Modem public Ip address: ", public_ip)
 
 if ip_in_use == None or public_ip == None or network_reg == False:
     print("Modem problem. Switching to airplane mode and back to normal")
     try:
+        print("Connecting to modem...")
         modem = Modem(MODEM_PORT)
+        print("Sending AT+CFUN=0")
         modem.custom_read_lines('AT+CFUN=0')
         time.sleep(20)
+        print("Sending AT+CFUN=1")
         modem.custom_read_lines('AT+CFUN=1')
     except Exception as e:
         print(e)
