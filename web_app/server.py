@@ -664,8 +664,9 @@ def rinex_ign(json_msg):
     mnt_name = rtkbaseconfig.get("ntrip_A", "mnt_name_A").strip("'")
     rinex_type = {"rinex_ign" : "ign", "rinex_nrcan" : "nrcan", "rinex_30s_full" : "30s_full", "rinex_1s_full" : "1s_full"}.get(json_msg.get("rinex-preset"))
     convpath = os.path.abspath(os.path.join(rtkbase_path, "tools", "convbin.sh"))
+    convbin_user = rtkbaseconfig.get("general", "user").strip("'")
     #print("DEBUG", convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type, rinex_type)
-    answer = subprocess.run([convpath, json_msg.get("filename"), rtk.logm.log_path, mnt_name, raw_type, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run(["sudo", "-u", convbin_user, convpath, json_msg.get("filename"), rtk.logm.log_path, mnt_name, raw_type, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "rinex_file=" in answer.stdout:
         rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
         result = {"result" : "success", "file" : rinex_file}
