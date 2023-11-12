@@ -488,7 +488,7 @@ configure_gnss(){
     echo '################################'
       if [ -d "${rtkbase_path}" ]
       then
-        source <( grep = "${rtkbase_path}"/settings.conf ) 
+        source <( grep '=' "${rtkbase_path}"/settings.conf ) 
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service
         #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         #!!!!!!!!!  CHECK THIS ON A REAL raspberry/orange Pi !!!!!!!!!!!
@@ -557,7 +557,8 @@ _add_modem_port(){
     sudo -u "${RTKBASE_USER}" sed -i s\!^modem_at_port=.*\!modem_at_port=\'${MODEM_AT_PORT}\'! "${rtkbase_path}"/settings.conf
   elif [[ -f "${rtkbase_path}/settings.conf" ]]  && ! grep -qE "^modem_at_port=.*" "${rtkbase_path}"/settings.conf #check if settings.conf exists without modem_at_port entry
   then
-    sudo -u "${RTKBASE_USER}" printf "[network]\nmodem_at_port='"${MODEM_AT_PORT}"'" >> "${rtkbase_path}"/settings.conf
+    printf "[network]\nmodem_at_port='%s'\n" "${MODEM_AT_PORT}"| sudo tee -a "${rtkbase_path}"/settings.conf > /dev/null
+
   elif [[ ! -f "${rtkbase_path}/settings.conf" ]]
   then
     #create settings.conf with the modem_at_port setting
@@ -705,7 +706,8 @@ main() {
     install_rtklib            && \
     install_unit_files        && \
     install_gpsd_chrony
-    [[ $? != 0 ]] && ((cumulative_exit+=$?))
+    ret=$?
+    [[ $ret != 0 ]] && ((cumulative_exit+=ret))
     detect_gnss               && \
     configure_gnss
     start_services ; ((cumulative_exit+=$?))
