@@ -498,7 +498,7 @@ configure_gnss(){
           firmware=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
           #configure the F9P for RTKBase
-          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} ${com_port_settings%%:*} "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg                          && \
+          "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} ${com_port_settings%%:*} "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg        && \
           #now that the receiver is configured, we can set the right values inside settings.conf
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                                      && \
@@ -508,7 +508,10 @@ configure_gnss(){
           sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf             && \
           sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf   && \
           sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf                   && \
-          sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf
+          sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf     && \
+          #restart web server to load the updated settings.conf
+          systemctl is-active --quiet rtkbase_web.service && sudo systemctl restart rtkbase_web.service
+
           return $?
         else
           echo 'No Gnss receiver has been set. We can'\''t configure'
