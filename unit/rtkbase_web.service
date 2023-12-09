@@ -10,7 +10,7 @@ Restart=on-failure
 RestartSec=30
 ProtectHome=read-only
 ProtectSystem=strict
-ReadWritePaths={script_path}
+ReadWritePaths={script_path} /var/tmp
 
 [Install]
 WantedBy=multi-user.target
