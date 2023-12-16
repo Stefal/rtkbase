@@ -8,5 +8,5 @@ apt-get install -y policykit-1
 mkdir -p /etc/polkit-1/rules.d/
 cp "${SCRIPT_DIR}"/*.rules /etc/polkit-1/rules.d/
 
-groupadd rtkbase
+groupadd -f rtkbase
 usermod -a -G rtkbase "${RTKBASE_USER}"
