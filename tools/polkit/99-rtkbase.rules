@@ -1,0 +1,17 @@
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+       RegExp('str2str_[A-Za-z0-9]+.service').test(action.lookup("unit")) === true &&
+       subject.isInGroup("rtkbase"))
+       {
+         return polkit.Result.YES;
+       }
+    });
+
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+       RegExp('rtkbase_[A-Za-z0-9]+.service').test(action.lookup("unit")) === true &&
+       subject.isInGroup("rtkbase"))
+       {
+         return polkit.Result.YES;
+       }
+    });
