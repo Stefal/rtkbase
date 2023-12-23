@@ -341,7 +341,7 @@ rtkbase_requirements(){
       fi
       # Copying udev rules
       [[ ! -d /etc/udev/rules.d ]] && mkdir /etc/udev/rules.d/
-      cp "${rtkbase_path}"/tools/*.rules /etc/udev/rules.d/
+      cp "${rtkbase_path}"/tools/udev_rules/*.rules /etc/udev/rules.d/
       udevadm control --reload && udevadm trigger
 
       #Copying settings.conf.default as settings.conf
@@ -444,6 +444,8 @@ detect_gnss() {
       # Test if speed is in detected_gnss array. If not, add the default value.
       [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
       echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"
+      # If /dev/ttyGNSS is a symlink of the detected serial port, switch to ttyGNSS
+      [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && detected_gnss[0]='ttyGNSS'
 
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
