@@ -4,6 +4,7 @@
  - udev rules to create ttyGNSS port for usb connected F9P.
  - Added UART connected F9P detection and configuration.
  - Some scripts for using a base with a 4G Simcom A76XX modem. (Beta)
+ - Rules to manage rtkbase services without sudo (Bookworm or newer).
 ### Changed
  - RTKBase now use a virtual environnement for the python environnement.
  - install.sh -> --detect-usb-gnss renamed to --detect-gnss

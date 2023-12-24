@@ -338,12 +338,13 @@ rtkbase_requirements(){
         then
           # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
           apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
-      fi
+      fi      
       # Copying udev rules
       [[ ! -d /etc/udev/rules.d ]] && mkdir /etc/udev/rules.d/
       cp "${rtkbase_path}"/tools/udev_rules/*.rules /etc/udev/rules.d/
       udevadm control --reload && udevadm trigger
-
+      # Copying polkitd rules and add rtkbase group
+      "${rtkbase_path}"/tools/install_polkit_rules.sh "${RTKBASE_USER}"
       #Copying settings.conf.default as settings.conf
       if [[ ! -f "${rtkbase_path}/settings.conf" ]]
       then
