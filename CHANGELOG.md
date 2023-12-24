@@ -1,6 +1,7 @@
 # Changelog
 ## [2.5] - not released
 ### Added
+ - udev rules to create ttyGNSS port for usb connected F9P.
  - Added UART connected F9P detection and configuration.
  - Some scripts for using a base with a 4G Simcom A76XX modem. (Beta)
 ### Changed
