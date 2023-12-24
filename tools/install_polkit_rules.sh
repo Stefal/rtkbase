@@ -7,7 +7,7 @@ RTKBASE_USER=$1
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 add_polkit_rules() {
-  cp "${SCRIPT_DIR}"/*.rules /etc/polkit-1/rules.d/ && \
+  cp "${SCRIPT_DIR}"/polkit/*.rules /etc/polkit-1/rules.d/ && \
   groupadd -f rtkbase                               && \
   usermod -a -G rtkbase "${RTKBASE_USER}"
 }
