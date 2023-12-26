@@ -40,9 +40,12 @@ convert_to_rinex_ign() {
 # Rinex v3.04 - 30s -  GPS + GLONASS
 convert_to_rinex_nrcan() {
   echo "- CREATING RINEX " "${RINEX_FILE}"
-  "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}" -hm "${MOUNT_NAME}"    \
-        -f 2 -y E -y J -y S -y C -y I        \
-        -od -os -oi -ot -ti 30 -tt 0 -ro -TADJ=1  \
+  "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}"       \
+        -hc "${RTKBASE_VERSION}" -hm "${MOUNT_NAME}"   \
+        -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
+        -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
+        -f 2 -y E -y J -y S -y C -y I                  \
+        -od -os -oi -ot -ti 30 -tt 0 -ro -TADJ=1       \
         -o "${RINEX_FILE}"
     return $?
 }
@@ -50,9 +53,12 @@ convert_to_rinex_nrcan() {
 # Rinex v3.04 - 30s -  GPS + GLONASS + GALILEO + BEIDOU + QZSS + NAVIC + SBAS
 convert_to_rinex_30s_full() {
   echo "- CREATING RINEX " "${RINEX_FILE}"
-  "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}" -hm "${MOUNT_NAME}"    \
-        -od -os -oi -ot -ti 30 -tt 0 \
-        -ro -TADJ=1  \
+  "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}"       \
+        -hc "${RTKBASE_VERSION}" -hm "${MOUNT_NAME}"   \
+        -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
+        -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
+        -od -os -oi -ot -ti 30 -tt 0                   \
+        -ro -TADJ=1                                    \
         -o "${RINEX_FILE}"
     return $?
 }
@@ -60,9 +66,12 @@ convert_to_rinex_30s_full() {
 # Rinex v3.04 - 1s -  GPS + GLONASS + GALILEO + BEIDOU + QZSS + NAVIC + SBAS
 convert_to_rinex_1s_full() {
   echo "- CREATING RINEX " "${RINEX_FILE}"
-  "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}" -hm "${MOUNT_NAME}"    \
-        -od -os -oi -ot -ti 1 -tt 0 \
-        -ro -TADJ=1  \
+  "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}"       \
+        -hc "${RTKBASE_VERSION}" -hm "${MOUNT_NAME}"   \
+        -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
+        -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
+        -od -os -oi -ot -ti 1 -tt 0                    \
+        -ro -TADJ=1                                    \
         -o "${RINEX_FILE}"
     return $?
 }
