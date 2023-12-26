@@ -41,7 +41,7 @@ convert_to_rinex_nrcan() {
 convert_to_rinex_30s_full() {
   echo "- CREATING RINEX " "${RINEX_FILE}"
   "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}" -hm "${MOUNT_NAME}"    \
-        -f 2 -od -os -oi -ot -ti 30 -tt 0 \
+        -od -os -oi -ot -ti 30 -tt 0 \
         -ro -TADJ=1  \
         -o "${RINEX_FILE}"
     return $?
@@ -51,7 +51,7 @@ convert_to_rinex_30s_full() {
 convert_to_rinex_1s_full() {
   echo "- CREATING RINEX " "${RINEX_FILE}"
   "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}" -hm "${MOUNT_NAME}"    \
-        -f 2 -od -os -oi -ot -ti 1 -tt 0 \
+        -od -os -oi -ot -ti 1 -tt 0 \
         -ro -TADJ=1  \
         -o "${RINEX_FILE}"
     return $?
