@@ -12,8 +12,9 @@ CONVBIN_PATH=$(type -P convbin)
 ANT_POSITION=$(echo "${position}" | cs2cs  EPSG:4979 EPSG:4978 -f "%.2f" | sed 's/\s/\//g')
 RECEIVER="${receiver}"
 REC_VERSION="${receiver_firmware}"
+REC_OPTION=''
+[[ -n $ntrip_a_receiver_options ]] && REC_OPTION="${ntrip_a_receiver_options}"
 ANT_TYPE="${antenna_info}"
-RTKBASE_VERSION="${version}"
 RTKBASE_VERSION='RTKBase v'"${version}"
 
 extract_raw_file() {
@@ -32,11 +33,17 @@ convert_to_rinex_ign() {
         -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
         -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
         -f 2 -y R -y E -y J -y S -y C -y I             \
-        -od -os -oi -ot -ti 30 -tt 0 -ro -TADJ=1       \
-        -o "${RINEX_FILE}"
+        -od -os -oi -ot -ti 30 -tt 0                   \
+        -ro "${REC_OPTION}" -o "${RINEX_FILE}"
     return $?
 }
 
+convert_to_rinex_ign_bis() {
+  echo "- CREATING RINEX " "${RINEX_FILE}"
+  args="${raw_file}"' -v 2.11 -r '"${RAW_TYPE}"' -hc '"${RTKBASE_VERSION}"' -hm '"${MOUNT_NAME}"' -hp '"${ANT_POSITION}"' -ha 0000/'"${ANT_TYPE}"' -hr 0000/'"${RECEIVER}"'/'"${REC_VERSION}"' -f 2 -y R -y E -y J -y S -y C -y I -od -os -oi -ot -ti 30 -tt 0 -ro '"${REC_OPTION}"' -o '"${RINEX_FILE}"
+  "${CONVBIN_PATH}" "${args}"
+    return $?
+}
 # Rinex v3.04 - 30s -  GPS + GLONASS
 convert_to_rinex_nrcan() {
   echo "- CREATING RINEX " "${RINEX_FILE}"
@@ -45,8 +52,8 @@ convert_to_rinex_nrcan() {
         -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
         -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
         -f 2 -y E -y J -y S -y C -y I                  \
-        -od -os -oi -ot -ti 30 -tt 0 -ro -TADJ=1       \
-        -o "${RINEX_FILE}"
+        -od -os -oi -ot -ti 30 -tt 0                   \
+        -ro "${REC_OPTION}" -o "${RINEX_FILE}"
     return $?
 }
 
@@ -58,8 +65,7 @@ convert_to_rinex_30s_full() {
         -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
         -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
         -od -os -oi -ot -ti 30 -tt 0                   \
-        -ro -TADJ=1                                    \
-        -o "${RINEX_FILE}"
+        -ro "${REC_OPTION}" -o "${RINEX_FILE}"
     return $?
 }
 
@@ -71,8 +77,7 @@ convert_to_rinex_1s_full() {
         -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
         -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
         -od -os -oi -ot -ti 1 -tt 0                    \
-        -ro -TADJ=1                                    \
-        -o "${RINEX_FILE}"
+        -ro "${REC_OPTION}" -o "${RINEX_FILE}"
     return $?
 }
 
