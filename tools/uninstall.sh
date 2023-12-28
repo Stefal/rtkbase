@@ -2,7 +2,7 @@
 
 BASEDIR=$(dirname "$0")
 
-#removing services
+# removing services
 for service_name in str2str_tcp.service \
                     str2str_ntrip_A.service \
                     str2str_ntrip_B.service \
@@ -25,16 +25,20 @@ do
     systemctl reset-failed
 done
 
-#removing rtklib binaries
+# removing rtklib binaries
 echo 'Deleting RTKLib binaries'
 rm /usr/bin/str2str
 rm /usr/bin/conv2bin
 rm /usr/bin/rtkrcv
 
-#removing Python modules
-# Too dangerous without running RTKBase in a venv ?
+# removing udev and polkitd rules
+echo 'Deleting udev rules'
+rm /etc/udev/rules.d/90-usb-simcom-at.rules
+rm /etc/udev/rules.d/91-gnss.rules
+echo 'Deleting polkitd rules'
+rm /etc/polkit-1/rules.d/99-rtkbase.rules
 
-#removing rtkbase folder
+# removing rtkbase folder
 echo 'Deleting rtkbase directory'
 rtkbase_dir=$(builtin cd "${BASEDIR}"/.. ; pwd)
 echo 'Deleting ' "${rtkbase_dir}"
