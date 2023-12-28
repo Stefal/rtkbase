@@ -206,7 +206,7 @@ upd_2.3.4() {
 #update python module
   "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtkbase-requirements
 # Get F9P firmware release
-  source <( grep = "${destination_directory}"/settings.conf )
+  source <( grep '=' "${destination_directory}"/settings.conf )
   if [[ $(python3 "${destination_directory}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
   then
     echo 'Get F9P firmware release'
