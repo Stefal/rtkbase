@@ -9,7 +9,8 @@
  - RTKBase now use a virtual environnement for the python environnement
  - install.sh -> --detect-usb-gnss renamed to --detect-gnss
  - Rinex conversion -> limit to 2 frequencies removed in "full" presets
- - Rinex conversion -> receiver option (-TADJ=1 for ubx) is sourced from settings.conf 
+ - Rinex conversion -> receiver option (-TADJ=1 for ubx) is sourced from settings.conf
+ - Log default overlap changed from 30s to 0
 ### Deprecated
 ### Removed
 ### Fixed
