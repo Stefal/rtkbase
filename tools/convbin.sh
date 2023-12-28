@@ -2,7 +2,7 @@
 #convert zipped raw file to rinex
 #./convbin.sh ubx.zip directory rinex_type
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source <( grep = "${SCRIPT_DIR}"/../settings.conf )
+source <( grep '=' "${SCRIPT_DIR}"/../settings.conf )
 RAW_ARCHIVE=$1
 DATA_DIR=$2
 MOUNT_NAME=$mnt_name_a

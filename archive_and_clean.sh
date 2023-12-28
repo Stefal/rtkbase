@@ -3,7 +3,7 @@
 #You can customize archive_name and archive_rotate in settings.conf
 
 BASEDIR=$(dirname "$0")
-source <( grep = ${BASEDIR}/settings.conf )
+source <( grep '=' ${BASEDIR}/settings.conf )
 cd ${datadir}
 
 check_space(){
