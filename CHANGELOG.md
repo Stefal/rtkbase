@@ -17,6 +17,7 @@
  - More tests before copying RTKLib binaries. #313
 ### Security
  - Update of various python modules.
+ - Apply some restrictions on RTKBase services. #341
 
 ## [2.4.2] - 2023-11-10
 ### Fixed
