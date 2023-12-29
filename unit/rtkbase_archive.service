@@ -5,3 +5,6 @@ Description=RTKBase - Archiving and cleaning raw data
 Type=oneshot
 User={user}
 ExecStart={script_path}/archive_and_clean.sh
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths={script_path}

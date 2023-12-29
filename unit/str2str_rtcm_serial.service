@@ -13,6 +13,9 @@ RestartSec=30
 #Limiting log to 1 msg per minute
 LogRateLimitIntervalSec=1 minute
 LogRateLimitBurst=1
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths={script_path}
 
 [Install]
 WantedBy=multi-user.target
