@@ -8,9 +8,9 @@ User=root
 ExecStart={python_path} {script_path}/web_app/server.py
 Restart=on-failure
 RestartSec=30
-ProtectHome=read-only
-ProtectSystem=strict
-ReadWritePaths={script_path} /var/tmp /usr/local/bin
+#ProtectHome=read-only
+#ProtectSystem=strict
+#ReadWritePaths={script_path} /var/tmp /usr/local/bin
 
 [Install]
 WantedBy=multi-user.target
