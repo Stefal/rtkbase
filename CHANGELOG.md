@@ -16,6 +16,7 @@
 ### Removed
 ### Fixed
  - More tests before copying RTKLib binaries. #313
+ - Skip unknown section or key when restoring settings. #336 
 ### Security
  - Update of various python modules.
  - Apply some restrictions on RTKBase services. #341
