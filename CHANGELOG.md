@@ -6,11 +6,12 @@
  - Some scripts for using a base with a 4G Simcom A76XX modem. (Beta).
  - Rules to manage rtkbase services without sudo (Bookworm or newer).
 ### Changed
+ - RTKLib upgraded to release b34h from rtklibexplorer.
  - RTKBase now use a virtual environnement for the python environnement
  - install.sh -> --detect-usb-gnss renamed to --detect-gnss
  - Rinex conversion -> limit to 2 frequencies removed in "full" presets
  - Rinex conversion -> receiver option (-TADJ=1 for ubx) is sourced from settings.conf
- - Log default overlap changed from 30s to 0
+ - Logs -> default time overlap changed from 30s to 0
 ### Deprecated
 ### Removed
 ### Fixed
