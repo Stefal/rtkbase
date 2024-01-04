@@ -260,6 +260,13 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
         :param emit: send the result to the web front end with socketio
         :return The new release version inside a dict (release version and url for this release)
     """
+    ## test
+    new_release = {'url' : 'http://localhost', 'new_release' : "3.9", "comment" : "blabla"}
+    if emit:
+        socketio.emit("new release", json.dumps(new_release), namespace="/test")
+    return new_release
+    ## test
+
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
@@ -291,7 +298,7 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
 @socketio.on("update rtkbase", namespace="/test")
 def update_rtkbase(update_file=False):
     """
-        Check if a RTKBase exists, download it and update rtkbase
+        Check if a RTKBase update exists, download it and update rtkbase
         if update_file is a link to a file, use it to update rtkbase (mainly used for dev purpose)
     """
 
@@ -304,13 +311,16 @@ def update_rtkbase(update_file=False):
         if update_url is None:
             return
         #Download update
-        update_archive = download_update(update_url)
+        #update_archive = download_update(update_url)
     else:
         #update from file
         update_file.save("/var/tmp/rtkbase_update.tar.gz")
         update_archive = "/var/tmp/rtkbase_update.tar.gz"
         print("update stored in /var/tmp/")
-        
+    
+    ### test
+    update_archive='prout'
+    ### test
     if update_archive is None:
         socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
         return
@@ -318,29 +328,36 @@ def update_rtkbase(update_file=False):
         socketio.emit("downloading_update", json.dumps({"result": 'true'}), namespace="/test")
 
     #Get the "root" folder in the archive
-    tar = tarfile.open(update_archive)
-    for tarinfo in tar:
-        if tarinfo.isdir():
-            primary_folder = tarinfo.name
-            break
+    #tar = tarfile.open(update_archive)
+    #for tarinfo in tar:
+    #    if tarinfo.isdir():
+    #        primary_folder = tarinfo.name
+    #        break
     #Delete previous update directory
-    try:
-        os.rmdir("/var/tmp/rtkbase")
-    except FileNotFoundError:
-        print("/var/tmp/rtkbase directory doesn't exist")
+    #try:
+    #    os.rmdir("/var/tmp/rtkbase")
+    #except FileNotFoundError:
+    #    print("/var/tmp/rtkbase directory doesn't exist")
         
     #Extract archive
-    tar.extractall("/var/tmp")
+    #tar.extractall("/var/tmp")
 
-    #launch update script
-    rtk.shutdownBase()
-    source_path = os.path.join("/var/tmp/", primary_folder)
+    #source_path = os.path.join("/var/tmp/", primary_folder)
+    ##test
+    source_path = os.path.join("/var/tmp/", 'rtkbase_test')
+    ##test
     script_path = os.path.join(source_path, "rtkbase_update.sh")
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
-    socketio.emit("updating_rtkbase", namespace="/test")
-    time.sleep(1)
-    os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
+    #launch update verifications
+    answer = subprocess.run([script_path, source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if answer.returncode != 0:
+        socketio.emit("updating_rtkbase_stopped", json.dumps({"error" : answer.stderr.splitlines()}), namespace="/test")
+    else : #if ok, launch update script
+        socketio.emit("updating_rtkbase", namespace="/test")
+        rtk.shutdownBase()
+        time.sleep(1)
+        os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
 
 def download_update(update_path):
     update_archive = "/var/tmp/rtkbase_update.tar.gz"

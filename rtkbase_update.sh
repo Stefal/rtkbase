@@ -13,6 +13,13 @@ destination_directory=$2
 data_dir=$3
 old_version=$4
 standard_user=$5
+checking=$6
+
+check_update() {
+  echo 'error (test)' >&2
+  echo 'error line 2' >&2
+  exit 1
+}
 
 update() {
 echo "remove existing rtkbase.old directory"
@@ -26,8 +33,13 @@ cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 #systemctl stop rtkbase_web.service
 
 echo "copy new release to destination"
-cp -rfp ${source_directory}/. ${destination_directory}
-
+if [[ -d ${source_directory} ]] && [[ -d ${destination_directory} ]] 
+  then
+    cp -rfp ${source_directory}/. ${destination_directory}
+  else
+    echo 'can t copy'
+    exit 1
+fi
 }
 
 insert_rtcm_msg() {
@@ -269,7 +281,11 @@ upd_2.4.2() {
   [ $str2str_file = 'active' ] && systemctl start str2str_file
 }
 
+#check if we can apply the update
+[[ $checking == '--checking' ]] && check_update
 # standard update
+echo "exit test"
+exit 0
 update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
 upd_"${old_version/b*/b}" "$@"
