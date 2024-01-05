@@ -261,10 +261,10 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
         :return The new release version inside a dict (release version and url for this release)
     """
     ## test
-    new_release = {'url' : 'http://localhost', 'new_release' : "3.9", "comment" : "blabla"}
-    if emit:
-        socketio.emit("new release", json.dumps(new_release), namespace="/test")
-    return new_release
+    #new_release = {'url' : 'http://localhost', 'new_release' : "3.9", "comment" : "blabla"}
+    #if emit:
+    #    socketio.emit("new release", json.dumps(new_release), namespace="/test")
+    #return new_release
     ## test
 
     new_release = {}
@@ -311,16 +311,13 @@ def update_rtkbase(update_file=False):
         if update_url is None:
             return
         #Download update
-        #update_archive = download_update(update_url)
+        update_archive = download_update(update_url)
     else:
         #update from file
         update_file.save("/var/tmp/rtkbase_update.tar.gz")
         update_archive = "/var/tmp/rtkbase_update.tar.gz"
         print("update stored in /var/tmp/")
     
-    ### test
-    update_archive='prout'
-    ### test
     if update_archive is None:
         socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
         return
@@ -328,24 +325,21 @@ def update_rtkbase(update_file=False):
         socketio.emit("downloading_update", json.dumps({"result": 'true'}), namespace="/test")
 
     #Get the "root" folder in the archive
-    #tar = tarfile.open(update_archive)
-    #for tarinfo in tar:
-    #    if tarinfo.isdir():
-    #        primary_folder = tarinfo.name
-    #        break
+    tar = tarfile.open(update_archive)
+    for tarinfo in tar:
+        if tarinfo.isdir():
+            primary_folder = tarinfo.name
+            break
     #Delete previous update directory
-    #try:
-    #    os.rmdir("/var/tmp/rtkbase")
-    #except FileNotFoundError:
-    #    print("/var/tmp/rtkbase directory doesn't exist")
+    try:
+        os.rmdir("/var/tmp/rtkbase")
+    except FileNotFoundError:
+        print("/var/tmp/rtkbase directory doesn't exist")
         
     #Extract archive
-    #tar.extractall("/var/tmp")
+    tar.extractall("/var/tmp")
 
-    #source_path = os.path.join("/var/tmp/", primary_folder)
-    ##test
-    source_path = os.path.join("/var/tmp/", 'rtkbase_test')
-    ##test
+    source_path = os.path.join("/var/tmp/", primary_folder)
     script_path = os.path.join(source_path, "rtkbase_update.sh")
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
