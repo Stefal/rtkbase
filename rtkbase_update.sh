@@ -27,21 +27,21 @@ check_before_update() {
     debian)
       if (( $(echo "$VERSION_ID < 10" | bc -l) ))
       then
-        printf "${TOO_OLD}"
+        printf "${TOO_OLD}" >/dev/stderr
         exit 1
       fi
       ;;
     raspbian)
     if (( $(echo "$VERSION_ID < 10" | bc -l) ))
       then
-        echo "${TOO_OLD}"
+        printf "${TOO_OLD}" >/dev/stderr
         exit 1
       fi
       ;;
     ubuntu)
       if (( $(echo "$VERSION_ID < 20.04" | bc -l) ))
       then
-        printf "${TOO_OLD}"
+        printf "${TOO_OLD}" >/dev/stderr
         exit 1
       fi
       ;;
@@ -310,9 +310,8 @@ upd_2.4.2() {
 
 #check if we can apply the update
 [[ $checking == '--checking' ]] && check_before_update
+
 # standard update
-echo "exit test"
-exit 0
 update
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
 upd_"${old_version/b*/b}" "$@"
