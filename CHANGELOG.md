@@ -19,6 +19,7 @@
  - More tests before copying RTKLib binaries. #313
  - Skip unknown section or key when restoring settings. #336
  - Fix space detection in various forms inputs.
+ - Fix broken form input validation patterns.
 ### Security
  - Update of various python modules.
  - Apply some restrictions on RTKBase services. #341
