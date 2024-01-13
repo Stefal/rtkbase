@@ -466,6 +466,19 @@ $(document).ready(function () {
         }
     })
 
+    socket.on("updating_rtkbase_stopped", function(msg) {
+        response = JSON.parse(msg);
+        console.log("mgs: " + response.error)
+        $("#updateModal .modal-title").text("Error !");
+        $("#updateModal .modal-body").text("");
+        for (line of response.error) {
+            $("#updateModal .modal-body").append("<p>" + line + "</p>");
+        }
+        $("#start-update-button").html('Update');
+        $("#start-update-button").prop("disabled", true);
+        $("#cancel-button").prop("disabled", false);
+    })
+
     socket.on("updating_rtkbase", function() {
         $("#updateModal .modal-body").text("Please wait...Updating...");
         update_countdown(600, 0);

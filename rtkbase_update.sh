@@ -13,9 +13,45 @@ destination_directory=$2
 data_dir=$3
 old_version=$4
 standard_user=$5
+checking=$6
+
+check_before_update() {
+  TOO_OLD='You'"'"'re Operating System is too old\nPlease update it or reflash you SDCard with a more recent RTKBase image\n'
+
+  if [[ -f /etc/os-release ]]
+    then
+      source /etc/os-release
+    else
+      printf "Warning! We can't check your Os release, upgrade at your own risk\n"      
+  fi
+
+  case $ID in
+    debian)
+      if (( $(echo "$VERSION_ID < 10" | bc -l) ))
+      then
+        printf "${TOO_OLD}" >/dev/stderr
+        exit 1
+      fi
+      ;;
+    raspbian)
+    if (( $(echo "$VERSION_ID < 10" | bc -l) ))
+      then
+        printf "${TOO_OLD}" >/dev/stderr
+        exit 1
+      fi
+      ;;
+    ubuntu)
+      if (( $(echo "$VERSION_ID < 20.04" | bc -l) ))
+      then
+        printf "${TOO_OLD}" >/dev/stderr
+        exit 1
+      fi
+      ;;
+  esac
+}
 
 update() {
-echo "remove existing rtkbase.old directory"
+echo 'remove existing rtkbase.old directory'
 rm -rf /var/tmp/rtkbase.old
 mkdir /var/tmp/rtkbase.old
 
@@ -26,8 +62,13 @@ cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 #systemctl stop rtkbase_web.service
 
 echo "copy new release to destination"
-cp -rfp ${source_directory}/. ${destination_directory}
-
+if [[ -d ${source_directory} ]] && [[ -d ${destination_directory} ]] 
+  then
+    cp -rfp ${source_directory}/. ${destination_directory}
+  else
+    echo 'can t copy'
+    exit 1
+fi
 }
 
 insert_rtcm_msg() {
@@ -268,6 +309,10 @@ upd_2.4.2() {
   [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
   [ $str2str_file = 'active' ] && systemctl start str2str_file
 }
+
+#check if we can apply the update
+#FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
+[[ $checking == '--checking' ]] && check_before_update
 
 # standard update
 update
