@@ -311,6 +311,7 @@ upd_2.4.2() {
 }
 
 #check if we can apply the update
+#FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
 [[ $checking == '--checking' ]] && check_before_update
 
 # standard update
