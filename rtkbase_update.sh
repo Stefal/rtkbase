@@ -21,6 +21,8 @@ check_before_update() {
   if [[ -f /etc/os-release ]]
     then
       source /etc/os-release
+    else
+      printf "Warning! We can't check your Os release, upgrade at your own risk\n"      
   fi
 
   case $ID in
