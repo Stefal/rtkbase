@@ -444,10 +444,11 @@ detect_gnss() {
       fi
       # Test if speed is in detected_gnss array. If not, add the default value.
       [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
-      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"
       # If /dev/ttyGNSS is a symlink of the detected serial port, switch to ttyGNSS
       [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && detected_gnss[0]='ttyGNSS'
-
+      # "send" result
+      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"
+      
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
       if [[ ${#detected_gnss[*]} -eq 3 ]] && [[ "${1}" -eq 0 ]]
