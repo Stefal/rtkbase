@@ -392,10 +392,12 @@ $(document).ready(function () {
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         detectApplyBtnElt.innerText = "Close";
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = "GNSS receiver successfully configured";
+            detectBodyElt.innerHTML = "GNSS receiver successfully configured. We will log out to refresh the settings";
             detectApplyBtnElt.removeAttribute('data-dismiss');
             detectApplyBtnElt.onclick = function() {
-                window.location.reload();
+                // window.location.reload();
+                // looks like this way works better :
+                location.href = document.URL.replace(/#$/, '');
             }
         } else {
             detectBodyElt.innerHTML = "GNSS receiver configuration failed"
