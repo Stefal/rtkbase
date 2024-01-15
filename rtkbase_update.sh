@@ -15,6 +15,15 @@ old_version=$4
 standard_user=$5
 checking=$6
 
+#store service status before upgrade
+str2str_active=$(systemctl is-active str2str_tcp)
+str2str_ntrip_A_active=$(systemctl is-active str2str_ntrip_A)
+str2str_ntrip_B_active=$(systemctl is-active str2str_ntrip_B)
+str2str_local_caster=$(systemctl is-active str2str_local_ntrip_caster)
+str2str_rtcm=$(systemctl is-active str2str_rtcm_svr)
+str2str_serial=$(systemctl is-active str2str_rtcm_serial)
+str2str_file=$(systemctl is-active str2str_file)
+
 check_before_update() {
   TOO_OLD='You'"'"'re Operating System is too old\nPlease update it or reflash you SDCard with a more recent RTKBase image\n'
 
@@ -212,7 +221,8 @@ upd_2.3.3() {
 }
 
 upgrade_rtklib() {
-  bin_path=$(dirname $(command -v str2str))
+  systemctl stop str2str_tcp
+  bin_path=$(dirname "$(command -v str2str)")
   rm "${bin_path}"'/str2str' "${bin_path}"'/rtkrcv' "${bin_path}"'/convbin'
   "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtklib
 }
@@ -298,12 +308,14 @@ upd_2.4.2() {
   echo '####################'
   echo 'Update from 2.4.2'
   echo '####################'
-  ${destination_directory}/tools/install.sh --user "${standard_user}" --rtkbase-requirements --unit-files
+  ${destination_directory}/tools/install.sh --user "${standard_user}" --dependencies --rtkbase-requirements --unit-files
   #upgrade rtklib to b34h
   upgrade_rtklib
   #restart str2str if it was active before upgrading rtklib
   [ $str2str_active = 'active' ] && systemctl start str2str_tcp
   # restart previously running services
+  [ $str2str_ntrip_A_active = 'active' ] && systemctl start str2str_ntrip_A
+  [ $str2str_ntrip_B_active = 'active' ] && systemctl start str2str_ntrip_B  
   [ $str2str_local_caster = 'active' ] && systemctl start str2str_local_ntrip_caster
   [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
   [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
