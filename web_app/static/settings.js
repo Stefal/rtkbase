@@ -354,7 +354,8 @@ $(document).ready(function () {
                 if (response['then_configure']) {
                     // We need to wait for the service stop/restart after the previous click on form save button.
                     // Yes, it's dirty...
-                    setTimeout(() => { document.querySelector('#configure_receiver_button').click(); }, 2000);
+                    //setTimeout(() => { document.querySelector('#configure_receiver_button').click(); }, 2000);
+                    document.querySelector('#configure_receiver_button').click();
                 }
                 // detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
                 // detectApplyBtnElt.setAttribute('disabled', '');
