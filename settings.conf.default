@@ -29,7 +29,7 @@ cpu_temp_offset=0
 
 [main]
 #base coordinates: lat long height
-position='47.0983869 -1.2655108 36.4'
+position='47.0983869 -1.2655108 36.40'
 #gnss receiver com port
 com_port=''
 #gnss receiver com port settings
