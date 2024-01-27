@@ -328,8 +328,9 @@ upd_2.4.2() {
 #check if we can apply the update
 #FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
 [[ $checking == '--checking' ]] && check_before_update
-
+echo '################################'
 echo 'Starting standard update'
+echo '################################'
 update || { echo 'Update failed (update)' ; exit 1 ;} 
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
 echo 'Starting specific update'

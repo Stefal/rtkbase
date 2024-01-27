@@ -7,7 +7,7 @@
  - Rules to manage rtkbase services without sudo (Bookworm or newer).
  - Trying to detect the wrong cpu temp on Orange Pi Zero. #224
 ### Changed
- - RTKLib upgraded to release b34h from rtklibexplorer.
+ - RTKLib upgraded to release b34i from rtklibexplorer.
  - RTKBase now use a virtual environnement for the python environnement
  - install.sh -> --detect-usb-gnss renamed to --detect-gnss
  - Rinex conversion -> limit to 2 frequencies removed in "full" presets

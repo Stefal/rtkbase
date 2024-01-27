@@ -37,8 +37,8 @@ man_help(){
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
     echo '        -r | --rtklib'
-    echo '                         Get RTKlib 2.4.3b34h from github and compile it.'
-    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/b34h'
+    echo '                         Get RTKlib 2.4.3b34i from github and compile it.'
+    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/b34i'
     echo ''
     echo '        -b | --rtkbase-release'
     echo '                         Get last release of RTKBase:'
@@ -181,13 +181,13 @@ install_rtklib() {
     sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi')
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
-        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34h/'"${arch_package}"'/str2str' ]] \
+        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"'/str2str' ]] \
         && lsb_release -c | grep -qE 'buster|bullseye|bookworm'
     then
       echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34h/'"${arch_package}"/str2str /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34h/'"${arch_package}"/rtkrcv /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34h/'"${arch_package}"/convbin /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"/str2str /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"/rtkrcv /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"/convbin /usr/local/bin/
     else
       echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
       _compil_rtklib
@@ -196,20 +196,20 @@ install_rtklib() {
 
 _compil_rtklib() {
     echo '################################'
-    echo 'COMPILING RTKLIB'
+    echo 'COMPILING RTKLIB 2.4.3 b34i'
     echo '################################'
-    #Get Rtklib 2.4.3 b34h release
-    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34h.tar.gz | tar -xvz
+    #Get Rtklib 2.4.3 b34i release
+    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34i.tar.gz | tar -xvz
     #Install Rtklib app
     #TODO add correct CTARGET in makefile?
-    make --directory=RTKLIB-b34h/app/consapp/str2str/gcc
-    make --directory=RTKLIB-b34h/app/consapp/str2str/gcc install
-    make --directory=RTKLIB-b34h/app/consapp/rtkrcv/gcc
-    make --directory=RTKLIB-b34h/app/consapp/rtkrcv/gcc install
-    make --directory=RTKLIB-b34h/app/consapp/convbin/gcc
-    make --directory=RTKLIB-b34h/app/consapp/convbin/gcc install
+    make --directory=RTKLIB-b34i/app/consapp/str2str/gcc
+    make --directory=RTKLIB-b34i/app/consapp/str2str/gcc install
+    make --directory=RTKLIB-b34i/app/consapp/rtkrcv/gcc
+    make --directory=RTKLIB-b34i/app/consapp/rtkrcv/gcc install
+    make --directory=RTKLIB-b34i/app/consapp/convbin/gcc
+    make --directory=RTKLIB-b34i/app/consapp/convbin/gcc install
     #deleting RTKLIB
-    rm -rf RTKLIB-b34h/
+    rm -rf RTKLIB-b34i/
 }
 
 _rtkbase_repo(){
