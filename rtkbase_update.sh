@@ -308,6 +308,8 @@ upd_2.4.2() {
   echo '####################'
   echo 'Update from 2.4.2'
   echo '####################'
+  apt-get update -y --allow-releaseinfo-change
+  apt-get --fix-broken install # needed for old installation (raspi image v2.1 from july 2020)
   ${destination_directory}/tools/install.sh --user "${standard_user}" --dependencies --rtkbase-requirements --unit-files
   #upgrade rtklib to b34h
   upgrade_rtklib
@@ -320,16 +322,18 @@ upd_2.4.2() {
   [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
   [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
   [ $str2str_file = 'active' ] && systemctl start str2str_file
+  return 0
 }
 
 #check if we can apply the update
 #FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
 [[ $checking == '--checking' ]] && check_before_update
 
-# standard update
-update
+echo 'Starting standard update'
+update || { echo 'Update failed (update)' ; exit 1 ;} 
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
-upd_"${old_version/b*/b}" "$@"
+echo 'Starting specific update'
+upd_"${old_version/b*/b}" "$@"  || { echo 'Update failed (upd_release_number)' ; exit 1 ;} 
 #note for older me:
 #When dealing with beta version, "${oldversion/b*/b}" will call function 2.4b when we use a release 2.4b1 or 2.4b2 or 2.4beta99
 
