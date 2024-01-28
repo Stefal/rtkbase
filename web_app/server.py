@@ -348,6 +348,7 @@ def update_rtkbase(update_file=False):
     if answer.returncode != 0:
         socketio.emit("updating_rtkbase_stopped", json.dumps({"error" : answer.stderr.splitlines()}), namespace="/test")
     else : #if ok, launch update script
+        print("Launch update")
         socketio.emit("updating_rtkbase", namespace="/test")
         rtk.shutdownBase()
         time.sleep(1)
