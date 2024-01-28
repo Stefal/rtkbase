@@ -310,6 +310,18 @@ upd_2.4.2() {
   echo '####################'
   apt-get update -y --allow-releaseinfo-change
   apt-get --fix-broken install # needed for old installation (raspi image v2.1 from july 2020)
+  # only for Orange Pi Zero, disable sysstats-collect (https://github.com/Stefal/build/issues/14)
+  # and update hostapd if error (https://github.com/Stefal/build/issues/15)
+  computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
+  sbc_array=('Xunlong Orange Pi Zero')
+    if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}"
+      then
+        echo 'Masking sysstat-collect.timer service and upgrading hostapd'
+        systemctl mask sysstat-collect.timer
+        dpkg -s hostapd | grep -q 'Version: 2:2.9' && apt-get upgrade hostapd
+        rm -r /var/log/sysstat/
+    fi
+  # end of Orange Pi Zero section
   ${destination_directory}/tools/install.sh --user "${standard_user}" --dependencies --rtkbase-requirements --unit-files
   #upgrade rtklib to b34h
   upgrade_rtklib

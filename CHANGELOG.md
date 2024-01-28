@@ -20,6 +20,7 @@
  - Skip unknown section or key when restoring settings. #336
  - Fix space detection in various forms inputs.
  - Fix broken form input validation patterns. #353
+ - Fix some issues with Orange Pi Zero images. #361
 ### Security
  - Update of various python modules.
  - Apply some restrictions on RTKBase services. #341
