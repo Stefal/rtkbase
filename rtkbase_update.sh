@@ -318,7 +318,7 @@ upd_2.4.2() {
       then
         echo 'Masking sysstat-collect.timer service and upgrading hostapd'
         systemctl mask sysstat-collect.timer
-        dpkg -s hostapd | grep -q 'Version: 2:2.9' && apt-get upgrade hostapd
+        dpkg -s hostapd | grep -q 'Version: 2:2.9' && apt-get upgrade -y hostapd
         rm -r /var/log/sysstat/
     fi
   # end of Orange Pi Zero section
