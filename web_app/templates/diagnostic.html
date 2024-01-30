@@ -7,8 +7,9 @@
 {% block content %}
 <div class="container">
   {% for service in logs %}
+  {% set btncolor = 'btn-success' if service.active == 'Active' else 'btn-secondary' %}
   <p>
-  <button class="btn btn-primary btn-block" type="button" data-toggle="collapse" data-target="#{{ service.name|replace('.','') }}" aria-expanded="false" aria-controls="{{ service.name|replace('.','') }}">
+  <button class="btn {{ btncolor }} btn-block" type="button" data-toggle="collapse" data-target="#{{ service.name|replace('.','') }}" aria-expanded="false" aria-controls="{{ service.name|replace('.','') }}">
     {{ service.name }} : {{ service.active }}
   </button>
 </p>
