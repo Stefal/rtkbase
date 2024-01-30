@@ -14,8 +14,6 @@
  - Rinex conversion -> limit to 2 frequencies removed in "full" presets
  - Rinex conversion -> receiver option (-TADJ=1 for ubx) is sourced from settings.conf
  - Logs -> default time overlap changed from 30s to 0s
-### Deprecated
-### Removed
 ### Fixed
  - More tests before copying RTKLib binaries. #313
  - Skip unknown section or key when restoring settings. #336
