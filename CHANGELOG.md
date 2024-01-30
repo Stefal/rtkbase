@@ -6,6 +6,7 @@
  - Some scripts for using a base with a 4G Simcom A76XX modem. (Beta).
  - Rules to manage rtkbase services without sudo (Bookworm or newer).
  - Trying to detect the wrong cpu temp on Orange Pi Zero. #224
+ - Buttons and collapsing informations on the diagnostic page.
 ### Changed
  - RTKLib upgraded to release b34i from rtklibexplorer.
  - RTKBase now use a virtual environnement for the python environnement
