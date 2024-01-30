@@ -1,5 +1,5 @@
 # Changelog
-## [2.5] - not released
+## [2.5.0] - 2024-01-30
 ### Added
  - udev rules to create ttyGNSS port for usb connected F9P.
  - Added UART connected F9P detection and configuration.
@@ -13,7 +13,7 @@
  - install.sh -> --detect-usb-gnss renamed to --detect-gnss
  - Rinex conversion -> limit to 2 frequencies removed in "full" presets
  - Rinex conversion -> receiver option (-TADJ=1 for ubx) is sourced from settings.conf
- - Logs -> default time overlap changed from 30s to 0
+ - Logs -> default time overlap changed from 30s to 0s
 ### Deprecated
 ### Removed
 ### Fixed
