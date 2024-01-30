@@ -65,14 +65,15 @@ from wtforms import PasswordField, BooleanField, SubmitField
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_socketio import SocketIO, emit, disconnect
+import urllib
 import subprocess
 import psutil
 import distro
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
-from werkzeug.urls import url_parse
 from werkzeug.utils import safe_join
+import urllib
 
 app = Flask(__name__)
 app.debug = False
@@ -149,11 +150,12 @@ def manager():
         And it sends various system informations to the web interface
     """
     max_cpu_temp = 0
+    cpu_temp_offset = int(rtkbaseconfig.get("general", "cpu_temp_offset"))
     services_status = getServicesStatus(emit_pingback=False)
     main_service = {}
     while True:
         # Make sure max_cpu_temp is always updated
-        cpu_temp = get_cpu_temp()
+        cpu_temp = get_cpu_temp() + cpu_temp_offset
         max_cpu_temp = max(cpu_temp, max_cpu_temp)
 
         if connected_clients > 0:
@@ -258,6 +260,13 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
         :param emit: send the result to the web front end with socketio
         :return The new release version inside a dict (release version and url for this release)
     """
+    ## test
+    #new_release = {'url' : 'http://localhost', 'new_release' : "3.9", "comment" : "blabla"}
+    #if emit:
+    #    socketio.emit("new release", json.dumps(new_release), namespace="/test")
+    #return new_release
+    ## test
+
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
@@ -289,7 +298,7 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
 @socketio.on("update rtkbase", namespace="/test")
 def update_rtkbase(update_file=False):
     """
-        Check if a RTKBase exists, download it and update rtkbase
+        Check if a RTKBase update exists, download it and update rtkbase
         if update_file is a link to a file, use it to update rtkbase (mainly used for dev purpose)
     """
 
@@ -308,7 +317,7 @@ def update_rtkbase(update_file=False):
         update_file.save("/var/tmp/rtkbase_update.tar.gz")
         update_archive = "/var/tmp/rtkbase_update.tar.gz"
         print("update stored in /var/tmp/")
-        
+    
     if update_archive is None:
         socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
         return
@@ -330,15 +339,20 @@ def update_rtkbase(update_file=False):
     #Extract archive
     tar.extractall("/var/tmp")
 
-    #launch update script
-    rtk.shutdownBase()
     source_path = os.path.join("/var/tmp/", primary_folder)
     script_path = os.path.join(source_path, "rtkbase_update.sh")
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
-    socketio.emit("updating_rtkbase", namespace="/test")
-    time.sleep(1)
-    os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
+    #launch update verifications
+    answer = subprocess.run([script_path, source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if answer.returncode != 0:
+        socketio.emit("updating_rtkbase_stopped", json.dumps({"error" : answer.stderr.splitlines()}), namespace="/test")
+    else : #if ok, launch update script
+        print("Launch update")
+        socketio.emit("updating_rtkbase", namespace="/test")
+        rtk.shutdownBase()
+        time.sleep(1)
+        os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
 
 def download_update(update_path):
     update_archive = "/var/tmp/rtkbase_update.tar.gz"
@@ -430,7 +444,7 @@ def login_page():
         
         login_user(user, remember=loginform.remember_me.data)
         next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
+        if not next_page or urllib.parse.urlsplit(next_page).netloc != '':
             next_page = url_for('status_page')
 
         return redirect(next_page)
@@ -564,18 +578,18 @@ def deleteLog(json_msg):
 def detect_receiver(json_msg):
     print("Detecting gnss receiver")
     #print("DEBUG json_msg: ", json_msg)
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-usb-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
             device_info = next(x for x in answer.stdout.splitlines() if x.startswith('/dev/')).split(' - ')
-            port, gnss_type = [x.strip() for x in device_info]
-            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type}
+            port, gnss_type, speed = [x.strip() for x in device_info]
+            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type, "port_speed" : speed}
             result.update(json_msg)
         except Exception:
             result = {"result" : "failed"}
     else:
-        print("DEBUG Not ok stdout: ", answer.stdout)
+        #print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
     #result = {"result" : "failed"}
     #result = {"result" : "success", "port" : "bestport", "gnss_type" : "F12P"}
@@ -585,6 +599,9 @@ def detect_receiver(json_msg):
 @socketio.on("configure_receiver", namespace="/test")
 def configure_receiver(brand="u-blox", model="F9P"):
     # only ZED-F9P could be configured automaticaly
+    # After port detection, the main service will be restarted, and it will take some time. But we have to stop it to
+    # configure the receiver. We wait 2 seconds before stopping it to remove conflicting calls.
+    time.sleep(4)
     main_service = services_list[0]
     if main_service.get("active") is True:
         main_service["unit"].stop()
@@ -658,12 +675,11 @@ def restore_settings_file(json_msg):
 @socketio.on("rinex conversion", namespace="/test")
 def rinex_ign(json_msg):
     #print("DEBUG: json convbin: ", json_msg)
-    raw_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
-    mnt_name = rtkbaseconfig.get("ntrip_A", "mnt_name_A").strip("'")
     rinex_type = {"rinex_ign" : "ign", "rinex_nrcan" : "nrcan", "rinex_30s_full" : "30s_full", "rinex_1s_full" : "1s_full"}.get(json_msg.get("rinex-preset"))
     convpath = os.path.abspath(os.path.join(rtkbase_path, "tools", "convbin.sh"))
-    #print("DEBUG", convpath, json_msg.get("name"), rtk.logm.log_path, mnt_name, raw_type, rinex_type)
-    answer = subprocess.run([convpath, json_msg.get("filename"), rtk.logm.log_path, mnt_name, raw_type, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    convbin_user = rtkbaseconfig.get("general", "user").strip("'")
+    #print("DEBUG", convpath, json_msg.get("filename"), rtk.logm.log_path, rinex_type)
+    answer = subprocess.run(["sudo", "-u", convbin_user, convpath, json_msg.get("filename"), rtk.logm.log_path, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode == 0 and "rinex_file=" in answer.stdout:
         rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
         result = {"result" : "success", "file" : rinex_file}

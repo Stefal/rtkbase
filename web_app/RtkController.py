@@ -118,7 +118,8 @@ class RtkController:
         if self.launched:
             self.semaphore.acquire()
 
-            self.child.kill(signal.SIGUSR2)
+            #self.child.kill(signal.SIGUSR2) <- doesn't kill childs on Debian Bookworm
+            self.child.terminate(force=True)
 
             # wait for rtkrcv to shutdown
             try:

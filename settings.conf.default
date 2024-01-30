@@ -2,9 +2,9 @@
 
 [general]
 # Version
-version=2.4.2
+version=2.5.0
 # Rtkbase upgrade mandatory "checkpoint"
-checkpoint_version=2.5.0
+checkpoint_version=2.6.0
 # User who runs str2str_file service
 user=
 # NTRIP caster program
@@ -24,14 +24,16 @@ web_password_hash=pbkdf2:sha256:150000$kWdEE8eU$d30b1a75e5cf898684bad60b47a45a80
 maptiler_key=
 #Receive prerelease update (beta version)
 prerelease=False
+#Cpu temp offset for Orange Pi Zero LTS (+30°C)
+cpu_temp_offset=0
 
 [main]
 #base coordinates: lat long height
-position='47.0983869 -1.2655108 36.4'
+position='47.0983869 -1.2655108 36.40'
 #gnss receiver com port
 com_port=''
 #gnss receiver com port settings
-com_port_settings='115200:8:n:1'
+com_port_settings='38400:8:n:1'
 #receiver model
 receiver='unknown'
 #gnss receiver format
@@ -60,7 +62,7 @@ file_name='%Y-%m-%d_%h-%M-%S_GNSS-1'
 #file rotate time in hour
 file_rotate_time='24'
 #file overlap time in seconds
-file_overlap_time='30'
+file_overlap_time='0'
 #name for the compressed archive
 archive_name=$(date -d "-1 days" +"%Y-%m-%d_%S").zip
 #archives older than this value (in days) will be deleted by archive_and_clean.sh
@@ -146,3 +148,7 @@ rtcm_serial_receiver_options=''
 logdir=$BASEDIR/logs
 #log trace level (0: no trace)
 level=0
+
+[network]
+#lte modem port
+modem_at_port=''

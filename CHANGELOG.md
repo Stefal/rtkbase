@@ -1,4 +1,29 @@
 # Changelog
+## [2.5.0] - 2024-01-30
+### Added
+ - udev rules to create ttyGNSS port for usb connected F9P.
+ - Added UART connected F9P detection and configuration.
+ - Some scripts for using a base with a 4G Simcom A76XX modem. (Beta).
+ - Rules to manage rtkbase services without sudo (Bookworm or newer).
+ - Trying to detect the wrong cpu temp on Orange Pi Zero. #224
+ - Buttons and collapsing informations on the diagnostic page.
+### Changed
+ - RTKLib upgraded to release b34i from rtklibexplorer.
+ - RTKBase now use a virtual environnement for the python environnement
+ - install.sh -> --detect-usb-gnss renamed to --detect-gnss
+ - Rinex conversion -> limit to 2 frequencies removed in "full" presets
+ - Rinex conversion -> receiver option (-TADJ=1 for ubx) is sourced from settings.conf
+ - Logs -> default time overlap changed from 30s to 0s
+### Fixed
+ - More tests before copying RTKLib binaries. #313
+ - Skip unknown section or key when restoring settings. #336
+ - Fix space detection in various forms inputs.
+ - Fix broken form input validation patterns. #353
+ - Fix some issues with Orange Pi Zero images. #361
+### Security
+ - Update of various python modules.
+ - Apply some restrictions on RTKBase services. #341
+
 ## [2.4.2] - 2023-11-10
 ### Fixed
  - Pin Werkzeug module to v2.2.2 to fix dependencie failure. #330
