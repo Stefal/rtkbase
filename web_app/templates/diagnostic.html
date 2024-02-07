@@ -15,8 +15,8 @@
 </p>
   <div class="collapse" id="{{ service.name|replace('.','') }}">
     <div class="card card-body">
-  {{ service.sysctl_status|safe }}<br>
-  {{ service.journalctl|safe }}<br>
+  <h4>STATUS: </h4> <p>{{ service.sysctl_status|safe }} </p>
+  <h4>JOURNAL: </h4><p> {{ service.journalctl|safe }} </p>
     </div>
   </div>
 {% endfor %}
