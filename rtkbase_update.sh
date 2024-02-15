@@ -337,6 +337,19 @@ upd_2.4.2() {
   return 0
 }
 
+upd_2.5.0 () {
+  # only for Orange Pi Zero, update armbian-ramlog (https://github.com/Stefal/build/issues/16)
+  computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
+  sbc_array=('Xunlong Orange Pi Zero')
+    if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" &&
+       lsb_release -c | grep -qE 'bullseye|bookworm' &&
+       grep -qE 'armbian' /etc/os-release
+      then
+        echo 'Updating armbian-ramlog'
+        sed -i 's/armbian-ramlog)" | while/armbian-ramlog)|\\.journal" | while/' /usr/lib/armbian/armbian-ramlog
+    fi
+  # end of Orange Pi Zero section
+}
 #check if we can apply the update
 #FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
 [[ $checking == '--checking' ]] && check_before_update && exit
