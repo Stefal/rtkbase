@@ -33,7 +33,7 @@ convert_to_rinex_ign() {
         -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
         -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
         -f 2 -y R -y E -y J -y S -y C -y I             \
-        -od -os -oi -ot -ti 30 -tt 0                   \
+        -od -os -oi -ot -ti 30 -tt 0.005                   \
         -ro "${REC_OPTION}" -o "${RINEX_FILE}"
     return $?
 }
