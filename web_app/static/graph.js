@@ -171,7 +171,8 @@ function Chart() {
 
     this.roverUpdate = function (msg) {
 
-        // msg object contains satellite data for rover in {"name0": "level0", "name1": "level1"} format
+        // msg object contains satellite data for rover in {"name0": {"S1": "s1 level", "S2": "s2 level", "S3": "s3 level}, name1": {"S1": "s1 level",...},..} format
+        // S1, S2, S3 are L1, L2, L5 frequency levels
 
         // TODO: make responsive to bar chart size
         // The maximum number of bars that fit in the bar chart.
@@ -189,7 +190,7 @@ function Chart() {
             var name = keys[i];
 
             // for some reason I sometimes get undefined here. So plot zero just to be safe
-            var level = parseInt(msg[name]) || 0;
+            var level = parseInt(msg[name]["S1"]) || 0;
 
             // Initialise a dict in the array to access later.
             chartData[i] = { label: name, level: level };
