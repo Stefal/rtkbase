@@ -285,11 +285,11 @@ class RtkController:
                 try:
                     sat_s2_level_index = header.index("S2")
                 except ValueError:
-                    pass
+                    sat_s2_level_index = None
                 try:
                     sat_s3_level_index = header.index("S3")
                 except ValueError:
-                    pass
+                    sat_s3_level_index = None
                 sat_input_source_index = header.index("R")
                 sat_time_index = header.index("TIME(GPST)")
 
@@ -305,14 +305,8 @@ class RtkController:
                         if len(spl) > sat_s1_level_index:
                             name = spl[sat_name_index]
                             s1_level = spl[sat_s1_level_index]
-                            try:
-                                s2_level = spl[sat_s2_level_index][:2] #bug in rtkrcv table, create ticket on github with rtkrcv screenshot
-                            except (IndexError, UnboundLocalError):
-                                s2_level = 0
-                            try:
-                                s3_level = spl[sat_s3_level_index][:2]
-                            except (IndexError, UnboundLocalError):
-                                s3_level = 0
+                            s2_level = spl[sat_s2_level_index][:2] if sat_s2_level_index else 0 #bug in rtkrcv table, create ticket on github with rtkrcv screenshot
+                            s3_level = spl[sat_s3_level_index][:2] if sat_s3_level_index else 0
                             gps_time = spl[sat_time_index]
 
                             # R parameter corresponds to the input source number
