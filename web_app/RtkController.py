@@ -43,6 +43,7 @@ class RtkController:
         self.status = {}
         self.obs_rover = {}
         self.obs_base = {}
+        self.sat_infos = {}
         self.info = {}
         self.semaphore = Semaphore()
 
@@ -248,6 +249,63 @@ class RtkController:
                     value = spl[1].strip()
 
                     self.status[param] = value
+
+        self.semaphore.release()
+
+        return 1
+
+    def getSatInfos(self):
+        
+        self.semaphore.acquire()
+        self.sat_infos = {}
+
+        self.child.send("satellite\r\n")
+
+        if self.expectAnswer("get satellite") < 0:
+            self.semaphore.release()
+            return -1
+
+        sat_info = self.child.before.decode('utf-8')
+        ansi_bold = '\x1b[1m'
+        ansi_no_style = '\x1b[0m'
+        sat_info = sat_info.replace(ansi_bold, '').replace(ansi_no_style, '')
+        sat_info = sat_info.split("\r\n")
+
+        sat_info = [_s for _s in sat_info if _s]
+        #print("SAT INFOS: ", sat_info)
+
+        matching_strings = [s for s in sat_info if "SAT" in s]
+
+        if matching_strings != []:
+            # find the header of the sat_info table
+            header_index = sat_info.index(matching_strings[0])
+            # split the header string into columns
+            header = sat_info[header_index].split()
+
+            # find the indexes of the needed columns
+            sat_name_index = header.index("SAT")
+            sat_status_index = header.index("C1")
+            sat_azimuth_index = header.index("Az")
+            sat_elevation_index = header.index("El")
+
+            if len(sat_info) > (header_index + 1):
+                # we have some info about the actual satellites:
+
+                self.sat_infos = {}
+
+                for line in sat_info[header_index+1:]:
+                    spl = line.split()
+
+                    if len(spl) > sat_elevation_index:
+                        name = spl[sat_name_index]
+                        status = spl[sat_status_index]
+                        azimuth = spl[sat_azimuth_index]
+                        elevation = spl[sat_elevation_index]
+                        
+                        self.sat_infos[name] = {"status": status, "azimuth": azimuth, "elevation": elevation}
+                        #print(name, self.sat_infos[name])
+            else:
+                self.sat_infos = {}
 
         self.semaphore.release()
 

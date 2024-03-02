@@ -705,6 +705,8 @@ class RTKLIB:
 
             # update satellite levels
             self.rtkc.getObs()
+            # update satellite infos
+            self.rtkc.getSatInfos()
             #check if gps time is the same (no signal input)
             if last_gps_timestamp == self.rtkc.obs_rover.get("gps_time") and no_signal_counter > 2:
                 self.rtkc.obs_rover = {}
@@ -725,6 +727,7 @@ class RTKLIB:
                 pass
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
             #self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
+            self.socketio.emit("satellite status", self.rtkc.sat_infos, namespace = "/test")
             count += 1
             self.sleep_count +=1
             time.sleep(1)

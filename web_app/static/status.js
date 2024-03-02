@@ -155,15 +155,15 @@ $(document).ready(function () {
     // ####################### HANDLE SATELLITE LEVEL BROADCAST #######################
 
     socket.on("satellite broadcast rover", function(msg) {
-            //Tell the server we are still here
-            socket.emit("on graph");
-            
-            console.groupCollapsed('Rover satellite msg received:');
-                for (var k in msg)
-                    console.log(k + ':' + msg[k]);
-            console.groupEnd();
+        //Tell the server we are still here
+        socket.emit("on graph");
+        
+        console.groupCollapsed('Rover satellite msg received:');
+            for (var k in msg)
+                console.log(k + ':' + JSON.stringify(msg[k]));
+        console.groupEnd();
 
-            chart.roverUpdate(msg);
+        chart.roverUpdate(msg);
     });
 
     socket.on("satellite broadcast base", function(msg) {
@@ -171,10 +171,19 @@ $(document).ready(function () {
         
         console.groupCollapsed('Base satellite msg received:');
             for (var k in msg)
-                console.log(k + ':' + msg[k]);
+                console.log(k + ':' + JSON.stringify(msg[k]));
         console.groupEnd();
 
         chart.baseUpdate(msg);
+    });
+
+    // ################### HANDLE SATELLITES STATUS MESSAGES ####################
+
+    socket.on("satellite status", function(msg) {
+        console.groupCollapsed('Satellites status msg received:');
+            for (var k in msg)
+                console.log(k + ':' + JSON.stringify(msg[k]));
+        console.groupEnd();
     });
 
     // ####################### HANDLE COORDINATE MESSAGES #######################
