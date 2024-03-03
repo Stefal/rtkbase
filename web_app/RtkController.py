@@ -324,9 +324,12 @@ class RtkController:
             self.semaphore.release()
             return -1
 
-        obs = self.child.before.decode().split("\r\n")
+        obs = self.child.before.decode()
+        ansi_bold = '\x1b[1m'
+        ansi_no_style = '\x1b[0m'
+        obs = obs.replace(ansi_bold, '').replace(ansi_no_style, '')
+        obs = obs.split("\r\n")
         obs = [_f for _f in obs if _f]
-
         matching_strings = [s for s in obs if "SAT" in s]
 
         if matching_strings != []:
@@ -335,6 +338,8 @@ class RtkController:
 
             # split the header string into columns
             header = obs[header_index].split()
+            # date & time are splitted into two columns
+            header.insert(0, 'DATE')
 
             if "S1" in header:
                 # find the indexes of the needed columns
