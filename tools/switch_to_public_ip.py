@@ -73,15 +73,22 @@ def get_public_ip_address():
 def get_in_use_ip_address():
     return nmcli.connection.show(CONN_NAME)['IP4.ADDRESS[1]'].split('/')[0]
 
+@sleep(10)
+def ping(host):
+    res = os.system("ping -c 4 " + host + ' >/dev/null')
+    return res == 0
+
 check_modem()
 network_reg = check_network_registration()
 ip_in_use = get_in_use_ip_address()
 public_ip = get_public_ip_address()
-
+ping_host = ping('caster.centipede.fr') or ping('pch.net')
 print("Internal Ip address in use: ", ip_in_use)
 print("Modem public Ip address: ", public_ip)
+print("Ping caster.centipede.fr or pch.net", ping_host)
 
-if ip_in_use == None or public_ip == None or network_reg == False:
+
+if ip_in_use == None or public_ip == None or network_reg == False or ping_host == False:
     print("Modem problem. Switching to airplane mode and back to normal")
     try:
         print("Connecting to modem...")
