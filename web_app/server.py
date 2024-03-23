@@ -105,6 +105,9 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip_B.service", "name" : "ntrip_B"},
                  {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
+                 {"service_unit" : "str2str_rtcm_client.service", "name" : "rtcm_client"},
+                 {"service_unit" : "str2str_rtcm_udp_svr.service", "name" : "rtcm_udp_svr"},
+                 {'service_unit' : 'str2str_rtcm_udp_client.service', "name" : "rtcm_udp_client"},
                  {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
                  {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"}, 
@@ -400,17 +403,23 @@ def settings_page():
     ntrip_A_settings = rtkbaseconfig.get_ntrip_A_settings()
     ntrip_B_settings = rtkbaseconfig.get_ntrip_B_settings()
     local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
-    file_settings = rtkbaseconfig.get_file_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
+    rtcm_client_settings = rtkbaseconfig.get_rtcm_client_settings()
+    rtcm_udp_svr_settings = rtkbaseconfig.get_rtcm_udp_svr_settings()
+    rtcm_udp_client_settings = rtkbaseconfig.get_rtcm_udp_client_settings()
     rtcm_serial_settings = rtkbaseconfig.get_rtcm_serial_settings()
+    file_settings = rtkbaseconfig.get_file_settings()
 
     return render_template("settings.html", main_settings = main_settings,
                                             ntrip_A_settings = ntrip_A_settings,
                                             ntrip_B_settings = ntrip_B_settings,
                                             local_ntripc_settings = local_ntripc_settings,
-                                            file_settings = file_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
+                                            rtcm_client_settings = rtcm_client_settings,
+                                            rtcm_udp_svr_settings = rtcm_udp_svr_settings,
+                                            rtcm_udp_client_settings = rtcm_udp_client_settings,
                                             rtcm_serial_settings = rtcm_serial_settings,
+                                            file_settings = file_settings,
                                             os_infos = distro.info(),)
 
 @app.route('/logs')
@@ -892,7 +901,7 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "file", "rtcm_serial"))  
+            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial"))  
         elif source_section == "ntrip_A":
             restartServices(("ntrip_A",))
         elif source_section == "ntrip_B":
@@ -901,6 +910,12 @@ def update_settings(json_msg):
             restartServices(("local_ntrip_caster",))
         elif source_section == "rtcm_svr":
             restartServices(("rtcm_svr",))
+        elif source_section == "rtcm_client":
+            restartServices(("rtcm_client",))
+        elif source_section == "rtcm_udp_svr":
+            restartServices(("rtcm_udp_svr",))
+        elif source_section == "rtcm_udp_client":
+            restartServices(("rtcm_udp_client",))
         elif source_section == "rtcm_serial":
             restartServices(("rtcm_serial",))
         elif source_section == "local_storage":
@@ -922,7 +937,7 @@ if __name__ == "__main__":
         #check if we run RTKBase for the first time after an update
         #and restart some services to let them send the new release number.
         if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
-            restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
+            restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "rtcm_serial"])
             rtkbaseconfig.remove_option("general", "updated")
             rtkbaseconfig.write_file()
         #Start a "manager" thread

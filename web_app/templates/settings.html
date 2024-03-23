@@ -322,7 +322,7 @@
         </div>
     </form>
 
-  <!-- ######## RTCM Tcp Service ########-->
+  <!-- ######## RTCM Tcp Server Service ########-->
   <div id="rtcm_svr_service_space" class="form-group row">
     <div class="col">
     <label for="rtcm_svr-switch" class="col-4 col-form-label col-form-label-lg">Rtcm tcp service</label>
@@ -352,9 +352,150 @@
         </div>
       </div>
       <div class="form-group row">
-        <label for="rtcm_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <label for="rtcm_svr_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
         <div class="col-sm-9">
-            <input id="rtcm_receiver_options" type="text" name="rtcm_receiver_options" class="form-control" value="{{ rtcm_svr_settings[2].rtcm_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
+            <input id="rtcm_svr_receiver_options" type="text" name="rtcm_svr_receiver_options" class="form-control" value="{{ rtcm_svr_settings[2].rtcm_svr_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
+            <div class="invalid-feedback">Receiver dependent options</div>
+        </div>
+      </div>
+        
+        <div class="clearfix">
+        <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+      </div>
+    </form>
+
+  <!-- ######## RTCM Tcp Client Service ########-->
+  <div id="rtcm_client_service_space" class="form-group row">
+    <div class="col">
+    <label for="rtcm_client-switch" class="col-4 col-form-label col-form-label-lg">Rtcm tcp client service</label>
+    <input id="rtcm_client-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_client_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_client_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, allow you to send a rtcm stream to a server.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
+    </div>
+  </div>
+    <form id="{{ rtcm_client_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="rtcm_client_addr" class="col-sm-3 col-form-label">Rtcm client address: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_client_addr" type="text" name="rtcm_client_addr" class="form-control" value="{{ rtcm_client_settings[0].rtcm_client_addr }}" title="rtcm client address" pattern="\w+[^\|><\s]*" required>
+            <div class="invalid-feedback">Rtcm client address</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_client_port" class="col-sm-3 col-form-label">Rtcm client port: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_client_port" type="text" name="rtcm_client_port" class="form-control" value="{{ rtcm_client_settings[1].rtcm_client_port }}" title="rtcm client port" pattern="[0-9]{2,5}" required>
+            <div class="invalid-feedback">Rtcm client port</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_client_msg" class="col-sm-3 col-form-label">Rtcm client messages: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_client_msg" type="text" name="rtcm_client_msg" class="form-control" value="{{ rtcm_client_settings[2].rtcm_client_msg }}" title="Rtcm client messages list" pattern="[0-9,\(\).]+" required>
+            <div class="invalid-feedback">Rtcm client messages list</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_client_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_client_receiver_options" type="text" name="rtcm_client_receiver_options" class="form-control" value="{{ rtcm_client_settings[3].rtcm_client_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
+            <div class="invalid-feedback">Receiver dependent options</div>
+        </div>
+      </div>
+        
+        <div class="clearfix">
+        <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+      </div>
+    </form>
+
+   <!-- ######## RTCM Udp Server Service ######## -->
+  <div id="rtcm_udp_svr_service_space" class="form-group row">
+    <div class="col">
+    <label for="rtcm_udp_svr-switch" class="col-4 col-form-label col-form-label-lg">Rtcm udp service</label>
+    <input id="rtcm_udp_svr-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_udp_svr_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_udp_svr_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, allow you to send a rtcm stream on the network.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
+    </div>
+  </div>
+    <form id="{{ rtcm_udp_svr_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="rtcm_udp_svr_port" class="col-sm-3 col-form-label">Rtcm Udp server port: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_udp_svr_port" type="text" name="rtcm_udp_svr_port" class="form-control" value="{{ rtcm_udp_svr_settings[0].rtcm_udp_svr_port }}" title="rtcm Udp server port" pattern="[0-9]{4,5}" required>
+            <div class="invalid-feedback">Rtcm Udp server port</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_udp_svr_msg" class="col-sm-3 col-form-label">Rtcm Udp server messages: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_udp_svr_msg" type="text" name="rtcm_udp_svr_msg" class="form-control" value="{{ rtcm_udp_svr_settings[1].rtcm_udp_svr_msg }}" title="Rtcm Udp server messages list" pattern="[0-9,\(\).]+" required>
+            <div class="invalid-feedback">Rtcm Udp server messages list</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_udp_svr_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_udp_svr_receiver_options" type="text" name="rtcm_udp_svr_receiver_options" class="form-control" value="{{ rtcm_udp_svr_settings[2].rtcm_udp_svr_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
+            <div class="invalid-feedback">Receiver dependent options</div>
+        </div>
+      </div>
+        
+        <div class="clearfix">
+        <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+      </div>
+    </form>
+  <!-- -->
+
+  <!-- ######## RTCM Udp Client Service ########-->
+  <div id="rtcm_udp_client_service_space" class="form-group row">
+    <div class="col">
+    <label for="rtcm_udp_client-switch" class="col-4 col-form-label col-form-label-lg">Rtcm udp client service</label>
+    <input id="rtcm_udp_client-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ rtcm_udp_client_settings[0].source_section }}" aria-expanded="false" aria-controls="rtcm_client_service_options">Options</button>
+    <a href="#" data-toggle="tooltip" title="This service, when enabled, allow you to send a rtcm stream to a udp server.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+      </svg>
+    </a>
+    </div>
+  </div>
+    <form id="{{ rtcm_udp_client_settings.pop(0).source_section }}" class="collapse was-validated">
+      <div class="form-group row">
+        <label for="rtcm_udp_client_addr" class="col-sm-3 col-form-label">Rtcm udp client address: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_udp_client_addr" type="text" name="rtcm_udp_client_addr" class="form-control" value="{{ rtcm_udp_client_settings[0].rtcm_udp_client_addr }}" title="rtcm udp client address" pattern="\w+[^\|><\s]*" required>
+            <div class="invalid-feedback">Rtcm udp client address</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_udp_client_port" class="col-sm-3 col-form-label">Rtcm udp client port: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_udp_client_port" type="text" name="rtcm_udp_client_port" class="form-control" value="{{ rtcm_udp_client_settings[1].rtcm_udp_client_port }}" title="rtcm udp client port" pattern="[0-9]{2,5}" required>
+            <div class="invalid-feedback">Rtcm udp client port</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_udp_client_msg" class="col-sm-3 col-form-label">Rtcm udp client messages: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_udp_client_msg" type="text" name="rtcm_udp_client_msg" class="form-control" value="{{ rtcm_udp_client_settings[2].rtcm_udp_client_msg }}" title="Rtcm udp client messages list" pattern="[0-9,\(\).]+" required>
+            <div class="invalid-feedback">Rtcm udp client messages list</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="rtcm_udp_client_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <div class="col-sm-9">
+            <input id="rtcm_udp_client_receiver_options" type="text" name="rtcm_udp_client_receiver_options" class="form-control" value="{{ rtcm_udp_client_settings[3].rtcm_udp_client_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
             <div class="invalid-feedback">Receiver dependent options</div>
         </div>
       </div>
