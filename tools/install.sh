@@ -175,7 +175,7 @@ install_rtklib() {
     echo '################################'
     arch_package=$(uname -m)
     #[[ $arch_package == 'x86_64' ]] && arch_package='x86'
-    computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
+    [[ -f /sys/firmware/devicetree/base/model ]] && computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
     # convert "Raspberry Pi 3 Model B plus rev 1.3" or other Raspi model to the variable "Raspberry Pi"
     [ -n "${computer_model}" ] && [ -z "${computer_model##*'Raspberry Pi'*}" ] && computer_model='Raspberry Pi'
     sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi')
@@ -190,6 +190,7 @@ install_rtklib() {
       cp "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"/convbin /usr/local/bin/
     else
       echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
+      echo 'exit test' ; exit
       _compil_rtklib
     fi
 }
