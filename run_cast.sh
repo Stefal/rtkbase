@@ -38,7 +38,7 @@ out_file="file://${datadir}/${file_name}.${receiver_format}::T::S=${file_rotate_
 
 out_rtcm_svr="tcpsvr://:${rtcm_svr_port}#rtcm3 -msg ${rtcm_svr_msg} -p ${position}"
 #add receiver options if it exists
-[[ ! -z "${rtcm_svr_receiver_options}" ]] && out_rtcm_svr=""${out_rtcm_svr}" -opt "${rtcm_svr_receiver_options}""
+[[ ! -z "${rtcm_receiver_options}" ]] && out_rtcm_svr=""${out_rtcm_svr}" -opt "${rtcm_receiver_options}""
 
 out_rtcm_client="tcpcli://${rtcm_client_addr}:${rtcm_client_port}#rtcm3 -msg ${rtcm_client_msg} -p ${position}"
 #add receiver options if it exists

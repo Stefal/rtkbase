@@ -161,7 +161,7 @@ class RTKBaseConfigManager:
             and remove the single quotes.       
         """
         ordered_rtcm_svr = [{"source_section" : "rtcm_svr"}]
-        for key in ("rtcm_svr_port", "rtcm_svr_msg", "rtcm_svr_receiver_options"):
+        for key in ("rtcm_svr_port", "rtcm_svr_msg", "rtcm_receiver_options"):
             ordered_rtcm_svr.append({key : self.config.get('rtcm_svr', key).strip("'")})
         return ordered_rtcm_svr
 
