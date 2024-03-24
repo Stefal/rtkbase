@@ -1,4 +1,8 @@
 # Changelog
+## [2.5.x] - not released
+### Added
+ - rtcm tcp client service added. #376
+ 
 ## [2.5.0] - 2024-01-30
 ### Added
  - udev rules to create ttyGNSS port for usb connected F9P.
