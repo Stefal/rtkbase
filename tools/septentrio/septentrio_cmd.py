@@ -4,7 +4,7 @@ from enum import Enum
 from logging import getLogger
 import xml.etree.ElementTree as ET
 #Code inspired by https://github.com/jonamat/sim-modem
-#TODO add __enter__ and __exit__ method to be able to use with Modem('/dev/tty..') as modem: do...
+#TODO add __enter__ and __exit__ method to be able to use with SeptGnss('/dev/tty..') as gnss: do...
     
 class SeptGnss:
     """Class for sending command to Septentrio Gnss receivers"""
@@ -46,6 +46,13 @@ class SeptGnss:
 
     def close(self) -> None:
         self.comm.close()
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        self.close()
+        print("closing")
 
     # --------------------------------- Common methods --------------------------------- #
 
