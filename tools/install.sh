@@ -401,15 +401,18 @@ detect_gnss() {
           if [[ "$devname" == "bus/"* ]]; then continue; fi
           eval "$(udevadm info -q property --export -p "${syspath}")"
           if [[ -z "$ID_SERIAL" ]]; then continue; fi
-          if [[ "$ID_SERIAL" =~ (u-blox|skytraq) ]]
+          if [[ "$ID_SERIAL" =~ (u-blox|skytraq|Septentrio) ]]
           then
             detected_gnss[0]=$devname
             detected_gnss[1]=$ID_SERIAL
             #echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"
+            # If /dev/ttyGNSS is a symlink of the detected serial port, we've found the gnss receiver, break the loop.
+            # This test is useful with gnss receiver offering several serial ports (like mosaic X5). The Udev rule should symlink the right one with ttyGNSS
+            [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && break
           fi
       done
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
-          vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
+          vendor_and_product_ids=$(lsusb | grep -i "u-blox\|Septentrio" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then 
             echo 'NO USB GNSS RECEIVER DETECTED'
             echo 'YOU CAN REDETECT IT FROM THE WEB UI'
@@ -422,10 +425,10 @@ detect_gnss() {
           fi
       fi
     # detection on uart port
-    echo '################################'
-    echo 'UART GNSS RECEIVER DETECTION'
-    echo '################################'
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
+        echo '################################'
+        echo 'UART GNSS RECEIVER DETECTION'
+        echo '################################'
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
         for port in ttyS1 serial0 ttyS2 ttyS3 ttyS0; do
             for port_speed in 115200 57600 38400 19200 9600; do
