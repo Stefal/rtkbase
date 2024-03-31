@@ -3,8 +3,8 @@ from . serial_comm import SerialComm
 from enum import Enum
 from logging import getLogger
 import xml.etree.ElementTree as ET
+import time
 #Code inspired by https://github.com/jonamat/sim-modem
-#TODO add __enter__ and __exit__ method to be able to use with SeptGnss('/dev/tty..') as gnss: do...
     
 class SeptGnss:
     """Class for sending command to Septentrio Gnss receivers"""
@@ -52,7 +52,6 @@ class SeptGnss:
     
     def __exit__(self, exception_type, exception_value, exception_traceback):
         self.close()
-        print("closing")
 
     # --------------------------------- Common methods --------------------------------- #
 
@@ -107,16 +106,19 @@ class SeptGnss:
         self.close()
         print("Connection closed")
 
-    def send_config_file(self, file) -> None:
+    def send_config_file(self, file, perm=False) -> None:
         '''
            Send user commands from a txt file, line by line
+           Set perm to True if you want to set these settings permanent
         '''
         with open(file, 'r') as f:
             for line in f:
                 if line.strip() != '' and not line.startswith('#'):
                     cmd,*args = line.split(',')
-                    print(cmd, args)
+                    #print(cmd, args)
                     self.send_read_until(cmd + ', ' + ', '.join(args))
+        if perm:
+            self.set_config_permanent()
 
     def set_config_permanent(self) -> None:
         '''
