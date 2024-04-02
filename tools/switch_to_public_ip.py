@@ -65,7 +65,6 @@ def get_public_ip_address():
         print (e)
         raise Exception
     finally:
-        print("closing modem connexion")
         modem.close()
     return public_ip
 
