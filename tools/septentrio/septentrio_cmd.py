@@ -31,7 +31,10 @@ class SeptGnss:
         self.comm.send('exeEchoMessage, COM1, "A:HELLO", none')
         read = self.comm.read_raw(1000)
         try:
-            if b"A:HELLO" in read:
+            check_hello = b"A:HELLO" in read
+            res_descriptor = read.decode().split()[-1]
+            check_descriptor = 'COM' in res_descriptor or 'USB' in res_descriptor or 'IP1' in res_descriptor
+            if check_hello and check_descriptor:
                 self.comm.connection_descriptor = read.decode().split()[-1]
             else:
                 raise Exception
