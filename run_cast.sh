@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/bash -xv
 #
 # run_cast.sh: script to run NTRIP caster by STR2STR
 # You can read the RTKLIB manual for more str2str informations:
 # https://github.com/tomojitakasu/RTKLIB
 
 BASEDIR=$(dirname "$0")
-source <( grep '=' ${BASEDIR}/settings.conf )  #import settings
+source <( grep -v '^#' "${rtkbase_path}"/settings.conf | grep '=' ) #import settings
 
 receiver_info="RTKBase ${receiver},${version} ${receiver_firmware}"
 in_serial="serial://${com_port}:${com_port_settings}#${receiver_format}"

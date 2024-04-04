@@ -190,7 +190,6 @@ install_rtklib() {
       cp "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"/convbin /usr/local/bin/
     else
       echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
-      echo 'exit test' ; exit
       _compil_rtklib
     fi
 }
@@ -496,7 +495,7 @@ configure_gnss(){
     echo '################################'
       if [ -d "${rtkbase_path}" ]
       then
-        source <( grep '=' "${rtkbase_path}"/settings.conf ) 
+        source <( grep -v '^#' "${rtkbase_path}"/settings.conf | grep '=' ) 
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
@@ -521,7 +520,7 @@ configure_gnss(){
         elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model) =~ 'mosaic-X5' ]]
         then
           #get mosaic-X5 firmware release
-          firmware=$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_firmware)
+          firmware="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_firmware)"
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
           #configure the mosaic-X5 for RTKBase
           echo 'Resetting the mosaic-X5 settings....'
