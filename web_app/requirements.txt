@@ -10,7 +10,7 @@ cryptography==41.0.5
 distro==1.8.0
 dnspython==2.4.2;python_version>="3.8"
 dnspython==2.3.0;python_version<"3.8"
-eventlet==0.33.3
+eventlet==0.35.2
 Flask==3.0.0;python_version>="3.8"
 Flask==2.2.5;python_version<"3.8"
 Flask-Login==0.6.3
