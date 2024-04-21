@@ -2,6 +2,13 @@
 
 {% block styles %}
 {{super()}}
+<style>
+.form-control::placeholder {
+  color: gray;
+  opacity: 0.6;
+  font-style: italic;
+}
+</style>
 <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap4-toggle.css') }}">
 
 {% endblock %}
@@ -28,16 +35,16 @@
         <div class="form-group row">
         <label for="position" class="col-sm-3 col-form-label">Base coordinates: </label>
         <div class="col-sm-9">
-            <input id="position" type="text" name="position" class="form-control" value="{{ main_settings[0].position }}" title="antenna coordinates: latitude longitude elevation" pattern="-?\d{1,3}\.\d+[\s]-?\d{1,3}\.\d+[\s][\-+]?\d+\.\d{2,6}" required>
-            <div class="invalid-feedback">Antenna's coordinates: latitude longitude elevation</div>
+            <input id="position" type="text" name="position" class="form-control" aria-describedby="positionHelp" placeholder="latitude longitude elevation" value="{{ main_settings[0].position }}" pattern="-?\d{1,3}\.\d+[\s]-?\d{1,3}\.\d+[\s][\-+]?\d+\.\d{2,6}" required>
+            <small class="form-text text-muted" id="positionHelp">Antenna's coordinates: latitude (decimal degree) longitude (decimal degree) elevation (meter)</small>
         </div>
     </div>
     <div class="form-group row">
 
         <label for="com_port" class="col-sm-3 col-form-label">Com port: </label>
         <div class="col-sm-6">
-            <input id="com_port" type="text" name="com_port" class="form-control" value="{{ main_settings[1].com_port }}" title="Gnss receiver com port (without /dev/)" pattern="\w+[^\|><\/\s]*" required>
-            <div class="invalid-feedback">Gnss receiver com port (without /dev/)</div>
+            <input id="com_port" type="text" name="com_port" class="form-control" aria-describedby="com_portHelp" placeholder="ttyGNSS" value="{{ main_settings[1].com_port }}" pattern="\w+[^\|><\/\s]*" required>
+            <small class="form-text text-muted" id="com_portHelp">Gnss receiver com port (without /dev/)</small>
         </div>
         <div class="col-sm-3 dropdown">
           <button class="btn btn-secondary dropdown-toggle float-right" type="button" id="dropdowndetect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Try to detect and/or configure the GNSS receiver. It works only with USB GNSS receiver">Detect/Configure</button>
@@ -52,16 +59,16 @@
 
         <label for="com_port_settings" class="col-sm-3 col-form-label">Com port settings: </label>
         <div class="col-sm-9">
-            <input id="com_port_settings" type="text" name="com_port_settings" class="form-control" value="{{ main_settings[2].com_port_settings }}" title="Com port settings: baudrate:data bits:parity:stop bits:flow control" pattern="\w[^\|><\/\s]*" required>
-            <div class="invalid-feedback">Com port settings: baudrate:data bits:parity:stop bits:flow control</div>
+            <input id="com_port_settings" type="text" name="com_port_settings" class="form-control" aria-describedby="com_port_settingsHelp" placeholder="115200:8:n:1" value="{{ main_settings[2].com_port_settings }}" pattern="\w[^\|><\/\s]*" required>
+            <small class="form-text text-muted" id="com_port_settingsHelp">Com port settings: baudrate:data bits:parity:stop bits:flow control</small>
         </div>
     </div>
     <div class="form-group row">
 
         <label for="receiver" class="col-sm-3 col-form-label">Receiver type: </label>
         <div class="col-sm-9">
-            <input id="receiver" type="text" name="receiver" class="form-control" value="{{ main_settings[3].receiver }}" title="Gnss receiver Brand and model" pattern="\w[^\|><\/\s]*" required >
-            <div class="invalid-feedback">Gnss receiver brand and model</div>
+            <input id="receiver" type="text" name="receiver" class="form-control" aria-describedby="receiverHelp" placeholder="Receiver brand & model" value="{{ main_settings[3].receiver }}" title="Gnss receiver Brand and model" pattern="\w[^\|><\/\s]*" required >
+            <small class="form-text text-muted" id="receiverHelp">Gnss receiver brand and model</small>
 
         </div>
     </div>
@@ -69,8 +76,8 @@
 
         <label for="receiver_format" class="col-sm-3 col-form-label">Receiver format: </label>
         <div class="col-sm-9">
-            <input id="receiver_format" type="text" name="receiver_format" class="form-control" value="{{ main_settings[5].receiver_format }}" title="Gnss receiver format (ubx,stq,rtcm3,tersus,...)" pattern="\w[^\|><\/\s]*" required>
-            <div class="invalid-feedback">Gnss receiver format (ubx,stq,rtcm3,tersus,...)</div>
+            <input id="receiver_format" type="text" name="receiver_format" class="form-control" aria-describedby="receiver_formatHelp" placeholder="Receiver format" value="{{ main_settings[5].receiver_format }}" pattern="\w[^\|><\/\s]*" required>
+            <small class="form-text text-muted" id="receiver_formatHelp">Gnss receiver format (ubx,sbf,stq,rtcm3,tersus,...)</small>
 
         </div>
 
@@ -79,8 +86,8 @@
 
       <label for="antenna_info" class="col-sm-3 col-form-label">Antenna info: </label>
       <div class="col-sm-9">
-          <input id="antenna_info" type="text" name="antenna_info" class="form-control" value="{{ main_settings[6].antenna_info }}" title="Antenna information (model,serial number)" pattern="\w[^\|><\/\s]*" required>
-          <div class="invalid-feedback">Antenna information (model,serial number) - default value is NULLANTENNA</div>
+          <input id="antenna_info" type="text" name="antenna_info" class="form-control" aria-describedby="antenna_infoHelp" placeholder="ADVNULLANTENNA" value="{{ main_settings[6].antenna_info }}" pattern="\w[^\|><\/\s]*" required>
+          <small class="form-text text-muted" id="antenna_infoHelp">ADVNULLANTENNA or information (model,serial number) for IGS calibrated antenna</small>
 
       </div>
 
@@ -89,8 +96,8 @@
 
         <label for="tcp_port" class="col-sm-3 col-form-label">Tcp port: </label>
         <div class="col-sm-9">
-            <input id="tcp_port" type="text" name="tcp_port" class="form-control" value="{{ main_settings[7].tcp_port }}" title="local tcp port" pattern="[0-9]{4,5}" required>
-            <div class="invalid-feedback">Local tcp port</div>
+            <input id="tcp_port" type="text" name="tcp_port" class="form-control" aria-describedby="tcp_portHelp" placeholder="5015" value="{{ main_settings[7].tcp_port }}" pattern="[0-9]{4,5}" required>
+            <small class="form-text text-muted" id="tcp_portHelp">Local tcp port</small>
 
         </div>
 
@@ -118,22 +125,22 @@
       <div class="form-group row">
         <label for="svr_addr_A" class="col-sm-3 col-form-label">Caster address: </label>
         <div class="col-sm-9">
-            <input id="svr_addr_A" type="text" name="svr_addr_A" class="form-control" value="{{ ntrip_A_settings[0].svr_addr_A }}" title="caster url address" pattern="\w+[^\|><\s]*" required>
-            <div class="invalid-feedback">Caster url address</div>
+            <input id="svr_addr_A" type="text" name="svr_addr_A" class="form-control" aria-describedby="svr_addr_AHelp" placeholder="caster.centipede.fr" value="{{ ntrip_A_settings[0].svr_addr_A }}" pattern="\w+[^\|><\s]*" required>
+            <small class="form-text text-muted" id="svr_addr_AHelp">Caster url address</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="svr_port_A" class="col-sm-3 col-form-label">Caster port: </label>
         <div class="col-sm-9">
-            <input id="svr_port_A" type="text" name="svr_port_A" class="form-control" value="{{ ntrip_A_settings[1].svr_port_A }}" title="caster port" pattern="[0-9]{4,5}" required>
-            <div class="invalid-feedback">Caster port</div>
+            <input id="svr_port_A" type="text" name="svr_port_A" class="form-control" aria-describedby="svr_port_AHelp" placeholder="2101" value="{{ ntrip_A_settings[1].svr_port_A }}" pattern="[0-9]{4,5}" required>
+            <small class="form-text text-muted" id="svr_port_AHelp">Caster port</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="svr_pwd_A" class="col-sm-3 col-form-label">Caster password: </label>
         <div class="col-sm-9">
           <div class="input-group">
-            <input id="svr_pwd_A" type="password" name="svr_pwd_A" class="form-control" value="{{ ntrip_A_settings[2].svr_pwd_A }}" title="caster password" required>
+            <input id="svr_pwd_A" type="password" name="svr_pwd_A" class="form-control" aria-describedby="svr_pwd_AHelp" placeholder="Enter Password" value="{{ ntrip_A_settings[2].svr_pwd_A }}" required>
               <span class="input-group-append">
                 <button class="btn btn-outline-secondary" id="svr_pwd_A_button" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
@@ -144,28 +151,28 @@
                 </button>
               </span>
             </div>
-            <div class="invalid-feedback">Caster password</div>
+            <small class="form-text text-muted" id="svr_pwd_AHelp">Caster password</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="mnt_name_A" class="col-sm-3 col-form-label">Mount name: </label>
         <div class="col-sm-9">
-            <input id="mnt_name_A" type="text" name="mnt_name_A" class="form-control" value="{{ ntrip_A_settings[3].mnt_name_A }}" title="Mount name" pattern="[a-zA-Z\d_\-]+" required>
-            <div class="invalid-feedback">Mount name</div>
+            <input id="mnt_name_A" type="text" name="mnt_name_A" class="form-control" aria-describedby="mnt_name_AHelp" value="{{ ntrip_A_settings[3].mnt_name_A }}" pattern="[a-zA-Z\d_\-]+" required>
+            <small class="form-text text-muted" id="mnt_name_AHelp">Mount name</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="rtcm_msg_A" class="col-sm-3 col-form-label">Rtcm messages: </label>
         <div class="col-sm-9">
-            <input id="rtcm_msg_A" type="text" name="rtcm_msg_A" class="form-control" value="{{ ntrip_A_settings[4].rtcm_msg_A }}" title="rtcm messages list" pattern="[0-9,\(\).]+" required>
-            <div class="invalid-feedback">Rtcm messages list</div>
+            <input id="rtcm_msg_A" type="text" name="rtcm_msg_A" class="form-control" aria-describedby="rtcm_msg_AHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ ntrip_A_settings[4].rtcm_msg_A }}" pattern="[0-9,\(\).]+" required>
+            <small class="form-text text-muted" id="rtcm_msg_AHelp">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="ntrip_A_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
         <div class="col-sm-9">
-            <input id="ntrip_A_receiver_options" type="text" name="ntrip_A_receiver_options" class="form-control" value="{{ ntrip_A_settings[5].ntrip_A_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
-            <div class="invalid-feedback">Receiver dependent options</div>
+            <input id="ntrip_A_receiver_options" type="text" name="ntrip_A_receiver_options" aria-describedby="ntrip_A_receiver_optionsHelp" class="form-control" value="{{ ntrip_A_settings[5].ntrip_A_receiver_options }}" pattern="[^\|><\/]*">
+            <small class="form-text text-muted" id="ntrip_A_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>      
 
@@ -192,22 +199,22 @@
       <div class="form-group row">
         <label for="svr_addr_B" class="col-sm-3 col-form-label">Caster address: </label>
         <div class="col-sm-9">
-            <input id="svr_addr_B" type="text" name="svr_addr_B" class="form-control" value="{{ ntrip_B_settings[0].svr_addr_B }}" title="caster url address" pattern="\w+[^\|><\s]*" required>
-            <div class="invalid-feedback">Caster url address</div>
+            <input id="svr_addr_B" type="text" name="svr_addr_B" class="form-control" aria-describedby="svr_addr_BHelp" placeholder="caster.centipede.fr" value="{{ ntrip_B_settings[0].svr_addr_B }}" pattern="\w+[^\|><\s]*" required>
+            <small class="form-text text-muted" id="svr_addr_BHelp">Caster url address</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="svr_port_B" class="col-sm-3 col-form-label">Caster port: </label>
         <div class="col-sm-9">
-            <input id="svr_port_B" type="text" name="svr_port_B" class="form-control" value="{{ ntrip_B_settings[1].svr_port_B }}" title="caster port" pattern="[0-9]{4,5}" required>
-            <div class="invalid-feedback">Caster port</div>
+            <input id="svr_port_B" type="text" name="svr_port_B" class="form-control" aria-describedby="svr_port_BHelp" placeholder="2101" value="{{ ntrip_B_settings[1].svr_port_B }}" pattern="[0-9]{4,5}" required>
+            <small class="form-text text-muted" id="svr_port_BHelp">Caster port</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="svr_pwd_B" class="col-sm-3 col-form-label">Caster password: </label>
         <div class="col-sm-9">
           <div class="input-group">
-            <input id="svr_pwd_B" type="password" name="svr_pwd_B" class="form-control" value="{{ ntrip_B_settings[2].svr_pwd_B }}" title="caster password" required>
+            <input id="svr_pwd_B" type="password" name="svr_pwd_B" class="form-control" aria-describedby="svr_pwd_BHelp" placeholder="Enter password" value="{{ ntrip_B_settings[2].svr_pwd_B }}" required>
               <span class="input-group-append">
                 <button class="btn btn-outline-secondary" id="svr_pwd_B_button" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
@@ -218,28 +225,28 @@
                 </button>
               </span>
             </div>
-            <div class="invalid-feedback">Caster password</div>
+            <small class="form-text text-muted" id="svr_pwd_BHelp">Caster password</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="mnt_name_B" class="col-sm-3 col-form-label">Mount name: </label>
         <div class="col-sm-9">
-            <input id="mnt_name_B" type="text" name="mnt_name_B" class="form-control" value="{{ ntrip_B_settings[3].mnt_name_B }}" title="Mount name" pattern="[a-zA-Z\d_\-]+" required>
-            <div class="invalid-feedback">Mount name</div>
+            <input id="mnt_name_B" type="text" name="mnt_name_B" class="form-control" aria-describedby="mnt_name_BHelp" value="{{ ntrip_B_settings[3].mnt_name_B }}" pattern="[a-zA-Z\d_\-]+" required>
+            <small class="form-text text-muted" id="mnt_name_BHelp">Mount name</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="rtcm_msg_B" class="col-sm-3 col-form-label">Rtcm messages: </label>
         <div class="col-sm-9">
-            <input id="rtcm_msg_B" type="text" name="rtcm_msg_B" class="form-control" value="{{ ntrip_B_settings[4].rtcm_msg_B }}" title="rtcm messages list" pattern="[0-9,\(\).]+" required>
-            <div class="invalid-feedback">Rtcm messages list</div>
+            <input id="rtcm_msg_B" type="text" name="rtcm_msg_B" class="form-control" aria-describedby="rtcm_msg_BHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ ntrip_B_settings[4].rtcm_msg_B }}" pattern="[0-9,\(\).]+" required>
+            <small class="form-text text-muted" id="rtcm_msg_BHelp">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="ntrip_B_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
         <div class="col-sm-9">
-            <input id="ntrip_B_receiver_options" type="text" name="ntrip_B_receiver_options" class="form-control" value="{{ ntrip_B_settings[5].ntrip_B_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
-            <div class="invalid-feedback">Receiver dependent options</div>
+            <input id="ntrip_B_receiver_options" type="text" name="ntrip_B_receiver_options" class="form-control" aria-describedby="ntrip_B_receiver_optionsHelp" value="{{ ntrip_B_settings[5].ntrip_B_receiver_options }}" pattern="[^\|><\/]*">
+            <small class="form-text text-muted" id="ntrip_B_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>      
 
@@ -266,15 +273,15 @@
       <div class="form-group row">
         <label for="local_ntripc_user" class="col-sm-3 col-form-label">Local caster username: </label>
         <div class="col-sm-9">
-            <input id="local_ntripc_user" type="text" name="local_ntripc_user" class="form-control" value="{{ local_ntripc_settings[0].local_ntripc_user }}" title="Local Ntrip caster username for the rover" pattern="\w+[^\|><\s]*">
-            <div class="invalid-feedback">Local Ntrip caster username for the rover</div>
+            <input id="local_ntripc_user" type="text" name="local_ntripc_user" class="form-control" aria-describedby="local_ntripc_userHelp" placeholder="Choose a username" value="{{ local_ntripc_settings[0].local_ntripc_user }}" pattern="\w+[^\|><\s]*">
+            <small class="form-text text-muted" id="local_ntripc_userHelp">Local Ntrip caster username you will use in your rover to connect</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="local_ntripc_pwd" class="col-sm-3 col-form-label">Local caster password: </label>
         <div class="col-sm-9">
           <div class="input-group">
-            <input id="local_ntripc_pwd" type="password" name="local_ntripc_pwd" class="form-control" value="{{ local_ntripc_settings[1].local_ntripc_pwd }}" title="local Ntrip caster password for the rover" pattern="\w+[^\|><\s]*">
+            <input id="local_ntripc_pwd" type="password" name="local_ntripc_pwd" class="form-control" aria-describedby="local_ntripc_pwdHelp" placeholder="Choose a password" value="{{ local_ntripc_settings[1].local_ntripc_pwd }}" pattern="\w+[^\|><\s]*">
               <span class="input-group-append">
                 <button class="btn btn-outline-secondary" id="local_ntripc_pwd_button" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
@@ -285,35 +292,35 @@
                 </button>
               </span>
             </div>
-            <div class="invalid-feedback">Local Ntrip caster password for the rover</div>
+            <small class="form-text text-muted" id="local_ntripc_pwdHelp">Local Ntrip caster password you will use in your rover to connect</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="local_ntripc_port" class="col-sm-3 col-form-label">Local caster port: </label>
         <div class="col-sm-9">
-            <input id="local_ntripc_port" type="text" name="local_ntripc_port" class="form-control" value="{{ local_ntripc_settings[2].local_ntripc_port }}" title="local Ntrip caster port number" pattern="[0-9]{4,5}" required>
-            <div class="invalid-feedback">Local Ntrip Caster port number, e.g. 2101</div>
+            <input id="local_ntripc_port" type="text" name="local_ntripc_port" class="form-control" aria-describedby="local_ntripc_portHelp" placeholder="2101" value="{{ local_ntripc_settings[2].local_ntripc_port }}" pattern="[0-9]{4,5}" required>
+            <small class="form-text text-muted" id="local_ntripc_portHelp">Local Ntrip Caster port number, e.g. 2101</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="local_ntripc_mnt_name" class="col-sm-3 col-form-label">Local caster mount name: </label>
         <div class="col-sm-9">
-            <input id="local_ntripc_mnt_name" type="text" name="local_ntripc_mnt_name" class="form-control" value="{{ local_ntripc_settings[3].local_ntripc_mnt_name }}" title="Local Ntrip caster Mount name" pattern="[a-zA-Z\d_\-]+" required>
-            <div class="invalid-feedback">Local Ntrip caster mount name</div>
+            <input id="local_ntripc_mnt_name" type="text" name="local_ntripc_mnt_name" class="form-control" aria-describedby="local_ntripc_mnt_nameHelp" value="{{ local_ntripc_settings[3].local_ntripc_mnt_name }}" pattern="[a-zA-Z\d_\-]+" required>
+            <small class="form-text text-muted" id="local_ntripc_mnt_nameHelp">Local Ntrip caster mount name</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="local_ntripc_msg" class="col-sm-3 col-form-label">Local caster rtcm messages: </label>
         <div class="col-sm-9">
-            <input id="local_ntripc_msg" type="text" name="local_ntripc_msg" class="form-control" value="{{ local_ntripc_settings[4].local_ntripc_msg }}" title="Local Ntrip rtcm messages list" pattern="[0-9,\(\).]+" required>
-            <div class="invalid-feedback">Local caster Rtcm messages list</div>
+            <input id="local_ntripc_msg" type="text" name="local_ntripc_msg" class="form-control" aria-describedby="local_ntripc_msgHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ local_ntripc_settings[4].local_ntripc_msg }}" pattern="[0-9,\(\).]+" required>
+            <small class="form-text text-muted" id="local_ntripc_msgHelp">Local caster Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="local_ntripc_receiver_options" class="col-sm-3 col-form-label">Local caster receiver options: </label>
         <div class="col-sm-9">
-            <input id="local_ntripc_receiver_options" type="text" name="local_ntripc_receiver_options" class="form-control" value="{{ local_ntripc_settings[5].local_ntripc_receiver_options }}" title="Local Ntrip Caster Receiver options" pattern="[^\|><\/]*">
-            <div class="invalid-feedback">Local Ntrip Caster Receiver dependent options, e.g. -TADJ=1 for u-blox</div>
+            <input id="local_ntripc_receiver_options" type="text" name="local_ntripc_receiver_options" class="form-control" aria-describedby="local_ntripc_receiver_optionsHelp" value="{{ local_ntripc_settings[5].local_ntripc_receiver_options }}" pattern="[^\|><\/]*">
+            <small class="form-text text-muted" id="local_ntripc_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>      
 
@@ -340,22 +347,22 @@
       <div class="form-group row">
         <label for="rtcm_svr_port" class="col-sm-3 col-form-label">Rtcm server port: </label>
         <div class="col-sm-9">
-            <input id="rtcm_svr_port" type="text" name="rtcm_svr_port" class="form-control" value="{{ rtcm_svr_settings[0].rtcm_svr_port }}" title="rtcm server port" pattern="[0-9]{4,5}" required>
-            <div class="invalid-feedback">Rtcm server port</div>
+            <input id="rtcm_svr_port" type="text" name="rtcm_svr_port" class="form-control" aria-describedby="rtcm_svr_portHelp" placeholder="5016" value="{{ rtcm_svr_settings[0].rtcm_svr_port }}" pattern="[0-9]{4,5}" required>
+            <small class="form-text text-muted" id="rtcm_svr_portHelp">Rtcm server port</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="rtcm_svr_msg" class="col-sm-3 col-form-label">Rtcm server messages: </label>
         <div class="col-sm-9">
-            <input id="rtcm_svr_msg" type="text" name="rtcm_svr_msg" class="form-control" value="{{ rtcm_svr_settings[1].rtcm_svr_msg }}" title="Rtcm server messages list" pattern="[0-9,\(\).]+" required>
-            <div class="invalid-feedback">Rtcm server messages list</div>
+            <input id="rtcm_svr_msg" type="text" name="rtcm_svr_msg" class="form-control" aria-describedby="rtcm_svr_msgHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ rtcm_svr_settings[1].rtcm_svr_msg }}" pattern="[0-9,\(\).]+" required>
+            <small class="form-text text-muted" id="rtcm_svr_msgHelp">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="rtcm_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
         <div class="col-sm-9">
-            <input id="rtcm_receiver_options" type="text" name="rtcm_receiver_options" class="form-control" value="{{ rtcm_svr_settings[2].rtcm_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
-            <div class="invalid-feedback">Receiver dependent options</div>
+            <input id="rtcm_receiver_options" type="text" name="rtcm_receiver_options" class="form-control" aria-describedby="rtcm_receiver_optionsHelp" value="{{ rtcm_svr_settings[2].rtcm_receiver_options }}" pattern="[^\|><\/]*">
+            <small class="form-text text-muted" id="rtcm_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>
         
@@ -382,29 +389,29 @@
       <div class="form-group row">
         <label for="out_com_port" class="col-sm-3 col-form-label">Serial output port: </label>
         <div class="col-sm-9">
-            <input id="out_com_port" type="text" name="out_com_port" class="form-control" value="{{ rtcm_serial_settings[0].out_com_port }}" title="serial output port" pattern="\w+[^\|><\/\s]*" required>
-            <div class="invalid-feedback">Serial output com port (without /dev/)</div>
+            <input id="out_com_port" type="text" name="out_com_port" class="form-control" aria-describedby="out_com_portHelp" placeholder="ttyS1" value="{{ rtcm_serial_settings[0].out_com_port }}" pattern="\w+[^\|><\/\s]*" required>
+            <small class="form-text text-muted" id="out_com_portHelp">Serial output com port (without /dev/)</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="out_com_port_settings" class="col-sm-3 col-form-label">Serial output port settings: </label>
         <div class="col-sm-9">
-            <input id="out_com_port_settings" type="text" name="out_com_port_settings" class="form-control" value="{{ rtcm_serial_settings[1].out_com_port_settings }}" title="Serial output port settings: baudrate:data bits:parity:stop bits:flow control" pattern="\w[^\|><\/\s]*" required>
-            <div class="invalid-feedback">Serial output port settings</div>
+            <input id="out_com_port_settings" type="text" name="out_com_port_settings" class="form-control" aria-describedby="out_com_port_settingsHelp" placeholder="115200:8:n:1" value="{{ rtcm_serial_settings[1].out_com_port_settings }}" pattern="\w[^\|><\/\s]*" required>
+            <small class="form-text text-muted" id="out_com_port_settingsHelp">Serial output port settings: 'baud rate':'data bits':'parity':'stop bits'</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="rtcm_serial_msg" class="col-sm-3 col-form-label">Serial Rtcm messages: </label>
         <div class="col-sm-9">
-            <input id="rtcm_serial_msg" type="text" name="rtcm_serial_msg" class="form-control" value="{{ rtcm_serial_settings[2].rtcm_serial_msg }}" title="Serial output Rtcm messages list" pattern="[0-9,\(\).]+" required>
-            <div class="invalid-feedback">Rtcm serial output messages list</div>
+            <input id="rtcm_serial_msg" type="text" name="rtcm_serial_msg" class="form-control" aria-describedby="rtcm_serial_receiver_optionsHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ rtcm_serial_settings[2].rtcm_serial_msg }}" pattern="[0-9,\(\).]+" required>
+            <small class="form-text text-muted" id="rtcm_serial_msgHelp">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="rtcm_serial_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
         <div class="col-sm-9">
-            <input id="rtcm_serial_receiver_options" type="text" name="rtcm_serial_receiver_options" class="form-control" value="{{ rtcm_serial_settings[3].rtcm_serial_receiver_options }}" title="Receiver options" pattern="[^\|><\/]*">
-            <div class="invalid-feedback">Receiver dependent options</div>
+            <input id="rtcm_serial_receiver_options" type="text" name="rtcm_serial_receiver_options" class="form-control" aria-describedby="rtcm_serial_receiver_optionsHelp" value="{{ rtcm_serial_settings[3].rtcm_serial_receiver_options }}" pattern="[^\|><\/]*">
+            <small class="form-text text-muted" id="rtcm_serial_receiver_optionsHelp">Receiver dependent options. ie: -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>
         
@@ -419,7 +426,7 @@
     <label for="file-switch" class="col-4 col-form-label col-form-label-lg">File service</label>
     <input id="file-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ file_settings[0].source_section }}" aria-expanded="false" aria-controls="file_service_options">Options</button>
-    <a href="#" data-toggle="tooltip" title="This service, when enabled, store the raw data from the GNSS receiver to a file. It's useful when you want to post-process the data.">
+    <a data-toggle="tooltip" id="file_service_tooltip" title="This service, when enabled, store the raw data from the GNSS receiver to a file. It's useful when you want to post-process the data.">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
         <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
@@ -431,36 +438,36 @@
       <div class="form-group row">
         <label for="datadir" class="col-sm-3 col-form-label">Data directory: </label>
         <div class="col-sm-9">
-            <input id="datadir" type="text" name="datadir" class="form-control" value="{{ file_settings[0].datadir }}" title="Path to data directory" pattern=".+[^\|\s]" required>
-            <div class="invalid-feedback">Path to data directory</div>
+            <input id="datadir" type="text" name="datadir" class="form-control" aria-describedby="datadirHelp" placeholder="/home/basegnss/rtkbase/data" value="{{ file_settings[0].datadir }}" pattern=".+[^\|\s]" required>
+            <small class="form-text text-muted" id="datadirHelp">Absolute path to the directory where the data will be stored</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="file_name" class="col-sm-3 col-form-label">File name: </label>
         <div class="col-sm-9">
-            <input id="file_name" type="text" name="file_name" class="form-control" value="{{ file_settings[1].file_name }}" title="File name construction" pattern="%Y-%m-%d_%h-%M-%S[^\|><\s]*" required>
-            <div class="invalid-feedback">File name construction (should start with %Y-%m-%d_%h-%M-%S)</div>
+            <input id="file_name" type="text" name="file_name" class="form-control" aria-describedby="file_nameHelp" placeholder="%Y-%m-%d_%h-%M-%S_GNSS-1" value="{{ file_settings[1].file_name }}" pattern="%Y-%m-%d_%h-%M-%S[^\|><\s]*" required>
+            <small class="form-text text-muted" id="file_nameHelp">Data file name construction (should start with %Y-%m-%d_%h-%M-%S)</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="file_rotate_time" class="col-sm-3 col-form-label">File rotation time: </label>
+        <label for="file_rotate_time" class="col-sm-3 col-form-label">File rotation: </label>
         <div class="col-sm-9">
-            <input id="file_rotate_time" type="text" name="file_rotate_time" class="form-control" value="{{ file_settings[2].file_rotate_time }}" title="File rotation time (in hours)" pattern="\d+\.?\d*" required>
-            <div class="invalid-feedback">File rotation time (in hour)</div>
+            <input id="file_rotate_time" type="text" name="file_rotate_time" class="form-control" aria-describedby="file_rotate_timeHelp" placeholder="24" value="{{ file_settings[2].file_rotate_time }}" pattern="\d+\.?\d*" required>
+            <small class="form-text text-muted" id="file_rotate_timeHelp">File rotation time (in hours)</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="file_overlap_time" class="col-sm-3 col-form-label">File overlap time: </label>
+        <label for="file_overlap_time" class="col-sm-3 col-form-label">File overlap: </label>
         <div class="col-sm-9">
-            <input id="file_overlap_time" type="text" name="file_overlap_time" class="form-control" value="{{ file_settings[3].file_overlap_time }}" title="File overlap time (in seconds)" pattern="\d+" required>
-            <div class="invalid-feedback">File rotation time (in seconds)</div>
+            <input id="file_overlap_time" type="text" name="file_overlap_time" class="form-control" aria-describedby="file_overlap_timeHelp" placeholder="0" value="{{ file_settings[3].file_overlap_time }}" pattern="\d+" required>
+            <small class="form-text text-muted" id="file_overlap_timeHelp">File overlap time (in seconds)</small>
         </div>
       </div>
       <div class="form-group row">
         <label for="archive_rotate" class="col-sm-3 col-form-label">Archive duration: </label>
         <div class="col-sm-9">
-            <input id="archive_rotate" type="text" name="archive_rotate" class="form-control" value="{{ file_settings[4].archive_rotate }}" title="Archive duration before deletion (in days)" pattern="\d+" required>
-            <div class="invalid-feedback">Archive duration before deletion (in days)</div>
+            <input id="archive_rotate" type="text" name="archive_rotate" class="form-control" aria-describedby="archive_rotateHelp" placeholder="60" value="{{ file_settings[4].archive_rotate }}" pattern="\d+" required>
+            <small class="form-text text-muted" id="archive_rotateHelp">Archives older than this value (in days) will be deleted</small>
         </div>
       </div>
         <div class="clearfix">
