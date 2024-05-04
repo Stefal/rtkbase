@@ -66,6 +66,7 @@ import urllib
 import subprocess
 import psutil
 import distro
+import socket
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -73,7 +74,7 @@ from werkzeug.utils import safe_join
 import gunicorn.app.base
 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
@@ -530,6 +531,17 @@ def diagnostic():
         
     return render_template('diagnostic.html', logs = logs)
 
+
+@app.route('/api/infos', methods=['GET'])
+def get_infos():
+    # TODO return json data with 
+    # hostname, ip, RTKBase version, etc...
+
+    infos = {"app" : "RTKBase",
+             "app_version" : rtkbaseconfig.get("general", "version"), 
+             "hostname" : request.base_url,
+             "fqdn" : socket.getfqdn(),}
+    return json.dumps(infos)
 
 #### Handle connect/disconnect events ####
 
