@@ -1,4 +1,19 @@
 # Changelog
+
+## [] - not released
+### Added
+ - Added description below form input. #381
+### Changed
+### Deprecated
+### Removed
+### Fixed
+ - Archive service will compress .sbf files too.
+ - Tooltips buttons were a link to top page. #387
+ - Fix armbian ramlog bug with log older than 1 day. https://github.com/Stefal/build/issues/16
+ - Fix duplicates in .sbf to rinex conversion : https://github.com/rtklibexplorer/RTKLIB/issues/186
+ - Various fixes : #374
+### Security
+
 ## [2.5.0] - 2024-01-30
 ### Added
  - udev rules to create ttyGNSS port for usb connected F9P.
