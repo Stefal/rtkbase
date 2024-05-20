@@ -1,0 +1,16 @@
+[Unit]
+Description=RTKBase Reverse Proxy for Gnss receiver Web Server
+#After=network-online.target
+#Wants=network-online.target
+
+[Service]
+User={user}
+ExecStart={python_path} {script_path}/web_app/gnss_rproxy_server.py
+Restart=on-failure
+RestartSec=30
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths={script_path} /usr/local/bin
+
+[Install]
+WantedBy=multi-user.target
