@@ -33,7 +33,7 @@ if __name__ == '__main__':
     args = arg_parse()
     #print(args)
     command = args.command[0]
-    with SeptGnss(args.port, baudrate=args.baudrate, timeout=30, debug=True) as gnss:
+    with SeptGnss(args.port, baudrate=args.baudrate, timeout=30, debug=False) as gnss:
         res = methodcaller(CmdMapping[command].value, *args.command[1:])(gnss)
         if type(res) is str:
             print(res)
