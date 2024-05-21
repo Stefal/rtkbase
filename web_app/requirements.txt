@@ -35,7 +35,7 @@ pyserial==3.5
 pystemd==0.13.2
 python-engineio==4.8.0
 python-socketio==5.10.0
-requests==2.31.0
+requests==2.32.0
 simple-websocket==1.0.0
 six==1.16.0
 typing_extensions==4.7.1;python_version<"3.8"
