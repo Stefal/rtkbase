@@ -25,7 +25,7 @@ set_F9P() {
 
         echo 'Sending settings....'
         while read setting; do
-            python3 ${BASEDIR}/ubxtool -s 115200 -z $setting
+            python3 ${BASEDIR}/ubxtool -s 115200 -z $setting > /dev/null
             ((return_val+=$?))
         done <${CONFIG}
         sleep 2

@@ -354,7 +354,8 @@ $(document).ready(function () {
                 if (response['then_configure']) {
                     // We need to wait for the service stop/restart after the previous click on form save button.
                     // Yes, it's dirty...
-                    setTimeout(() => { document.querySelector('#configure_receiver_button').click(); }, 2000);
+                    //setTimeout(() => { document.querySelector('#configure_receiver_button').click(); }, 2000);
+                    document.querySelector('#configure_receiver_button').click();
                 }
                 // detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
                 // detectApplyBtnElt.setAttribute('disabled', '');
@@ -392,10 +393,12 @@ $(document).ready(function () {
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         detectApplyBtnElt.innerText = "Close";
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = "GNSS receiver successfully configured";
+            detectBodyElt.innerHTML = "GNSS receiver successfully configured. We will log out to refresh the settings";
             detectApplyBtnElt.removeAttribute('data-dismiss');
             detectApplyBtnElt.onclick = function() {
-                window.location.reload();
+                // window.location.reload();
+                // looks like this way works better :
+                location.href = document.URL.replace(/#$/, '');
             }
         } else {
             detectBodyElt.innerHTML = "GNSS receiver configuration failed"
@@ -464,6 +467,19 @@ $(document).ready(function () {
             $("#start-update-button").html('Update...');
             $("#cancel-button").prop("disabled", false);
         }
+    })
+
+    socket.on("updating_rtkbase_stopped", function(msg) {
+        response = JSON.parse(msg);
+        console.log("mgs: " + response.error)
+        $("#updateModal .modal-title").text("Error !");
+        $("#updateModal .modal-body").text("");
+        for (line of response.error) {
+            $("#updateModal .modal-body").append("<p>" + line + "</p>");
+        }
+        $("#start-update-button").html('Update');
+        $("#start-update-button").prop("disabled", true);
+        $("#cancel-button").prop("disabled", false);
     })
 
     socket.on("updating_rtkbase", function() {

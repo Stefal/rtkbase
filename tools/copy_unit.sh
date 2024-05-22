@@ -6,6 +6,9 @@
 man_help() {
  echo 'Options:'
  echo '        -h | --help'
+ echo '        -p | --python_path'
+ echo '                        path to the web app python venv binary'
+ echo '                        (usually /home/your_username/rtkbase/venv/bin/python)'
  echo '        -u | --user  <username>'
  echo '                        Specify user used in the service unit. Without this argument'
  echo '                        the user return by the logname command will be used.'
@@ -14,8 +17,9 @@ man_help() {
 
 BASEDIR=$(dirname "$0")
 ARG_HELP=0
+ARG_PYPATH=0
 ARG_USER=0
-PARSED_ARGUMENTS=$(getopt --name copy_unit --options hu: --longoptions help,user: -- "$@")
+PARSED_ARGUMENTS=$(getopt --name copy_unit --options hp:u: --longoptions help,python_path:,user: -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -27,8 +31,9 @@ if [ "$VALID_ARGUMENTS" != "0" ]; then
   while :
     do
       case "$1" in
-        -h | --help)   ARG_HELP=1                     ; shift   ;;
-        -u | --user)   ARG_USER="${2}"                ; shift 2 ;;
+        -h | --help)        ARG_HELP=1                     ; shift   ;;
+        -p | --python_path) ARG_PYPATH="${2}"              ; shift 2 ;;
+        -u | --user)        ARG_USER="${2}"                ; shift 2 ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
         --) shift; break ;;
         # If invalid options were passed, then getopt should have reported an error,
@@ -38,6 +43,7 @@ if [ "$VALID_ARGUMENTS" != "0" ]; then
       esac
     done
 [ $ARG_HELP -eq 1 ] && man_help
+[ "${ARG_PYPATH}" == 0 ] && echo 'Please enter the python venv path with the -p argument' && exit
 [ "${ARG_USER}" == 0 ] && ARG_USER=$(logname)
 #echo 'user=' "${ARG_USER}"
 
@@ -50,7 +56,7 @@ for file_path in "${BASEDIR}"/../unit/*.service "${BASEDIR}"/../unit/*.timer
     do
         file_name=$(basename "${file_path}")
         echo copying "${file_name}"
-        sed -e 's|{script_path}|'"$(dirname "$(dirname "$(readlink -f "$0")")")"'|' -e 's|{user}|'"${ARG_USER}"'|' -e 's|{python_path}|'"$(which python3)"'|' "${file_path}" > /etc/systemd/system/"${file_name}"
+        sed -e 's|{script_path}|'"$(dirname "$(dirname "$(readlink -f "$0")")")"'|' -e 's|{user}|'"${ARG_USER}"'|' -e 's|{python_path}|'"${ARG_PYPATH}"'|' "${file_path}" > /etc/systemd/system/"${file_name}"
     done
 
 systemctl daemon-reload

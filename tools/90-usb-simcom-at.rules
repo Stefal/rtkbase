@@ -1,1 +1,0 @@
-SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="1e0e", ENV{ID_MODEL_ID}=="9011", ATTRS{interface}=="Mobile AT Interface", ATTRS{bNumEndpoints}=="03", SYMLINK+="ttymodemAT", GROUP="dialout"

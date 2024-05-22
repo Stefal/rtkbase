@@ -7,6 +7,10 @@ Wants=network-online.target
 Type=simple
 User={user}
 ExecStart={python_path} {script_path}/tools/switch_to_public_ip.py
+Restart=on-failure
+RestartSec=30
+ProtectHome=read-only
+ProtectSystem=strict
 
 [Install]
 WantedBy=multi-user.target

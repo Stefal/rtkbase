@@ -13,9 +13,54 @@ destination_directory=$2
 data_dir=$3
 old_version=$4
 standard_user=$5
+checking=$6
+
+#store service status before upgrade
+str2str_active=$(systemctl is-active str2str_tcp)
+str2str_ntrip_A_active=$(systemctl is-active str2str_ntrip_A)
+str2str_ntrip_B_active=$(systemctl is-active str2str_ntrip_B)
+str2str_local_caster=$(systemctl is-active str2str_local_ntrip_caster)
+str2str_rtcm=$(systemctl is-active str2str_rtcm_svr)
+str2str_serial=$(systemctl is-active str2str_rtcm_serial)
+str2str_file=$(systemctl is-active str2str_file)
+
+check_before_update() {
+  TOO_OLD='You'"'"'re Operating System is too old\nPlease update it or reflash you SDCard with a more recent RTKBase image\n'
+
+  if [[ -f /etc/os-release ]]
+    then
+      source /etc/os-release
+    else
+      printf "Warning! We can't check your Os release, upgrade at your own risk\n"      
+  fi
+
+  case $ID in
+    debian)
+      if (( $(echo "$VERSION_ID < 10" | bc -l) ))
+      then
+        printf "${TOO_OLD}" >/dev/stderr
+        exit 1
+      fi
+      ;;
+    raspbian)
+    if (( $(echo "$VERSION_ID < 10" | bc -l) ))
+      then
+        printf "${TOO_OLD}" >/dev/stderr
+        exit 1
+      fi
+      ;;
+    ubuntu)
+      if (( $(echo "$VERSION_ID < 20.04" | bc -l) ))
+      then
+        printf "${TOO_OLD}" >/dev/stderr
+        exit 1
+      fi
+      ;;
+  esac
+}
 
 update() {
-echo "remove existing rtkbase.old directory"
+echo 'remove existing rtkbase.old directory'
 rm -rf /var/tmp/rtkbase.old
 mkdir /var/tmp/rtkbase.old
 
@@ -26,8 +71,13 @@ cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
 #systemctl stop rtkbase_web.service
 
 echo "copy new release to destination"
-cp -rfp ${source_directory}/. ${destination_directory}
-
+if [[ -d ${source_directory} ]] && [[ -d ${destination_directory} ]] 
+  then
+    cp -rfp ${source_directory}/. ${destination_directory}
+  else
+    echo 'can t copy'
+    exit 1
+fi
 }
 
 insert_rtcm_msg() {
@@ -171,7 +221,8 @@ upd_2.3.3() {
 }
 
 upgrade_rtklib() {
-  bin_path=$(dirname $(command -v str2str))
+  systemctl stop str2str_tcp
+  bin_path=$(dirname "$(command -v str2str)")
   rm "${bin_path}"'/str2str' "${bin_path}"'/rtkrcv' "${bin_path}"'/convbin'
   "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtklib
 }
@@ -206,7 +257,7 @@ upd_2.3.4() {
 #update python module
   "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtkbase-requirements
 # Get F9P firmware release
-  source <( grep = "${destination_directory}"/settings.conf )
+  source <( grep '=' "${destination_directory}"/settings.conf )
   if [[ $(python3 "${destination_directory}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
   then
     echo 'Get F9P firmware release'
@@ -243,12 +294,73 @@ upd_2.4.0() {
   echo '####################'
   echo 'Update from 2.4.0'
   echo '####################'
+  upd_2.4.1 "$@"
 }
 
-# standard update
-update
+upd_2.4.1() {
+  echo '####################'
+  echo 'Update from 2.4.1'
+  echo '####################'
+  upd_2.4.2 "$@"
+}
+
+upd_2.4.2() {
+  echo '####################'
+  echo 'Update from 2.4.2'
+  echo '####################'
+  apt-get update -y --allow-releaseinfo-change
+  apt-get --fix-broken install # needed for old installation (raspi image v2.1 from july 2020)
+  # only for Orange Pi Zero, disable sysstats-collect (https://github.com/Stefal/build/issues/14)
+  # and update hostapd if error (https://github.com/Stefal/build/issues/15)
+  computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
+  sbc_array=('Xunlong Orange Pi Zero')
+    if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}"
+      then
+        echo 'Masking sysstat-collect.timer service and upgrading hostapd'
+        systemctl mask sysstat-collect.timer
+        dpkg -s hostapd | grep -q 'Version: 2:2.9' && apt-get upgrade -y hostapd
+        rm -r /var/log/sysstat/
+    fi
+  # end of Orange Pi Zero section
+  ${destination_directory}/tools/install.sh --user "${standard_user}" --dependencies --rtkbase-requirements --unit-files
+  #upgrade rtklib to b34h
+  upgrade_rtklib
+  #restart str2str if it was active before upgrading rtklib
+  [ $str2str_active = 'active' ] && systemctl start str2str_tcp
+  # restart previously running services
+  [ $str2str_ntrip_A_active = 'active' ] && systemctl start str2str_ntrip_A
+  [ $str2str_ntrip_B_active = 'active' ] && systemctl start str2str_ntrip_B  
+  [ $str2str_local_caster = 'active' ] && systemctl start str2str_local_ntrip_caster
+  [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
+  [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
+  [ $str2str_file = 'active' ] && systemctl start str2str_file
+  return 0
+}
+
+upd_2.5.0 () {
+  # only for Orange Pi Zero, update armbian-ramlog (https://github.com/Stefal/build/issues/16)
+  computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
+  sbc_array=('Xunlong Orange Pi Zero')
+    if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" &&
+       lsb_release -c | grep -qE 'bullseye|bookworm' &&
+       grep -qE 'armbian' /etc/os-release
+      then
+        echo 'Updating armbian-ramlog'
+        sed -i 's/armbian-ramlog)" | while/armbian-ramlog)|\\.journal" | while/' /usr/lib/armbian/armbian-ramlog
+    fi
+  # end of Orange Pi Zero section
+}
+#check if we can apply the update
+#FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
+[[ $checking == '--checking' ]] && check_before_update && exit
+
+echo '################################'
+echo 'Starting standard update'
+echo '################################'
+update || { echo 'Update failed (update)' ; exit 1 ;} 
 # calling specific update function. If we are using v2.2.5, it will call the function upd_2.2.5
-upd_"${old_version/b*/b}" "$@"
+echo 'Starting specific update'
+upd_"${old_version/b*/b}" "$@"  || { echo 'Update failed (upd_release_number)' ; exit 1 ;} 
 #note for older me:
 #When dealing with beta version, "${oldversion/b*/b}" will call function 2.4b when we use a release 2.4b1 or 2.4b2 or 2.4beta99
 
