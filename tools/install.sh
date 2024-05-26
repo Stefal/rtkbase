@@ -595,6 +595,7 @@ _add_modem_port(){
 
 _configure_modem(){
   sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
+  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
   python3 "${rtkbase_path}"/tools/modem_config.py --config
   "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename --lte_priority
 }
