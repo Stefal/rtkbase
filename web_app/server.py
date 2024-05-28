@@ -127,7 +127,7 @@ class User(UserMixin):
 class LoginForm(FlaskForm):
     """ Class for the loginform"""
     #username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Please enter the password:', validators=[DataRequired()])
+    password = PasswordField('Please enter the RTKBase password:', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
@@ -396,7 +396,12 @@ def settings_page():
     """
         The settings page where you can manage the various services, the parameters, update, power...
     """
+    host_url =  urllib.parse.urlparse(request.host_url)
+    gnss_rcv_url = urllib.parse.ParseResult(scheme=host_url.scheme, netloc="{}:{}".format(host_url.hostname, rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port")),
+                  path=host_url.path, params=host_url.params, query=host_url.query, fragment=host_url.fragment)
+    #TODO use dict and not list
     main_settings = rtkbaseconfig.get_main_settings()
+    main_settings.append(gnss_rcv_url.geturl()) 
     ntrip_A_settings = rtkbaseconfig.get_ntrip_A_settings()
     ntrip_B_settings = rtkbaseconfig.get_ntrip_B_settings()
     local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
