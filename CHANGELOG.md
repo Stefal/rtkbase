@@ -1,4 +1,10 @@
 # Changelog
+
+## [] - not released
+### Added
+ - Septentrio Mosaic-X5 detection and configuration
+ - Reverse proxy server with Rtkbase authentication, for Mosaic-X5 web interface
+ 
 ## [2.5.0] - 2024-01-30
 ### Added
  - udev rules to create ttyGNSS port for usb connected F9P.
