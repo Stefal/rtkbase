@@ -75,12 +75,11 @@ network_reg = check_network_registration()
 ip_in_use = get_in_use_ip_address()
 public_ip = get_public_ip_address()
 ping_host = ping('caster.centipede.fr') or ping('pch.net')
-print("Internal Ip address in use: ", ip_in_use)
-print("Modem public Ip address: ", public_ip)
-print("Ping caster.centipede.fr or pch.net", ping_host)
-
 
 if ip_in_use == None or public_ip == None or network_reg == False or ping_host == False:
+    print("Internal Ip address in use: ", ip_in_use)
+    print("Modem public Ip address: ", public_ip)
+    print("Ping caster.centipede.fr or pch.net", ping_host)
     print("Modem problem. Switching to airplane mode and back to normal")
     try:
         print("Connecting to modem...")
@@ -97,6 +96,8 @@ if ip_in_use == None or public_ip == None or network_reg == False or ping_host =
 
 elif ip_in_use != public_ip:
     try:
+        print("Internal Ip address in use: ", ip_in_use)
+        print("Modem public Ip address: ", public_ip)
         modem = Modem(MODEM_PORT)
         modem.set_usbnetip_mode(1)
         print("Request to switch to public IP address done!")
@@ -106,6 +107,6 @@ elif ip_in_use != public_ip:
     finally:
         print("closing modem connexion")
         modem.close()
-else:
-    print("We are already using the public Ip")
+#else:
+#    print("We are already using the public Ip")
 
