@@ -9,7 +9,7 @@ from sim_modem import *
 nmcli.disable_use_sudo()
 CONN_NAME='Cellular Modem'
 MODEM_PORT='/dev/ttymodemAT'
-
+USE_PUBLIC_IP=True
 def sleep(timeout, retry=10):
     def the_real_decorator(function):
         def wrapper(*args, **kwargs):
@@ -94,7 +94,7 @@ if ip_in_use == None or public_ip == None or network_reg == False or ping_host =
     finally:
         modem.close()
 
-elif ip_in_use != public_ip:
+elif USE_PUBLIC_IP and ip_in_use != public_ip:
     try:
         print("Internal Ip address in use: ", ip_in_use)
         print("Modem public Ip address: ", public_ip)
