@@ -366,6 +366,11 @@ rtkbase_requirements(){
       sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
+      
+      #Installing requirements for Cellular modem. Installing them during the Armbian firstrun doesn't work because the network isn't fully up.
+      sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
+      sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
+
 }
 
 install_unit_files() {
@@ -594,8 +599,6 @@ _add_modem_port(){
 }
 
 _configure_modem(){
-  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
-  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
   sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" "${rtkbase_path}"/tools/modem_config.py --config
   "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename --lte_priority
 }
