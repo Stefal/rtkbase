@@ -1,4 +1,4 @@
-#!/bin/bash -xv
+#!/bin/bash
 #
 # run_cast.sh: script to run NTRIP caster by STR2STR
 # You can read the RTKLIB manual for more str2str informations:
