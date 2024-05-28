@@ -4,14 +4,7 @@ import os
 import sys
 import time
 import nmcli
-
-if os.getenv("SUDO_USER") is not None:
-    homedir = os.path.join("/home", os.getenv("SUDO_USER"))
-else:
-    homedir = os.path.expanduser('~')
-
-sys.path.insert(1, os.path.join(homedir, "sim-modem"))
-from src.sim_modem import *
+from sim_modem import *
 
 nmcli.disable_use_sudo()
 CONN_NAME='Cellular Modem'
