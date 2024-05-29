@@ -2,6 +2,8 @@
 
 ## [] - not released
 ### Added
+ - Septentrio Mosaic-X5 detection and configuration
+ - Reverse proxy server with Rtkbase authentication, for Mosaic-X5 web interface
  - Added description below form input. #381
 ### Changed
 ### Deprecated

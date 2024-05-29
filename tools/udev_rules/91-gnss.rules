@@ -1,1 +1,7 @@
+#U-Blox F9P
 SUBSYSTEM=="tty", ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a9", SYMLINK+="ttyGNSS"
+
+#Septentrio
+SUBSYSTEM=="tty", ATTRS{idVendor}=="152a", ATTRS{idProduct}=="85c0", ENV{USB_TYPE}="152a:85c0"
+ENV{USB_TYPE}=="152a:85c0", SUBSYSTEM=="tty", ATTRS{bInterfaceNumber}=="02", GROUP="dialout", SYMLINK+="ttyGNSS"
+ENV{USB_TYPE}=="152a:85c0", SUBSYSTEM=="tty", ATTRS{bInterfaceNumber}=="04", MODE="0660", GROUP="dialout", SYMLINK+="ttyGNSS_CTRL"

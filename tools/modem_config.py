@@ -3,13 +3,14 @@
 import sys
 import os
 import argparse
-if os.getenv("SUDO_USER") is not None:
-    homedir = os.path.join("/home", os.getenv("SUDO_USER"))
-else:
-    homedir = os.path.expanduser('~')
+#if os.getenv("SUDO_USER") is not None:
+#    homedir = os.path.join("/home", os.getenv("SUDO_USER"))
+#else:
+#    homedir = os.path.expanduser('~')
 
-sys.path.insert(1, os.path.join(homedir, "sim-modem"))
-from src.sim_modem import *
+#sys.path.insert(1, os.path.join(homedir, "sim-modem"))
+#from src.sim_modem import *
+from sim_modem import *
 
 def arg_parse():
     parser=argparse.ArgumentParser(
