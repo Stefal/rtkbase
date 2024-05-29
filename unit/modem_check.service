@@ -1,5 +1,5 @@
 [Unit]
-Description=Check Simcom modem ip address
+Description=Check Simcom modem status
 After=network-online.target
 Wants=network-online.target
 
@@ -11,6 +11,3 @@ Restart=on-failure
 RestartSec=30
 ProtectHome=read-only
 ProtectSystem=strict
-
-[Install]
-WantedBy=multi-user.target
