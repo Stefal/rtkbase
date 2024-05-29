@@ -613,15 +613,14 @@ start_services() {
   echo 'STARTING SERVICES'
   echo '################################'
   systemctl daemon-reload
-  systemctl enable rtkbase_web.service
-  systemctl start rtkbase_web.service
-  systemctl enable str2str_tcp.service
-  systemctl start str2str_tcp.service
+  systemctl enable --now rtkbase_web.service
+  systemctl enable --now str2str_tcp.service
   systemctl restart gpsd.service
   systemctl restart chrony.service
-  systemctl start rtkbase_archive.timer
-  grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer
-  grep -q "receiver='Septentrio_Mosaic-X5'" "${rtkbase_path}"/settings.conf && systemctl enable --now rtkbase_gnss_web_proxy.service
+  systemctl enable --now rtkbase_archive.timer
+  grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && echo 'Modem detected, we will start modem_check timer/service'
+  grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer && echo 'Enabling modem_check timer/service' 
+  grep -q "receiver='Septentrio_Mosaic-X5'" "${rtkbase_path}"/settings.conf && systemctl enable --now rtkbase_gnss_web_proxy.service && echo 'Starting Mosaic-X5 reverse proxy'
   echo '################################'
   echo 'END OF INSTALLATION'
   echo 'You can open your browser to http://'"$(hostname -I)"
