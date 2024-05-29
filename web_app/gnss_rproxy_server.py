@@ -31,7 +31,7 @@ from werkzeug.utils import safe_join
 import urllib
 
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 app.config["LOGIN_DISABLED"] = False
 
