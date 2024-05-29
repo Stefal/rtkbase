@@ -617,7 +617,7 @@ start_services() {
   systemctl restart gpsd.service
   systemctl restart chrony.service
   systemctl start rtkbase_archive.timer
-  grep grep -qE ^modem_at_port=\'[[:alnum:]]+\' "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer
+  grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer
   grep -q "receiver='Septentrio_Mosaic-X5'" "${rtkbase_path}"/settings.conf && systemctl enable --now rtkbase_gnss_web_proxy.service
   echo '################################'
   echo 'END OF INSTALLATION'
