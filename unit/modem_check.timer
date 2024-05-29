@@ -2,6 +2,7 @@
 Description=Run modem_check.service every hour
 
 [Timer]
+OnBootSec=30
 OnCalendar=*-*-* *:00:00
 Persistent=true
 
