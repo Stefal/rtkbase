@@ -79,7 +79,7 @@ $(document).ready(function () {
     // View/hide password buttons for: Ntrip A, Ntrip B and Local caster
     document.querySelectorAll(".input-group-append").forEach(function(e) {
         var name = e.querySelector("button").id.replace("_button", "");
-        if (!["svr_pwd_A", "svr_pwd_B", "local_ntripc_pwd"].includes(name))
+        if (!["svr_pwd_A", "svr_pwd_B", "local_ntripc_pwd", "rtcm_client_pwd"].includes(name))
             return;
 
         var button = $("#" + name + "_button");

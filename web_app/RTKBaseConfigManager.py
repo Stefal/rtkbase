@@ -171,9 +171,8 @@ class RTKBaseConfigManager:
             and remove the single quotes.       
         """
         ordered_rtcm_client = [{"source_section" : "rtcm_client"}]
-        for key in ("rtcm_client_addr", "rtcm_client_port", "rtcm_client_msg", "rtcm_client_receiver_options"):
+        for key in ("rtcm_client_addr", "rtcm_client_port", "rtcm_client_user", "rtcm_client_pwd", "rtcm_client_msg", "rtcm_client_receiver_options"):
             ordered_rtcm_client.append({key : self.config.get('rtcm_client', key).strip("'")})
-        print("ORDERED RTCM CLIENT", ordered_rtcm_client)
         return ordered_rtcm_client
 
     def get_rtcm_udp_svr_settings(self):

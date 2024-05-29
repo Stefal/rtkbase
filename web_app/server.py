@@ -76,7 +76,7 @@ from werkzeug.utils import safe_join
 import urllib
 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
 app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")

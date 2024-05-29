@@ -140,6 +140,9 @@ rtcm_receiver_options=''
 #port for rtcm client
 rtcm_client_addr=''
 rtcm_client_port='80'
+#user/password credentials to connect to the server
+rtcm_client_user=''
+rtcm_client_pwd=''
 #messages for rtcm client use
 rtcm_client_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
 #Receiver dependent options
