@@ -68,7 +68,10 @@ if __name__ == '__main__':
         print("Data network registration", modem.get_eps_network_registration_status())
         print("Network mode selection: ", modem.get_network_mode())
         print("Current network mode: ", modem.get_current_network_mode().name)
-        print("Current network name/operator: ", modem.get_network_operator())
+        try:
+            print("Current network name/operator: ", modem.get_network_operator())
+        except:
+            print("Current network name/operator: NO SERVICE")
         print("EU system information: ", modem.get_eu_system_informations())
         data_mode = modem.get_data_connection_mode()
         if data_mode.name == 'ECM':
