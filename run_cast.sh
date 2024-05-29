@@ -4,8 +4,8 @@
 # You can read the RTKLIB manual for more str2str informations:
 # https://github.com/tomojitakasu/RTKLIB
 
-BASEDIR=$(dirname "$0")
-source <( grep '=' ${BASEDIR}/settings.conf )  #import settings
+BASEDIR="$(dirname "$0")"
+source <( grep -v '^#' "${BASEDIR}"/settings.conf | grep '=' ) #import settings
 
 receiver_info="RTKBase ${receiver},${version} ${receiver_firmware}"
 in_serial="serial://${com_port}:${com_port_settings}#${receiver_format}"

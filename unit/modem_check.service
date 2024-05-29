@@ -1,12 +1,12 @@
 [Unit]
-Description=Switch Simcom modem to public ip address
+Description=Check Simcom modem ip address
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=forking
+Type=simple
 User={user}
-ExecStart={python_path} {script_path}/tools/switch_to_public_ip.py
+ExecStart={python_path} {script_path}/tools/modem_check.py
 Restart=on-failure
 RestartSec=30
 ProtectHome=read-only

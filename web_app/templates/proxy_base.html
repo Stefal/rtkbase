@@ -1,0 +1,35 @@
+{% from 'bootstrap4/nav.html' import render_nav_item %}
+<!doctype html>
+<html lang="en" style="position:relative; min-height: 100%;">
+  <head>
+    {% block head %}
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% block styles %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-4.6.1.min.css') }}">
+    {% endblock %}
+
+    {% endblock %}
+  </head>
+  <body style="min-height: 100vh; display:flex; flex-direction: column;">
+
+    <!-- Your page content -->
+    <main style="flex-grow: 1;">
+    {% block content %}{% endblock %}
+  </main>
+    <footer style="flex-grow: 0; display: block;"></footer>
+      <div class="container text-center bg-light"><span class="text-muted small"><a href="https://github.com/Stefal/rtkbase" target="_blank">RTKBase v{{ g.version }}</a></span></div>
+    </footer>
+
+    {% block scripts %}
+    <!-- Optional JavaScript -->
+        <script type="text/javascript" src="{{ url_for('static', filename='lib/jquery-3.5.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-4.6.1.bundle.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='lib/socket.io-4.4.1.min.js') }}"></script>
+
+    {% endblock %}
+  </body>
+</html>

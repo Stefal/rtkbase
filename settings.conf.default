@@ -50,6 +50,10 @@ tcp_port='5015'
 ext_tcp_source=''
 #ext_tcp_port is the port used for ext_tcp_source
 ext_tcp_port=''
+#ip address of the integrated web service (ie on Mosaic X5)
+gnss_rcv_web_ip=192.168.3.1
+#port number for the Flask proxy app used to display the Gnss receiver web service
+gnss_rcv_web_proxy_port=9090
 
 [local_storage]
 
