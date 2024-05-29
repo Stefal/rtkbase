@@ -133,6 +133,42 @@ rtcm_svr_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046
 #Receiver dependent options
 rtcm_receiver_options=''
 
+[rtcm_client]
+
+# RTCM client options
+
+#port for rtcm client
+rtcm_client_addr=''
+rtcm_client_port='80'
+#messages for rtcm client use
+rtcm_client_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+#Receiver dependent options
+rtcm_client_receiver_options=''
+
+[rtcm_udp_svr]
+
+#RTCM UDP Server options
+
+#port for rtcm UDP use
+rtcm_udp_svr_port=''
+#messages for rtcm udp use
+rtcm_udp_svr_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+#Receiver dependent options
+rtcm_udp_svr_receiver_options=''
+
+[rtcm_udp_client]
+
+#RTCM UDP Client options
+
+#address for rtcm UDP
+rtcm_udp_client_addr=''
+#port for rtcm UDP use
+rtcm_udp_client_port=''
+#messages for rtcm udp use
+rtcm_udp_client_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+#Receiver dependent options
+rtcm_udp_client_receiver_options=''
+
 [rtcm_serial]
 
 # Serial output RTCM options

@@ -5,6 +5,7 @@
  - Septentrio Mosaic-X5 detection and configuration
  - Reverse proxy server with Rtkbase authentication, for Mosaic-X5 web interface
  - Added description below form input. #381
+ - rtcm tcp client service added (useful for the Rtkdirect service). #376
 ### Changed
 ### Deprecated
 ### Removed
