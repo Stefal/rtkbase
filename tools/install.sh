@@ -604,8 +604,9 @@ _add_modem_port(){
 }
 
 _configure_modem(){
-  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" "${rtkbase_path}"/tools/modem_config.py --config
-  "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename --lte_priority
+  "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename
+  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" "${rtkbase_path}"/tools/modem_config.py --config && \
+  "${rtkbase_path}"/tools/lte_network_mgmt.sh --lte_priority
 }
 
 start_services() {
