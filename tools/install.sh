@@ -604,8 +604,9 @@ _add_modem_port(){
 }
 
 _configure_modem(){
-  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" "${rtkbase_path}"/tools/modem_config.py --config
-  "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename --lte_priority
+  "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename
+  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" "${rtkbase_path}"/tools/modem_config.py --config && \
+  "${rtkbase_path}"/tools/lte_network_mgmt.sh --lte_priority
 }
 
 start_services() {
@@ -618,9 +619,8 @@ start_services() {
   systemctl restart gpsd.service
   systemctl restart chrony.service
   systemctl enable --now rtkbase_archive.timer
-  grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && echo 'Modem detected, we will start modem_check timer/service'
-  grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer && echo 'Enabling modem_check timer/service' 
-  grep -q "receiver='Septentrio_Mosaic-X5'" "${rtkbase_path}"/settings.conf && systemctl enable --now rtkbase_gnss_web_proxy.service && echo 'Starting Mosaic-X5 reverse proxy'
+  grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer
+  grep -q "receiver='Septentrio_Mosaic-X5'" "${rtkbase_path}"/settings.conf && systemctl enable --now rtkbase_gnss_web_proxy.service
   echo '################################'
   echo 'END OF INSTALLATION'
   echo 'You can open your browser to http://'"$(hostname -I)"

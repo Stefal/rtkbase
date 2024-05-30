@@ -16,6 +16,7 @@
  - Fix duplicates in .sbf to rinex conversion : https://github.com/rtklibexplorer/RTKLIB/issues/186
  - Various fixes : #374
 ### Security
+ - Update various python modules.
 
 ## [2.5.0] - 2024-01-30
 ### Added

@@ -41,6 +41,7 @@ import signal
 import sys
 import requests
 import tempfile
+import argparse
 
 from threading import Thread
 from RTKLIB import RTKLIB
@@ -76,7 +77,7 @@ from werkzeug.utils import safe_join
 import urllib
 
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 #app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../logs")
 app.config["DOWNLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "../data")
@@ -926,7 +927,30 @@ def update_settings(json_msg):
         elif source_section == "local_storage":
             restartServices(("file",))
 
+def arg_parse():
+    parser = argparse.ArgumentParser(
+        description="RTKBase Web server",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        help="Enable web server debug mode",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help="port used for the web server",
+        default=None
+    )
+    args = parser.parse_args()
+    return args
+
 if __name__ == "__main__":
+    args=arg_parse()
     try:
         #check if a new password is defined in settings.conf
         update_password(rtkbaseconfig)
@@ -950,7 +974,7 @@ if __name__ == "__main__":
         manager_thread.start()
 
         app.secret_key = rtkbaseconfig.get_secret_key()
-        socketio.run(app, host = "::", port = rtkbaseconfig.get("general", "web_port", fallback=80)) # IPv6 "::" is mapped to IPv4
+        socketio.run(app, host = "::", port = args.port or rtkbaseconfig.get("general", "web_port", fallback=80), debug=args.debug) # IPv6 "::" is mapped to IPv4
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
