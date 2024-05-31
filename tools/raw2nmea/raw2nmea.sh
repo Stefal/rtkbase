@@ -27,7 +27,7 @@ fi
 sed -i s/^inpstr1-path.*/inpstr1-path\ \ =localhost:$RAW_PORT/ "${rtkbase_path}"/tools/raw2nmea/nmea_out.conf
 sed -i s/^inpstr1-format.*/inpstr1-format\ \ =$RAW_FORMAT/ "${rtkbase_path}"/tools/raw2nmea/nmea_out.conf
 sed -i s/^outstr1-path.*/outstr1-path\ \ =localhost:$NMEA_PORT/ "${rtkbase_path}"/tools/raw2nmea/nmea_out.conf
-
 sed -i 's/^DEVICES=.*/DEVICES="tcp:\/\/localhost:'$NMEA_PORT'"/' /etc/default/gpsd
-systemctl restart gpsd
+
+{ sleep 20 ; systemctl restart gpsd ;} &
 rtkrcv -o "${rtkbase_path}"/tools/raw2nmea/nmea_out.conf -nc
