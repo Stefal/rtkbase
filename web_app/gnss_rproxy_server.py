@@ -120,7 +120,6 @@ def redirect_to_API_HOST(path):  #NOTE var :path will be unused as all path we n
     #endregion exlcude some keys in :res response
 
     response = Response(res.content, res.status_code, headers)
-    print(response)
     return response
 
 
