@@ -75,6 +75,7 @@ from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.utils import safe_join
 import urllib
+import gunicorn.app.base
 
 app = Flask(__name__)
 app.debug = False
@@ -118,6 +119,22 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
 connected_clients = 0
+
+class StandaloneApplication(gunicorn.app.base.BaseApplication):
+    """ Class for starting gunicorn from inside a script """
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super().__init__()
+
+    def load_config(self):
+        config = {key: value for key, value in self.options.items()
+                if key in self.cfg.settings and value is not None}
+        for key, value in config.items():
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
 
 class User(UserMixin):
     """ Class for user authentification """
@@ -974,7 +991,19 @@ if __name__ == "__main__":
         manager_thread.start()
 
         app.secret_key = rtkbaseconfig.get_secret_key()
-        socketio.run(app, host = "::", port = args.port or rtkbaseconfig.get("general", "web_port", fallback=80), debug=args.debug) # IPv6 "::" is mapped to IPv4
+        #socketio.run(app, host = "::", port = args.port or rtkbaseconfig.get("general", "web_port", fallback=80), debug=args.debug) # IPv6 "::" is mapped to IPv4
+        gunicorn_options = {
+        'bind': ['%s:%s' % ('0.0.0.0', rtkbaseconfig.get("general", "web_port", fallback=80)),
+                    '%s:%s' % ('[::1]', rtkbaseconfig.get("general", "web_port", fallback=80)) ],
+        'workers': 1,
+        'worker_class': 'eventlet',
+        'loglevel': 'warning',
+        }
+        #start gunicorn
+        StandaloneApplication(app, gunicorn_options).run()
+        #doesn't stop thread gracefully
+        #doesn't stop itself gracefully too
+
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
