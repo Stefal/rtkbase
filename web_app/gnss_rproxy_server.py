@@ -5,9 +5,6 @@
 
 # Reverse proxy server to acces a Gnss receiver integrated Web Server (Mosaic-X5 or other)
 
-import eventlet
-eventlet.monkey_patch()
-
 import os
 import requests
 
@@ -16,19 +13,19 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 
 from flask_bootstrap import Bootstrap4
 from flask import Flask, render_template, session, request, flash, url_for, Response
-from flask import send_file, send_from_directory, redirect, abort
+from flask import redirect, abort
 from flask import g
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField, SubmitField
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from wtforms.validators import ValidationError, DataRequired, EqualTo
-#from flask_socketio import SocketIO, emit, disconnect
 import urllib
+import gunicorn.app.base
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.utils import safe_join
-import urllib
+
 
 app = Flask(__name__)
 app.debug = False
@@ -39,12 +36,27 @@ rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 
 login=LoginManager(app)
 login.login_view = 'login_page'
-#socketio = SocketIO(app)
 bootstrap = Bootstrap4(app)
 
 #Get settings from settings.conf.default and settings.conf
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf"))
 GNSS_RCV_WEB_URL = str("{}{}".format("http://", rtkbaseconfig.get("main", "gnss_rcv_web_ip")))
+
+class StandaloneApplication(gunicorn.app.base.BaseApplication):
+    """ Class for starting gunicorn from inside a script """
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super().__init__()
+
+    def load_config(self):
+        config = {key: value for key, value in self.options.items()
+                if key in self.cfg.settings and value is not None}
+        for key, value in config.items():
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
 
 class User(UserMixin):
     """ Class for user authentification """
@@ -143,8 +155,17 @@ if __name__ == "__main__":
         #check if authentification is required
         if not rtkbaseconfig.get_web_authentification():
             app.config["LOGIN_DISABLED"] = True
+
         app.secret_key = rtkbaseconfig.get_secret_key()
-        Flask.run(app, host = "::", port = rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)) # IPv6 "::" is mapped to IPv4
+        gunicorn_options = {
+        'bind': ['%s:%s' % ('0.0.0.0', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)),
+                    '%s:%s' % ('[::1]', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)) ],
+        'workers': 1,
+        'loglevel': 'warning',
+        }
+        #start gunicorn
+        StandaloneApplication(app, gunicorn_options).run()
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
+
