@@ -6,6 +6,7 @@
  - Reverse proxy server with Rtkbase authentication, for Mosaic-X5 web interface
  - Added description below form input. #381
 ### Changed
+ - Switch from eventlet to gevent + Gunicorn server.
 ### Deprecated
 ### Removed
 ### Fixed
