@@ -20,7 +20,6 @@ Flask-SocketIO==5.3.6
 Flask-WTF==1.2.1;python_version>="3.8"
 Flask-WTF==1.1.1;python_version<"3.8"
 greenlet==3.0.1
-gunicorn==22.0.0
 h11==0.14.0
 idna==3.7
 importlib-metadata==6.7.0;python_version<"3.8"

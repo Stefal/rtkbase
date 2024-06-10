@@ -6,6 +6,11 @@
 # Reverse proxy server to acces a Gnss receiver integrated Web Server (Mosaic-X5 or other)
 
 import os
+#from gevent import monkey
+#monkey.patch_all()
+import eventlet
+eventlet.monkey_patch()
+from eventlet import wsgi
 import requests
 
 from RTKBaseConfigManager import RTKBaseConfigManager
@@ -20,7 +25,7 @@ from wtforms import PasswordField, BooleanField, SubmitField
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 import urllib
-import gunicorn.app.base
+#import gunicorn.app.base
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -41,9 +46,8 @@ bootstrap = Bootstrap4(app)
 #Get settings from settings.conf.default and settings.conf
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf"))
 GNSS_RCV_WEB_URL = str("{}{}".format("http://", rtkbaseconfig.get("main", "gnss_rcv_web_ip")))
-
+"""
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
-    """ Class for starting gunicorn from inside a script """
     def __init__(self, app, options=None):
         self.options = options or {}
         self.application = app
@@ -57,7 +61,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
 
     def load(self):
         return self.application
-
+"""
 class User(UserMixin):
     """ Class for user authentification """
     def __init__(self, username):
@@ -156,6 +160,9 @@ if __name__ == "__main__":
             app.config["LOGIN_DISABLED"] = True
 
         app.secret_key = rtkbaseconfig.get_secret_key()
+        #socketio.run(app, host = "::", port = args.port or rtkbaseconfig.get("general", "web_port", fallback=80), debug=args.debug) # IPv6 "::" is mapped to IPv4
+        wsgi.server(eventlet.listen(("0.0.0.0", int(rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)))), app, log_output=False)
+
         gunicorn_options = {
         'bind': ['%s:%s' % ('0.0.0.0', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)),
                     '%s:%s' % ('[::1]', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)) ],
@@ -163,7 +170,7 @@ if __name__ == "__main__":
         'loglevel': 'warning',
         }
         #start gunicorn
-        StandaloneApplication(app, gunicorn_options).run()
+        #StandaloneApplication(app, gunicorn_options).run()
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
