@@ -11,7 +11,6 @@ cryptography==41.0.5;python_version<"3.8"
 distro==1.8.0
 dnspython==2.6.1;python_version>="3.8"
 dnspython==2.3.0;python_version<"3.8"
-eventlet==0.35.2
 Flask==3.0.3;python_version>="3.8"
 Flask==2.2.5;python_version<"3.8"
 Flask-Login==0.6.3;python_version>="3.8"
@@ -19,7 +18,8 @@ Flask-Login==0.6.3;python_version<"3.8"
 Flask-SocketIO==5.3.6
 Flask-WTF==1.2.1;python_version>="3.8"
 Flask-WTF==1.1.1;python_version<"3.8"
-greenlet==3.0.1
+gevent==24.2.2
+gunicorn==22.0.0
 h11==0.14.0
 idna==3.7
 importlib-metadata==6.7.0;python_version<"3.8"

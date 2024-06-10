@@ -6,11 +6,8 @@
 # Reverse proxy server to acces a Gnss receiver integrated Web Server (Mosaic-X5 or other)
 
 import os
-#from gevent import monkey
-#monkey.patch_all()
-import eventlet
-eventlet.monkey_patch()
-from eventlet import wsgi
+from gevent import monkey
+monkey.patch_all()
 import requests
 
 from RTKBaseConfigManager import RTKBaseConfigManager
@@ -167,6 +164,7 @@ if __name__ == "__main__":
         'bind': ['%s:%s' % ('0.0.0.0', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)),
                     '%s:%s' % ('[::1]', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)) ],
         'workers': 1,
+        'worker_class': 'gevent',
         'loglevel': 'warning',
         }
         #start gunicorn
