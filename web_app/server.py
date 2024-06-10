@@ -28,10 +28,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
-#from gevent import monkey
-#monkey.patch_all()
-import eventlet
-eventlet.monkey_patch()
+from gevent import monkey
+monkey.patch_all()
 
 import time
 import json
@@ -91,7 +89,7 @@ path_to_rtklib = "/usr/local/bin" #TODO find path with which or another tool
 
 login=LoginManager(app)
 login.login_view = 'login_page'
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode = 'gevent')
 bootstrap = Bootstrap4(app)
 
 #Get settings from settings.conf.default and settings.conf
@@ -121,7 +119,6 @@ rtkcv_standby_delay = 600
 connected_clients = 0
 
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
-    """ Class for starting gunicorn from inside a script """
     def __init__(self, app, options=None):
         self.options = options or {}
         self.application = app
@@ -993,17 +990,14 @@ if __name__ == "__main__":
         app.secret_key = rtkbaseconfig.get_secret_key()
         #socketio.run(app, host = "::", port = args.port or rtkbaseconfig.get("general", "web_port", fallback=80), debug=args.debug) # IPv6 "::" is mapped to IPv4
         gunicorn_options = {
-        'bind': ['%s:%s' % ('0.0.0.0', rtkbaseconfig.get("general", "web_port", fallback=80)),
-                    '%s:%s' % ('[::1]', rtkbaseconfig.get("general", "web_port", fallback=80)) ],
+        'bind': ['%s:%s' % ('0.0.0.0', rtkbaseconfig.get("main", "web_port", fallback=80)),
+                    '%s:%s' % ('[::1]', rtkbaseconfig.get("main", "web_port", fallback=80)) ],
         'workers': 1,
-        'worker_class': 'eventlet',
+        'worker_class': 'gevent',
         'loglevel': 'warning',
         }
         #start gunicorn
         StandaloneApplication(app, gunicorn_options).run()
-        #doesn't stop thread gracefully
-        #doesn't stop itself gracefully too
-
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
