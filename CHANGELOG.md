@@ -1,6 +1,6 @@
 # Changelog
 
-## [] - not released
+## [2.6.0] - not released
 ### Added
  - Septentrio Mosaic-X5 detection and configuration
  - Reverse proxy server with Rtkbase authentication, for Mosaic-X5 web interface
@@ -9,8 +9,8 @@
 ### Changed
  - RTKLib upgraded to release b34j from rtklibexplorer.
  - Switch server from eventlet to gevent + Gunicorn server.
-### Deprecated
 ### Removed
+ - Eventlet python module is not needed anymore
 ### Fixed
  - Remove Sbas rtcm message (1107) after F9P configuration. #391
  - Tooltips buttons were a link to top page. #387
