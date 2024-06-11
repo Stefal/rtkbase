@@ -178,7 +178,7 @@ install_rtklib() {
     [[ -f /sys/firmware/devicetree/base/model ]] && computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
     # convert "Raspberry Pi 3 Model B plus rev 1.3" or other Raspi model to the variable "Raspberry Pi"
     [ -n "${computer_model}" ] && [ -z "${computer_model##*'Raspberry Pi'*}" ] && computer_model='Raspberry Pi'
-    sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi')
+    sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi' 'OrangePi Zero3')
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
         && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"'/str2str' ]] \
