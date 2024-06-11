@@ -5,9 +5,10 @@
  - Septentrio Mosaic-X5 detection and configuration
  - Reverse proxy server with Rtkbase authentication, for Mosaic-X5 web interface
  - Added description below form input. #381
+ - New optional service, rtkbase_raw2nmea.service, to get date and time with a gnss receiver unknown to gpsd. (CLI only) #394
 ### Changed
  - RTKLib upgraded to release b34j from rtklibexplorer.
- - Switch from eventlet to gevent + Gunicorn server.
+ - Switch server from eventlet to gevent + Gunicorn server.
 ### Deprecated
 ### Removed
 ### Fixed
