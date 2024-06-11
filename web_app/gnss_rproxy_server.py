@@ -43,7 +43,7 @@ bootstrap = Bootstrap4(app)
 #Get settings from settings.conf.default and settings.conf
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf"))
 GNSS_RCV_WEB_URL = str("{}{}".format("http://", rtkbaseconfig.get("main", "gnss_rcv_web_ip")))
-"""
+
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
     def __init__(self, app, options=None):
         self.options = options or {}
@@ -58,7 +58,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
 
     def load(self):
         return self.application
-"""
+
 class User(UserMixin):
     """ Class for user authentification """
     def __init__(self, username):
