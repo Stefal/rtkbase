@@ -9,8 +9,10 @@
 ### Changed
  - RTKLib upgraded to release b34j from rtklibexplorer.
  - Switch server from eventlet to gevent + Gunicorn server.
+### Deprecated
+  - Operating systems older than Debian 10 / Ubuntu 20.04 can't update RTKBase anymore.
 ### Removed
- - Eventlet python module is not needed anymore
+ - Eventlet python module is not needed anymore.
 ### Fixed
  - Remove Sbas rtcm message (1107) after F9P configuration. #391
  - Tooltips buttons were a link to top page. #387
