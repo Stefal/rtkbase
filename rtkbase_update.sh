@@ -65,7 +65,7 @@ rm -rf /var/tmp/rtkbase.old
 mkdir /var/tmp/rtkbase.old
 
 echo "copy rtkbase to rtkbase.old except /data directory"
-cp -r ${destination_directory}/!(${data_dir}) /var/tmp/rtkbase.old
+cp -r ${destination_directory}/!(${data_dir}|venv) /var/tmp/rtkbase.old
 
 #Don't do that or it will stop the update process
 #systemctl stop rtkbase_web.service
@@ -322,7 +322,7 @@ upd_2.4.2() {
         rm -r /var/log/sysstat/
     fi
   # end of Orange Pi Zero section
-  ${destination_directory}/tools/install.sh --user "${standard_user}" --dependencies --rtkbase-requirements --unit-files
+  "${destination_directory}"/tools/install.sh --user "${standard_user}" --dependencies --rtkbase-requirements --unit-files
   #upgrade rtklib to b34h
   upgrade_rtklib
   #restart str2str if it was active before upgrading rtklib
@@ -349,6 +349,23 @@ upd_2.5.0 () {
         sed -i 's/armbian-ramlog)" | while/armbian-ramlog)|\\.journal" | while/' /usr/lib/armbian/armbian-ramlog
     fi
   # end of Orange Pi Zero section
+  "${destination_directory}"/tools/install.sh --user "${standard_user}" --dependencies --rtkbase-requirements --unit-files
+  "${destination_directory}"/venv/bin/python -m pip uninstall eventlet -y
+  #upgrade rtklib to b34j
+  upgrade_rtklib
+  #remove sbas rtcm message
+  sed -i -r '/^rtcm_/s/1107(\([0-9]+\))?,//' "${destination_directory}"/settings.conf
+  #restart str2str if it was active before upgrading rtklib
+  [ $str2str_active = 'active' ] && systemctl start str2str_tcp
+  # restart previously running services
+  [ $str2str_ntrip_A_active = 'active' ] && systemctl start str2str_ntrip_A
+  [ $str2str_ntrip_B_active = 'active' ] && systemctl start str2str_ntrip_B  
+  [ $str2str_local_caster = 'active' ] && systemctl start str2str_local_ntrip_caster
+  [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
+  [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
+  [ $str2str_file = 'active' ] && systemctl start str2str_file
+
+
 }
 #check if we can apply the update
 #FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
