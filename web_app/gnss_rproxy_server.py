@@ -150,6 +150,28 @@ def logout():
     logout_user()
     return redirect(url_for('login_page'))
 
+def arg_parse():
+    parser = argparse.ArgumentParser(
+        description="RTKBase Gnss Web proxy server",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        help="Enable web server debug mode",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help="port used for the web server",
+        default=None
+    )
+    args = parser.parse_args()
+    return args
+
 if __name__ == "__main__":
     try:
         #check if authentification is required
@@ -161,11 +183,11 @@ if __name__ == "__main__":
         #wsgi.server(eventlet.listen(("0.0.0.0", int(rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)))), app, log_output=False)
 
         gunicorn_options = {
-        'bind': ['%s:%s' % ('0.0.0.0', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)),
-                    '%s:%s' % ('[::1]', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)) ],
+        'bind': ['%s:%s' % ('0.0.0.0', args.port or rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)),
+                    '%s:%s' % ('[::1]', args.port or rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)) ],
         'workers': 1,
         'worker_class': 'gevent',
-        'loglevel': 'warning',
+        'loglevel': 'debug' if args.debug else 'warning',
         }
         #start gunicorn
         StandaloneApplication(app, gunicorn_options).run()
