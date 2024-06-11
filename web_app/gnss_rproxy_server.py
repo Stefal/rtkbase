@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
         app.secret_key = rtkbaseconfig.get_secret_key()
         #socketio.run(app, host = "::", port = args.port or rtkbaseconfig.get("general", "web_port", fallback=80), debug=args.debug) # IPv6 "::" is mapped to IPv4
-        wsgi.server(eventlet.listen(("0.0.0.0", int(rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)))), app, log_output=False)
+        #wsgi.server(eventlet.listen(("0.0.0.0", int(rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)))), app, log_output=False)
 
         gunicorn_options = {
         'bind': ['%s:%s' % ('0.0.0.0', rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port", fallback=9090)),
