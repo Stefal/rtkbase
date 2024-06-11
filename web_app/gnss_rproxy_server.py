@@ -168,7 +168,7 @@ if __name__ == "__main__":
         'loglevel': 'warning',
         }
         #start gunicorn
-        #StandaloneApplication(app, gunicorn_options).run()
+        StandaloneApplication(app, gunicorn_options).run()
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
