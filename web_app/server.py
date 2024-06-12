@@ -658,7 +658,9 @@ def configure_receiver(brand="", model=""):
 def reset_settings():
     switchService({"name":"main", "active":False})
     rtkbaseconfig.merge_default_and_user(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf.default"))
+    rtkbaseconfig.expand_path()
     rtkbaseconfig.write_file()
+    update_std_user(services_list)
     socketio.emit("settings_reset", namespace="/test")
 
 @app.route("/logs/download/settings")
