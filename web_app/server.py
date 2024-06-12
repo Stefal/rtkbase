@@ -798,7 +798,7 @@ def restartServices(restart_services_list=None):
     """
         Restart already running services
         This function will refresh all services status, then compare the global services_list and 
-        the restart_services_list to find the services we need to restart.
+        then restart_services_list to find the services we need to restart.
         #TODO I don't really like this global services_list use.
     """
     if restart_services_list == None:
@@ -919,7 +919,7 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial"))  
+            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial", "raw2nmea"))  
         elif source_section == "ntrip_A":
             restartServices(("ntrip_A",))
         elif source_section == "ntrip_B":
