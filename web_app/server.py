@@ -105,13 +105,11 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_ntrip_B.service", "name" : "ntrip_B"},
                  {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
-                 {"service_unit" : "str2str_rtcm_client.service", "name" : "rtcm_client"},
-                 {"service_unit" : "str2str_rtcm_udp_svr.service", "name" : "rtcm_udp_svr"},
-                 {'service_unit' : 'str2str_rtcm_udp_client.service', "name" : "rtcm_udp_client"},
                  {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
                  {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"}, 
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
+                 {'service_unit' : 'rtkbase_raw2nmea.service', "name" : "raw2nmea"},
                  ]
 
 #Delay before rtkrcv will stop if no user is on status.html page

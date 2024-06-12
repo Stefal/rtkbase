@@ -23,6 +23,7 @@ str2str_local_caster=$(systemctl is-active str2str_local_ntrip_caster)
 str2str_rtcm=$(systemctl is-active str2str_rtcm_svr)
 str2str_serial=$(systemctl is-active str2str_rtcm_serial)
 str2str_file=$(systemctl is-active str2str_file)
+rtkrcv_raw2nmea=$(systemctl is-active rtkbase_raw2nmea)
 
 check_before_update() {
   TOO_OLD='You'"'"'re Operating System is too old\nPlease update it or reflash you SDCard with a more recent RTKBase image\n'
@@ -222,6 +223,7 @@ upd_2.3.3() {
 
 upgrade_rtklib() {
   systemctl stop str2str_tcp
+  systemctl stop rtkbase_raw2nmea
   bin_path=$(dirname "$(command -v str2str)")
   rm "${bin_path}"'/str2str' "${bin_path}"'/rtkrcv' "${bin_path}"'/convbin'
   "${destination_directory}"'/tools/install.sh' --user "${standard_user}" --rtklib
@@ -364,7 +366,7 @@ upd_2.5.0 () {
   [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
   [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
   [ $str2str_file = 'active' ] && systemctl start str2str_file
-
+  [ $rtkrcv_raw2nmea = 'active' ] && systemctl start rtkbase_raw2nmea
 
 }
 #check if we can apply the update
