@@ -481,7 +481,7 @@ $(document).ready(function () {
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         detectApplyBtnElt.innerText = "Close";
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = "GNSS receiver successfully configured. We will log out to refresh the settings";
+            detectBodyElt.innerHTML = "GNSS receiver successfully configured!";
             detectApplyBtnElt.removeAttribute('data-dismiss');
             detectApplyBtnElt.onclick = function() {
                 // window.location.reload();
