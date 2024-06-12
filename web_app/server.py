@@ -624,8 +624,8 @@ def detect_receiver(json_msg):
     socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
 
 @socketio.on("configure_receiver", namespace="/test")
-def configure_receiver(brand="u-blox", model="F9P"):
-    # only ZED-F9P could be configured automaticaly
+def configure_receiver(brand="", model=""):
+    # only some receiver could be configured automaticaly
     # After port detection, the main service will be restarted, and it will take some time. But we have to stop it to
     # configure the receiver. We wait 2 seconds before stopping it to remove conflicting calls.
     time.sleep(4)
