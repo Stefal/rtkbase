@@ -13,7 +13,6 @@ class CmdMapping(Enum):
     get_firmware = 'get_receiver_firmware'
     get_ip = 'get_receiver_ip'
     reset = 'set_factory_default'
-    test = 'test'
     send_config_file = 'send_config_file'
 
 def arg_parse():
