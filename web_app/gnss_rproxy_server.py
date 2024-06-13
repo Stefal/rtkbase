@@ -9,6 +9,7 @@ import os
 from gevent import monkey
 monkey.patch_all()
 import requests
+import argparse
 
 from RTKBaseConfigManager import RTKBaseConfigManager
 #from dotenv import load_dotenv  # pip package python-dotenv
@@ -173,6 +174,7 @@ def arg_parse():
     return args
 
 if __name__ == "__main__":
+    args=arg_parse()
     try:
         #check if authentification is required
         if not rtkbaseconfig.get_web_authentification():
