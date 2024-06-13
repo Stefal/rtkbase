@@ -537,8 +537,9 @@ configure_gnss(){
           #configure the mosaic-X5 for RTKBase
           echo 'Resetting the mosaic-X5 settings....'
           python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command reset
-          echo 'Waiting 30s for mosaic-X5 reboot'
-          sleep 30
+          sleep_time=60
+          echo 'Waiting '$sleep_time's for mosaic-X5 reboot'
+          sleep $sleep_time
           echo 'Sending settings....'
           python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5.cfg --store
           systemctl enable --now rtkbase_gnss_web_proxy.service #won't work during installation but, needed after a detect&configure from the gui.
