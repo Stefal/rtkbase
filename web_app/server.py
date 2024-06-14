@@ -181,7 +181,7 @@ def manager():
             if  services_status != updated_services_status:
                 services_status = updated_services_status
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
-                print("service status", services_status)
+                #print("service status", services_status)
 
             volume_usage = get_volume_usage()
             sys_infos = {"cpu_temp" : cpu_temp,
