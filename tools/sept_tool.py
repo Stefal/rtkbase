@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import os
+import sys
 import argparse
 from septentrio.septentrio_cmd import *
 from enum import Enum
@@ -24,7 +26,7 @@ def arg_parse():
     parser.add_argument("-c", "--command", nargs='+', help="Command to send to the gnss receiver", type=str)
     parser.add_argument("-s", "--store", action='store_true', help="Store settings as permanent", default=False)
     parser.add_argument("-r", "--retry", help="set a number of retry if the command fails", default=0, type=int)
-    parser.add_argument("--version", action="version", version="%(prog)s 0.1")
+    parser.add_argument("--version", action="version", version="%(prog)s 1.0")
     args = parser.parse_args()
     #print(args)
     return args
@@ -47,5 +49,8 @@ if __name__ == '__main__':
             break
         except:
             retries += 1
-            print("Retrying in {}s".format(retry_delay))
+            print("Failed...retrying in {}s".format(retry_delay))
             time.sleep(retry_delay)
+    if retries > args.retry:
+        print("Command failed!")
+        sys.exit(1)
