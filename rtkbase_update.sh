@@ -367,6 +367,7 @@ upd_2.5.0 () {
   [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
   [ $str2str_file = 'active' ] && systemctl start str2str_file
   [ $rtkrcv_raw2nmea = 'active' ] && systemctl start rtkbase_raw2nmea
+  return 0
 
 }
 #check if we can apply the update
