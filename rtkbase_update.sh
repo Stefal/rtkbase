@@ -18,8 +18,8 @@ checking=$6
 #argument checking
 [[ -d "${source_directory}" ]] || { echo 'ERROR! source_directory is not a directory'; exit 1; }
 [[ -d "${destination_directory}" ]] || { echo 'ERROR! destination_directory is not a directory'; exit 1; }
-[[ -d "${data_dir}" ]] || { echo 'ERROR! data_dir is not a directory'; exit 1; }
-[[ "${old_version}" =~ ^[+-]?[0-9]+\.?[0-9]*$ ]] || { echo 'ERROR! wrong type for current_version variable'; exit 1; }
+#[[ -d "${data_dir}" ]] || { echo 'ERROR! data_dir is not a directory'; exit 1; } <- not a full path directory, just the directory name
+#[[ "${old_version}" =~ ^[+-]?[0-9]+\.?[0-9]*$ ]] || { echo 'ERROR! wrong type for current_version variable'; exit 1; } <- doesn't work for 2.5.0 or 2.4b
 [[ $(id -u "${standard_user}") ]] &>/dev/null || { echo 'ERROR! user does not exist'; exit 1; }
 # $checking variable doesn't need to be checked as it is used only if it is set to '--checking'
 
