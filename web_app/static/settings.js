@@ -572,9 +572,21 @@ $(document).ready(function () {
 
     socket.on("updating_rtkbase", function() {
         $("#updateModal .modal-body").text("Please wait...Updating...");
-        update_countdown(600, 0);
+        //update_countdown(1200, 0);
     })
     
+    socket.on("update_successful", function() {
+            console.log("update successful");
+            $("#updateModal .modal-body").text("Update Successful!");
+            $("#start-update-button").html('Refresh');
+            $("#start-update-button").prop("disabled", false);
+            $("#start-update-button").off("click");
+            $("#start-update-button").on("click", function() {
+                location.reload();
+            });
+            $("#updateModal").modal();
+    });
+
     function update_countdown(remaining, count) {
         if(remaining === 0)
             location.reload();

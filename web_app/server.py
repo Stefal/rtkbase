@@ -54,7 +54,6 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 #import reach_bluetooth.bluetoothctl
 #import reach_bluetooth.tcp_bridge
 
-from threading import Thread
 from flask_bootstrap import Bootstrap4
 from flask import Flask, render_template, session, request, flash, url_for
 from flask import send_file, send_from_directory, redirect, abort
@@ -282,13 +281,12 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
     #    socketio.emit("new release", json.dumps(new_release), namespace="/test")
     #return new_release
     ## test
-
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
     current_release = current_release.split("-beta", 1)[0].split("-alpha", 1)[0].split("-rc", 1)[0].split("b", 1)[0]
     
-    try:    
+    try:
         response = requests.get(source_url)
         response = response.json()
         for release in response:
@@ -357,10 +355,11 @@ def update_rtkbase(update_file=False):
 
     source_path = os.path.join("/var/tmp/", primary_folder)
     script_path = os.path.join(source_path, "rtkbase_update.sh")
+    data_dir = app.config["DOWNLOAD_FOLDER"].split("/")[-1]
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
     #launch update verifications
-    answer = subprocess.run([script_path, source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([script_path, source_path, rtkbase_path, data_dir, current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode != 0:
         socketio.emit("updating_rtkbase_stopped", json.dumps({"error" : answer.stderr.splitlines()}), namespace="/test")
     else : #if ok, launch update script
@@ -368,7 +367,10 @@ def update_rtkbase(update_file=False):
         socketio.emit("updating_rtkbase", namespace="/test")
         rtk.shutdownBase()
         time.sleep(1)
-        os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
+        #update_service=ServiceController('rtkbase_update.service')
+        #update_service.start()
+        subprocess.Popen([script_path, source_path, rtkbase_path, data_dir, current_release, standard_user])
+        #os.execl('/var/tmp/rtkbase_update.sh', "unused arg0", source_path, rtkbase_path, data_dir, current_release, standard_user)
 
 def download_update(update_path):
     update_archive = "/var/tmp/rtkbase_update.tar.gz"
@@ -521,14 +523,18 @@ def upload_file():
 #### Handle connect/disconnect events ####
 
 @socketio.on("connect", namespace="/test")
-def testConnect():
+def clientConnect():
     global connected_clients
     connected_clients += 1
     print("Browser client connected")
+    if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
+        rtkbaseconfig.remove_option("general", "updated")
+        rtkbaseconfig.write_file()
+        socketio.emit("update_successful", json.dumps({"result": 'true'}), namespace="/test")
     rtk.sendState()
 
 @socketio.on("disconnect", namespace="/test")
-def testDisconnect():
+def clientDisconnect():
     global connected_clients
     connected_clients -=1
     print("Browser client disconnected")
@@ -977,12 +983,6 @@ if __name__ == "__main__":
         services_list = load_units(services_list)
         #Update standard user in settings.conf
         update_std_user(services_list)
-        #check if we run RTKBase for the first time after an update
-        #and restart some services to let them send the new release number.
-        if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
-            restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "rtcm_serial"])
-            rtkbaseconfig.remove_option("general", "updated")
-            rtkbaseconfig.write_file()
         #Start a "manager" thread
         manager_thread = Thread(target=manager, daemon=True)
         manager_thread.start()
