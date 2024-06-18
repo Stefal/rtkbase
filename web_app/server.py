@@ -362,6 +362,7 @@ def update_rtkbase(update_file=False):
     answer = subprocess.run([script_path, source_path, rtkbase_path, data_dir, current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if answer.returncode != 0:
         socketio.emit("updating_rtkbase_stopped", json.dumps({"error" : answer.stderr.splitlines()}), namespace="/test")
+        print("Checking OS release failed. Update aborted!")
     else : #if ok, launch update script
         print("Launch update")
         socketio.emit("updating_rtkbase", namespace="/test")
