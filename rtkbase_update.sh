@@ -45,21 +45,21 @@ check_before_update() {
 
   case $ID in
     debian)
-      if (( $(echo "$VERSION_ID < 10" | bc -l) ))
+      if (( $(echo "$VERSION_ID < 11" | bc -l) ))
       then
         printf "${TOO_OLD}" >/dev/stderr
         exit 1
       fi
       ;;
     raspbian)
-    if (( $(echo "$VERSION_ID < 10" | bc -l) ))
+    if (( $(echo "$VERSION_ID < 11" | bc -l) ))
       then
         printf "${TOO_OLD}" >/dev/stderr
         exit 1
       fi
       ;;
     ubuntu)
-      if (( $(echo "$VERSION_ID < 20.04" | bc -l) ))
+      if (( $(echo "$VERSION_ID < 22.04" | bc -l) ))
       then
         printf "${TOO_OLD}" >/dev/stderr
         exit 1
