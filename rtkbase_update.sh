@@ -192,18 +192,12 @@ upd_2.5.0 () {
   upgrade_rtklib
   #remove sbas rtcm message
   sed -i -r '/^rtcm_/s/1107(\([0-9]+\))?,//' "${destination_directory}"/settings.conf
-  #restart str2str if it was active before upgrading rtklib
-  [ $str2str_active = 'active' ] && systemctl start str2str_tcp
-  # restart previously running services
-  [ $str2str_ntrip_A_active = 'active' ] && systemctl start str2str_ntrip_A
-  [ $str2str_ntrip_B_active = 'active' ] && systemctl start str2str_ntrip_B  
-  [ $str2str_local_caster = 'active' ] && systemctl start str2str_local_ntrip_caster
-  [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
-  [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
-  [ $str2str_file = 'active' ] && systemctl start str2str_file
-  [ $rtkrcv_raw2nmea = 'active' ] && systemctl start rtkbase_raw2nmea
-  return 0
 
+}
+
+#this update function is here only for testing update, but could be useful in case of a failed 2.5 to 2.6 update.
+upd_2.6.0() {
+  upd_2.5.0
 }
 
 #check if we can apply the update
@@ -230,8 +224,22 @@ sed -i '/^\[general\]/a updated=true' ${destination_directory}/settings.conf
 #change rtkbase's content owner
 chown -R ${standard_user}:${standard_user} ${destination_directory}
 
+  #restart str2str if it was active before upgrading rtklib
+  # restart not nedeed if RTKlib was not upgraded
+  [ $str2str_active = 'active' ] && systemctl restart str2str_tcp 
+  [ $str2str_file = 'active' ] && systemctl restart str2str_file 
+  [ $rtkrcv_raw2nmea = 'active' ] && systemctl restart rtkbase_raw2nmea
+  # restart previously running services
+  # restart needed with all update to propagate the release number in the rtcm stream
+  [ $str2str_ntrip_A_active = 'active' ] && systemctl restart str2str_ntrip_A
+  [ $str2str_ntrip_B_active = 'active' ] && systemctl restart str2str_ntrip_B  
+  [ $str2str_local_caster = 'active' ] && systemctl restart str2str_local_ntrip_caster
+  [ $str2str_rtcm = 'active' ] && systemctl restart str2str_rtcm_svr
+  [ $str2str_serial = 'active' ] && systemctl restart str2str_rtcm_serial
+  
+
 #if a reboot is needed
 #systemctl reboot
-
-echo "Restart web server"
+echo 'RTKBase update ending...'
+echo 'Restart web server'
 systemctl restart rtkbase_web.service
