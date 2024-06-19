@@ -409,12 +409,21 @@ def status_page():
     base_coordinates = {"lat" : base_position[0], "lon" : base_position[1]}
     return render_template("status.html", base_coordinates = base_coordinates, tms_key = {"maptiler_key" : rtkbaseconfig.get("general", "maptiler_key")})
 
-@app.route('/settings')
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings_page():
     """
         The settings page where you can manage the various services, the parameters, update, power...
     """
+    # POST method when updating with a manual file
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+        if uploaded_file.filename != '':
+            update_rtkbase(uploaded_file)
+        else:
+            print("wrong update file")
+        return ('', 204)
+    # variable needed when the gnss receiver offer a web interface
     host_url =  urllib.parse.urlparse(request.host_url)
     gnss_rcv_url = urllib.parse.ParseResult(scheme=host_url.scheme, netloc="{}:{}".format(host_url.hostname, rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port")),
                   path=host_url.path, params=host_url.params, query=host_url.query, fragment=host_url.fragment)
@@ -511,15 +520,6 @@ def diagnostic():
         
     return render_template('diagnostic.html', logs = logs)
     
-@app.route('/manual_update', methods=['GET', 'POST'])       
-@login_required
-def upload_file():
-    if request.method == 'POST':
-        uploaded_file = request.files['file']
-        if uploaded_file.filename != '':
-            update_rtkbase(uploaded_file)
-        return ('', 204)
-    return render_template('manual_update.html')
 
 #### Handle connect/disconnect events ####
 

@@ -532,7 +532,13 @@ $(document).ready(function () {
             $("#updateModal .modal-title").text("No Update available!");
             $("#updateModal .modal-body").text("We're working on it. Come back later!");
             $("#updateModal").modal();
-        }       
+        }
+        // check if url contains update=manual parameter to display the input form
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        if (urlParams.get('update') === 'manual' ) {
+            $("#updateModal .modal-body").append('<h3>Manual Update: </h3><form method="POST" action="" enctype="multipart/form-data"> <p><input type="file" name="file"></p><p><input onclick="this.form.submit()" id="submit-button" type="submit" value="Submit"></p></form>');
+        }
     })
       
     $("#start-update-button").on("click", function () {
