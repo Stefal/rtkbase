@@ -34,7 +34,7 @@ str2str_file=$(systemctl is-active str2str_file)
 rtkrcv_raw2nmea=$(systemctl is-active rtkbase_raw2nmea)
 
 check_before_update() {
-  TOO_OLD='<b>You'"'"'re Operating System is too old!</b>\n
+  TOO_OLD='<b>Your Operating System is too old!</b>\n
     Please reflash your SDCard with a more recent RTKBase image, or upgrade your OS.\n
     Don'"'"'t forget to backup your settings.\n\n
     <a href="https://github.com/Stefal/rtkbase" target="_blank">RTKBase repository</a>\n\n
