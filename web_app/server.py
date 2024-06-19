@@ -354,7 +354,7 @@ def update_rtkbase(update_file=False):
     tar.extractall("/var/tmp")
 
     source_path = os.path.join("/var/tmp/", primary_folder)
-    script_path = os.path.join(source_path, "rtkbase_update.sh")
+    script_path = os.path.join(source_path, "tools", "rtkbase_update.sh")
     data_dir = app.config["DOWNLOAD_FOLDER"].split("/")[-1]
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
