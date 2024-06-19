@@ -518,7 +518,7 @@ def upload_file():
         uploaded_file = request.files['file']
         if uploaded_file.filename != '':
             update_rtkbase(uploaded_file)
-        return "Updating....please refresh in a few minutes"
+        return ('', 204)
     return render_template('manual_update.html')
 
 #### Handle connect/disconnect events ####
