@@ -537,10 +537,22 @@ $(document).ready(function () {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         if (urlParams.get('update') === 'manual' ) {
-            $("#updateModal .modal-body").append('<h3>Manual Update: </h3><form method="POST" action="" enctype="multipart/form-data"> <p><input type="file" name="file"></p><p><input onclick="this.form.submit()" id="submit-button" type="submit" value="Submit"></p></form>');
+            $("#updateModal .modal-body").append('<h3>Manual Update: </h3><form method="POST" action="" enctype="multipart/form-data"> <p><input type="file" name="file"></p><p><input id="submit-button" type="submit" value="Submit"></p></form>');
+            const upd_formElt = document.querySelector('#updateModal div.modal-body form');
+            upd_formElt.addEventListener('submit', handleFileSubmit);
+            function handleFileSubmit(event) {
+                console.log('inside function handlefilesubmit');
+                event.preventDefault;
+                fetch(upd_formElt.action, {
+                    method: "post",
+                    // body: new URLSearchParams(new FormData(form)) // for application/x-www-form-urlencoded
+                    body: new FormData(upd_formElt) // for multipart/form-data
+                });
+                $("#updateModal .modal-body").html('<span class="spinner-border spinner-border-sm"></span> Updating...');
+            };
         }
-    })
-      
+    });
+    
     $("#start-update-button").on("click", function () {
         //$("#updateModal .modal-title").text(("Installing update"));
         socket.emit("update rtkbase");
