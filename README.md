@@ -331,7 +331,8 @@ A gnss receiver with a timepulse output is a very accurate [stratum 0](https://e
 
    ```
 ## Requirements:
-Python >= 3.7
+Debian base distro >= 11 (Bullseye)
+Python >= 3.8
 
 ## History:
 See the [changelog](./CHANGELOG.md)

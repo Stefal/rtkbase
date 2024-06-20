@@ -10,7 +10,8 @@
  - RTKLib upgraded to release b34j from rtklibexplorer.
  - Switch server from eventlet to gevent + Gunicorn server.
 ### Deprecated
-  - Operating systems older than Debian 10 / Ubuntu 20.04 can't update RTKBase anymore.
+  - Operating systems older than Debian 11 / Ubuntu 22.04 can't update RTKBase anymore.
+  - Python release < 3.8 deprecated
 ### Removed
  - Eventlet python module is not needed anymore.
 ### Fixed
