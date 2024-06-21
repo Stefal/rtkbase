@@ -35,7 +35,6 @@ import time
 import json
 import os
 import shutil
-import signal
 import sys
 import requests
 import tempfile
@@ -43,8 +42,6 @@ import argparse
 
 from threading import Thread
 from RTKLIB import RTKLIB
-from port import changeBaudrateTo115200
-from reach_tools import reach_tools, provisioner
 from ServiceController import ServiceController
 from RTKBaseConfigManager import RTKBaseConfigManager
 
@@ -71,7 +68,6 @@ import distro
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.utils import safe_join
-import urllib
 import gunicorn.app.base
 
 app = Flask(__name__)
@@ -157,7 +153,7 @@ def update_password(config_object):
     if new_password != "":
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
         config_object.update_setting("general", "new_web_password", "")
-        
+
 def manager():
     """ This manager runs inside a separate thread
         It checks how long rtkrcv is running since the last user leaves the
@@ -191,7 +187,7 @@ def manager():
                         "volume_total" : round(volume_usage.total / 10E8, 2),
                         "volume_percent_used" : volume_usage.percent}
             socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
-        
+
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive" or \
                  main_service.get("active") == False and rtk.state != "inactive":
             print("DEBUG Stopping rtkrcv")
@@ -222,7 +218,7 @@ def repaint_services_button(services_list):
             service["btn_off_color"] = "outline-danger"
         elif service.get("state_ok") == True:
             service["btn_off_color"] = "outline-secondary"
-        
+
     return services_list
 
 def old_get_cpu_temp():
@@ -258,7 +254,7 @@ def get_sbc_model():
         Try to detect the single board computer used
         :return the model name or unknown if not detected
     """
-    answer = subprocess.run(["cat", "/proc/device-tree/model"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run(["cat", "/proc/device-tree/model"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode == 0:
         sbc_model = answer.stdout.split("\n").pop().strip()
     else:
@@ -266,7 +262,7 @@ def get_sbc_model():
     return sbc_model
 
 @socketio.on("check update", namespace="/test")
-def check_update(source_url = None, current_release = None, prerelease=rtkbaseconfig.getboolean("general", "prerelease"), emit = True):
+def check_update(source_url = None, current_release = None, prerelease=rtkbaseconfig.getboolean("general", "prerelease"), return_emit = True):
     """
         Check if a RTKBase update exists
         :param source_url: the url where we will try to find an update. It uses the github api.
@@ -285,7 +281,7 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
     current_release = current_release.split("-beta", 1)[0].split("-alpha", 1)[0].split("-rc", 1)[0].split("b", 1)[0]
-    
+
     try:
         response = requests.get(source_url)
         response = response.json()
@@ -300,12 +296,12 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
                             new_release["url"] = asset.get("browser_download_url")
                             break
                     break
-             
+
     except Exception as e:
         print("Check update error: ", e)
         new_release = { "error" : repr(e)}
-        
-    if emit:
+
+    if return_emit:
         socketio.emit("new release", json.dumps(new_release), namespace="/test")
     return new_release
 
@@ -321,7 +317,7 @@ def update_rtkbase(update_file=False):
 
     if not update_file:
         #Check if an update is available
-        update_url = check_update(emit=False).get("url")
+        update_url = check_update(return_emit=False).get("url")
         if update_url is None:
             return
         #Download update
@@ -331,7 +327,7 @@ def update_rtkbase(update_file=False):
         update_file.save("/var/tmp/rtkbase_update.tar.gz")
         update_archive = "/var/tmp/rtkbase_update.tar.gz"
         print("update stored in /var/tmp/")
-    
+
     if update_archive is None:
         socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
         return
@@ -349,7 +345,7 @@ def update_rtkbase(update_file=False):
         os.rmdir("/var/tmp/rtkbase")
     except FileNotFoundError:
         print("/var/tmp/rtkbase directory doesn't exist")
-        
+
     #Extract archive
     tar.extractall("/var/tmp")
 
@@ -359,7 +355,7 @@ def update_rtkbase(update_file=False):
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
     #launch update verifications
-    answer = subprocess.run([script_path, source_path, rtkbase_path, data_dir, current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([script_path, source_path, rtkbase_path, data_dir, current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode != 0:
         socketio.emit("updating_rtkbase_stopped", json.dumps({"error" : answer.stderr.splitlines()}), namespace="/test")
         print("Checking OS release failed. Update aborted!")
@@ -394,8 +390,8 @@ def inject_release():
     g.sbc_model = get_sbc_model()
 
 @login.user_loader
-def load_user(id):
-    return User(id)
+def load_user(user_id):
+    return User(user_id)
 
 @app.route('/')
 @app.route('/index')
@@ -425,8 +421,11 @@ def settings_page():
         return ('', 204)
     # variable needed when the gnss receiver offer a web interface
     host_url =  urllib.parse.urlparse(request.host_url)
-    gnss_rcv_url = urllib.parse.ParseResult(scheme=host_url.scheme, netloc="{}:{}".format(host_url.hostname, rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port")),
-                  path=host_url.path, params=host_url.params, query=host_url.query, fragment=host_url.fragment)
+    gnss_rcv_url = urllib.parse.ParseResult(scheme=host_url.scheme,
+                                            netloc="{}:{}".format(host_url.hostname, rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port")),
+                                            path=host_url.path,
+                                            params=host_url.params, query=host_url.query,
+                                            fragment=host_url.fragment)
     #TODO use dict and not list
     main_settings = rtkbaseconfig.get_main_settings()
     main_settings.append(gnss_rcv_url.geturl()) 
@@ -480,14 +479,14 @@ def login_page():
         password = loginform.password.data
         if not user.check_password(password):
             return abort(401)
-        
+
         login_user(user, remember=loginform.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or urllib.parse.urlsplit(next_page).netloc != '':
             next_page = url_for('status_page')
 
         return redirect(next_page)
-        
+
     return render_template('login.html', title='Sign In', form=loginform)
 
 @app.route('/logout')
@@ -507,10 +506,12 @@ def diagnostic():
     for service in services_list + [rtkbase_web_service]:
         sysctl_status = subprocess.run(['systemctl', 'status', service['service_unit']],
                                 stdout=subprocess.PIPE,
-                                universal_newlines=True)
+                                universal_newlines=True,
+                                check=False)
         journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']], 
                                  stdout=subprocess.PIPE, 
-                                 universal_newlines=True)
+                                 universal_newlines=True,
+                                 check=False)
         
         #Replace carrier return to <br> for html view
         sysctl_status = sysctl_status.stdout.replace('\n', '<br>') 
@@ -519,7 +520,7 @@ def diagnostic():
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
         
     return render_template('diagnostic.html', logs = logs)
-    
+
 
 #### Handle connect/disconnect events ####
 
@@ -579,11 +580,11 @@ def startBase():
     if rtk.get_rtkcv_option("inpstr1-format") != saved_input_type:
         rtk.set_rtkcv_option("inpstr1-format", saved_input_type)
         rtk.set_rtkcv_pending_refresh(True)
-    
+
     if rtk.get_rtkcv_pending_status():
         print("REFRESH NEEDED !!!!!!!!!!!!!!!!")
         rtk.startBase()
-    
+
 @socketio.on("stop base", namespace="/test")
 def stopBase():
     rtk.stopBase()
@@ -591,12 +592,6 @@ def stopBase():
 @socketio.on("on graph", namespace="/test")
 def continueBase():
     rtk.sleep_count = 0
-
-#### Free space handler
-
-@socketio.on("get available space", namespace="/test")
-def getAvailableSpace():
-    rtk.socketio.emit("available space", reach_tools.getFreeSpace(path_to_gnss_log), namespace="/test")
 
 #### Delete log button handler ####
 
@@ -612,7 +607,7 @@ def deleteLog(json_msg):
 def detect_receiver(json_msg):
     print("Detecting gnss receiver")
     #print("DEBUG json_msg: ", json_msg)
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
@@ -644,7 +639,7 @@ def configure_receiver(brand="", model=""):
         restart_main = False
 
     print("configuring {} gnss receiver model {}".format(brand, model))
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     #print("DEBUG - stdout: ", answer.stdout)
     #print("DEBUG - returncode: ", answer.returncode)
 
@@ -715,7 +710,7 @@ def rinex_ign(json_msg):
     convpath = os.path.abspath(os.path.join(rtkbase_path, "tools", "convbin.sh"))
     convbin_user = rtkbaseconfig.get("general", "user").strip("'")
     #print("DEBUG", convpath, json_msg.get("filename"), rtk.logm.log_path, rinex_type)
-    answer = subprocess.run(["sudo", "-u", convbin_user, convpath, json_msg.get("filename"), rtk.logm.log_path, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run(["sudo", "-u", convbin_user, convpath, json_msg.get("filename"), rtk.logm.log_path, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode == 0 and "rinex_file=" in answer.stdout:
         rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
         result = {"result" : "success", "file" : rinex_file}
@@ -829,7 +824,7 @@ def restartServices(restart_services_list=None):
                     service["unit"].start()
                 else:
                     service["unit"].restart()
-    
+
     #refresh service status
     getServicesStatus()
 
@@ -865,9 +860,9 @@ def getServicesStatus(emit_pingback=True):
         pass
 
     services_status = []
-    for service in services_list: 
+    for service in services_list:
         services_status.append({key:service[key] for key in service if key != 'unit'})
-    
+
     services_status = repaint_services_button(services_status)
     #print(services_status)
     if emit_pingback:
