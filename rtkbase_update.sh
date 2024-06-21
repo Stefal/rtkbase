@@ -38,7 +38,7 @@ check_before_update() {
     Please reflash your SDCard with a more recent RTKBase image, or upgrade your OS.\n
     Don'"'"'t forget to backup your settings.\n\n
     <a href="https://github.com/Stefal/rtkbase" target="_blank">RTKBase repository</a>\n\n
-    <a href="https://docs.centipede.fr/docs/base/Installation.html" target="_blank">Documentation CentipedeRTK</a>'
+    <a href="https://docs.centipede.fr/docs/base/mise_a_jour.html" target="_blank">Documentation CentipedeRTK</a>'
 
   if [[ -f /etc/os-release ]]
     then
