@@ -257,99 +257,11 @@ $(document).ready(function () {
             socket.emit("services switch", {"name" : "rtcm_svr", "active" : switchStatus});         
         })
 
-        // ####################  RTCM TCP client service Switch #########################
-
-        var rtcmClientSwitch = $('#rtcm_client-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[5].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            rtcmClientSwitch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            rtcmClientSwitch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[3]);
-        if (servicesStatus[5].btn_color) {
-            rtcmClientSwitch.bootstrapToggle('setOnStyle', servicesStatus[5].btn_color);
-        }
-        if (servicesStatus[5].btn_off_color) {
-            rtcmClientSwitch.bootstrapToggle('setOffStyle', servicesStatus[5].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#rtcm_client-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("RTCM Client SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "rtcm_client", "active" : switchStatus});         
-        })
-
-        // ####################  RTCM UDP server service Switch #########################
-
-        var rtcmUdpSvrSwitch = $('#rtcm_udp_svr-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[6].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            rtcmUdpSvrSwitch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            rtcmUdpSvrSwitch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[3]);
-        if (servicesStatus[6].btn_color) {
-            rtcmUdpSvrSwitch.bootstrapToggle('setOnStyle', servicesStatus[6].btn_color);
-        }
-        if (servicesStatus[6].btn_off_color) {
-            rtcmUdpSvrSwitch.bootstrapToggle('setOffStyle', servicesStatus[6].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#rtcm_udp_svr-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("RTCM UDP Server SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "rtcm_udp_svr", "active" : switchStatus});         
-        })
-
-        // ####################  RTCM UDP client service Switch #########################
-
-        var rtcmUdpClientSwitch = $('#rtcm_udp_client-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[6].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            rtcmUdpClientSwitch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            rtcmUdpClientSwitch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[3]);
-        if (servicesStatus[6].btn_color) {
-            rtcmUdpClientSwitch.bootstrapToggle('setOnStyle', servicesStatus[6].btn_color);
-        }
-        if (servicesStatus[6].btn_off_color) {
-            rtcmUdpClientSwitch.bootstrapToggle('setOffStyle', servicesStatus[6].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#rtcm_udp_client-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("RTCM UDP Client SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "rtcm_udp_client", "active" : switchStatus});         
-        })
-
-
         // ####################  Serial RTCM service Switch #########################
         
         var rtcmSerialSwitch = $('#rtcm_serial-switch');
         // set the switch to on/off depending of the service status
-        if (servicesStatus[8].active === true) {
+        if (servicesStatus[5].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
             rtcmSerialSwitch.bootstrapToggle('on', true);
         } else {
@@ -357,11 +269,11 @@ $(document).ready(function () {
             rtcmSerialSwitch.bootstrapToggle('off', true);
         }
         //console.log(servicesStatus[4]);
-        if (servicesStatus[8].btn_color) {
-            rtcmSerialSwitch.bootstrapToggle('setOnStyle', servicesStatus[8].btn_color);
+        if (servicesStatus[5].btn_color) {
+            rtcmSerialSwitch.bootstrapToggle('setOnStyle', servicesStatus[5].btn_color);
         }
-        if (servicesStatus[8].btn_off_color) {
-            rtcmSerialSwitch.bootstrapToggle('setOffStyle', servicesStatus[8].btn_off_color);
+        if (servicesStatus[5].btn_off_color) {
+            rtcmSerialSwitch.bootstrapToggle('setOffStyle', servicesStatus[5].btn_off_color);
         }
         
         // event for switching on/off service on user mouse click
@@ -378,7 +290,7 @@ $(document).ready(function () {
 
         var fileSwitch = $('#file-switch');
         // set the switch to on/off depending of the service status
-        if (servicesStatus[9].active === true) {
+        if (servicesStatus[6].active === true) {
             //document.querySelector("#main-switch").bootstrapToggle('on');
             fileSwitch.bootstrapToggle('on', true);
         } else {
@@ -386,11 +298,11 @@ $(document).ready(function () {
             fileSwitch.bootstrapToggle('off', true);
         }
         //console.log(servicesStatus[5]);
-        if (servicesStatus[9].btn_color) {
-            fileSwitch.bootstrapToggle('setOnStyle', servicesStatus[9].btn_color);
+        if (servicesStatus[6].btn_color) {
+            fileSwitch.bootstrapToggle('setOnStyle', servicesStatus[6].btn_color);
         }
-        if (servicesStatus[9].btn_off_color) {
-            fileSwitch.bootstrapToggle('setOffStyle', servicesStatus[9].btn_off_color);
+        if (servicesStatus[6].btn_off_color) {
+            fileSwitch.bootstrapToggle('setOffStyle', servicesStatus[6].btn_off_color);
         }
         
         // event for switching on/off service on user mouse click

@@ -428,7 +428,7 @@ def settings_page():
                                             fragment=host_url.fragment)
     #TODO use dict and not list
     main_settings = rtkbaseconfig.get_main_settings()
-    main_settings.append(gnss_rcv_url.geturl()) 
+    main_settings.append(gnss_rcv_url.geturl())
     ntrip_A_settings = rtkbaseconfig.get_ntrip_A_settings()
     ntrip_B_settings = rtkbaseconfig.get_ntrip_B_settings()
     local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
