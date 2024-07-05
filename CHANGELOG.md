@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.6.0] - not released
+## [2.6.0] - 2024-07-05
 ### Added
  - Septentrio Mosaic-X5 detection and configuration
  - Reverse proxy server with Rtkbase authentication, for Mosaic-X5 web interface
