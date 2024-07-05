@@ -1,4 +1,29 @@
 # Changelog
+
+## [2.6.0] - not released
+### Added
+ - Septentrio Mosaic-X5 detection and configuration
+ - Reverse proxy server with Rtkbase authentication, for Mosaic-X5 web interface
+ - Added description below form input. #381
+ - New optional service, rtkbase_raw2nmea.service, to get date and time with a gnss receiver unknown to gpsd. (CLI only) #394
+### Changed
+ - RTKLib upgraded to release b34j from rtklibexplorer.
+ - Switch server from eventlet to gevent + Gunicorn server.
+### Deprecated
+  - Operating systems older than Debian 11 / Ubuntu 22.04 can't update RTKBase anymore.
+  - Python release < 3.8 deprecated
+### Removed
+ - Eventlet python module is not needed anymore.
+### Fixed
+ - Remove Sbas rtcm message (1107) after F9P configuration. #391
+ - Tooltips buttons were a link to top page. #387
+ - Fix armbian ramlog bug with log older than 1 day. https://github.com/Stefal/build/issues/16
+ - Archive service will compress .sbf files too.
+ - Fix duplicates in .sbf to rinex conversion : https://github.com/rtklibexplorer/RTKLIB/issues/186
+ - Various fixes : #374
+### Security
+ - Update various python modules.
+
 ## [2.5.0] - 2024-01-30
 ### Added
  - udev rules to create ttyGNSS port for usb connected F9P.

@@ -79,7 +79,7 @@ $(document).ready(function () {
     // View/hide password buttons for: Ntrip A, Ntrip B and Local caster
     document.querySelectorAll(".input-group-append").forEach(function(e) {
         var name = e.querySelector("button").id.replace("_button", "");
-        if (!["svr_pwd_A", "svr_pwd_B", "local_ntripc_pwd"].includes(name))
+        if (!["svr_pwd_A", "svr_pwd_B", "local_ntripc_pwd", "rtcm_client_pwd"].includes(name))
             return;
 
         var button = $("#" + name + "_button");
@@ -228,7 +228,7 @@ $(document).ready(function () {
             socket.emit("services switch", {"name" : "local_ntrip_caster", "active" : switchStatus});         
         })
 
-        // ####################  RTCM server service Switch #########################
+        // ####################  RTCM TCP server service Switch #########################
 
         var rtcmSvrSwitch = $('#rtcm_svr-switch');
         // set the switch to on/off depending of the service status
@@ -393,7 +393,7 @@ $(document).ready(function () {
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         detectApplyBtnElt.innerText = "Close";
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = "GNSS receiver successfully configured. We will log out to refresh the settings";
+            detectBodyElt.innerHTML = "GNSS receiver successfully configured!";
             detectApplyBtnElt.removeAttribute('data-dismiss');
             detectApplyBtnElt.onclick = function() {
                 // window.location.reload();
@@ -444,9 +444,27 @@ $(document).ready(function () {
             $("#updateModal .modal-title").text("No Update available!");
             $("#updateModal .modal-body").text("We're working on it. Come back later!");
             $("#updateModal").modal();
-        }       
-    })
-      
+        }
+        // check if url contains update=manual parameter to display the input form
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        if (urlParams.get('update') === 'manual' ) {
+            $("#updateModal .modal-body").append('<h3>Manual Update: </h3><form method="POST" action="" enctype="multipart/form-data"> <p><input type="file" name="file"></p><p><input id="submit-button" type="submit" value="Submit"></p></form>');
+            const upd_formElt = document.querySelector('#updateModal div.modal-body form');
+            upd_formElt.addEventListener('submit', handleFileSubmit);
+            function handleFileSubmit(event) {
+                console.log('inside function handlefilesubmit');
+                event.preventDefault;
+                fetch(upd_formElt.action, {
+                    method: "post",
+                    // body: new URLSearchParams(new FormData(form)) // for application/x-www-form-urlencoded
+                    body: new FormData(upd_formElt) // for multipart/form-data
+                });
+                $("#updateModal .modal-body").html('<span class="spinner-border spinner-border-sm"></span> Updating...');
+            };
+        }
+    });
+    
     $("#start-update-button").on("click", function () {
         //$("#updateModal .modal-title").text(("Installing update"));
         socket.emit("update rtkbase");
@@ -484,9 +502,21 @@ $(document).ready(function () {
 
     socket.on("updating_rtkbase", function() {
         $("#updateModal .modal-body").text("Please wait...Updating...");
-        update_countdown(600, 0);
+        //update_countdown(1200, 0);
     })
     
+    socket.on("update_successful", function() {
+            console.log("update successful");
+            $("#updateModal .modal-body").text("Update Successful!");
+            $("#start-update-button").html('Refresh');
+            $("#start-update-button").prop("disabled", false);
+            $("#start-update-button").off("click");
+            $("#start-update-button").on("click", function() {
+                location.reload();
+            });
+            $("#updateModal").modal();
+    });
+
     function update_countdown(remaining, count) {
         if(remaining === 0)
             location.reload();

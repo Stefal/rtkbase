@@ -3,13 +3,14 @@
 import sys
 import os
 import argparse
-if os.getenv("SUDO_USER") is not None:
-    homedir = os.path.join("/home", os.getenv("SUDO_USER"))
-else:
-    homedir = os.path.expanduser('~')
+#if os.getenv("SUDO_USER") is not None:
+#    homedir = os.path.join("/home", os.getenv("SUDO_USER"))
+#else:
+#    homedir = os.path.expanduser('~')
 
-sys.path.insert(1, os.path.join(homedir, "sim-modem"))
-from src.sim_modem import *
+#sys.path.insert(1, os.path.join(homedir, "sim-modem"))
+#from src.sim_modem import *
+from sim_modem import *
 
 def arg_parse():
     parser=argparse.ArgumentParser(
@@ -67,7 +68,10 @@ if __name__ == '__main__':
         print("Data network registration", modem.get_eps_network_registration_status())
         print("Network mode selection: ", modem.get_network_mode())
         print("Current network mode: ", modem.get_current_network_mode().name)
-        print("Current network name/operator: ", modem.get_network_operator())
+        try:
+            print("Current network name/operator: ", modem.get_network_operator())
+        except:
+            print("Current network name/operator: NO SERVICE")
         print("EU system information: ", modem.get_eu_system_informations())
         data_mode = modem.get_data_connection_mode()
         if data_mode.name == 'ECM':

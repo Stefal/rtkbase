@@ -37,8 +37,8 @@ man_help(){
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
     echo '        -r | --rtklib'
-    echo '                         Get RTKlib 2.4.3b34i from github and compile it.'
-    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/b34i'
+    echo '                         Get RTKlib 2.4.3b34j from github and compile it.'
+    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/b34j'
     echo ''
     echo '        -b | --rtkbase-release'
     echo '                         Get last release of RTKBase:'
@@ -104,7 +104,7 @@ install_dependencies() {
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
-      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-venv python3-dev python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin || exit 1
+      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-venv python3-dev python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables || exit 1
       apt-get install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
       #apt-get "${APT_TIMEOUT}" upgrade -y
 }
@@ -113,7 +113,7 @@ install_gpsd_chrony() {
     echo '################################'
     echo 'CONFIGURING FOR USING GPSD + CHRONY'
     echo '################################'
-      apt-get "${APT_TIMEOUT}" install chrony -y || exit 1
+      apt-get "${APT_TIMEOUT}" install chrony gpsd -y || exit 1
       #Disabling and masking systemd-timesyncd
       systemctl stop systemd-timesyncd
       systemctl disable systemd-timesyncd
@@ -129,21 +129,6 @@ install_gpsd_chrony() {
       cp /lib/systemd/system/chrony.service /etc/systemd/system/chrony.service
       sed -i s/^After=.*/After=gpsd.service/ /etc/systemd/system/chrony.service
 
-      #If needed, adding backports repository to install a gpsd release that support the F9P
-      if lsb_release -sc | grep -qE 'bionic|buster'
-      then
-        if ! apt-cache policy | grep -qE 'buster-backports.* armhf'
-        then
-          #Adding buster-backports
-          echo 'deb http://httpredir.debian.org/debian buster-backports main contrib' > /etc/apt/sources.list.d/backports.list
-          apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-          apt-get "${APT_TIMEOUT}" update || exit 1
-        fi
-        apt-get "${APT_TIMEOUT}" -t buster-backports install gpsd -y || exit 1
-      else
-        #We hope that the release is more recent than buster and provide gpsd 3.20 or >
-        apt-get "${APT_TIMEOUT}" install gpsd -y || exit 1
-      fi
       #disable hotplug
       sed -i 's/^USBAUTO=.*/USBAUTO="false"/' /etc/default/gpsd
       #Setting correct input for gpsd
@@ -175,19 +160,19 @@ install_rtklib() {
     echo '################################'
     arch_package=$(uname -m)
     #[[ $arch_package == 'x86_64' ]] && arch_package='x86'
-    computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
+    [[ -f /sys/firmware/devicetree/base/model ]] && computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
     # convert "Raspberry Pi 3 Model B plus rev 1.3" or other Raspi model to the variable "Raspberry Pi"
     [ -n "${computer_model}" ] && [ -z "${computer_model##*'Raspberry Pi'*}" ] && computer_model='Raspberry Pi'
-    sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi')
+    sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi' 'OrangePi Zero3')
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
-        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"'/str2str' ]] \
+        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"'/str2str' ]] \
         && lsb_release -c | grep -qE 'buster|bullseye|bookworm'
     then
       echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"/str2str /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"/rtkrcv /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34i/'"${arch_package}"/convbin /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/str2str /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/rtkrcv /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/convbin /usr/local/bin/
     else
       echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
       _compil_rtklib
@@ -196,20 +181,20 @@ install_rtklib() {
 
 _compil_rtklib() {
     echo '################################'
-    echo 'COMPILING RTKLIB 2.4.3 b34i'
+    echo 'COMPILING RTKLIB 2.4.3 b34j'
     echo '################################'
-    #Get Rtklib 2.4.3 b34i release
-    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34i.tar.gz | tar -xvz
+    #Get Rtklib 2.4.3 b34j release
+    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34j.tar.gz | tar -xvz
     #Install Rtklib app
     #TODO add correct CTARGET in makefile?
-    make --directory=RTKLIB-b34i/app/consapp/str2str/gcc
-    make --directory=RTKLIB-b34i/app/consapp/str2str/gcc install
-    make --directory=RTKLIB-b34i/app/consapp/rtkrcv/gcc
-    make --directory=RTKLIB-b34i/app/consapp/rtkrcv/gcc install
-    make --directory=RTKLIB-b34i/app/consapp/convbin/gcc
-    make --directory=RTKLIB-b34i/app/consapp/convbin/gcc install
+    make --directory=RTKLIB-b34j/app/consapp/str2str/gcc
+    make --directory=RTKLIB-b34j/app/consapp/str2str/gcc install
+    make --directory=RTKLIB-b34j/app/consapp/rtkrcv/gcc
+    make --directory=RTKLIB-b34j/app/consapp/rtkrcv/gcc install
+    make --directory=RTKLIB-b34j/app/consapp/convbin/gcc
+    make --directory=RTKLIB-b34j/app/consapp/convbin/gcc install
     #deleting RTKLIB
-    rm -rf RTKLIB-b34i/
+    rm -rf RTKLIB-b34j/
 }
 
 _rtkbase_repo(){
@@ -366,6 +351,11 @@ rtkbase_requirements(){
       sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
+      
+      #Installing requirements for Cellular modem. Installing them during the Armbian firstrun doesn't work because the network isn't fully up.
+      sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
+      sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
+
 }
 
 install_unit_files() {
@@ -400,15 +390,18 @@ detect_gnss() {
           if [[ "$devname" == "bus/"* ]]; then continue; fi
           eval "$(udevadm info -q property --export -p "${syspath}")"
           if [[ -z "$ID_SERIAL" ]]; then continue; fi
-          if [[ "$ID_SERIAL" =~ (u-blox|skytraq) ]]
+          if [[ "$ID_SERIAL" =~ (u-blox|skytraq|Septentrio) ]]
           then
             detected_gnss[0]=$devname
             detected_gnss[1]=$ID_SERIAL
             #echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"
+            # If /dev/ttyGNSS is a symlink of the detected serial port, we've found the gnss receiver, break the loop.
+            # This test is useful with gnss receiver offering several serial ports (like mosaic X5). The Udev rule should symlink the right one with ttyGNSS
+            [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && break
           fi
       done
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
-          vendor_and_product_ids=$(lsusb | grep -i "u-blox" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
+          vendor_and_product_ids=$(lsusb | grep -i "u-blox\|Septentrio" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
           if [[ -z "$vendor_and_product_ids" ]]; then 
             echo 'NO USB GNSS RECEIVER DETECTED'
             echo 'YOU CAN REDETECT IT FROM THE WEB UI'
@@ -421,10 +414,10 @@ detect_gnss() {
           fi
       fi
     # detection on uart port
-    echo '################################'
-    echo 'UART GNSS RECEIVER DETECTION'
-    echo '################################'
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
+        echo '################################'
+        echo 'UART GNSS RECEIVER DETECTION'
+        echo '################################'
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
         for port in ttyS1 serial0 ttyS2 ttyS3 ttyS0; do
             for port_speed in 115200 57600 38400 19200 9600; do
@@ -492,17 +485,18 @@ configure_gnss(){
     echo '################################'
       if [ -d "${rtkbase_path}" ]
       then
-        source <( grep '=' "${rtkbase_path}"/settings.conf ) 
+        source <( grep -v '^#' "${rtkbase_path}"/settings.conf | grep '=' ) 
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service
-        #if the receiver is a U-Blox, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
-        #!!!!!!!!!  CHECK THIS ON A REAL raspberry/orange Pi !!!!!!!!!!!
+        #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then
           #get F9P firmware release
           firmware=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
+          echo 'F9P Firmware: ' "${firmware}"
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
           #configure the F9P for RTKBase
           "${rtkbase_path}"/tools/set_zed-f9p.sh /dev/${com_port} ${com_port_settings%%:*} "${rtkbase_path}"/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg        && \
+          echo 'U-Blox F9P Successfuly configured'                                                                                                          && \
           #now that the receiver is configured, we can set the right values inside settings.conf
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                                      && \
@@ -512,9 +506,40 @@ configure_gnss(){
           sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf             && \
           sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf   && \
           sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf                   && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_client_receiver_options=.*/rtcm_client_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf     && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_svr_receiver_options=.*/rtcm_udp_svr_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf   && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_client_receiver_options=.*/rtcm_udp_client_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf   && \
           sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf     && \
-
+          #remove SBAS Rtcm message (1107) as it is disabled in the F9P configuration.
+          sudo -u "${RTKBASE_USER}" sed -i -r '/^rtcm_/s/1107(\([0-9]+\))?,//' "${rtkbase_path}"/settings.conf                                              && \
           return $?
+
+        elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model --retry 5) =~ 'mosaic-X5' ]]
+        then
+          #get mosaic-X5 firmware release
+          firmware="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_firmware --retry 5)" || firmware='?'
+          echo 'Mosaic-X5 Firmware: ' "${firmware}"
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
+          #configure the mosaic-X5 for RTKBase
+          echo 'Resetting the mosaic-X5 settings....'
+          python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command reset --retry 5
+          sleep_time=30 ; echo 'Waiting '$sleep_time's for mosaic-X5 reboot' ; sleep $sleep_time
+          echo 'Sending settings....'
+          python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5.cfg --store --retry 5
+          if [[ $? -eq  0 ]]
+          then
+            echo 'Septentrio Mosaic-X5 successfuly configured'
+            systemctl list-unit-files rtkbase_gnss_web_proxy.service &>/dev/null                                                                            && \
+            systemctl enable --now rtkbase_gnss_web_proxy.service                                                                                             && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Septentrio_Mosaic-X5\'/ "${rtkbase_path}"/settings.conf                                && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'sbf\'/ "${rtkbase_path}"/settings.conf
+            return $?
+          else
+            echo 'Failed to configure the Gnss receiver'
+            return 1
+          fi
+
         else
           echo 'No Gnss receiver has been set. We can'\''t configure'
           return 1
@@ -573,9 +598,9 @@ _add_modem_port(){
 }
 
 _configure_modem(){
-  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
-  python3 "${rtkbase_path}"/tools/modem_config.py --config
-  "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename --lte_priority
+  "${rtkbase_path}"/tools/lte_network_mgmt.sh --connection_rename
+  sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" "${rtkbase_path}"/tools/modem_config.py --config && \
+  "${rtkbase_path}"/tools/lte_network_mgmt.sh --lte_priority
 }
 
 start_services() {
@@ -583,13 +608,13 @@ start_services() {
   echo 'STARTING SERVICES'
   echo '################################'
   systemctl daemon-reload
-  systemctl enable rtkbase_web.service
-  systemctl start rtkbase_web.service
-  systemctl enable str2str_tcp.service
-  systemctl start str2str_tcp.service
+  systemctl enable --now rtkbase_web.service
+  systemctl enable --now str2str_tcp.service
   systemctl restart gpsd.service
   systemctl restart chrony.service
-  systemctl start rtkbase_archive.timer
+  systemctl enable --now rtkbase_archive.timer
+  grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer
+  grep -q "receiver='Septentrio_Mosaic-X5'" "${rtkbase_path}"/settings.conf && systemctl enable --now rtkbase_gnss_web_proxy.service
   echo '################################'
   echo 'END OF INSTALLATION'
   echo 'You can open your browser to http://'"$(hostname -I)"

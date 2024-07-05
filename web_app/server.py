@@ -28,24 +28,20 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
-#from gevent import monkey
-#monkey.patch_all()
-import eventlet
-eventlet.monkey_patch()
+from gevent import monkey
+monkey.patch_all()
 
 import time
 import json
 import os
 import shutil
-import signal
 import sys
 import requests
 import tempfile
+import argparse
 
 from threading import Thread
 from RTKLIB import RTKLIB
-from port import changeBaudrateTo115200
-from reach_tools import reach_tools, provisioner
 from ServiceController import ServiceController
 from RTKBaseConfigManager import RTKBaseConfigManager
 
@@ -55,7 +51,6 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 #import reach_bluetooth.bluetoothctl
 #import reach_bluetooth.tcp_bridge
 
-from threading import Thread
 from flask_bootstrap import Bootstrap4
 from flask import Flask, render_template, session, request, flash, url_for
 from flask import send_file, send_from_directory, redirect, abort
@@ -73,7 +68,7 @@ import distro
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.utils import safe_join
-import urllib
+import gunicorn.app.base
 
 app = Flask(__name__)
 app.debug = False
@@ -89,7 +84,7 @@ path_to_rtklib = "/usr/local/bin" #TODO find path with which or another tool
 
 login=LoginManager(app)
 login.login_view = 'login_page'
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode = 'gevent')
 bootstrap = Bootstrap4(app)
 
 #Get settings from settings.conf.default and settings.conf
@@ -109,11 +104,27 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
                  {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"}, 
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
+                 {'service_unit' : 'rtkbase_raw2nmea.service', "name" : "raw2nmea"},
                  ]
 
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
 connected_clients = 0
+
+class StandaloneApplication(gunicorn.app.base.BaseApplication):
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super().__init__()
+
+    def load_config(self):
+        config = {key: value for key, value in self.options.items()
+                if key in self.cfg.settings and value is not None}
+        for key, value in config.items():
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
 
 class User(UserMixin):
     """ Class for user authentification """
@@ -127,7 +138,7 @@ class User(UserMixin):
 class LoginForm(FlaskForm):
     """ Class for the loginform"""
     #username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Please enter the password:', validators=[DataRequired()])
+    password = PasswordField('Please enter the RTKBase password:', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
@@ -142,7 +153,7 @@ def update_password(config_object):
     if new_password != "":
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
         config_object.update_setting("general", "new_web_password", "")
-        
+
 def manager():
     """ This manager runs inside a separate thread
         It checks how long rtkrcv is running since the last user leaves the
@@ -165,7 +176,7 @@ def manager():
             if  services_status != updated_services_status:
                 services_status = updated_services_status
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
-                print("service status", services_status)
+                #print("service status", services_status)
 
             volume_usage = get_volume_usage()
             sys_infos = {"cpu_temp" : cpu_temp,
@@ -176,7 +187,7 @@ def manager():
                         "volume_total" : round(volume_usage.total / 10E8, 2),
                         "volume_percent_used" : volume_usage.percent}
             socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
-        
+
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive" or \
                  main_service.get("active") == False and rtk.state != "inactive":
             print("DEBUG Stopping rtkrcv")
@@ -207,7 +218,7 @@ def repaint_services_button(services_list):
             service["btn_off_color"] = "outline-danger"
         elif service.get("state_ok") == True:
             service["btn_off_color"] = "outline-secondary"
-        
+
     return services_list
 
 def old_get_cpu_temp():
@@ -243,7 +254,7 @@ def get_sbc_model():
         Try to detect the single board computer used
         :return the model name or unknown if not detected
     """
-    answer = subprocess.run(["cat", "/proc/device-tree/model"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run(["cat", "/proc/device-tree/model"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode == 0:
         sbc_model = answer.stdout.split("\n").pop().strip()
     else:
@@ -251,7 +262,7 @@ def get_sbc_model():
     return sbc_model
 
 @socketio.on("check update", namespace="/test")
-def check_update(source_url = None, current_release = None, prerelease=rtkbaseconfig.getboolean("general", "prerelease"), emit = True):
+def check_update(source_url = None, current_release = None, prerelease=rtkbaseconfig.getboolean("general", "prerelease"), return_emit = True):
     """
         Check if a RTKBase update exists
         :param source_url: the url where we will try to find an update. It uses the github api.
@@ -266,13 +277,12 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
     #    socketio.emit("new release", json.dumps(new_release), namespace="/test")
     #return new_release
     ## test
-
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
     current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
     current_release = current_release.split("-beta", 1)[0].split("-alpha", 1)[0].split("-rc", 1)[0].split("b", 1)[0]
-    
-    try:    
+
+    try:
         response = requests.get(source_url)
         response = response.json()
         for release in response:
@@ -286,12 +296,12 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
                             new_release["url"] = asset.get("browser_download_url")
                             break
                     break
-             
+
     except Exception as e:
         print("Check update error: ", e)
         new_release = { "error" : repr(e)}
-        
-    if emit:
+
+    if return_emit:
         socketio.emit("new release", json.dumps(new_release), namespace="/test")
     return new_release
 
@@ -307,7 +317,7 @@ def update_rtkbase(update_file=False):
 
     if not update_file:
         #Check if an update is available
-        update_url = check_update(emit=False).get("url")
+        update_url = check_update(return_emit=False).get("url")
         if update_url is None:
             return
         #Download update
@@ -317,7 +327,7 @@ def update_rtkbase(update_file=False):
         update_file.save("/var/tmp/rtkbase_update.tar.gz")
         update_archive = "/var/tmp/rtkbase_update.tar.gz"
         print("update stored in /var/tmp/")
-    
+
     if update_archive is None:
         socketio.emit("downloading_update", json.dumps({"result": 'false'}), namespace="/test")
         return
@@ -335,24 +345,29 @@ def update_rtkbase(update_file=False):
         os.rmdir("/var/tmp/rtkbase")
     except FileNotFoundError:
         print("/var/tmp/rtkbase directory doesn't exist")
-        
+
     #Extract archive
     tar.extractall("/var/tmp")
 
     source_path = os.path.join("/var/tmp/", primary_folder)
-    script_path = os.path.join(source_path, "rtkbase_update.sh")
+    script_path = os.path.join(source_path, "tools", "rtkbase_update.sh")
+    data_dir = app.config["DOWNLOAD_FOLDER"].split("/")[-1]
     current_release = rtkbaseconfig.get("general", "version").strip("v")
     standard_user = rtkbaseconfig.get("general", "user")
     #launch update verifications
-    answer = subprocess.run([script_path, source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([script_path, source_path, rtkbase_path, data_dir, current_release, standard_user, "--checking"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode != 0:
         socketio.emit("updating_rtkbase_stopped", json.dumps({"error" : answer.stderr.splitlines()}), namespace="/test")
+        print("Checking OS release failed. Update aborted!")
     else : #if ok, launch update script
         print("Launch update")
         socketio.emit("updating_rtkbase", namespace="/test")
         rtk.shutdownBase()
         time.sleep(1)
-        os.execl(script_path, "unused arg0", source_path, rtkbase_path, app.config["DOWNLOAD_FOLDER"].split("/")[-1], current_release, standard_user)
+        #update_service=ServiceController('rtkbase_update.service')
+        #update_service.start()
+        subprocess.Popen([script_path, source_path, rtkbase_path, data_dir, current_release, standard_user])
+        #os.execl('/var/tmp/rtkbase_update.sh', "unused arg0", source_path, rtkbase_path, data_dir, current_release, standard_user)
 
 def download_update(update_path):
     update_archive = "/var/tmp/rtkbase_update.tar.gz"
@@ -375,8 +390,8 @@ def inject_release():
     g.sbc_model = get_sbc_model()
 
 @login.user_loader
-def load_user(id):
-    return User(id)
+def load_user(user_id):
+    return User(user_id)
 
 @app.route('/')
 @app.route('/index')
@@ -390,27 +405,50 @@ def status_page():
     base_coordinates = {"lat" : base_position[0], "lon" : base_position[1]}
     return render_template("status.html", base_coordinates = base_coordinates, tms_key = {"maptiler_key" : rtkbaseconfig.get("general", "maptiler_key")})
 
-@app.route('/settings')
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings_page():
     """
         The settings page where you can manage the various services, the parameters, update, power...
     """
+    # POST method when updating with a manual file
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+        if uploaded_file.filename != '':
+            update_rtkbase(uploaded_file)
+        else:
+            print("wrong update file")
+        return ('', 204)
+    # variable needed when the gnss receiver offer a web interface
+    host_url =  urllib.parse.urlparse(request.host_url)
+    gnss_rcv_url = urllib.parse.ParseResult(scheme=host_url.scheme,
+                                            netloc="{}:{}".format(host_url.hostname, rtkbaseconfig.get("main", "gnss_rcv_web_proxy_port")),
+                                            path=host_url.path,
+                                            params=host_url.params, query=host_url.query,
+                                            fragment=host_url.fragment)
+    #TODO use dict and not list
     main_settings = rtkbaseconfig.get_main_settings()
+    main_settings.append(gnss_rcv_url.geturl())
     ntrip_A_settings = rtkbaseconfig.get_ntrip_A_settings()
     ntrip_B_settings = rtkbaseconfig.get_ntrip_B_settings()
     local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
-    file_settings = rtkbaseconfig.get_file_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
+    rtcm_client_settings = rtkbaseconfig.get_rtcm_client_settings()
+    rtcm_udp_svr_settings = rtkbaseconfig.get_rtcm_udp_svr_settings()
+    rtcm_udp_client_settings = rtkbaseconfig.get_rtcm_udp_client_settings()
     rtcm_serial_settings = rtkbaseconfig.get_rtcm_serial_settings()
+    file_settings = rtkbaseconfig.get_file_settings()
 
     return render_template("settings.html", main_settings = main_settings,
                                             ntrip_A_settings = ntrip_A_settings,
                                             ntrip_B_settings = ntrip_B_settings,
                                             local_ntripc_settings = local_ntripc_settings,
-                                            file_settings = file_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
+                                            rtcm_client_settings = rtcm_client_settings,
+                                            rtcm_udp_svr_settings = rtcm_udp_svr_settings,
+                                            rtcm_udp_client_settings = rtcm_udp_client_settings,
                                             rtcm_serial_settings = rtcm_serial_settings,
+                                            file_settings = file_settings,
                                             os_infos = distro.info(),)
 
 @app.route('/logs')
@@ -441,14 +479,14 @@ def login_page():
         password = loginform.password.data
         if not user.check_password(password):
             return abort(401)
-        
+
         login_user(user, remember=loginform.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or urllib.parse.urlsplit(next_page).netloc != '':
             next_page = url_for('status_page')
 
         return redirect(next_page)
-        
+
     return render_template('login.html', title='Sign In', form=loginform)
 
 @app.route('/logout')
@@ -468,10 +506,12 @@ def diagnostic():
     for service in services_list + [rtkbase_web_service]:
         sysctl_status = subprocess.run(['systemctl', 'status', service['service_unit']],
                                 stdout=subprocess.PIPE,
-                                universal_newlines=True)
+                                universal_newlines=True,
+                                check=False)
         journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']], 
                                  stdout=subprocess.PIPE, 
-                                 universal_newlines=True)
+                                 universal_newlines=True,
+                                 check=False)
         
         #Replace carrier return to <br> for html view
         sysctl_status = sysctl_status.stdout.replace('\n', '<br>') 
@@ -480,28 +520,23 @@ def diagnostic():
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
         
     return render_template('diagnostic.html', logs = logs)
-    
-@app.route('/manual_update', methods=['GET', 'POST'])       
-@login_required
-def upload_file():
-    if request.method == 'POST':
-        uploaded_file = request.files['file']
-        if uploaded_file.filename != '':
-            update_rtkbase(uploaded_file)
-        return "Updating....please refresh in a few minutes"
-    return render_template('manual_update.html')
+
 
 #### Handle connect/disconnect events ####
 
 @socketio.on("connect", namespace="/test")
-def testConnect():
+def clientConnect():
     global connected_clients
     connected_clients += 1
     print("Browser client connected")
+    if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
+        rtkbaseconfig.remove_option("general", "updated")
+        rtkbaseconfig.write_file()
+        socketio.emit("update_successful", json.dumps({"result": 'true'}), namespace="/test")
     rtk.sendState()
 
 @socketio.on("disconnect", namespace="/test")
-def testDisconnect():
+def clientDisconnect():
     global connected_clients
     connected_clients -=1
     print("Browser client disconnected")
@@ -545,11 +580,11 @@ def startBase():
     if rtk.get_rtkcv_option("inpstr1-format") != saved_input_type:
         rtk.set_rtkcv_option("inpstr1-format", saved_input_type)
         rtk.set_rtkcv_pending_refresh(True)
-    
+
     if rtk.get_rtkcv_pending_status():
         print("REFRESH NEEDED !!!!!!!!!!!!!!!!")
         rtk.startBase()
-    
+
 @socketio.on("stop base", namespace="/test")
 def stopBase():
     rtk.stopBase()
@@ -557,12 +592,6 @@ def stopBase():
 @socketio.on("on graph", namespace="/test")
 def continueBase():
     rtk.sleep_count = 0
-
-#### Free space handler
-
-@socketio.on("get available space", namespace="/test")
-def getAvailableSpace():
-    rtk.socketio.emit("available space", reach_tools.getFreeSpace(path_to_gnss_log), namespace="/test")
 
 #### Delete log button handler ####
 
@@ -578,7 +607,7 @@ def deleteLog(json_msg):
 def detect_receiver(json_msg):
     print("Detecting gnss receiver")
     #print("DEBUG json_msg: ", json_msg)
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
@@ -597,8 +626,8 @@ def detect_receiver(json_msg):
     socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
 
 @socketio.on("configure_receiver", namespace="/test")
-def configure_receiver(brand="u-blox", model="F9P"):
-    # only ZED-F9P could be configured automaticaly
+def configure_receiver(brand="", model=""):
+    # only some receiver could be configured automaticaly
     # After port detection, the main service will be restarted, and it will take some time. But we have to stop it to
     # configure the receiver. We wait 2 seconds before stopping it to remove conflicting calls.
     time.sleep(4)
@@ -610,7 +639,7 @@ def configure_receiver(brand="u-blox", model="F9P"):
         restart_main = False
 
     print("configuring {} gnss receiver model {}".format(brand, model))
-    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     #print("DEBUG - stdout: ", answer.stdout)
     #print("DEBUG - returncode: ", answer.returncode)
 
@@ -631,7 +660,9 @@ def configure_receiver(brand="u-blox", model="F9P"):
 def reset_settings():
     switchService({"name":"main", "active":False})
     rtkbaseconfig.merge_default_and_user(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf.default"))
+    rtkbaseconfig.expand_path()
     rtkbaseconfig.write_file()
+    update_std_user(services_list)
     socketio.emit("settings_reset", namespace="/test")
 
 @app.route("/logs/download/settings")
@@ -679,7 +710,7 @@ def rinex_ign(json_msg):
     convpath = os.path.abspath(os.path.join(rtkbase_path, "tools", "convbin.sh"))
     convbin_user = rtkbaseconfig.get("general", "user").strip("'")
     #print("DEBUG", convpath, json_msg.get("filename"), rtk.logm.log_path, rinex_type)
-    answer = subprocess.run(["sudo", "-u", convbin_user, convpath, json_msg.get("filename"), rtk.logm.log_path, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    answer = subprocess.run(["sudo", "-u", convbin_user, convpath, json_msg.get("filename"), rtk.logm.log_path, rinex_type], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode == 0 and "rinex_file=" in answer.stdout:
         rinex_file = answer.stdout.split("\n").pop().strip("rinex_file=")
         result = {"result" : "success", "file" : rinex_file}
@@ -771,7 +802,7 @@ def restartServices(restart_services_list=None):
     """
         Restart already running services
         This function will refresh all services status, then compare the global services_list and 
-        the restart_services_list to find the services we need to restart.
+        then restart_services_list to find the services we need to restart.
         #TODO I don't really like this global services_list use.
     """
     if restart_services_list == None:
@@ -793,7 +824,7 @@ def restartServices(restart_services_list=None):
                     service["unit"].start()
                 else:
                     service["unit"].restart()
-    
+
     #refresh service status
     getServicesStatus()
 
@@ -829,9 +860,9 @@ def getServicesStatus(emit_pingback=True):
         pass
 
     services_status = []
-    for service in services_list: 
+    for service in services_list:
         services_status.append({key:service[key] for key in service if key != 'unit'})
-    
+
     services_status = repaint_services_button(services_status)
     #print(services_status)
     if emit_pingback:
@@ -892,7 +923,7 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "file", "rtcm_serial"))  
+            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial", "raw2nmea"))  
         elif source_section == "ntrip_A":
             restartServices(("ntrip_A",))
         elif source_section == "ntrip_B":
@@ -901,12 +932,41 @@ def update_settings(json_msg):
             restartServices(("local_ntrip_caster",))
         elif source_section == "rtcm_svr":
             restartServices(("rtcm_svr",))
+        elif source_section == "rtcm_client":
+            restartServices(("rtcm_client",))
+        elif source_section == "rtcm_udp_svr":
+            restartServices(("rtcm_udp_svr",))
+        elif source_section == "rtcm_udp_client":
+            restartServices(("rtcm_udp_client",))
         elif source_section == "rtcm_serial":
             restartServices(("rtcm_serial",))
         elif source_section == "local_storage":
             restartServices(("file",))
 
+def arg_parse():
+    parser = argparse.ArgumentParser(
+        description="RTKBase Web server",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        help="Enable web server debug mode",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help="port used for the web server",
+        default=None
+    )
+    args = parser.parse_args()
+    return args
+
 if __name__ == "__main__":
+    args=arg_parse()
     try:
         #check if a new password is defined in settings.conf
         update_password(rtkbaseconfig)
@@ -919,18 +979,22 @@ if __name__ == "__main__":
         services_list = load_units(services_list)
         #Update standard user in settings.conf
         update_std_user(services_list)
-        #check if we run RTKBase for the first time after an update
-        #and restart some services to let them send the new release number.
-        if rtkbaseconfig.get("general", "updated", fallback="False").lower() == "true":
-            restartServices(["ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_serial"])
-            rtkbaseconfig.remove_option("general", "updated")
-            rtkbaseconfig.write_file()
         #Start a "manager" thread
         manager_thread = Thread(target=manager, daemon=True)
         manager_thread.start()
 
         app.secret_key = rtkbaseconfig.get_secret_key()
-        socketio.run(app, host = "::", port = rtkbaseconfig.get("general", "web_port", fallback=80)) # IPv6 "::" is mapped to IPv4
+        #socketio.run(app, host = "::", port = args.port or rtkbaseconfig.get("general", "web_port", fallback=80), debug=args.debug) # IPv6 "::" is mapped to IPv4
+        gunicorn_options = {
+        'bind': ['%s:%s' % ('0.0.0.0', args.port or rtkbaseconfig.get("main", "web_port", fallback=80)),
+                    '%s:%s' % ('[::1]', args.port or rtkbaseconfig.get("main", "web_port", fallback=80)) ],
+        'workers': 1,
+        'worker_class': 'gevent',
+        'graceful_timeout': 10,
+        'loglevel': 'debug' if args.debug else 'warning',
+        }
+        #start gunicorn
+        StandaloneApplication(app, gunicorn_options).run()
 
     except KeyboardInterrupt:
         print("Server interrupted by user!!")

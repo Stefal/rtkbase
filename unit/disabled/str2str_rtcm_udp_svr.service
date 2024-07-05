@@ -1,0 +1,21 @@
+[Unit]
+Description=RTKBase RTCM UDP Server
+#After=network-online.target
+#Wants=network-online.target
+Requires=str2str_tcp.service
+
+[Service]
+Type=forking
+User={user}
+ExecStart={script_path}/run_cast.sh in_tcp out_rtcm_udp_svr
+Restart=on-failure
+RestartSec=30
+#Limiting log to 1 msg per minute
+LogRateLimitIntervalSec=1 minute
+LogRateLimitBurst=1
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths={script_path}
+
+[Install]
+WantedBy=multi-user.target

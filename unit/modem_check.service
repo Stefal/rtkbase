@@ -1,0 +1,13 @@
+[Unit]
+Description=Check Simcom modem status
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={user}
+ExecStart={python_path} {script_path}/tools/modem_check.py
+Restart=on-failure
+RestartSec=30
+ProtectHome=read-only
+ProtectSystem=strict

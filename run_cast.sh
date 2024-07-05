@@ -4,8 +4,8 @@
 # You can read the RTKLIB manual for more str2str informations:
 # https://github.com/tomojitakasu/RTKLIB
 
-BASEDIR=$(dirname "$0")
-source <( grep '=' ${BASEDIR}/settings.conf )  #import settings
+BASEDIR="$(dirname "$0")"
+source <( grep -v '^#' "${BASEDIR}"/settings.conf | grep '=' ) #import settings
 
 receiver_info="RTKBase ${receiver},${version} ${receiver_firmware}"
 in_serial="serial://${com_port}:${com_port_settings}#${receiver_format}"
@@ -40,6 +40,14 @@ out_rtcm_svr="tcpsvr://:${rtcm_svr_port}#rtcm3 -msg ${rtcm_svr_msg} -p ${positio
 #add receiver options if it exists
 [[ ! -z "${rtcm_receiver_options}" ]] && out_rtcm_svr=""${out_rtcm_svr}" -opt "${rtcm_receiver_options}""
 
+out_rtcm_client="tcpcli://${rtcm_client_user}:${rtcm_client_pwd}@${rtcm_client_addr}:${rtcm_client_port}#rtcm3 -msg ${rtcm_client_msg} -p ${position}"
+#add receiver options if it exists
+[[ ! -z "${rtcm_client_receiver_options}" ]] && out_rtcm_client=""${out_rtcm_client}" -opt "${rtcm_receiver_client_options}""
+
+out_rtcm_udp_svr="udpsvr://:${rtcm_udp_svr_port}#rtcm3 -msg ${rtcm_udp_svr_msg} -p ${position}"
+#add receiver options if it exists
+[[ ! -z "${rtcm_udp_svr_receiver_options}" ]] && out_rtcm_udp_svr=""${out_rtcm_udp_svr}" -opt "${rtcm_udp_svr_receiver_options}""
+
 out_rtcm_serial="serial://${out_com_port}:${out_com_port_settings}#rtcm3 -msg ${rtcm_serial_msg} -p ${position}"
 #add receiver options if it exists
 [[ ! -z "${rtcm_serial_receiver_options}" ]] && out_rtcm_serial=""${out_rtcm_serial}" -opt "${rtcm_serial_receiver_options}""
@@ -71,7 +79,17 @@ mkdir -p ${logdir}
     #echo ${cast} -in ${!1} -out $out_rtcm_svr
     ${cast} -in ${!1} -out ${out_rtcm_svr} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_svr.log &
     ;;
+  
+  out_rtcm_client)
+    #echo ${cast} -in ${!1} -out $out_rtcm_client
+  ${cast} -in ${!1} -out ${out_rtcm_client} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_client.log &
+  ;;
 
+  out_rtcm_udp_svr)
+    #echo ${cast} -in ${!1} -out $out_rtcm_udp_svr
+    ${cast} -in ${!1} -out ${out_rtcm_udp_svr} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_udp_svr.log &
+    ;;
+  
   out_rtcm_serial)
     #echo ${cast} -in ${!1} -out $out_rtcm_serial
     ${cast} -in ${!1} -out ${out_rtcm_serial} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_serial.log &

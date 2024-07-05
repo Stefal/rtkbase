@@ -110,7 +110,7 @@ class RTKBaseConfigManager:
             and remove the single quotes.      
         """
         ordered_main = [{"source_section" : "main"}]
-        for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_firmware", "receiver_format", "antenna_info", "tcp_port"):
+        for key in ("position", "com_port", "com_port_settings", "receiver", "receiver_firmware", "receiver_format", "antenna_info", "tcp_port", "gnss_rcv_web_ip", "gnss_rcv_web_proxy_port"):
             ordered_main.append({key : self.config.get('main', key).strip("'")})
         return ordered_main
 
@@ -165,6 +165,36 @@ class RTKBaseConfigManager:
             ordered_rtcm_svr.append({key : self.config.get('rtcm_svr', key).strip("'")})
         return ordered_rtcm_svr
 
+    def get_rtcm_client_settings(self):
+        """
+            Get a subset of the settings from the file section in an ordered object
+            and remove the single quotes.       
+        """
+        ordered_rtcm_client = [{"source_section" : "rtcm_client"}]
+        for key in ("rtcm_client_addr", "rtcm_client_port", "rtcm_client_user", "rtcm_client_pwd", "rtcm_client_msg", "rtcm_client_receiver_options"):
+            ordered_rtcm_client.append({key : self.config.get('rtcm_client', key).strip("'")})
+        return ordered_rtcm_client
+
+    def get_rtcm_udp_svr_settings(self):
+        """
+            Get a subset of the settings from the file section in an ordered object
+            and remove the single quotes.       
+        """
+        ordered_rtcm_udp_svr = [{"source_section" : "rtcm_udp_svr"}]
+        for key in ("rtcm_udp_svr_port", "rtcm_udp_svr_msg", "rtcm_udp_svr_receiver_options"):
+            ordered_rtcm_udp_svr.append({key : self.config.get('rtcm_udp_svr', key).strip("'")})
+        return ordered_rtcm_udp_svr
+
+    def get_rtcm_udp_client_settings(self):
+        """
+            Get a subset of the settings from the file section in an ordered object
+            and remove the single quotes.       
+        """
+        ordered_rtcm_udp_client = [{"source_section" : "rtcm_udp_client"}]
+        for key in ("rtcm_udp_client_addr", "rtcm_udp_client_port", "rtcm_udp_client_msg", "rtcm_udp_client_receiver_options"):
+            ordered_rtcm_udp_client.append({key : self.config.get('rtcm_udp_client', key).strip("'")})
+        return ordered_rtcm_udp_client
+       
     def get_rtcm_serial_settings(self):
         """
             Get a subset of the settings from the file section in an ordered object
@@ -187,6 +217,9 @@ class RTKBaseConfigManager:
         ordered_settings['local_ntripc'] = self.get_local_ntripc_settings()
         ordered_settings['file'] = self.get_file_settings()
         ordered_settings['rtcm_svr'] = self.get_rtcm_svr_settings()
+        ordered_settings['rtcm_client'] = self.get_rtcm_client_settings()
+        ordered_settings['rtcm_udp_svr'] = self.get_rtcm_udp_svr_settings()
+        ordered_settings['rtcm_udp_client'] = self.get_rtcm_udp_client_settings()
         ordered_settings['rtcm_serial'] = self.get_rtcm_serial_settings()
         return ordered_settings
 

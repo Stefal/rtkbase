@@ -1,0 +1,12 @@
+[Unit]
+Description=RTKBase update service
+
+
+[Service]
+User=root
+Type=oneshot
+EnvironmentFile=/home/stephane/gnss_venv/rtkbase/tools/service_args.conf
+ExecStart=/var/tmp/rtkbase_update.sh ${ARG1} ${ARG2} ${ARG3} ${ARG4} ${ARG5}
+
+[Install]
+WantedBy=multi-user.target
