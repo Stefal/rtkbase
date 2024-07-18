@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.6.1] - not released
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+ - Cellular modem: nmcli connection was not updated after a switch to public ip address.
+### Security
+
 ## [2.6.0] - 2024-07-05
 ### Added
  - Septentrio Mosaic-X5 detection and configuration

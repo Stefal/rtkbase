@@ -201,7 +201,7 @@ upd_2.5.0 () {
 
 #this update function is here only for testing update, but could be useful in case of a failed 2.5 to 2.6 update.
 upd_2.6.0() {
-  upd_2.5.0
+  "${destination_directory}"/tools/install.sh --user "${standard_user}" --unit-files
 }
 
 #check if we can apply the update

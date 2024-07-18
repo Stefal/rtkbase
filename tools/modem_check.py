@@ -53,6 +53,7 @@ def get_public_ip_address():
     try:
         modem = Modem(MODEM_PORT)
         public_ip = modem.get_ip_address()
+        public_ip = None if public_ip == '0.0.0.0' else public_ip
         
     except Exception as e:
         print (e)
@@ -76,6 +77,24 @@ ip_in_use = get_in_use_ip_address()
 public_ip = get_public_ip_address()
 ping_host = ping('caster.centipede.fr') or ping('pch.net')
 
+if USE_PUBLIC_IP and ip_in_use != public_ip and public_ip is not None:
+    try:
+        print("Internal Ip address in use: ", ip_in_use)
+        print("Modem public Ip address: ", public_ip)
+        modem = Modem(MODEM_PORT)
+        modem.set_usbnetip_mode(1)
+        print("Request to switch to public IP address done!")
+        print("It could take a few minutes to be active")
+        time.sleep(5)
+        nmcli.connection.down(CONN_NAME)
+        time.sleep(5)
+        nmcli.connection.up(CONN_NAME)
+    except Exception as e:
+        print(e)
+    finally:
+        print("closing modem connexion")
+        modem.close()
+
 if ip_in_use == None or public_ip == None or network_reg == False or ping_host == False:
     print("Internal Ip address in use: ", ip_in_use)
     print("Modem public Ip address: ", public_ip)
@@ -94,19 +113,6 @@ if ip_in_use == None or public_ip == None or network_reg == False or ping_host =
     finally:
         modem.close()
 
-elif USE_PUBLIC_IP and ip_in_use != public_ip:
-    try:
-        print("Internal Ip address in use: ", ip_in_use)
-        print("Modem public Ip address: ", public_ip)
-        modem = Modem(MODEM_PORT)
-        modem.set_usbnetip_mode(1)
-        print("Request to switch to public IP address done!")
-        print("It could take a few minutes to be active")
-    except Exception as e:
-        print(e)
-    finally:
-        print("closing modem connexion")
-        modem.close()
 #else:
 #    print("We are already using the public Ip")
 
