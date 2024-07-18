@@ -9,7 +9,7 @@ Frontend's main features are:
 
 + View the satellites signal levels
 + View the base location on a map
-+ Detect and configure the Gnss receiver (F9P)
++ Detect and configure the Gnss receiver (Ublox F9P or Septentrio Mosaic-X5)
 + Start/stop various services (Sending data to a Ntrip caster, internal Ntrip caster, Rtcm server, Sending Rtcm stream on a radio link, Log raw data to files)
 + Edit the services settings
 + Convert raw data to Rinex
@@ -218,18 +218,13 @@ So, if you really want it, let's go for a manual installation with some explanat
       sudo systemctl enable gpsd
    ```
 
-1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox usb receiver, you can use `sudo ./install.sh --detect-gnss`. Write down the result, you may need it later.
+1. Connect your gnss receiver to raspberry pi/orange pi/.... with usb or uart, and check which com port it uses (ttyS1, ttyAMA0, something else...). If it's a U-Blox F9P receiver (usb or uart) or a Septentrio Mosaic-X5 (usb), you can use `sudo ./install.sh --detect-gnss`. Write down the result, you may need it later.
 
 1. If you didn't have already configure your gnss receiver, you must set it to output raw data:
    
-   If it's a U-Blox ZED-F9P (usb), you can use 
+   If it's a U-Blox ZED-F9P (usb or uart), or a Septentrio Mosaic-X5 (usb) you can use 
    ```bash
    sudo ./install.sh --detect-gnss --configure-gnss
-   ```
-
-   If it's a U-Blox ZED-F9P (uart), you can use this command (change the ttyS1 and 115200 value if needed)):
-   ```bash
-   rtkbase/tools/set_zed-f9p.sh /dev/ttyS1 115200 rtkbase/receiver_cfg/U-Blox_ZED-F9P_rtkbase.cfg
    ```
      
    If you need to use a config tool from another computer (like U-center), you can use `socat`:
