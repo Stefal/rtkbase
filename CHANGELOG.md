@@ -6,6 +6,7 @@
 ### Deprecated
 ### Removed
 ### Fixed
+ - Insert new release into settings.conf before restarting services. #411
  - Cellular modem: nmcli connection was not updated after a switch to public ip address.
 ### Security
 

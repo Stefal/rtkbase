@@ -199,7 +199,6 @@ upd_2.5.0 () {
 
 }
 
-#this update function is here only for testing update, but could be useful in case of a failed 2.5 to 2.6 update.
 upd_2.6.0() {
   "${destination_directory}"/tools/install.sh --user "${standard_user}" --unit-files
 }
@@ -219,9 +218,10 @@ upd_"${old_version/b*/b}" "$@"  || { echo 'Update failed (upd_release_number)' ;
 #When dealing with beta version, "${oldversion/b*/b}" will call function 2.4b when we use a release 2.4b1 or 2.4b2 or 2.4beta99
 
 # The new version numbers will be imported from settings.conf.default during the web server startup.
-echo "Delete the line version= and checkpoint_version= in settings.conf"
+echo "update the line version= and delete checkpoint_version= in settings.conf"
 sed -i '/^checkpoint_version=/d' ${destination_directory}/settings.conf
-sed -i '/^version=/d' ${destination_directory}/settings.conf
+new_version=$(grep '^version' ${destination_directory}/settings.conf.default | awk -F '=' '{ print $2 }')
+sed -i 's/^version=.*/version='$new_version'/' ${destination_directory}/settings.conf
 echo 'Insert updated status in settings.conf'
 sed -i '/^\[general\]/a updated=true' ${destination_directory}/settings.conf
 
@@ -230,9 +230,10 @@ chown -R ${standard_user}:${standard_user} ${destination_directory}
 
   #restart str2str if it was active before upgrading rtklib
   # restart not nedeed if RTKlib was not upgraded
-  [ $str2str_active = 'active' ] && systemctl restart str2str_tcp 
-  [ $str2str_file = 'active' ] && systemctl restart str2str_file 
-  [ $rtkrcv_raw2nmea = 'active' ] && systemctl restart rtkbase_raw2nmea
+  #[ $str2str_active = 'active' ] && systemctl restart str2str_tcp 
+  #[ $str2str_file = 'active' ] && systemctl restart str2str_file 
+  #[ $rtkrcv_raw2nmea = 'active' ] && systemctl restart rtkbase_raw2nmea
+  
   # restart previously running services
   # restart needed with all update to propagate the release number in the rtcm stream
   [ $str2str_ntrip_A_active = 'active' ] && systemctl restart str2str_ntrip_A
@@ -241,7 +242,6 @@ chown -R ${standard_user}:${standard_user} ${destination_directory}
   [ $str2str_rtcm = 'active' ] && systemctl restart str2str_rtcm_svr
   [ $str2str_serial = 'active' ] && systemctl restart str2str_rtcm_serial
   
-
 #if a reboot is needed
 #systemctl reboot
 echo 'RTKBase update ending...'
