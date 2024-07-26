@@ -7,6 +7,7 @@
 ### Removed
 ### Fixed
  - Insert new release into settings.conf before restarting services. #411
+ - Custom web_port setting was not used. #419
  - Cellular modem: nmcli connection was not updated after a switch to public ip address.
 ### Security
 

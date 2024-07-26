@@ -986,8 +986,8 @@ if __name__ == "__main__":
         app.secret_key = rtkbaseconfig.get_secret_key()
         #socketio.run(app, host = "::", port = args.port or rtkbaseconfig.get("general", "web_port", fallback=80), debug=args.debug) # IPv6 "::" is mapped to IPv4
         gunicorn_options = {
-        'bind': ['%s:%s' % ('0.0.0.0', args.port or rtkbaseconfig.get("main", "web_port", fallback=80)),
-                    '%s:%s' % ('[::1]', args.port or rtkbaseconfig.get("main", "web_port", fallback=80)) ],
+        'bind': ['%s:%s' % ('0.0.0.0', args.port or rtkbaseconfig.get("general", "web_port", fallback=80)),
+                    '%s:%s' % ('[::1]', args.port or rtkbaseconfig.get("general", "web_port", fallback=80)) ],
         'workers': 1,
         'worker_class': 'gevent',
         'graceful_timeout': 10,
