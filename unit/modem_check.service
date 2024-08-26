@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User={user}
+User=root
 ExecStart={python_path} {script_path}/tools/modem_check.py
 Restart=on-failure
 RestartSec=30
