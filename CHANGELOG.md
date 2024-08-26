@@ -5,7 +5,7 @@
  - More tests before installing prebuilt RTKLib cli tools.
 ### Fixed
  - Build rtklib if previous installed release is not working. #418
- - Insert new release into settings.conf before restarting services. #411
+ - Insert new release number into settings.conf before restarting services. #411
  - Custom web_port setting was not used. #419
  - Cellular modem: nmcli connection was not updated after a switch to public ip address.
 
