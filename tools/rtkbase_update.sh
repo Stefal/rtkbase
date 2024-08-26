@@ -203,7 +203,10 @@ upd_2.6.0() {
   # update modem_check_service file (see https://github.com/Stefal/rtkbase/commit/cfad1981e483d74da04f53b8d7b354661100d610)
   "${destination_directory}"/tools/install.sh --user "${standard_user}" --unit-files
   # build rtklib if current release doesn't work
-  "${destination_directory}"/tools/install.sh --user "${standard_user}" --rtklib
+  if  ! str2str --version > /dev/null 2>&1
+   then
+     "${destination_directory}"/tools/install.sh --user "${standard_user}" --rtklib
+  fi
 }
 
 #check if we can apply the update
