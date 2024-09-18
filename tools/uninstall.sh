@@ -18,7 +18,8 @@ for service_name in str2str_tcp.service \
                     rtkbase_archive.timer \
                     modem_check.service \
                     modem_check.timer \
-                    rtkbase_gnss_web_proxy.service
+                    rtkbase_gnss_web_proxy.service \
+                    configure_gps.service
 do
     echo 'Deleting ' "${service_name}"
     systemctl stop "${service_name}"

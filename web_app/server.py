@@ -105,6 +105,7 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"}, 
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
                  {'service_unit' : 'rtkbase_raw2nmea.service', "name" : "raw2nmea"},
+                 {'service_unit' : 'configure_gps.service', "name" : "configure_gps"},
                  ]
 
 #Delay before rtkrcv will stop if no user is on status.html page
