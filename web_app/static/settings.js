@@ -714,7 +714,7 @@ $(document).ready(function () {
         $(this).prop("disabled", true);
         $("#reboot-cancel-button").prop("disabled", true);
         socket.emit("reboot device");
-        reboot_countdown(60, 0);
+        reboot_countdown(90, 0);
     })
 
     function reboot_countdown(remaining, count) {
