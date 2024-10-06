@@ -102,9 +102,10 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
                  {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
                  {"service_unit" : "str2str_file.service", "name" : "file"},
-                 {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"}, 
+                 {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"},
                  {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
                  {'service_unit' : 'rtkbase_raw2nmea.service', "name" : "raw2nmea"},
+                 {'service_unit' : 'rtkbase_gnss_web_proxy.service', "name": "RTKBase Reverse Proxy for Gnss receiver Web Server"}
                  ]
 
 #Delay before rtkrcv will stop if no user is on status.html page
@@ -840,8 +841,8 @@ def getServicesStatus(emit_pingback=True):
     """
 
     #print("Getting services status")
-    try:
-        for service in services_list:
+    for service in services_list:
+        try:
             #print("unit qui déconne : ", service["name"])
             service["active"] = service["unit"].isActive()
             service["status"] = service["unit"].status()
@@ -853,11 +854,11 @@ def getServicesStatus(emit_pingback=True):
             else:
                 service["state_ok"] = None
 
-    except Exception as e:
-        #print("Error getting service info for: {} - {}".format(service['name'], e))
-        #TODO manage better the error with rtkbase_archive.service. See https://github.com/Stefal/rtkbase/issues/162
-        #and try to remove this "pass" without any notification (bad practive)
-        pass
+        except Exception as e:
+            print("Error getting service info for: {} - {}".format(service['name'], e))
+            #TODO manage better the error with rtkbase_archive.service. See https://github.com/Stefal/rtkbase/issues/162
+            #and try to remove this "pass" without any notification (bad practive)
+            pass
 
     services_status = []
     for service in services_list:

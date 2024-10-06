@@ -1,11 +1,18 @@
 # Changelog
 
+## [2.6.2] - 2024-10-06
+### Added
+ - Added Rtkbase gnss reverse proxy service in the diagnostic view. #421
+### Fixed
+ - Remove firstboot service on Raspberry Pi image >= 2.5 which was causing services to stay stopped after a reboot. #436
+ - Reboot autorefresh timeout is now 90s. #426
+ 
 ## [2.6.1] - 2024-08-26
 ### Changed
  - More tests before installing prebuilt RTKLib cli tools.
 ### Fixed
  - Build rtklib if previous installed release is not working. #418
- - Insert new release into settings.conf before restarting services. #411
+ - Insert new release number into settings.conf before restarting services. #411
  - Custom web_port setting was not used. #419
  - Cellular modem: nmcli connection was not updated after a switch to public ip address.
 

@@ -207,6 +207,24 @@ upd_2.6.0() {
    then
      "${destination_directory}"/tools/install.sh --user "${standard_user}" --rtklib
   fi
+  upd_2.6.1 "$@"
+}
+
+upd_2.6.1() {
+  #Remove firstboot service from the Raspberry 2.5 and 2.6 images
+  #This service should have been removed after the first boot, but
+  # wasn't and was stopping various RTKBase services at each boot. 
+  if [[ -f /etc/os-release ]]
+    then
+      source /etc/os-release
+  fi
+
+  if [[ $ID == debian ]] && systemctl list-units firstboot.service
+    then
+      systemctl disable --now firstboot.service
+      rm /lib/systemd/system/firstboot.service
+      systemctl daemon-reload
+  fi
 }
 
 #check if we can apply the update
