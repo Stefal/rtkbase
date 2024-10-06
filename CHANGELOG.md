@@ -1,9 +1,12 @@
 # Changelog
 
 ## [2.6.2] - Unreleased
+### Added
+ - Added Rtkbase gnss reverse proxy service in the diagnostic view. #421
 ### Fixed
  - Remove firstboot service on Raspberry Pi image >= 2.5 which was causing services to stay stopped after a reboot. #436
  - Autorefresh timeout is now 90s. #426
+ 
 ## [2.6.1] - 2024-08-26
 ### Changed
  - More tests before installing prebuilt RTKLib cli tools.
