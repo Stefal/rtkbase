@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.6.2] - Unreleased
+## [2.6.2] - 2024-10-06
 ### Added
  - Added Rtkbase gnss reverse proxy service in the diagnostic view. #421
 ### Fixed
