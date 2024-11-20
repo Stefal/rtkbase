@@ -856,8 +856,6 @@ def getServicesStatus(emit_pingback=True):
 
         except Exception as e:
             print("Error getting service info for: {} - {}".format(service['name'], e))
-            #TODO manage better the error with rtkbase_archive.service. See https://github.com/Stefal/rtkbase/issues/162
-            #and try to remove this "pass" without any notification (bad practive)
             pass
 
     services_status = []

@@ -32,12 +32,15 @@ class ServiceController(object):
 
     def get_result(self):
         """
-            Get the service return status.
+            Get the unit return status.
             success => it's ok
             exit-code => str2str doesn't start successfully
             We can read a success between the startup and the first error
         """
-        return self.unit.Service.Result.decode()
+        if "org.freedesktop.systemd1.Service" in self.unit._interfaces:
+            return self.unit.Service.Result.decode()
+        elif "org.freedesktop.systemd1.Timer" in self.unit._interfaces:
+            return self.unit.Timer.Result.decode()
 
     def getUser(self):
         return self.unit.Service.User.decode()
