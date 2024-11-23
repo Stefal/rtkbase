@@ -288,7 +288,7 @@ install_rtkbase_bundled() {
     # Find __ARCHIVE__ marker, read archive content and decompress it
     ARCHIVE=$(awk '/^__ARCHIVE__/ {print NR + 1; exit 0; }' "${0}")
     # Check if there is some content after __ARCHIVE__ marker (more than 100 lines)
-    [[ $(sed -n '/__ARCHIVE__/,$p' "${0}" | wc -l) -lt 100 ]] && echo "RTKBASE isn't bundled inside install.sh. Please choose another source" && exit 1  
+    [[ $(sed -n '/^__ARCHIVE__/,$p' "${0}" | wc -l) -lt 100 ]] && echo "RTKBASE isn't bundled inside install.sh. Please choose another source" && exit 1  
     sudo -u "${RTKBASE_USER}" tail -n+${ARCHIVE} "${0}" | tar xpJv && \
     _add_rtkbase_path_to_environment
 }
