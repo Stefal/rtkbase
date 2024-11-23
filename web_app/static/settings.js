@@ -364,14 +364,6 @@ $(document).ready(function () {
         } else {
             detectApplyBtnElt.setAttribute('disabled', '');
             detectBodyElt.innerHTML = 'No GNSS receiver detected';
-            // TODO add a way to send the configuration even though the receiver isn't detected. It could be useful for F9P connected with Uart.
-            //detectBodyElt.innerHTML = 'No GNSS receiver detected. <br> would you still like to try to configure the receiver?';
-            //detectApplyBtnElt.onclick = function (){
-            //    socket.emit("configure_receiver");
-            //    detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
-            //    detectApplyBtnElt.setAttribute('disabled', '');
-            //};
-            //detectApplyBtnElt.removeAttribute('disabled');
         }
     })
 

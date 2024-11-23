@@ -613,8 +613,9 @@ def detect_receiver(json_msg):
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
             device_info = next(x for x in answer.stdout.splitlines() if x.startswith('/dev/')).split(' - ')
-            port, gnss_type, speed = [x.strip() for x in device_info]
-            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type, "port_speed" : speed}
+            port, gnss_type, speed, firmware = [x.strip() for x in device_info]
+            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type, "port_speed" : speed, "firmware" : firmware}
+            #TODO find a way to store firmware release in settings.conf if the apply button is clicked on the web gui
             result.update(json_msg)
         except Exception:
             result = {"result" : "failed"}
