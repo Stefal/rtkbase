@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.6.3] - not released
+### Fixed
+ - Fix pystemd result request for timer services. #162 #445
+ - Increase free space for archiving Mosaic-X5 data. #369
+
 ## [2.6.2] - 2024-10-06
 ### Added
  - Added Rtkbase gnss reverse proxy service in the diagnostic view. #421
