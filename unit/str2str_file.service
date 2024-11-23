@@ -1,6 +1,7 @@
 [Unit]
 Description=RTKBase File - Log data
 Requires=str2str_tcp.service
+After=str2str_tcp.service
 
 [Service]
 Type=forking

@@ -3,6 +3,7 @@ Description=RTKBase serial rtcm output
 #After=network-online.target
 #Wants=network-online.target
 Requires=str2str_tcp.service
+After=str2str_tcp.service
 
 [Service]
 Type=forking
