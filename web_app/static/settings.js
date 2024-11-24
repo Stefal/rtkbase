@@ -340,30 +340,30 @@ $(document).ready(function () {
     });
 
     socket.on("gnss_detection_result", function(msg) {
-        // open modal box with detection result and asking for configuration if detection is a success and a u-blox receiver
+        // open modal box with detection result and asking for configuration if detection is a success
         response = JSON.parse(msg);
         console.log(response);
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         if (response['result'] === 'success') {
             detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
             detectApplyBtnElt.onclick = function (){
-                document.querySelector('#com_port').value = response['port'].replace(/^\/dev\//, '');
-                document.querySelector('#com_port_settings').value = response['port_speed'] + ':8:n:1';
-                // NEW METHOD from https://stackoverflow.com/questions/35154348/trigger-form-submission-with-javascript
-                document.getElementById("main").dispatchEvent(new SubmitEvent('submit', {cancelable: true}));
-                if (response['then_configure']) {
-                    // We need to wait for the service stop/restart after the previous click on form save button.
-                    // Yes, it's dirty...
-                    //setTimeout(() => { document.querySelector('#configure_receiver_button').click(); }, 2000);
-                    document.querySelector('#configure_receiver_button').click();
-                }
-                // detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
-                // detectApplyBtnElt.setAttribute('disabled', '');
+                socket.emit("apply_receiver_settings", response)
             };
             detectApplyBtnElt.removeAttribute('disabled');
         } else {
             detectApplyBtnElt.setAttribute('disabled', '');
             detectBodyElt.innerHTML = 'No GNSS receiver detected';
+        }
+    })
+    socket.on("gnss_settings_saved", function(msg) {
+        // gnss settings are saved.
+        response = JSON.parse(msg);
+        if (response['then_configure']) {
+            // asking for gnss receiver configuration
+        document.querySelector('#configure_receiver_button').click();
+        } else {
+            // refreshing the page to display the new informations
+            location.href = document.URL.replace(/#$/, '');
         }
     })
 

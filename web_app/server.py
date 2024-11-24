@@ -615,7 +615,6 @@ def detect_receiver(json_msg):
             device_info = next(x for x in answer.stdout.splitlines() if x.startswith('/dev/')).split(' - ')
             port, gnss_type, speed, firmware = [x.strip() for x in device_info]
             result = {"result" : "success", "port" : port, "gnss_type" : gnss_type, "port_speed" : speed, "firmware" : firmware}
-            #TODO find a way to store firmware release in settings.conf if the apply button is clicked on the web gui
             result.update(json_msg)
         except Exception:
             result = {"result" : "failed"}
@@ -623,15 +622,26 @@ def detect_receiver(json_msg):
         #print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
     #result = {"result" : "failed"}
-    #result = {"result" : "success", "port" : "bestport", "gnss_type" : "F12P"}
-    #print('DEBUG result: ', result)
+    #result = {"result" : "success", "port" : "/dev/ttybestport", "gnss_type" : "F12P", "port_speed" : "115200", "firmware" : "1.55"}
+    result.update(json_msg) ## get back "then_configure" key/value
     socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
+
+@socketio.on("apply_receiver_settings", namespace="/test")
+def apply_receiver_settings(json_msg):
+    print("Applying gnss receiver new settings")
+    print(json_msg)
+    rtkbaseconfig.update_setting("main", "com_port", json_msg.get("port").strip("/dev/"), write_file=False)
+    rtkbaseconfig.update_setting("main", "com_port_settings", json_msg.get("port_speed") + ':8:n:1', write_file=False)
+    rtkbaseconfig.update_setting("main", "receiver", json_msg.get("gnss_type"), write_file=False)
+    rtkbaseconfig.update_setting("main", "receiver_firmware", json_msg.get("firmware"), write_file=True)
+
+    socketio.emit("gnss_settings_saved", json.dumps(json_msg), namespace="/test")
 
 @socketio.on("configure_receiver", namespace="/test")
 def configure_receiver(brand="", model=""):
     # only some receiver could be configured automaticaly
     # After port detection, the main service will be restarted, and it will take some time. But we have to stop it to
-    # configure the receiver. We wait 2 seconds before stopping it to remove conflicting calls.
+    # configure the receiver. We wait a few seconds before stopping it to remove conflicting calls.
     time.sleep(4)
     main_service = services_list[0]
     if main_service.get("active") is True:
