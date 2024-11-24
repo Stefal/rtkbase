@@ -334,6 +334,7 @@ $(document).ready(function () {
         detectApplyBtnElt.innerText = "Apply";
         detectApplyBtnElt.setAttribute('disabled', '');
         detectApplyBtnElt.removeAttribute('data-dismiss');
+        detectCancelBtnElt.hidden = false;
         detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Detecting GNSS receiver...';
         socket.emit("detect_receiver", {"then_configure" : false});
         $('#detectModal').modal();
@@ -373,7 +374,7 @@ $(document).ready(function () {
         detectApplyBtnElt.onclick = function (){}; //remove the previous attached event which launched the gnss configuration
         detectApplyBtnElt.innerText = "Close";
         detectApplyBtnElt.setAttribute('disabled', '');
-        detectCancelBtnElt.remove();
+        detectCancelBtnElt.hidden = true;
         detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
         socket.emit("configure_receiver");
         $('#detectModal').modal();
