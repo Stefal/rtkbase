@@ -568,7 +568,7 @@ configure_gnss(){
           systemctl list-unit-files rtkbase_gnss_web_proxy.service &>/dev/null                                                                                && \
           systemctl enable --now rtkbase_gnss_web_proxy.service                                                                                               && \
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                        && \
-          sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Unicore_UM980\'/ "${rtkbase_path}"/settings.conf                                         && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Unicore_$model\'/ "${rtkbase_path}"/settings.conf                                         && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'rtcm3\'/ "${rtkbase_path}"/settings.conf
           #UM980 archives a bigger, we need more remaining space to compress archives
           sudo -u "${RTKBASE_USER}" sed -i s/^min_free_space=.*/min_free_space=\'1500\'/ "${rtkbase_path}"/settings.conf
