@@ -430,11 +430,11 @@ detect_gnss() {
                     detected_gnss[2]=$port_speed
                     #echo 'U-blox ZED-F9P DETECTED ON '$port $port_speed
                     break
-                elif [[ $(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --command get_model --retry 2 2>/dev/null) =~ 'UM980' ]]; then
+                elif [[ $(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --command get_model --retry 2 ) == 'UM98'[0-2] ]]; then
                     detected_gnss[0]=$port
                     detected_gnss[1]='unicore'
                     detected_gnss[2]=$port_speed
-                    echo 'Unicore UM980 DETECTED ON '$port $port_speed
+                    echo 'Unicore UM980/UM982 DETECTED ON '$port $port_speed
                     break
                 fi
                 sleep 1
@@ -548,18 +548,20 @@ configure_gnss(){
             return $?
           fi
 
-        elif [[ $(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model --retry 2 2>/dev/null) =~ 'UM980' ]]
+        elif [[ $(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model --retry 2 2>/dev/null) == 'UM98'[0-2] ]]
         then
-        #get UM980 firmware release
+        #get model. TODO: find to not execute this command a second time
+        model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model --retry 2 2>/dev/null)
+        #get UM98x firmware release
         firmware="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_firmware --retry 2 2>/dev/null)" || firmware='?'
-        echo 'Unicore-UM980 Firmware: ' "${firmware}"
+        echo 'Unicore-' "${model}" 'Firmware: ' "${firmware}"
         sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
-        #configure the UM980 for RTKBase
-        echo 'Resetting the UM980 settings....'
+        #configure the UM980/UM982 for RTKBase
+        echo 'Resetting the ' "${model}" ' settings....'
         python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command reset --retry 5
-        sleep_time=10 ; echo 'Waiting '$sleep_time's for UM980 reboot' ; sleep $sleep_time
+        sleep_time=10 ; echo 'Waiting '$sleep_time's for ' "${model}" ' reboot' ; sleep $sleep_time
         echo 'Sending settings....'
-        python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_UM980_rtcm3.cfg --store --retry 2
+        python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_rtcm3.cfg --store --retry 2
         if [[ $? -eq  0 ]]
         then
           echo 'Unicore UM980 successfuly configured'
