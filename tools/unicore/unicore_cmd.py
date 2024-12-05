@@ -1,10 +1,14 @@
 #! /usr/bin/env python3
 from . serial_comm import SerialComm
 from enum import Enum
-from logging import getLogger
+import logging
 from itertools import chain
 import time
 #Code inspired by https://github.com/jonamat/sim-modem
+
+logging.basicConfig(format='%(levelname)s: %(message)s')
+log = logging.getLogger(__name__)
+log.setLevel('ERROR')
 
 class UnicoGnss():
     """Class for sending commands to Unicore Gnss receivers"""
@@ -27,7 +31,8 @@ class UnicoGnss():
             timeout=timeout,
             cmd_delay=cmd_delay,
         )
-        self.debug = debug
+        if debug:
+            log.setLevel('DEBUG')
         self.is_open = self.comm.device_serial.is_open
         self.connect()
 
@@ -47,15 +52,13 @@ class UnicoGnss():
                 return
             else:
                 raise Exception
-            if self.debug:
-                print("GNSS receiver connected, debug mode enabled")
-                print("read: {}".format(read))
+            log.debug("GNSS receiver connected, debug mode enabled")
+            log.debug("read: {}".format(read))
 
         except Exception as e:
-            print("GNSS receiver did not respond correctly. Closing serial port.")
-            print(e)
-            if self.debug:
-                print(read)
+            log.warning("GNSS receiver did not respond correctly. Closing serial port.")
+            log.warning(e)
+            log.debug(read)
             self.close()
 
     def close(self) -> None:
@@ -77,8 +80,7 @@ class UnicoGnss():
         #'$command,VERSIONA,response: OK*45\r\n
         # #VERSIONA,97,GPS,FINE,2343,48235000,0,0,18,813;"UM980","R4.10Build11833","HRPT00-S10C-P",
         # "2310415000001-MD22A2225022497","ff3ba396dcb0478d","2023/11/24"*270a13f7\r\n'
-        if self.debug:
-            print("Receive: {}".format(read))
+        log.debug("Receive: {}".format(read))
         if self._expected_res_for('VERSIONA') in read.decode(encoding='ASCII', errors='ignore'):
             lines = (chain.from_iterable(x.splitlines() for x in read.decode(encoding='ASCII', errors='ignore').split('#')))
             for line in lines:
@@ -95,8 +97,7 @@ class UnicoGnss():
         #'$command,VERSIONA,response: OK*45\r\n
         # #VERSIONA,97,GPS,FINE,2343,48235000,0,0,18,813;"UM980","R4.10Build11833","HRPT00-S10C-P",
         # "2310415000001-MD22A2225022497","ff3ba396dcb0478d","2023/11/24"*270a13f7\r\n'
-        if self.debug:
-            print("Receive: {}".format(read))
+        log.debug("Receive: {}".format(read))
         if self._expected_res_for('VERSIONA') in read.decode(encoding='ASCII', errors='ignore'):
             lines = (chain.from_iterable(x.splitlines() for x in read.decode(encoding='ASCII', errors='ignore').split('#')))
             for line in lines:
@@ -110,11 +111,9 @@ class UnicoGnss():
            Reset the Unicore receiver settings to factory defaults and restart it.
            Connection will be closed
         '''
-        if self.debug:
-            print("Sending: 'FRESET'")
+        log.debug("Sending: 'FRESET'")
         read = self.send_read_raw(self._cmd_with_checksum('FRESET'), size=5000)
-        if self.debug:
-            print("Receiving: {}".format(read))
+        log.debug("Receiving: {}".format(read))
         if self._expected_res_for('FRESET') not in read.decode(encoding='ASCII', errors='ignore'):
             raise Exception("Command failed! {}".format(read))
         self.close()
@@ -133,8 +132,7 @@ class UnicoGnss():
         with open(file, 'r') as f:
             for line in f:
                 if line.strip() != '' and not line.startswith('#'):
-                    if self.debug:
-                        print("Sending cmd: {}".format(line.strip()))
+                    log.debug("Sending cmd: {}".format(line.strip()))
                     self.send_read_raw(line.strip())
                     if any(x in line for x in self.RESET_REQUIRED):
                         time.sleep(10)
@@ -145,8 +143,7 @@ class UnicoGnss():
         '''
             Save current settings to boot config
         '''
-        if self.debug:
-            print("Sending: '$SAVECONFIG*0b'")
+        log.debug("Sending: '$SAVECONFIG*0b'")
         read = self.send_read_raw('$SAVECONFIG*0b')
         if '$command,SAVECONFIG,response: OK*55' not in read.decode(encoding='ASCII', errors='ignore'):
             raise Exception("Command failed! {}".format(read))
@@ -155,21 +152,17 @@ class UnicoGnss():
     # ----------------------------------- OTHERS --------------------------------- #
 
     def send_read_lines(self, cmd, *args) -> list:
-        if self.debug:
-            print("Sending: {}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
+        log.debug("Sending: {}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
         self.comm.send(cmd)
         read = self.comm.read_lines()
-        if self.debug:
-            print("Receiving: {}".format(read))
+        log.debug("Receiving: {}".format(read))
         return read
 
     def send_read_until(self, cmd, *args) -> list:
-        if self.debug:
-            print("Sending: {}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
+        log.debug("Sending: {}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
         self.comm.send("{}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
         read = self.comm.read_until()
-        if self.debug:
-            print("Receiving: {}".format(read))
+        log.debug("Receiving: {}".format(read))
         return read
 
     def send_read_raw(self, cmd, *args, size=10000):
@@ -184,13 +177,11 @@ class UnicoGnss():
             Return:
                 bytes: the answer sent by the UM980
         """
-        if self.debug:
-            print("Sending: {}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
+        log.debug("Sending: {}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
         self.comm.device_serial.reset_input_buffer()
         self.comm.send("{}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
         read = self.comm.read_raw(size)
-        if self.debug:
-            print("Receiving: {}".format(read))
+        log.debug("Receiving: {}".format(read))
         return read
 
     def _cmd_with_checksum(self, cmd):
@@ -219,8 +210,7 @@ class UnicoGnss():
         """
         res_without_checksum = '$command,{},response: OK'.format(cmd)
         expected = '{}*{}'.format(res_without_checksum, self._xor8_checksum(res_without_checksum))
-        if self.debug:
-            print("Expected response: {}".format(expected))
+        log.debug("Expected response: {}".format(expected))
         return expected
 
     def _xor8_checksum(self, data):

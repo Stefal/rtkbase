@@ -3,9 +3,14 @@
 import os
 import sys
 import argparse
+import logging
 from unicore.unicore_cmd import *
 from enum import Enum
 from operator import methodcaller
+
+logging.basicConfig(format='%(levelname)s: %(message)s')
+log = logging.getLogger(__name__)
+log.setLevel('ERROR')
 
 class CmdMapping(Enum):
     """Mapping human command to unicore_cmd methods"""
@@ -33,13 +38,14 @@ def arg_parse():
 if __name__ == '__main__':
     args = arg_parse()
     if args.debug:
-        print(args)
+        log.setLevel('DEBUG')
+        log.debug(f"Arguments: {args}")
     command = args.command[0]
     retries = 0
     retry_delay = 10
     while retries <= args.retry:
         try:
-            with UnicoGnss(args.port, baudrate=args.baudrate, timeout=2, debug=args.debug) as gnss:
+            with UnicoGnss(args.port, baudrate=args.baudrate, timeout=2, debug=False) as gnss:
                 res = methodcaller(CmdMapping[command].value, *args.command[1:])(gnss)
                 if type(res) is str:
                     print(res)
@@ -47,9 +53,10 @@ if __name__ == '__main__':
                     gnss.set_config_permanent()
             break
         except Exception as e:
+            log.debug("Exception: ",e)
             retries += 1
             if retries <= args.retry:
-                print("Failed...retrying in {}s".format(retry_delay))
+                log.warning("Failed...retrying in {}s".format(retry_delay))
                 time.sleep(retry_delay)
     if retries > args.retry:
         print("Command failed!")
