@@ -149,6 +149,23 @@ class UnicoGnss():
             raise Exception("Command failed! {}".format(read))
         print("Settings saved")
 
+    def get_agc_values(self) -> list:
+        '''
+            Get the automatic gain control values
+        '''
+        read = self.send_read_raw(self._cmd_with_checksum('AGCA 1'))
+        if self._expected_res_for('AGCA 1') in read.decode(encoding='ASCII', errors='ignore'):
+            lines = (chain.from_iterable(x.splitlines() for x in read.decode(encoding='ASCII', errors='ignore').split('#')))
+            for line in lines:
+                if line.startswith('AGCA'):
+                    #AGCA,65,GPS,FINE,2190,375570000,0,0,18,37;44,46,63,-1,-1,41,1,0,-1,-1*634f1e4b
+                    #Antenna 1 values: 44,46,63
+                    #Antenna 2 values: 41,1,0
+                    values_list = line.replace("'", "").split(";")[-1].split(",")
+                    agc_values = values_list[:3] + values_list[5:8]
+                    return agc_values
+        else:
+            raise Exception("Command failed! {}".format(read))
     # ----------------------------------- OTHERS --------------------------------- #
 
     def send_read_lines(self, cmd, *args) -> list:
