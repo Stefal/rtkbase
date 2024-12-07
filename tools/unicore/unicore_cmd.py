@@ -163,9 +163,26 @@ class UnicoGnss():
                     #Antenna 2 values: 41,1,0
                     values_list = line.replace("'", "").split(";")[-1].split(",")
                     agc_values = values_list[:3] + values_list[5:8]
+                    agc_values = [ int(x) for x in agc_values]
                     return agc_values
         else:
             raise Exception("Command failed! {}".format(read))
+
+    def get_agc_status(self) -> list:
+        '''
+            Get the automatic gain control status (human readable)
+            return value is a list of string, with good/bad for each frequency (L1/L2/L5)
+            and for each antenna (ant 1 then ant 2)
+        '''
+        agc_values = self.get_agc_values()
+        agc_status = []
+        for i, value in enumerate(agc_values):
+            if value >= 0 and value < 10:
+                agc_status.append('good')
+            elif value >= 10:
+                agc_status.append('bad')
+        return agc_status
+        
     # ----------------------------------- OTHERS --------------------------------- #
 
     def send_read_lines(self, cmd, *args) -> list:
