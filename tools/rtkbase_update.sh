@@ -227,6 +227,23 @@ upd_2.6.1() {
   fi
 }
 
+upd_2.6.1() {
+  #Remove firstboot service from the Raspberry 2.5 and 2.6 images
+  #This service should have been removed after the first boot, but
+  # wasn't and was stopping various RTKBase services at each boot. 
+  if [[ -f /etc/os-release ]]
+    then
+      source /etc/os-release
+  fi
+
+  if [[ $ID == raspbian ]] && systemctl list-units firstboot.service
+    then
+      systemctl disable --now firstboot.service
+      rm /lib/systemd/system/firstboot.service
+      systemctl daemon-reload
+  fi
+}
+
 #check if we can apply the update
 #FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
 [[ $checking == '--checking' ]] && check_before_update && exit
