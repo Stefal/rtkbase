@@ -4,7 +4,7 @@ import os
 import sys
 import argparse
 import logging
-from unicore.unicore_cmd import *
+from unicore.unicore.unicore_cmd import *
 from enum import Enum
 from operator import methodcaller
 
