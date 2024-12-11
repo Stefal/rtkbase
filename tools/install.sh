@@ -537,6 +537,7 @@ configure_gnss(){
           if [[ $? -eq  0 ]]
           then
             echo 'Septentrio Mosaic-X5 successfuly configured'
+            # Enable the proxy for the Mosaic Web interface.
             systemctl list-unit-files rtkbase_gnss_web_proxy.service &>/dev/null                                                                            && \
             systemctl enable --now rtkbase_gnss_web_proxy.service                                                                                             && \
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
@@ -548,7 +549,7 @@ configure_gnss(){
             return $?
           fi
 
-        elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --command get_model --retry 2 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}
+        elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model --retry 2 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}
           then
           #get UM98x firmware release
           firmware="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_firmware --retry 2 2>/dev/null)" || firmware='?'
@@ -563,8 +564,6 @@ configure_gnss(){
           if [[ $? -eq  0 ]]
           then
             echo 'Unicore UM980 successfuly configured'
-            systemctl list-unit-files rtkbase_gnss_web_proxy.service &>/dev/null                                                                                && \
-            systemctl enable --now rtkbase_gnss_web_proxy.service                                                                                               && \
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                        && \
             sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Unicore_$model\'/ "${rtkbase_path}"/settings.conf                                         && \
             sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'rtcm3\'/ "${rtkbase_path}"/settings.conf
