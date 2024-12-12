@@ -1,6 +1,6 @@
 
 [project]
-name = "Unicore Gnss ctrl"
+name = "unicore_gnss"
 version = "0.0.1"
 dependencies = ["pyserial",]
 
