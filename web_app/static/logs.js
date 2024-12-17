@@ -17,12 +17,6 @@ window.operateEvents = {
     'click #log_edit': function(e, value, row, index) {
         document.querySelector('#filename').textContent = row.name;
         //console.log(row.format);
-        if ( row.format.split(".").pop() === "ZIP") {
-            createRinexBtnElt.removeAttribute('disabled');
-        }
-        else {
-            createRinexBtnElt.setAttribute('disabled', '');
-        }
         $('#editModal').modal();
         createRinexBtnElt.dataset.filename = row.name;
         //$('#rinex-create-button').data.row = row;
