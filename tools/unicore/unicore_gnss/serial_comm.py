@@ -21,7 +21,13 @@ class SerialComm:
             port=address,
             baudrate=baudrate,
             timeout=timeout,
-            write_timeout=write_timeout
+            write_timeout=write_timeout,
+            bytesize = serial.EIGHTBITS, 
+            parity = serial.PARITY_NONE,
+            stopbits = serial.STOPBITS_ONE, 
+            xonxoff = False,
+            rtscts = False,
+            dsrdtr = False,
         )
 
     def send(self, cmd) -> str or None:
@@ -35,15 +41,23 @@ class SerialComm:
     def read_lines(self) -> list:
         read = self.device_serial.readlines()
         for i, line in enumerate(read):
-            read[i] = line.decode(self.byte_encoding).strip()
+            read[i] = line.decode(self.byte_encoding, errors='ignore').strip()
         return read
 
     def read_until(self, expected='\r\n') -> list:
         read = self.device_serial.read_until(expected = expected.encode())
-        read = read.decode(self.byte_encoding).strip().splitlines()
+        read = read.decode(self.byte_encoding, errors='ignore').strip().splitlines()
         read = [ val for val in read if val != '']
         return read
-        
+    
+    def read_until_line(self, expected='\r\n', eol='\r\n') -> str:
+        #while True:
+            read_start = self.device_serial.read_until(expected = expected.encode())
+            read_start = read_start.decode(self.byte_encoding, errors='ignore').strip().splitlines()[-1]
+            if expected in read_start:
+                read_end = self.device_serial.readline().decode(self.byte_encoding, errors='ignore')
+                return read_start + read_end
+
     def read_raw(self, size: int):
         return self.device_serial.read(size)
 

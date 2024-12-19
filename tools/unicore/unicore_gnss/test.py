@@ -13,5 +13,6 @@ def test_expected_res():
 
 def test_cmd_with_checksum():
     c = object.__new__(UnicoGnss)
-    assert c._cmd_with_checksum('VERSIONA') == '$VERSIONA*1B'     
+    assert c._cmd_with_checksum('VERSIONA') == '$VERSIONA*1B'
+    assert c._cmd_with_checksum('SAVECONFIG') == '$SAVECONFIG*0B'
 

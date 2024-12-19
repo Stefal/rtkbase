@@ -42,7 +42,7 @@ if __name__ == '__main__':
         log.debug(f"Arguments: {args}")
     command = args.command[0]
     retries = 0
-    retry_delay = 10
+    retry_delay = 2
     while retries <= args.retry:
         try:
             with UnicoGnss(args.port, baudrate=args.baudrate, timeout=2, debug=False) as gnss:

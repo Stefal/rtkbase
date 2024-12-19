@@ -430,7 +430,7 @@ detect_gnss() {
                     detected_gnss[2]=$port_speed
                     #echo 'U-blox ZED-F9P DETECTED ON '$port $port_speed
                     break
-                elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --command get_model --retry 2 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}; then
+                elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}; then
                     detected_gnss[0]=$port
                     detected_gnss[1]='unicore'
                     detected_gnss[2]=$port_speed
@@ -549,10 +549,10 @@ configure_gnss(){
             return $?
           fi
 
-        elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model --retry 2 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}
+        elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}
           then
           #get UM98x firmware release
-          firmware="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_firmware --retry 2 2>/dev/null)" || firmware='?'
+          firmware="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_firmware 2>/dev/null)" || firmware='?'
           echo 'Unicore-' "${model}" 'Firmware: ' "${firmware}"
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
           #configure the UM980/UM982 for RTKBase
