@@ -1,11 +1,15 @@
 #! /usr/bin/env python3
 from . serial_comm import SerialComm
 from enum import Enum
-from logging import getLogger
+import logging
 import xml.etree.ElementTree as ET
 import time
 #Code inspired by https://github.com/jonamat/sim-modem
-    
+
+logging.basicConfig(format='%(levelname)s: %(message)s')
+log = logging.getLogger(__name__)
+log.setLevel('ERROR')
+
 class SeptGnss:
     """Class for sending command to Septentrio Gnss receivers"""
 
@@ -24,27 +28,30 @@ class SeptGnss:
             cmd_delay=cmd_delay,
             connection_descriptor='USB2>',
         )
-        self.debug = debug
+        if debug:
+            log.setLevel('DEBUG')
         self.connect()
 
     def connect(self) -> None:
-        self.comm.send('exeEchoMessage, COM1, "A:HELLO", none')
-        read = self.comm.read_raw(1000)
         try:
-            check_hello = b"A:HELLO" in read
-            res_descriptor = read.decode().split()[-1]
+            log.debug("Connecting")
+            self.comm.device_serial.reset_input_buffer()
+            self.comm.send('exeEchoMessage, COM1, "A:HELLO", none')
+            read = self.comm.read_until_line("A:HELLO")
+            read = self.comm.device_serial.readline() #line we don't need
+            read = self.comm.read_raw(5) #reading next 5 chars to get connection descriptor
+            res_descriptor = read.decode()
             check_descriptor = 'COM' in res_descriptor or 'USB' in res_descriptor or 'IP1' in res_descriptor
-            if check_hello and check_descriptor:
-                self.comm.connection_descriptor = read.decode().split()[-1]
+            if check_descriptor:
+                self.comm.connection_descriptor = res_descriptor
             else:
                 raise Exception
-            if self.debug:
-                print("GNSS receiver connected, debug mode enabled")
-                print("Connection descriptor: {}".format(self.comm.connection_descriptor))
-        except Exception:
+            log.debug("GNSS receiver connected, debug mode enabled")
+            log.debug("Connection descriptor: {}".format(self.comm.connection_descriptor))
+        except Exception as e:
             print("GNSS receiver did not respond correctly")
-            if self.debug:
-                print(read)
+            log.debug(read)
+            log.debug("Exception: ", e)
             self.close()
 
     def close(self) -> None:
@@ -82,7 +89,7 @@ class SeptGnss:
         e = ET.ElementTree(ET.fromstring(''.join(pseudo_xml)))
         res_info = None
         for element in e.iter():
-            #print(element.tag, element.attrib, element.text)
+            log.debug(element.tag, element.attrib, element.text)
             res_info = element.get(info) if element_tag in element.tag and element.get(info) else res_info
         return res_info
 
@@ -98,12 +105,10 @@ class SeptGnss:
            Reset receiver settings to factory defaults and restart it
            Connection will be closed
         '''
-        if self.debug:
-            print("Sending: 'exeResetReceiver, Soft, Config'")
+        log.debug("Sending: 'exeResetReceiver, Soft, Config'")
         self.comm.send('exeResetReceiver, Soft, Config')
         read = self.comm.read_until('STOP>')
-        if self.debug:
-            print("Receiving: {}".format(read))
+        log.debug("Receiving: {}".format(read))
         if read[-1] != 'STOP>' or read[0].startswith('$R?'):
             raise Exception("Command failed!\nSent: 'exeResetReceiver, Soft, Config'\nReceived: {}".format(read))
         self.close()
@@ -132,23 +137,19 @@ class SeptGnss:
     # ----------------------------------- OTHERS --------------------------------- #
 
     def send_read_lines(self, cmd, *args) -> list:
-        if self.debug:
-            print("Sending: {}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
+        log.debug("Sending: {}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
         self.comm.send("{}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
         read = self.comm.read_lines()
-        if self.debug:
-            print("Receiving: {}".format(read))
+        log.debug("Receiving: {}".format(read))
         if read[-1] != self.comm.connection_descriptor or read[0].startswith('$R?'):
             raise Exception("Command failed!\nSent: {}\nReceived: {}".format((cmd + ', ' + ', '.join(args)), read))
         return read
 
     def send_read_until(self, cmd, *args) -> list:
-        if self.debug:
-            print("Sending: {}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
+        log.debug("Sending: {}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
         self.comm.send("{}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
         read = self.comm.read_until()
-        if self.debug:
-            print("Receiving: {}".format(read))
+        log.debug("Receiving: {}".format(read))
         if read[-1] != self.comm.connection_descriptor or read[0].startswith('$R?'):
             raise Exception("Command failed!\nSent: {}\nReceived: {}".format((cmd + ', ' + ', '.join(args)), read))
         return read

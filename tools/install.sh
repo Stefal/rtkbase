@@ -514,8 +514,8 @@ configure_gnss(){
           #remove SBAS Rtcm message (1107) as it is disabled in the F9P configuration.
           sudo -u "${RTKBASE_USER}" sed -i -r '/^rtcm_/s/1107(\([0-9]+\))?,//' "${rtkbase_path}"/settings.conf                                              && \
           return $?
-
-        elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model --retry 5) =~ 'mosaic-X5' ]]
+        
+        elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model --retry 2) =~ 'mosaic-X5' ]]
         then
           #get mosaic-X5 firmware release
           firmware="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_firmware --retry 5)" || firmware='?'
