@@ -373,7 +373,7 @@ install_unit_files() {
         #Add dialout group to user
         usermod -a -G dialout "${RTKBASE_USER}"
       else
-        echo 'RtkBase not installed, use option --rtkbase-release or any other rtkbase installation option.'
+        echo 'RtkBase is not installed, use option --rtkbase-release or any other rtkbase installation option.'
       fi
 }
 
@@ -420,7 +420,8 @@ detect_gnss() {
         echo 'UART GNSS RECEIVER DETECTION'
         echo '################################'
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
-        for port in ttyS1 serial0 ttyS2 ttyS3 ttyS0; do
+        # TODO remove port if not available in /dev/
+        for port in ttyS0 ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS1 ttyS2 ttyS3; do
             for port_speed in 115200 57600 38400 19200 9600; do
                 echo 'DETECTION ON ' $port ' at ' $port_speed
                 if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/$port -s $port_speed -p MON-VER -w 5 2>/dev/null) =~ 'ZED-F9P' ]]; then
@@ -428,6 +429,12 @@ detect_gnss() {
                     detected_gnss[1]='u-blox'
                     detected_gnss[2]=$port_speed
                     #echo 'U-blox ZED-F9P DETECTED ON '$port $port_speed
+                    break
+                elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}; then
+                    detected_gnss[0]=$port
+                    detected_gnss[1]='unicore'
+                    detected_gnss[2]=$port_speed
+                    #echo 'Unicore ' "${model}" ' DETECTED ON '$port $port_speed
                     break
                 fi
                 sleep 1
@@ -530,6 +537,7 @@ configure_gnss(){
           if [[ $? -eq  0 ]]
           then
             echo 'Septentrio Mosaic-X5 successfuly configured'
+            # Enable the proxy for the Mosaic Web interface.
             systemctl list-unit-files rtkbase_gnss_web_proxy.service &>/dev/null                                                                            && \
             systemctl enable --now rtkbase_gnss_web_proxy.service                                                                                             && \
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
@@ -539,9 +547,33 @@ configure_gnss(){
             sudo -u "${RTKBASE_USER}" sed -i s/^min_free_space=.*/min_free_space=\'1500\'/ "${rtkbase_path}"/settings.conf
 
             return $?
-          else
-            echo 'Failed to configure the Gnss receiver'
-            return 1
+          fi
+
+        elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}
+          then
+          #get UM98x firmware release
+          firmware="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_firmware 2>/dev/null)" || firmware='?'
+          echo 'Unicore-' "${model}" 'Firmware: ' "${firmware}"
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
+          #configure the UM980/UM982 for RTKBase
+          echo 'Resetting the ' "${model}" ' settings....'
+          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command reset --retry 5
+          sleep_time=10 ; echo 'Waiting '$sleep_time's for ' "${model}" ' reboot' ; sleep $sleep_time
+          echo 'Sending settings....'
+          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_rtcm3.cfg --store --retry 2
+          if [[ $? -eq  0 ]]
+          then
+            echo 'Unicore UM980 successfuly configured'
+            sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                        && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Unicore_$model\'/ "${rtkbase_path}"/settings.conf                                         && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'rtcm3\'/ "${rtkbase_path}"/settings.conf
+            #UM980 archives a bigger, we need more remaining space to compress archives
+            sudo -u "${RTKBASE_USER}" sed -i s/^min_free_space=.*/min_free_space=\'1500\'/ "${rtkbase_path}"/settings.conf
+
+            return $?
+            else
+              echo 'Failed to configure the Gnss receiver'
+              return 1
           fi
 
         else
@@ -549,7 +581,7 @@ configure_gnss(){
           return 1
         fi
       else
-        echo 'RtkBase not installed, use option --rtkbase-release'
+        echo 'RtkBase is not installed, use option --rtkbase-release'
         return 1
       fi
 }
