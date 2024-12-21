@@ -448,15 +448,19 @@ detect_gnss() {
       # If /dev/ttyGNSS is a symlink of the detected serial port, switch to ttyGNSS
       [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && detected_gnss[0]='ttyGNSS'
       # Get firmware release
-      if [[ "${detected_gnss[1]}" =~ 'u-blox' ]] && [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER) =~ 'ZED-F9P' ]]
+      if [[ "${detected_gnss[1]}" =~ 'u-blox' ]]
         then
           #get F9P firmware release
           detected_gnss[3]=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
-      elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]] && [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_model --retry 5) =~ 'mosaic-X5' ]]
+      elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]]
         then
           #get mosaic-X5 firmware release
           detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
+      elif [[ "${detected_gnss[1]}" =~ 'unicore' ]]
+        then
+          #get Unicore UM98X firmware release
+          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware 2>/dev/null)" || firmware='?'
       fi
       # "send" result
       echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"
