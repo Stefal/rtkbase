@@ -447,12 +447,23 @@ detect_gnss() {
       [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
       # If /dev/ttyGNSS is a symlink of the detected serial port, switch to ttyGNSS
       [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && detected_gnss[0]='ttyGNSS'
+      # Get firmware release
+      if [[ "${detected_gnss[1]}" =~ 'u-blox' ]] && [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER) =~ 'ZED-F9P' ]]
+        then
+          #get F9P firmware release
+          detected_gnss[3]=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
+      elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]] && [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_model --retry 5) =~ 'mosaic-X5' ]]
+        then
+          #get mosaic-X5 firmware release
+          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
+      fi
       # "send" result
-      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"
+      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"
 
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
-      if [[ ${#detected_gnss[*]} -eq 3 ]] && [[ "${1}" -eq 0 ]]
+      if [[ ${#detected_gnss[*]} -eq 4 ]] && [[ "${1}" -eq 0 ]]
         then
           echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}"
           #if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
@@ -464,12 +475,12 @@ detect_gnss() {
             #change the com port value/settings inside settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'${detected_gnss[2]}:8:n:1\'/ "${rtkbase_path}"/settings.conf
-            
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'"${detected_gnss[3]}"\'/ "${rtkbase_path}"/settings.conf            
           else
             echo 'settings.conf is missing'
             return 1
           fi
-      elif [[ ${#detected_gnss[*]} -ne 3 ]]
+      elif [[ ${#detected_gnss[*]} -ne 4 ]]
         then
           return 1
       fi
