@@ -37,7 +37,7 @@ if __name__ == '__main__':
         print(args)
     command = args.command[0]
     retries = 0
-    retry_delay = 10
+    retry_delay = 2
     while retries <= args.retry:
         try:
             with SeptGnss(args.port, baudrate=args.baudrate, timeout=30, debug=args.debug) as gnss:

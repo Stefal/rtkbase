@@ -437,7 +437,7 @@ detect_gnss() {
                     #echo 'Unicore ' "${model}" ' DETECTED ON '$port $port_speed
                     break
                 fi
-                sleep 1
+                sleep 0.1
             done
             #exit loop if a receiver is detected
             [[ ${#detected_gnss[*]} -eq 3 ]] && break
@@ -522,7 +522,7 @@ configure_gnss(){
           sudo -u "${RTKBASE_USER}" sed -i -r '/^rtcm_/s/1107(\([0-9]+\))?,//' "${rtkbase_path}"/settings.conf                                              && \
           return $?
         
-        elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model --retry 2) =~ 'mosaic-X5' ]]
+        elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model) =~ 'mosaic-X5' ]]
         then
           #get mosaic-X5 firmware release
           firmware="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_firmware --retry 5)" || firmware='?'
