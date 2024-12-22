@@ -4,7 +4,7 @@ import os
 import sys
 import argparse
 import logging
-from septentrio.septentrio_cmd import *
+from septentrio.septentrio_gnss.septentrio_cmd import *
 from enum import Enum
 from operator import methodcaller
 
