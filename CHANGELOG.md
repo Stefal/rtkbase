@@ -1,9 +1,18 @@
 # Changelog
 
 ## [2.6.3] - not released
+### Added
+ - Add Unicore UM980/UM982 support (rtcm3 mode). #351
+ - Detect Gnss receiver firmware version during receiver detection. #428
+ - GUI -> Logs: Non-zipped files can be convert to rinex. #348
+### Changed
+ - Faster Septentrio Mosaic-X5 detection
 ### Fixed
  - Fix pystemd result request for timer services. #162 #445
  - Increase free space for archiving Mosaic-X5 data. #369
+ - Various fixes #441 #443
+### Security
+ - GUI -> Logs: Fix path traversal vulnerability.
 
 ## [2.6.2] - 2024-10-06
 ### Added
