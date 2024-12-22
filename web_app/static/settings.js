@@ -593,7 +593,31 @@ $(document).ready(function () {
         } else {
             volumeSpaceElt.style.color = "#212529";
         }
+
+        var networkElt = document.getElementById("network_infos");
+        networkElt.innerHTML = createNetworkInterfacesList(sysInfos["network_infos"]);
     })
+
+    function createNetworkInterfacesList(interfaces) {
+        let html = '<dl>'
+        interfaces.forEach(interface => {
+        html += `<dt style="font-weight: initial;">${interface.device}`;
+        if (interface.conn_name) {
+            html += ` (${interface.conn_name})`;
+        }
+        html += '</dt>';
+        html += '<dd><ul>';
+        if (interface.ipv4) {
+            html += `<li>IPv4: ${interface.ipv4.join(' - ')}</li>`;
+        }
+        if (interface.ipv6) {
+            html += `<li>IPv6: ${interface.ipv6.join(' - ')}</li>`;
+        }
+        html += '</ul></dd>';
+        });
+        html += '</dl>';
+        return html;
+    }
     //source: https://stackoverflow.com/a/34270811
     /**
      * Translates seconds into human readable format of seconds, minutes, hours, days, and years
