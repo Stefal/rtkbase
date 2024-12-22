@@ -3,9 +3,14 @@
 import os
 import sys
 import argparse
+import logging
 from septentrio.septentrio_cmd import *
 from enum import Enum
 from operator import methodcaller
+
+logging.basicConfig(format='%(levelname)s: %(message)s')
+log = logging.getLogger(__name__)
+log.setLevel('ERROR')
 
 class CmdMapping(Enum):
     """Mapping human command to septentrio_cmd methods"""
@@ -34,7 +39,8 @@ def arg_parse():
 if __name__ == '__main__':
     args = arg_parse()
     if args.debug:
-        print(args)
+        log.setLevel('DEBUG')
+        log.debug(f"Arguments: {args}")
     command = args.command[0]
     retries = 0
     retry_delay = 2
@@ -47,7 +53,8 @@ if __name__ == '__main__':
                 if args.store:
                     gnss.set_config_permanent()
             break
-        except:
+        except Exception as e:
+            log.debug("Exception: ",e)
             retries += 1
             if retries <= args.retry:
                 print("Failed...retrying in {}s".format(retry_delay))

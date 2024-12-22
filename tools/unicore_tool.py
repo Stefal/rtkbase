@@ -45,7 +45,7 @@ if __name__ == '__main__':
     retry_delay = 2
     while retries <= args.retry:
         try:
-            with UnicoGnss(args.port, baudrate=args.baudrate, timeout=2, debug=False) as gnss:
+            with UnicoGnss(args.port, baudrate=args.baudrate, timeout=2, debug=args.debug) as gnss:
                 res = methodcaller(CmdMapping[command].value, *args.command[1:])(gnss)
                 if type(res) is str:
                     print(res)

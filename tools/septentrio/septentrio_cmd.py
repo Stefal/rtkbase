@@ -11,7 +11,9 @@ log = logging.getLogger(__name__)
 log.setLevel('ERROR')
 
 class SeptGnss:
-    """Class for sending command to Septentrio Gnss receivers"""
+    """Class for sending command to Septentrio Gnss receivers
+       Recommended use is on the ttyGNSS_CTRL port which doesn't receive
+       any rtcm/raw data"""
 
     def __init__(
         self,
@@ -33,10 +35,15 @@ class SeptGnss:
         self.connect()
 
     def connect(self) -> None:
+        '''
+            Check the connection to the Septentrio receiver
+        '''
+        log.debug("Connecting")
         try:
-            log.debug("Connecting")
             self.comm.device_serial.reset_input_buffer()
             self.comm.send('exeEchoMessage, COM1, "A:HELLO", none')
+            # The raw return should be
+            #b'$R: exeEchoMessage, COM1, "A:HELLO", none\r\n  EchoMessage, COM1, "A:HELLO", none\r\nUSB2>'            
             read = self.comm.read_until_line("A:HELLO")
             read = self.comm.device_serial.readline() #line we don't need
             read = self.comm.read_raw(5) #reading next 5 chars to get connection descriptor
@@ -49,12 +56,13 @@ class SeptGnss:
             log.debug("GNSS receiver connected, debug mode enabled")
             log.debug("Connection descriptor: {}".format(self.comm.connection_descriptor))
         except Exception as e:
-            print("GNSS receiver did not respond correctly")
-            log.debug(read)
+            log.warning("GNSS receiver did not respond correctly")
+            log.debug(read if read else "No response")
             log.debug("Exception: ", e)
             self.close()
 
     def close(self) -> None:
+        log.debug("Closing connection")
         self.comm.close()
     
     def __enter__(self):
@@ -138,6 +146,7 @@ class SeptGnss:
 
     def send_read_lines(self, cmd, *args) -> list:
         log.debug("Sending: {}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
+        self.comm.device_serial.reset_input_buffer()
         self.comm.send("{}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
         read = self.comm.read_lines()
         log.debug("Receiving: {}".format(read))
@@ -147,6 +156,7 @@ class SeptGnss:
 
     def send_read_until(self, cmd, *args) -> list:
         log.debug("Sending: {}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
+        self.comm.device_serial.reset_input_buffer()
         self.comm.send("{}{}{}".format(cmd, ', ' if args else '', ', '.join(args)))
         read = self.comm.read_until()
         log.debug("Receiving: {}".format(read))

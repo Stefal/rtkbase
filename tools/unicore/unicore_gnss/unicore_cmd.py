@@ -38,7 +38,7 @@ class UnicoGnss():
 
     def connect(self) -> None:
         '''
-            Connect to the Unicore receiver
+            Check the connection to the Unicore receiver
         '''
         log.debug("Connecting...")
         try:
@@ -46,20 +46,19 @@ class UnicoGnss():
             # It was a problem when the ubxtool was sending some commands without LF just before the unicore detection script.
             self.comm.send('\r\n')
             if self.get_receiver_model():
-                #print("GNSS receiver connected")
+                log.debug("GNSS receiver connected, debug mode enabled")
+                log.debug("read: {}".format(read))
                 return
             else:
-                raise Exception
-            log.debug("GNSS receiver connected, debug mode enabled")
-            log.debug("read: {}".format(read))
-
+                raise Exception          
         except Exception as e:
-            log.warning("GNSS receiver did not respond correctly. Closing serial port.")
-            log.warning(e)
-            #log.debug(read)
+            log.warning("GNSS receiver did not respond correctly")
+            log.debug(read if read else "No response")
+            log.debug("Exception: ", e)
             self.close()
 
     def close(self) -> None:
+        log.debug("Closing connection")
         self.comm.close()
     
     def __enter__(self):
