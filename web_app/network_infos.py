@@ -79,8 +79,8 @@ def get_interfaces_infos():
             elif part.family.name == 'AF_INET':
                 ipv4.append(part.address)
             log.debug("{} : {} : {}".format(k, part.family.name, part.address))
-        device_info["ipv4"] = ipv4
-        device_info["ipv6"] = ipv6
+        device_info["ipv4"] = ipv4 if len(ipv4) > 0 else None
+        device_info["ipv6"] = ipv6 if len(ipv6) > 0 else None
         conn_name = get_conn_name(k)
         if conn_name:
             device_info["conn_name"] = conn_name
