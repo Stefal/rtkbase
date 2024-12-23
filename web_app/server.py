@@ -832,13 +832,16 @@ def restartServices(restart_services_list=None):
                 if service["name"] == "main":
                     #the main service should be stopped during at least 1 second to let rtkrcv stop too.
                     #another solution would be to call rtk.stopbase()
-                    service["unit"].stop()
-                    time.sleep(1.5)
-                    service["unit"].start()
+                    #service["unit"].stop()
+                    #time.sleep(1.5)
+                    #service["unit"].start()
+                    rtk.stopBase()
+                    service["unit"].restart()
                 else:
                     service["unit"].restart()
 
     #refresh service status
+    time.sleep(1)
     getServicesStatus()
 
 @socketio.on("get services status", namespace="/test")
