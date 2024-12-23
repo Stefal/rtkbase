@@ -1,12 +1,43 @@
 #!/usr/bin/python
+""" Module to get up network interfaces with their ip address and connection name
+    These informations are then displayed inside the RTKBase web GUI.
+"""
 
+import logging
 import psutil
 import nmcli
-from dataclasses import dataclass
+
+logging.basicConfig(format='%(levelname)s: %(message)s')
+log = logging.getLogger(__name__)
+log.setLevel('ERROR')
 
 nmcli.disable_use_sudo()
 
+
+def get_conn_name(device):
+    """
+        Get the connection name for the device 
+        (e.g. Wired Connection 1)
+        
+        Parameter:
+            device(str): the network device name
+        Return:
+            str: connection name
+    """
+    try:
+        device_infos = nmcli.device.show(device)
+        return device_infos["GENERAL.CONNECTION"]
+    except nmcli.NotExistException:
+        log.debug("No connection name for {}".format(device))
+        return None
+
 def get_up_if():
+    """
+        Get the up network interface
+
+        Return:
+            list: up interfaces
+    """
     #filtering available interface
     if_stats = psutil.net_if_stats()
     if_stats.pop('lo')
@@ -15,17 +46,18 @@ def get_up_if():
     if_stats = {k:v for (k,v) in if_stats.items() if not k.startswith('docker')} # remove docker interface
     return if_stats
 
-def get_conn_name(device):
-    try:
-        device_infos = nmcli.device.show(device)
-        return device_infos["GENERAL.CONNECTION"]
-    except NotExistException:
-        return None 
-
 def get_interfaces_infos():
+    """
+        Get all up network interfaces with their ip v4/v6 addresses
+        and the connection name.
+        It returns a list of dict
+        e.g. [{'device': 'end0', 'ipv4': ['192.168.1.135'], 'ipv6': [], 'conn_name': 'Wired connection 1'}]
 
-    #print(get_up_if())
+        Return:
+            list: all up network interfaces as dict
+    """
     up_interface = get_up_if()
+    log.debug("up interfaces: {}".format(up_interface))
     #then filter psutil.net_if_addrs()
     if_addrs = psutil.net_if_addrs()
     up_interface = {k:if_addrs[k] for (k,v) in up_interface.items() if if_addrs[k]}
@@ -38,8 +70,6 @@ def get_interfaces_infos():
 
     interfaces_infos = []
     for k,v in up_interface.items():
-        #print('key: ', k)
-        #print('value: ', v)
         device_info = {"device" : k}
         ipv4 = []
         ipv6 = []
@@ -48,7 +78,7 @@ def get_interfaces_infos():
                 ipv6.append(part.address)
             elif part.family.name == 'AF_INET':
                 ipv4.append(part.address)
-            #print("{} : {} : {}".format(k, part.family.name, part.address))
+            log.debug("{} : {} : {}".format(k, part.family.name, part.address))
         device_info["ipv4"] = ipv4
         device_info["ipv6"] = ipv6
         conn_name = get_conn_name(k)
@@ -56,3 +86,6 @@ def get_interfaces_infos():
             device_info["conn_name"] = conn_name
         interfaces_infos.append(device_info)
     return interfaces_infos
+
+if __name__ == "__main__":
+    print(get_interfaces_infos())
