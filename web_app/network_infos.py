@@ -6,6 +6,7 @@
 import logging
 import psutil
 import nmcli
+import argparse
 
 logging.basicConfig(format='%(levelname)s: %(message)s')
 log = logging.getLogger(__name__)
@@ -87,5 +88,17 @@ def get_interfaces_infos():
         interfaces_infos.append(device_info)
     return interfaces_infos
 
+def arg_parse():
+    """ Parse the command line you use to launch the script """
+    
+    parser= argparse.ArgumentParser(prog='network_infos', description="Module to get up network interfaces with their ip address and connection name")
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("-d", "--debug", action='store_true')
+    args = parser.parse_args()
+    return args
+
 if __name__ == "__main__":
+    args = arg_parse()
+    if args.debug:
+        log.setLevel('DEBUG')
     print(get_interfaces_infos())
