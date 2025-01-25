@@ -45,6 +45,7 @@ from threading import Thread
 from RTKLIB import RTKLIB
 from ServiceController import ServiceController
 from RTKBaseConfigManager import RTKBaseConfigManager
+import network_infos
 
 #print("Installing all required packages")
 #provisioner.provision_reach()
@@ -180,6 +181,7 @@ def manager():
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
                 #print("service status", services_status)
 
+            interfaces_infos = network_infos.get_interfaces_infos()
             volume_usage = get_volume_usage()
             sys_infos = {"cpu_temp" : cpu_temp,
                         "max_cpu_temp" : max_cpu_temp,
@@ -187,7 +189,8 @@ def manager():
                         "volume_free" : round(volume_usage.free / 10E8, 2),
                         "volume_used" : round(volume_usage.used / 10E8, 2),
                         "volume_total" : round(volume_usage.total / 10E8, 2),
-                        "volume_percent_used" : volume_usage.percent}
+                        "volume_percent_used" : volume_usage.percent,
+                        "network_infos" : interfaces_infos}
             socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
 
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive" or \

@@ -5,6 +5,7 @@
  - Add Unicore UM980/UM982 support (rtcm3 mode). #351
  - Detect Gnss receiver firmware version during receiver detection. #428
  - GUI -> Logs: Non-zipped files can be convert to rinex. #348
+ - GUI -> Settings: Display network informations.
 ### Changed
  - Faster Septentrio Mosaic-X5 detection
 ### Fixed
