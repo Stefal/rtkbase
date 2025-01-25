@@ -39,6 +39,7 @@ import sys
 import requests
 import tempfile
 import argparse
+import html
 
 from threading import Thread
 from RTKLIB import RTKLIB
@@ -509,13 +510,13 @@ def diagnostic():
                                 universal_newlines=True,
                                 check=False)
         journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']], 
-                                 stdout=subprocess.PIPE, 
+                                 stdout=subprocess.PIPE,
                                  universal_newlines=True,
                                  check=False)
         
         #Replace carrier return to <br> for html view
-        sysctl_status = sysctl_status.stdout.replace('\n', '<br>') 
-        journalctl = journalctl.stdout.replace('\n', '<br>')
+        sysctl_status = html.escape(sysctl_status.stdout.replace('\n', '<br>'))
+        journalctl = html.escape(journalctl.stdout.replace('\n', '<br>'))
         active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
         
