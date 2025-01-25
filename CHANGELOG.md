@@ -11,7 +11,7 @@
  - Fix some services were not restarted after saving new settings in the main service.
  - Fix pystemd result request for timer services. #162 #445
  - Increase free space for archiving Mosaic-X5 data. #369
- - Various fixes #441 #443
+ - Various fixes #441 #443 #450
 ### Security
  - GUI -> Logs: Fix path traversal vulnerability.
 
