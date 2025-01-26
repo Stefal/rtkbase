@@ -225,9 +225,13 @@ upd_2.6.1() {
       rm /lib/systemd/system/firstboot.service
       systemctl daemon-reload
   fi
+  upd_2.6.2 "$@"
 }
 
-upd_2.6.1() {
+upd_2.6.2() {
+  echo '####################'
+  echo 'Update from 2.6.2'
+  echo '####################'
   #Remove firstboot service from the Raspberry 2.5 and 2.6 images
   #This service should have been removed after the first boot, but
   # wasn't and was stopping various RTKBase services at each boot. 
