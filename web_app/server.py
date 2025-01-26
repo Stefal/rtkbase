@@ -181,7 +181,12 @@ def manager():
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
                 #print("service status", services_status)
 
-            interfaces_infos = network_infos.get_interfaces_infos()
+            try:
+                interfaces_infos = network_infos.get_interfaces_infos()
+            except Exception:
+                # network-manager not installed ?
+                interfaces_infos = None
+
             volume_usage = get_volume_usage()
             sys_infos = {"cpu_temp" : cpu_temp,
                         "max_cpu_temp" : max_cpu_temp,
