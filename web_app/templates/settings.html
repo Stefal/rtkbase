@@ -790,5 +790,6 @@
 {% block scripts %}
 {{super()}}
 <script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap4-toggle.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='lib/snarkdown.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='settings.js', v=g.version) }}" charset="utf-8"></script>
 {% endblock %}

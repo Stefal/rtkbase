@@ -426,11 +426,14 @@ $(document).ready(function () {
         }else if (response.new_release) {
             $("#updateModal .modal-title").text("Update available!");
             $("#updateModal .modal-body").append('<p class="text-center">Do you want to install RTKBase <b>' + response['new_release'] +'</b>? <br>It will take a few minutes.</p>');                    
-            var newFeaturesArray = response['comment'].split('\r\n');
-            $("#updateModal .modal-body").append('<p><ul id="newFeatures">Content:</ul></p>');
-            $.each( newFeaturesArray, function( index, value ){
-                $("#newFeatures").append("<li>" + value.replace(/^\+ /g, "") + "</li>");
-            });       
+            $("#updateModal .modal-body").append('<p id="newFeatures"></p>');
+            var markdwnHtml = snarkdown(response['comment']);
+            //lower <Hx> title tags values
+                markdwnHtml= markdwnHtml.replace(/<h([1-4])(.*?)>(.*?)<\/h\1>/gi, (match, p1, p2, p3) => {
+                    const newHtag = Math.min(parseInt(p1) + 3, 6);
+                    return `<h${newHtag}${p2}>${p3}</h${newHtag}>`;
+                });
+            $("#newFeatures").append('<p>' + markdwnHtml + '</p>');     
             $("#start-update-button").removeAttr("disabled");
             $("#updateModal").modal();
         } else {
