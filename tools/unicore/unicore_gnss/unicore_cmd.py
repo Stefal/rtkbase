@@ -1,14 +1,22 @@
 #! /usr/bin/env python3
-from . serial_comm import SerialComm
-from enum import Enum
+
+# author: Stéphane Péneau
+# source: https://github.com/Stefal/rtkbase
+# Code inspired by https://github.com/jonamat/sim-modem
+
 import logging
-from itertools import chain
 import time
-#Code inspired by https://github.com/jonamat/sim-modem
+from enum import Enum
+from itertools import chain
+from . serial_comm import SerialComm
 
 logging.basicConfig(format='%(levelname)s: %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel('ERROR')
+
+class AnswerError(Exception):
+    """Basic Exception for wrong answer received from the UM980"""
+    pass
 
 class UnicoGnss():
     """Class for sending commands to Unicore Gnss receivers"""
@@ -43,27 +51,29 @@ class UnicoGnss():
         log.debug("Connecting...")
         try:
             # Send a line return to clear the Unicore input buffer
-            # It was a problem when the ubxtool was sending some commands without LF just before the unicore detection script.
+            # It was a problem when the ubxtool was sending some commands
+            #  without LF just before the unicore detection script.
             self.comm.send('\r\n')
             if self.get_receiver_model():
                 log.debug("GNSS receiver connected, debug mode enabled")
-                log.debug("read: {}".format(read))
+                #log.debug("read: {}".format(read))
                 return
-            else:
-                raise Exception          
-        except Exception as e:
+            raise ConnectionError
+        except ConnectionError:
             log.warning("GNSS receiver did not respond correctly")
-            log.debug(read if read else "No response")
-            log.debug("Exception: ", e)
+            #log.debug(read if read else "No response")
             self.close()
 
     def close(self) -> None:
+        '''
+            Close the serial port
+        '''
         log.debug("Closing connection")
         self.comm.close()
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, exception_type, exception_value, exception_traceback):
         self.close()
 
@@ -74,7 +84,8 @@ class UnicoGnss():
             Get the Unicore receiver model (UM980, UM982, ....)
         '''
         log.debug("Get receiver model")
-        read = self.send_read_until(self._cmd_with_checksum('VERSIONA'), expected=self._expected_res_for('VERSIONA'))
+        read = self.send_read_until(self._cmd_with_checksum('VERSIONA'),
+                                    expected=self._expected_res_for('VERSIONA'))
         #'$command,VERSIONA,response: OK*45\r\n
         # #VERSIONA,97,GPS,FINE,2343,48235000,0,0,18,813;"UM980","R4.10Build11833","HRPT00-S10C-P",
         # "2310415000001-MD22A2225022497","ff3ba396dcb0478d","2023/11/24"*270a13f7\r\n'
@@ -90,7 +101,8 @@ class UnicoGnss():
         '''
             Get the Unicore receiver firmware version
         '''
-        read = self.send_read_until(self._cmd_with_checksum('VERSIONA'), expected=self._expected_res_for('VERSIONA'))
+        read = self.send_read_until(self._cmd_with_checksum('VERSIONA'),
+                                    expected=self._expected_res_for('VERSIONA'))
         #'$command,VERSIONA,response: OK*45\r\n
         # #VERSIONA,97,GPS,FINE,2343,48235000,0,0,18,813;"UM980","R4.10Build11833","HRPT00-S10C-P",
         # "2310415000001-MD22A2225022497","ff3ba396dcb0478d","2023/11/24"*270a13f7\r\n'
@@ -111,7 +123,7 @@ class UnicoGnss():
         read = self.send_read_until(self._cmd_with_checksum('FRESET'), expected='#FRESET')
         log.debug("Receiving ack: {}".format(read))
         if self._expected_res_for('FRESET') not in read:
-            raise Exception("Command failed! {}".format(read))
+            raise AnswerError("Command failed! {}".format(read))
         self.close()
         print("Resetting receiver. Connection closed")
 
@@ -125,11 +137,12 @@ class UnicoGnss():
                 perm(bool): if True, store permanently the settings
             
         '''
-        with open(file, 'r') as f:
+        with open(file, 'r', encoding="utf-8") as f:
             for line in f:
                 if line.strip() != '' and not line.startswith('#'):
                     log.debug("Sending cmd: {}".format(line.strip()))
-                    read = self.send_read_until(self._cmd_with_checksum(line.strip()), expected=self._expected_res_for(line.strip()))
+                    read = self.send_read_until(self._cmd_with_checksum(line.strip()),
+                                                expected=self._expected_res_for(line.strip()))
                     log.debug("Received answer: {}".format(read))
                     #self.send_read_raw(line.strip())
                     if any(x in line for x in self.RESET_REQUIRED):
@@ -143,17 +156,19 @@ class UnicoGnss():
             Save current settings to boot config
         '''
         log.debug("Sending: 'SAVECONFIG'")
-        read = self.send_read_until(self._cmd_with_checksum('SAVECONFIG'), expected=self._expected_res_for('SAVECONFIG'))
+        read = self.send_read_until(self._cmd_with_checksum('SAVECONFIG'),
+                                    expected=self._expected_res_for('SAVECONFIG'))
         log.debug("Received answer: {}".format(read))
         if self._expected_res_for('SAVECONFIG') not in read[-1]:
-            raise Exception("Command failed! {}".format(read))
+            raise AnswerError("Command failed! {}".format(read))
         print("Settings saved")
 
     def get_agc_values(self) -> list:
         '''
             Get the automatic gain control values
         '''
-        read = self.send_read_until(self._cmd_with_checksum('AGCA '), expected=self._expected_res_for('AGCA '))
+        read = self.send_read_until(self._cmd_with_checksum('AGCA '),
+                                    expected=self._expected_res_for('AGCA '))
         log.debug("Receive ack: {}".format(read))
         # $command,AGCA,response: OK*5A
         # #AGCA,97,GPS,FINE,2345,328881000,0,0,18,22;40,76,65,-1,-1,-1,-1,-1,-1,-1*8c8123ba
@@ -168,7 +183,7 @@ class UnicoGnss():
             agc_values = [ int(x) for x in agc_values]
             return agc_values
         else:
-            raise Exception("Command failed! {}".format(read))
+            raise AnswerError("Command failed! {}".format(read))
 
     def get_agc_status(self) -> list:
         '''
@@ -184,10 +199,20 @@ class UnicoGnss():
             elif value >= 10:
                 agc_status.append('bad')
         return agc_status
-        
+
     # ----------------------------------- OTHERS --------------------------------- #
 
     def send_read_lines(self, cmd, *args) -> list:
+        """
+            Send command(s) to the UM980, and get all lines
+            from the UM980 until timeout occurs,
+
+            Parameter:
+                cmd(str): main command
+                *args(str): command parameters
+            Return:
+                list: a list of decoded lines
+        """
         log.debug("Sending: {}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
         self.comm.device_serial.reset_input_buffer()
         self.comm.send(cmd)
@@ -196,6 +221,17 @@ class UnicoGnss():
         return read
 
     def send_read_until(self, cmd, *args, expected='\n\r') -> list:
+        """
+            Send command(s) to the UM980, wait for expected string,
+            and returns the answer from the UM980.
+
+            Parameter:
+                cmd(str): main command
+                *args(str): command parameters
+                expected(str): string expected in the answer
+            Return:
+                list: a list of decoded lines
+        """
         log.debug("Sending: {}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
         self.comm.device_serial.reset_input_buffer()
         self.comm.send("{}{}{}".format(cmd, ' ' if args else '', ' '.join(args)))
