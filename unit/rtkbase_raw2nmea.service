@@ -1,11 +1,13 @@
 [Unit]
 Description=RTKBase - Convert Gnss Raw data to nmea output on tcp
-Requires=str2str_tcp.service
+After=str2str_tcp.service
 
 [Service]
 Type=simple
 User=root
 ExecStart={script_path}/tools/raw2nmea/raw2nmea.sh
+Restart=on-failure
+RestartSec=30
 ProtectHome=read-only
 ProtectSystem=strict
 ReadWritePaths={script_path} /etc/default
