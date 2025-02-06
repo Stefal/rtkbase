@@ -538,7 +538,7 @@ def get_infos():
 
     infos = {"app" : "RTKBase",
              "app_version" : rtkbaseconfig.get("general", "version"), 
-             "url" : request.base_url,
+             "url" : html.escape(request.base_url),
              "fqdn" : socket.getfqdn(),
              "uptime" : get_uptime(),
              "hostname" : socket.gethostname()}
