@@ -534,8 +534,7 @@ def diagnostic():
 
 @app.route('/api/v1/infos', methods=['GET'])
 def get_infos():
-    # TODO return json data with 
-    # hostname, ip, RTKBase version, etc...
+    """Small api route to get basic informations about the base station"""
 
     infos = {"app" : "RTKBase",
              "app_version" : rtkbaseconfig.get("general", "version"), 
