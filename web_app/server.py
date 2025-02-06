@@ -66,6 +66,7 @@ import urllib
 import subprocess
 import psutil
 import distro
+import socket
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -530,6 +531,18 @@ def diagnostic():
         
     return render_template('diagnostic.html', logs = logs)
 
+
+@app.route('/api/v1/infos', methods=['GET'])
+def get_infos():
+    """Small api route to get basic informations about the base station"""
+
+    infos = {"app" : "RTKBase",
+             "app_version" : rtkbaseconfig.get("general", "version"), 
+             "url" : html.escape(request.base_url),
+             "fqdn" : socket.getfqdn(),
+             "uptime" : get_uptime(),
+             "hostname" : socket.gethostname()}
+    return json.dumps(infos)
 
 #### Handle connect/disconnect events ####
 
