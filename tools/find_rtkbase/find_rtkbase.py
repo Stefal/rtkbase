@@ -10,6 +10,7 @@ import tkinter as tk
 from tkinter import ttk
 import logging
 import argparse
+import os
 logging.basicConfig(format='%(levelname)s: %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel('ERROR')
@@ -28,7 +29,9 @@ class MyApp:
         default_font.configure(size=12)
         self._create_gui()
         self.available_base = None
-        self.scan_network()
+        if os.name == 'nt':
+            log.debug('"False" scan to pop up the windows firewall window')
+            scan_network.zeroconf_scan('RTKBase Web Server', '_http._tcp.local.', timeout=0)
 
     def _create_gui(self):
 
@@ -37,10 +40,14 @@ class MyApp:
         self.top_frame.grid(row=0, column=0, sticky="nsew")
         self.top_frame.columnconfigure(0, weight=1)
         self.top_frame.rowconfigure(97, weight=1)
+        self.intro_label = ttk.Label(self.top_frame, text="Click 'Find' to search for RTKBase")
+        self.intro_label.grid(column=0, row=0, pady=10)
         self.scanninglabel = ttk.Label(self.top_frame, text="Searching....")
         self.scanninglabel.grid(column=0, row=0, pady=10)
+        self.scanninglabel.grid_remove()
         self.progress_bar = ttk.Progressbar(self.top_frame,mode='indeterminate')
         self.progress_bar.grid(column=2, columnspan=2, row=0, pady=10)
+        self.progress_bar.grid_remove()
         self.nobase_label = ttk.Label(self.top_frame, text="No base station detected")
         self.nobase_label.grid(column=0, row=0, columnspan=2, pady=10)
         self.nobase_label.grid_remove()
@@ -65,6 +72,7 @@ class MyApp:
         
         #Cleaning GUI
         try:
+            self.intro_label.destroy()
             for label in self.base_labels_list:
                 label.destroy()
             for button in self.base_buttons_list:
