@@ -9,4 +9,5 @@ settings.conf
 test.sh
 test.conf
 *.FCStd1
-/venv*/*
+**/venv*/*
+**/build/

@@ -45,8 +45,12 @@ def arp_scan(ip, interface=conf.iface):
     broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
     arp_request_broadcast = broadcast / arp_request
     log.debug(f"{interface} : {ip}")
-    answered_list = scapy.srp(arp_request_broadcast, iface=interface, timeout=1, verbose=False)[0]
-
+    try:
+        answered_list = []
+        answered_list = scapy.srp(arp_request_broadcast, iface=interface, timeout=1, verbose=False)[0]
+    except (PermissionError) as e:
+        log.debug(f"{interface} - {ip} : {e}")
+        pass
     results = []
 
     for element in answered_list:
@@ -109,7 +113,7 @@ def get_rtkbase_infos(host_list):
                             log.debug(f"{address}:{port} Api response: {res}")
                             ans = json.loads(res.load.decode()) if res is not None else None
                             if ans:
-                                break  
+                                break
                         except (TimeoutError, TypeError, ConnectionRefusedError) as e:
                             log.debug(f"{address}:{port} - {e}")
 
