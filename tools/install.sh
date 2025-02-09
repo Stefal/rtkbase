@@ -675,6 +675,20 @@ start_services() {
   echo '################################'
 }
 
+install_zeroconf_service() {
+  echo '################################'
+  echo 'INSTALLING ZEROCONF/AVAHI DEFINITION SERVICE'
+  echo '################################'
+  #Test is avahi is running and directory for services definition exists
+  if systemctl is-active --quiet avahi-daemon.service && [[ -d /etc/avahi/services ]]
+  then
+    web_port=$(grep "^web_port=.*" "${rtkbase_path}"/settings.conf | cut -d "=" -f2)
+    sed -e 's|{port}|'$web_port'|' "${rtkbase_path}"/tools/zeroconf/rtkbase_web.service >> /etc/avahi/services/rtkbase_web.service
+  else
+    echo 'Can'\''t install avahi definition service, missing avahi service or /etc/avahi/services directory'
+  fi
+}
+
 main() {
   # If rtkbase is installed but the OS wasn't restarted, then the system wide
   # rtkbase_path variable is not set in the current shell. We must source it
@@ -716,9 +730,10 @@ main() {
   ARG_CONFIGURE_GNSS=0
   ARG_DETECT_MODEM=0
   ARG_START_SERVICES=0
+  ARG_ZEROCONF=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-gnss,no-write-port,configure-gnss,detect-modem,start-services,all: -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsza: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-gnss,no-write-port,configure-gnss,detect-modem,start-services,zeroconf,all: -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -742,11 +757,12 @@ main() {
         -q | --rtkbase-requirements) ARG_RTKBASE_RQS=1 ; shift   ;;
         -t | --unit-files) ARG_UNIT=1                  ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1          ; shift   ;;
-        -e | --detect-gnss) ARG_DETECT_GNSS=1  ; shift   ;;
+        -e | --detect-gnss) ARG_DETECT_GNSS=1          ; shift   ;;
         -n | --no-write-port) ARG_NO_WRITE_PORT=1      ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1    ; shift   ;;
         -m | --detect-modem) ARG_DETECT_MODEM=1        ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1    ; shift   ;;
+        -z | --zeroconf) ARG_ZEROCONF=1                ; shift   ;;
         -a | --all) ARG_ALL="${2}"                     ; shift 2 ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
         --) shift; break ;;
@@ -809,6 +825,7 @@ main() {
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_MODEM -eq 1 ] && { detect_usb_modem && _add_modem_port && _configure_modem ; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_ZEROCONF -eq 1 ] && { install_zeroconf_service; ((cumulative_exit+=$?)) ;}
 }
 
 main "$@"
