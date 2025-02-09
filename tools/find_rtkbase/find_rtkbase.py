@@ -51,6 +51,10 @@ class MyApp:
         self.nobase_label = ttk.Label(self.top_frame, text="No base station detected")
         self.nobase_label.grid(column=0, row=0, columnspan=2, pady=10)
         self.nobase_label.grid_remove()
+        self.error_label = ttk.Label(self.top_frame, text="Error")
+        self.error_label.grid(column=0, row=0, columnspan=2, pady=10)
+        self.error_label.grid_remove()
+
        
         # Scan/Quit Frame
         self.bottom_frame = ttk.Frame(self.top_frame)
@@ -72,7 +76,8 @@ class MyApp:
         
         #Cleaning GUI
         try:
-            self.intro_label.destroy()
+            self.intro_label.grid_remove()
+            self.error_label.grid_remove()
             for label in self.base_labels_list:
                 label.destroy()
             for button in self.base_buttons_list:
@@ -91,19 +96,29 @@ class MyApp:
         
     def _scan_thread(self):
         log.debug(f"Start Scanning (ports {self.ports})")
-        self.available_base = scan_network.main(self.ports, self.allscan)
+        try:
+            self.available_base = scan_network.main(self.ports, self.allscan)
         #self.available_base = [{'ip': '192.168.1.23', 'port' : 80, 'fqdn' : 'rtkbase.home'},
         #                   {'ip': '192.168.1.124', 'port' : 80, 'fqdn' : 'localhost'},
         #                   {'ip': '192.168.1.199', 'port' : 443, 'fqdn' : 'basegnss'} ]
         #self.available_base = [{'ip': '192.168.1.123', 'port' : 80, 'fqdn' : 'localhost'},]
+        except Exception as e:
+            log.debug("Error during network scan")
+            self.progress_bar.stop()
+            self.progress_bar.grid_remove()
+            self.scanninglabel.grid_remove()
+            self.error_label.grid()
+            self.scanButton.config(state=tk.NORMAL)
+            return
+            
         log.debug("Scan terminated")
         self._after_scan_thread()
 
     def _after_scan_thread(self):
+        log.debug(f"available_base: {self.available_base}")
         self.scanninglabel.grid_remove()
         self.progress_bar.stop()
         self.progress_bar.grid_remove()
-        print("available_base: ", self.available_base)
         self.base_labels_list = ["base" + str(i) + "Label" for i, j in enumerate(self.available_base)]
         self.base_buttons_list = ["base" + str(i) + "Button" for i, j in enumerate(self.available_base)]
         if len(self.available_base)>0:

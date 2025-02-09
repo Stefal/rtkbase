@@ -23,6 +23,7 @@ class MyZeroConfListener:
         pass
 
 def zeroconf_scan(name, type, timeout=5):
+    log.debug("Scanning with zeroconf")
     service_list = []
     zeroconf = Zeroconf()
     listener = MyZeroConfListener()
@@ -177,8 +178,6 @@ def main(ports, allscan=False, iprange=None):
 
     #interfaces = scapy.get_working_ifaces()
     scan_results = []
-    
-    log.debug("Scanning with zeroconf")
     scan_results.extend(zeroconf_scan('RTKBase Web Server', '_http._tcp.local.'))
     arp_results=[]
     if allscan or len(scan_results) == 0:
