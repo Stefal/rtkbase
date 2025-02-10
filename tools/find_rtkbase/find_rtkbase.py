@@ -103,7 +103,7 @@ class MyApp:
         #                   {'ip': '192.168.1.199', 'port' : 443, 'fqdn' : 'basegnss'} ]
         #self.available_base = [{'ip': '192.168.1.123', 'port' : 80, 'fqdn' : 'localhost'},]
         except Exception as e:
-            log.debug("Error during network scan")
+            log.debug(f"Error during network scan: {e}")
             self.progress_bar.stop()
             self.progress_bar.grid_remove()
             self.scanninglabel.grid_remove()
