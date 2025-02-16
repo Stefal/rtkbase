@@ -1,8 +1,8 @@
 # Changelog
 
-## [2.6.3] - not released
+## [2.6.3] - 2025-02-16
 ### Added
-- New Linux/Windows Gui to detect online Station (https://github.com/Stefal/rtkbase/tree/master/tools/find_rtkbase)
+- New [Linux/Windows Gui](https://github.com/Stefal/rtkbase/tree/master/tools/find_rtkbase/dist) to detect online Station.
 - Add Unicore UM980/UM982 support (rtcm3 mode). [#351](https://github.com/Stefal/rtkbase/issues/351)
 - Add api to get basics informations about the base station (/api/v1/infos)
 - Add Zeroconf/Avahi service definition to get a fast online Rtkbase station detection.
