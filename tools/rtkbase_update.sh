@@ -200,6 +200,9 @@ upd_2.5.0 () {
 }
 
 upd_2.6.0() {
+  echo '##########################'
+  echo 'Update from 2.6.0 to 2.6.1'
+  echo '##########################'
   # update modem_check_service file (see https://github.com/Stefal/rtkbase/commit/cfad1981e483d74da04f53b8d7b354661100d610)
   "${destination_directory}"/tools/install.sh --user "${standard_user}" --unit-files
   # build rtklib if current release doesn't work
@@ -211,6 +214,9 @@ upd_2.6.0() {
 }
 
 upd_2.6.1() {
+  echo '##########################'
+  echo 'Update from 2.6.1 to 2.6.2'
+  echo '##########################'
   #Remove firstboot service from the Raspberry 2.5 and 2.6 images
   #This service should have been removed after the first boot, but
   # wasn't and was stopping various RTKBase services at each boot. 
@@ -220,6 +226,27 @@ upd_2.6.1() {
   fi
 
   if [[ $ID == debian ]] && systemctl list-units firstboot.service
+    then
+      systemctl disable --now firstboot.service
+      rm /lib/systemd/system/firstboot.service
+      systemctl daemon-reload
+  fi
+  upd_2.6.2 "$@"
+}
+
+upd_2.6.2() {
+  echo '##########################'
+  echo 'Update from 2.6.2 to 2.6.3'
+  echo '##########################'
+  #Remove firstboot service from the Raspberry 2.5 and 2.6 images
+  #This service should have been removed after the first boot, but
+  # wasn't and was stopping various RTKBase services at each boot. 
+  if [[ -f /etc/os-release ]]
+    then
+      source /etc/os-release
+  fi
+
+  if [[ $ID == raspbian ]] && systemctl list-units firstboot.service
     then
       systemctl disable --now firstboot.service
       rm /lib/systemd/system/firstboot.service

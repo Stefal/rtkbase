@@ -586,6 +586,15 @@
     </div>
   </div>
 
+  <div class="row py-2">
+    <div class="col-sm-4">
+      <span class="col-sm-3">Network:</span>
+    </div>
+    <div class="col-sm-8" id="network_infos">
+
+    </div>
+  </div>
+  
   <div class="row py-2 align-items-center">
     <div class="col-sm-4">
       <span class="col-sm-3">Settings:</span>
@@ -781,5 +790,6 @@
 {% block scripts %}
 {{super()}}
 <script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap4-toggle.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='lib/snarkdown.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='settings.js', v=g.version) }}" charset="utf-8"></script>
 {% endblock %}

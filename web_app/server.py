@@ -39,11 +39,13 @@ import sys
 import requests
 import tempfile
 import argparse
+import html
 
 from threading import Thread
 from RTKLIB import RTKLIB
 from ServiceController import ServiceController
 from RTKBaseConfigManager import RTKBaseConfigManager
+import network_infos
 
 #print("Installing all required packages")
 #provisioner.provision_reach()
@@ -53,7 +55,7 @@ from RTKBaseConfigManager import RTKBaseConfigManager
 
 from flask_bootstrap import Bootstrap4
 from flask import Flask, render_template, session, request, flash, url_for
-from flask import send_file, send_from_directory, redirect, abort
+from flask import send_from_directory, redirect, abort
 from flask import g
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField, SubmitField
@@ -64,6 +66,7 @@ import urllib
 import subprocess
 import psutil
 import distro
+import socket
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -179,6 +182,12 @@ def manager():
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
                 #print("service status", services_status)
 
+            try:
+                interfaces_infos = network_infos.get_interfaces_infos()
+            except Exception:
+                # network-manager not installed ?
+                interfaces_infos = None
+
             volume_usage = get_volume_usage()
             sys_infos = {"cpu_temp" : cpu_temp,
                         "max_cpu_temp" : max_cpu_temp,
@@ -186,7 +195,8 @@ def manager():
                         "volume_free" : round(volume_usage.free / 10E8, 2),
                         "volume_used" : round(volume_usage.used / 10E8, 2),
                         "volume_total" : round(volume_usage.total / 10E8, 2),
-                        "volume_percent_used" : volume_usage.percent}
+                        "volume_percent_used" : volume_usage.percent,
+                        "network_infos" : interfaces_infos}
             socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
 
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive" or \
@@ -465,8 +475,7 @@ def logs_page():
 def downloadLog(log_name):
     """ Route for downloading raw gnss data"""
     try:
-        full_log_path = rtk.logm.log_path + "/" + log_name
-        return send_file(full_log_path, as_attachment = True)
+        return send_from_directory(rtk.logm.log_path, log_name, as_attachment = True)
     except FileNotFoundError:
         abort(404)
 
@@ -510,18 +519,30 @@ def diagnostic():
                                 universal_newlines=True,
                                 check=False)
         journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']], 
-                                 stdout=subprocess.PIPE, 
+                                 stdout=subprocess.PIPE,
                                  universal_newlines=True,
                                  check=False)
         
         #Replace carrier return to <br> for html view
-        sysctl_status = sysctl_status.stdout.replace('\n', '<br>') 
-        journalctl = journalctl.stdout.replace('\n', '<br>')
+        sysctl_status = html.escape(sysctl_status.stdout.replace('\n', '<br>'))
+        journalctl = html.escape(journalctl.stdout.replace('\n', '<br>'))
         active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
         
     return render_template('diagnostic.html', logs = logs)
 
+
+@app.route('/api/v1/infos', methods=['GET'])
+def get_infos():
+    """Small api route to get basic informations about the base station"""
+
+    infos = {"app" : "RTKBase",
+             "app_version" : rtkbaseconfig.get("general", "version"), 
+             "url" : html.escape(request.base_url),
+             "fqdn" : socket.getfqdn(),
+             "uptime" : get_uptime(),
+             "hostname" : socket.gethostname()}
+    return json.dumps(infos)
 
 #### Handle connect/disconnect events ####
 
@@ -567,7 +588,7 @@ def shutdownBase():
 def startBase():
     saved_input_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
     #check if the main service is running and the gnss format is correct. If not, don't try to start rtkrcv with startBase() 
-    if services_list[0].get("active") is False or saved_input_type not in ["rtcm2","rtcm3","nov","oem3","ubx","ss2","hemis","stq","javad","nvs","binex","rt17","sbf"]:
+    if services_list[0].get("active") is False or saved_input_type not in ["rtcm2","rtcm3","nov","oem3","ubx","ss2","hemis","stq","javad","nvs","binex","rt17","sbf", "unicore"]:
         print("DEBUG: Can't start rtkrcv as main service isn't enabled or gnss format is wrong")
         result = {"result" : "failed"}
         socketio.emit("base starting", json.dumps(result), namespace="/test")
@@ -613,8 +634,8 @@ def detect_receiver(json_msg):
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
             device_info = next(x for x in answer.stdout.splitlines() if x.startswith('/dev/')).split(' - ')
-            port, gnss_type, speed = [x.strip() for x in device_info]
-            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type, "port_speed" : speed}
+            port, gnss_type, speed, firmware = [x.strip() for x in device_info]
+            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type, "port_speed" : speed, "firmware" : firmware}
             result.update(json_msg)
         except Exception:
             result = {"result" : "failed"}
@@ -622,15 +643,26 @@ def detect_receiver(json_msg):
         #print("DEBUG Not ok stdout: ", answer.stdout)
         result = {"result" : "failed"}
     #result = {"result" : "failed"}
-    #result = {"result" : "success", "port" : "bestport", "gnss_type" : "F12P"}
-    #print('DEBUG result: ', result)
+    #result = {"result" : "success", "port" : "/dev/ttybestport", "gnss_type" : "F12P", "port_speed" : "115200", "firmware" : "1.55"}
+    result.update(json_msg) ## get back "then_configure" key/value
     socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
+
+@socketio.on("apply_receiver_settings", namespace="/test")
+def apply_receiver_settings(json_msg):
+    print("Applying gnss receiver new settings")
+    print(json_msg)
+    rtkbaseconfig.update_setting("main", "com_port", json_msg.get("port").strip("/dev/"), write_file=False)
+    rtkbaseconfig.update_setting("main", "com_port_settings", json_msg.get("port_speed") + ':8:n:1', write_file=False)
+    rtkbaseconfig.update_setting("main", "receiver", json_msg.get("gnss_type"), write_file=False)
+    rtkbaseconfig.update_setting("main", "receiver_firmware", json_msg.get("firmware"), write_file=True)
+
+    socketio.emit("gnss_settings_saved", json.dumps(json_msg), namespace="/test")
 
 @socketio.on("configure_receiver", namespace="/test")
 def configure_receiver(brand="", model=""):
     # only some receiver could be configured automaticaly
     # After port detection, the main service will be restarted, and it will take some time. But we have to stop it to
-    # configure the receiver. We wait 2 seconds before stopping it to remove conflicting calls.
+    # configure the receiver. We wait a few seconds before stopping it to remove conflicting calls.
     time.sleep(4)
     main_service = services_list[0]
     if main_service.get("active") is True:
@@ -670,7 +702,9 @@ def reset_settings():
 @login_required
 def backup_settings():
     settings_file_name = str("RTKBase_{}_{}_{}.conf".format(rtkbaseconfig.get("general", "version"), rtkbaseconfig.get("ntrip_A", "mnt_name_a").strip("'"), time.strftime("%Y-%m-%d_%HH%M")))
-    return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
+    #return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
+    return send_from_directory(rtkbase_path, "settings.conf", as_attachment=True, download_name=settings_file_name)
+
 
 @socketio.on("restore settings", namespace="/test")
 def restore_settings_file(json_msg):
@@ -820,13 +854,16 @@ def restartServices(restart_services_list=None):
                 if service["name"] == "main":
                     #the main service should be stopped during at least 1 second to let rtkrcv stop too.
                     #another solution would be to call rtk.stopbase()
-                    service["unit"].stop()
-                    time.sleep(1.5)
-                    service["unit"].start()
+                    #service["unit"].stop()
+                    #time.sleep(1.5)
+                    #service["unit"].start()
+                    rtk.stopBase()
+                    service["unit"].restart()
                 else:
                     service["unit"].restart()
 
     #refresh service status
+    time.sleep(1)
     getServicesStatus()
 
 @socketio.on("get services status", namespace="/test")
@@ -856,8 +893,6 @@ def getServicesStatus(emit_pingback=True):
 
         except Exception as e:
             print("Error getting service info for: {} - {}".format(service['name'], e))
-            #TODO manage better the error with rtkbase_archive.service. See https://github.com/Stefal/rtkbase/issues/162
-            #and try to remove this "pass" without any notification (bad practive)
             pass
 
     services_status = []

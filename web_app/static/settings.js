@@ -334,44 +334,37 @@ $(document).ready(function () {
         detectApplyBtnElt.innerText = "Apply";
         detectApplyBtnElt.setAttribute('disabled', '');
         detectApplyBtnElt.removeAttribute('data-dismiss');
+        detectCancelBtnElt.hidden = false;
         detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Detecting GNSS receiver...';
         socket.emit("detect_receiver", {"then_configure" : false});
         $('#detectModal').modal();
     });
 
     socket.on("gnss_detection_result", function(msg) {
-        // open modal box with detection result and asking for configuration if detection is a success and a u-blox receiver
+        // open modal box with detection result and asking for configuration if detection is a success
         response = JSON.parse(msg);
         console.log(response);
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         if (response['result'] === 'success') {
             detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
             detectApplyBtnElt.onclick = function (){
-                document.querySelector('#com_port').value = response['port'].replace(/^\/dev\//, '');
-                document.querySelector('#com_port_settings').value = response['port_speed'] + ':8:n:1';
-                // NEW METHOD from https://stackoverflow.com/questions/35154348/trigger-form-submission-with-javascript
-                document.getElementById("main").dispatchEvent(new SubmitEvent('submit', {cancelable: true}));
-                if (response['then_configure']) {
-                    // We need to wait for the service stop/restart after the previous click on form save button.
-                    // Yes, it's dirty...
-                    //setTimeout(() => { document.querySelector('#configure_receiver_button').click(); }, 2000);
-                    document.querySelector('#configure_receiver_button').click();
-                }
-                // detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
-                // detectApplyBtnElt.setAttribute('disabled', '');
+                socket.emit("apply_receiver_settings", response)
             };
             detectApplyBtnElt.removeAttribute('disabled');
         } else {
             detectApplyBtnElt.setAttribute('disabled', '');
             detectBodyElt.innerHTML = 'No GNSS receiver detected';
-            // TODO add a way to send the configuration even though the receiver isn't detected. It could be useful for F9P connected with Uart.
-            //detectBodyElt.innerHTML = 'No GNSS receiver detected. <br> would you still like to try to configure the receiver?';
-            //detectApplyBtnElt.onclick = function (){
-            //    socket.emit("configure_receiver");
-            //    detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
-            //    detectApplyBtnElt.setAttribute('disabled', '');
-            //};
-            //detectApplyBtnElt.removeAttribute('disabled');
+        }
+    })
+    socket.on("gnss_settings_saved", function(msg) {
+        // gnss settings are saved.
+        response = JSON.parse(msg);
+        if (response['then_configure']) {
+            // asking for gnss receiver configuration
+        document.querySelector('#configure_receiver_button').click();
+        } else {
+            // refreshing the page to display the new informations
+            location.href = document.URL.replace(/#$/, '');
         }
     })
 
@@ -381,7 +374,7 @@ $(document).ready(function () {
         detectApplyBtnElt.onclick = function (){}; //remove the previous attached event which launched the gnss configuration
         detectApplyBtnElt.innerText = "Close";
         detectApplyBtnElt.setAttribute('disabled', '');
-        detectCancelBtnElt.remove();
+        detectCancelBtnElt.hidden = true;
         detectBodyElt.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Configuring GNSS receiver...';
         socket.emit("configure_receiver");
         $('#detectModal').modal();
@@ -433,11 +426,14 @@ $(document).ready(function () {
         }else if (response.new_release) {
             $("#updateModal .modal-title").text("Update available!");
             $("#updateModal .modal-body").append('<p class="text-center">Do you want to install RTKBase <b>' + response['new_release'] +'</b>? <br>It will take a few minutes.</p>');                    
-            var newFeaturesArray = response['comment'].split('\r\n');
-            $("#updateModal .modal-body").append('<p><ul id="newFeatures">Content:</ul></p>');
-            $.each( newFeaturesArray, function( index, value ){
-                $("#newFeatures").append("<li>" + value.replace(/^\+ /g, "") + "</li>");
-            });       
+            $("#updateModal .modal-body").append('<p id="newFeatures"></p>');
+            var markdwnHtml = snarkdown(response['comment']);
+            //lower <Hx> title tags values
+                markdwnHtml= markdwnHtml.replace(/<h([1-4])(.*?)>(.*?)<\/h\1>/gi, (match, p1, p2, p3) => {
+                    const newHtag = Math.min(parseInt(p1) + 3, 6);
+                    return `<h${newHtag}${p2}>${p3}</h${newHtag}>`;
+                });
+            $("#newFeatures").append('<p>' + markdwnHtml + '</p>');     
             $("#start-update-button").removeAttr("disabled");
             $("#updateModal").modal();
         } else {
@@ -600,7 +596,31 @@ $(document).ready(function () {
         } else {
             volumeSpaceElt.style.color = "#212529";
         }
+
+        var networkElt = document.getElementById("network_infos");
+        networkElt.innerHTML = createNetworkInterfacesList(sysInfos["network_infos"]);
     })
+
+    function createNetworkInterfacesList(interfaces) {
+        let html = '<dl>'
+        interfaces.forEach(interface => {
+        html += `<dt style="font-weight: initial;">${interface.device}`;
+        if (interface.conn_name) {
+            html += ` (${interface.conn_name})`;
+        }
+        html += '</dt>';
+        html += '<dd><ul>';
+        if (interface.ipv4) {
+            html += `<li>IPv4: ${interface.ipv4.join(' - ')}</li>`;
+        }
+        if (interface.ipv6) {
+            html += `<li>IPv6: ${interface.ipv6.join(' - ')}</li>`;
+        }
+        html += '</ul></dd>';
+        });
+        html += '</dl>';
+        return html;
+    }
     //source: https://stackoverflow.com/a/34270811
     /**
      * Translates seconds into human readable format of seconds, minutes, hours, days, and years

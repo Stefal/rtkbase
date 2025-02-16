@@ -1,0 +1,9 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+<name>RTKBase Web Server</name>
+<service>
+<type>_http._tcp</type>
+<port>{port}</port>
+</service>
+</service-group>

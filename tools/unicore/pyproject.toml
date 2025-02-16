@@ -1,0 +1,9 @@
+
+[project]
+name = "unicore_gnss"
+version = "0.0.1"
+dependencies = ["pyserial",]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

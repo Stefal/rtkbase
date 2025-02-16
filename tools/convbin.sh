@@ -94,12 +94,17 @@ elif [[ ${RINEX_TYPE} == '30s_full' ]] ; then rnx_conversion_func='convert_to_ri
 elif [[ ${RINEX_TYPE} == '1s_full' ]] ; then rnx_conversion_func='convert_to_rinex_1s_full' ; RINEX_FILE=$(echo "${filedate}"-"${MOUNT_NAME}"_"${RINEX_TYPE}".obs)
 fi
 
-
 #Let's launch the CONVBIN process
 echo "- Processing on	""${RAW_ARCHIVE}"
-extract_raw_file                  && \
-${rnx_conversion_func}            && \
+file_extension="${RAW_ARCHIVE##*.}"
+if [[ $file_extension == 'zip' ]]
+  then
+    extract_raw_file
+  else 
+    raw_file="${RAW_ARCHIVE}"
+fi
+${rnx_conversion_func}
 return_code=$?
 echo -n 'rinex_file='"${RINEX_FILE}"
-rm "${raw_file}"
+[[ $file_extension == 'zip' ]] && rm "${raw_file}"
 exit $return_code

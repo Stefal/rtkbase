@@ -73,6 +73,10 @@ man_help(){
     echo '        -m | --detect-modem'
     echo '                         Detect LTE/4G usb modem'
     echo ''
+    echo '        -z | --zeroconf'
+    echo '                         Install zeroconf/avahi service definition.'
+    echo '                         It helps to detect the base station on the network.'
+    echo ''
     echo '        -s | --start-services'
     echo '                         Start services (rtkbase_web, str2str_tcp, gpsd, chrony)'
     echo ''
@@ -288,8 +292,8 @@ install_rtkbase_bundled() {
     # Find __ARCHIVE__ marker, read archive content and decompress it
     ARCHIVE=$(awk '/^__ARCHIVE__/ {print NR + 1; exit 0; }' "${0}")
     # Check if there is some content after __ARCHIVE__ marker (more than 100 lines)
-    [[ $(sed -n '/__ARCHIVE__/,$p' "${0}" | wc -l) -lt 100 ]] && echo "RTKBASE isn't bundled inside install.sh. Please choose another source" && exit 1  
-    sudo -u "${RTKBASE_USER}" tail -n+${ARCHIVE} "${0}" | tar xpJv && \
+    [[ $(sed -n '/^__ARCHIVE__/,$p' "${0}" | wc -l) -lt 100 ]] && echo "RTKBASE isn't bundled inside install.sh. Please choose another source" && exit 1  
+    sudo -u "${RTKBASE_USER}" tail -n+${ARCHIVE} "${0}" | sudo -u "${RTKBASE_USER}" tar xpJv && \
     _add_rtkbase_path_to_environment
 }
 
@@ -373,7 +377,7 @@ install_unit_files() {
         #Add dialout group to user
         usermod -a -G dialout "${RTKBASE_USER}"
       else
-        echo 'RtkBase not installed, use option --rtkbase-release or any other rtkbase installation option.'
+        echo 'RtkBase is not installed, use option --rtkbase-release or any other rtkbase installation option.'
       fi
 }
 
@@ -420,7 +424,8 @@ detect_gnss() {
         echo 'UART GNSS RECEIVER DETECTION'
         echo '################################'
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
-        for port in ttyS1 serial0 ttyS2 ttyS3 ttyS0; do
+        # TODO remove port if not available in /dev/
+        for port in ttyS0 ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS1 ttyS2 ttyS3 ttyS4 ttyS5; do
             for port_speed in 115200 57600 38400 19200 9600; do
                 echo 'DETECTION ON ' $port ' at ' $port_speed
                 if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/$port -s $port_speed -p MON-VER -w 5 2>/dev/null) =~ 'ZED-F9P' ]]; then
@@ -429,8 +434,14 @@ detect_gnss() {
                     detected_gnss[2]=$port_speed
                     #echo 'U-blox ZED-F9P DETECTED ON '$port $port_speed
                     break
+                elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}; then
+                    detected_gnss[0]=$port
+                    detected_gnss[1]='unicore'
+                    detected_gnss[2]=$port_speed
+                    #echo 'Unicore ' "${model}" ' DETECTED ON '$port $port_speed
+                    break
                 fi
-                sleep 1
+                sleep 0.1
             done
             #exit loop if a receiver is detected
             [[ ${#detected_gnss[*]} -eq 3 ]] && break
@@ -440,12 +451,27 @@ detect_gnss() {
       [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
       # If /dev/ttyGNSS is a symlink of the detected serial port, switch to ttyGNSS
       [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && detected_gnss[0]='ttyGNSS'
+      # Get firmware release
+      if [[ "${detected_gnss[1]}" =~ 'u-blox' ]]
+        then
+          #get F9P firmware release
+          detected_gnss[3]=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
+      elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]]
+        then
+          #get mosaic-X5 firmware release
+          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
+      elif [[ "${detected_gnss[1]}" =~ 'unicore' ]]
+        then
+          #get Unicore UM98X firmware release
+          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware 2>/dev/null)" || firmware='?'
+      fi
       # "send" result
-      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"
+      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"
 
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
-      if [[ ${#detected_gnss[*]} -eq 3 ]] && [[ "${1}" -eq 0 ]]
+      if [[ ${#detected_gnss[*]} -eq 4 ]] && [[ "${1}" -eq 0 ]]
         then
           echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}"
           #if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
@@ -457,12 +483,12 @@ detect_gnss() {
             #change the com port value/settings inside settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'${detected_gnss[2]}:8:n:1\'/ "${rtkbase_path}"/settings.conf
-            
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'"${detected_gnss[3]}"\'/ "${rtkbase_path}"/settings.conf            
           else
             echo 'settings.conf is missing'
             return 1
           fi
-      elif [[ ${#detected_gnss[*]} -ne 3 ]]
+      elif [[ ${#detected_gnss[*]} -ne 4 ]]
         then
           return 1
       fi
@@ -514,8 +540,8 @@ configure_gnss(){
           #remove SBAS Rtcm message (1107) as it is disabled in the F9P configuration.
           sudo -u "${RTKBASE_USER}" sed -i -r '/^rtcm_/s/1107(\([0-9]+\))?,//' "${rtkbase_path}"/settings.conf                                              && \
           return $?
-
-        elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model --retry 5) =~ 'mosaic-X5' ]]
+        
+        elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model) =~ 'mosaic-X5' ]]
         then
           #get mosaic-X5 firmware release
           firmware="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_firmware --retry 5)" || firmware='?'
@@ -530,15 +556,43 @@ configure_gnss(){
           if [[ $? -eq  0 ]]
           then
             echo 'Septentrio Mosaic-X5 successfuly configured'
+            # Enable the proxy for the Mosaic Web interface.
             systemctl list-unit-files rtkbase_gnss_web_proxy.service &>/dev/null                                                                            && \
             systemctl enable --now rtkbase_gnss_web_proxy.service                                                                                             && \
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
             sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Septentrio_Mosaic-X5\'/ "${rtkbase_path}"/settings.conf                                && \
             sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'sbf\'/ "${rtkbase_path}"/settings.conf
+            #Mosaic-X5 archives a bigger, we need more remaining space to compress archives
+            sudo -u "${RTKBASE_USER}" sed -i s/^min_free_space=.*/min_free_space=\'1500\'/ "${rtkbase_path}"/settings.conf
+
             return $?
-          else
-            echo 'Failed to configure the Gnss receiver'
-            return 1
+          fi
+
+        elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}
+          then
+          #get UM98x firmware release
+          firmware="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_firmware 2>/dev/null)" || firmware='?'
+          echo 'Unicore-' "${model}" 'Firmware: ' "${firmware}"
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
+          #configure the UM980/UM982 for RTKBase
+          echo 'Resetting the ' "${model}" ' settings....'
+          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command reset --retry 5
+          sleep_time=10 ; echo 'Waiting '$sleep_time's for ' "${model}" ' reboot' ; sleep $sleep_time
+          echo 'Sending settings....'
+          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_rtcm3.cfg --store --retry 2
+          if [[ $? -eq  0 ]]
+          then
+            echo 'Unicore UM980 successfuly configured'
+            sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                        && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Unicore_$model\'/ "${rtkbase_path}"/settings.conf                                         && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'rtcm3\'/ "${rtkbase_path}"/settings.conf
+            #UM980 archives a bigger, we need more remaining space to compress archives
+            sudo -u "${RTKBASE_USER}" sed -i s/^min_free_space=.*/min_free_space=\'1500\'/ "${rtkbase_path}"/settings.conf
+
+            return $?
+            else
+              echo 'Failed to configure the Gnss receiver'
+              return 1
           fi
 
         else
@@ -546,7 +600,7 @@ configure_gnss(){
           return 1
         fi
       else
-        echo 'RtkBase not installed, use option --rtkbase-release'
+        echo 'RtkBase is not installed, use option --rtkbase-release'
         return 1
       fi
 }
@@ -625,6 +679,20 @@ start_services() {
   echo '################################'
 }
 
+install_zeroconf_service() {
+  echo '################################'
+  echo 'INSTALLING ZEROCONF/AVAHI DEFINITION SERVICE'
+  echo '################################'
+  #Test is avahi is running and directory for services definition exists
+  if systemctl is-active --quiet avahi-daemon.service && [[ -d /etc/avahi/services ]]
+  then
+    web_port=$(grep "^web_port=.*" "${rtkbase_path}"/settings.conf | cut -d "=" -f2)
+    sed -e 's|{port}|'$web_port'|' "${rtkbase_path}"/tools/zeroconf/rtkbase_web.service >> /etc/avahi/services/rtkbase_web.service
+  else
+    echo 'Can'\''t install avahi definition service, missing avahi service or /etc/avahi/services directory'
+  fi
+}
+
 main() {
   # If rtkbase is installed but the OS wasn't restarted, then the system wide
   # rtkbase_path variable is not set in the current shell. We must source it
@@ -666,9 +734,10 @@ main() {
   ARG_CONFIGURE_GNSS=0
   ARG_DETECT_MODEM=0
   ARG_START_SERVICES=0
+  ARG_ZEROCONF=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsa: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-gnss,no-write-port,configure-gnss,detect-modem,start-services,all: -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsza: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-gnss,no-write-port,configure-gnss,detect-modem,start-services,zeroconf,all: -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -692,11 +761,12 @@ main() {
         -q | --rtkbase-requirements) ARG_RTKBASE_RQS=1 ; shift   ;;
         -t | --unit-files) ARG_UNIT=1                  ; shift   ;;
         -g | --gpsd-chrony) ARG_GPSD_CHRONY=1          ; shift   ;;
-        -e | --detect-gnss) ARG_DETECT_GNSS=1  ; shift   ;;
+        -e | --detect-gnss) ARG_DETECT_GNSS=1          ; shift   ;;
         -n | --no-write-port) ARG_NO_WRITE_PORT=1      ; shift   ;;
         -c | --configure-gnss) ARG_CONFIGURE_GNSS=1    ; shift   ;;
         -m | --detect-modem) ARG_DETECT_MODEM=1        ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1    ; shift   ;;
+        -z | --zeroconf) ARG_ZEROCONF=1                ; shift   ;;
         -a | --all) ARG_ALL="${2}"                     ; shift 2 ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
         --) shift; break ;;
@@ -758,6 +828,7 @@ main() {
   [ $ARG_DETECT_GNSS -eq 1 ] &&  { detect_gnss "${ARG_NO_WRITE_PORT}" ; ((cumulative_exit+=$?)) ;}
   [ $ARG_CONFIGURE_GNSS -eq 1 ] && { configure_gnss ; ((cumulative_exit+=$?)) ;}
   [ $ARG_DETECT_MODEM -eq 1 ] && { detect_usb_modem && _add_modem_port && _configure_modem ; ((cumulative_exit+=$?)) ;}
+  [ $ARG_ZEROCONF -eq 1 ] && { install_zeroconf_service; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
 }
 
