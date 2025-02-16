@@ -2,7 +2,10 @@
 
 ## [2.6.3] - not released
 ### Added
+- New Linux/Windows Gui to detect online Station (https://github.com/Stefal/rtkbase/tree/master/tools/find_rtkbase)
 - Add Unicore UM980/UM982 support (rtcm3 mode). [#351](https://github.com/Stefal/rtkbase/issues/351)
+- Add api to get basics informations about the base station (/api/v1/infos)
+- Add Zeroconf/Avahi service definition to get a fast online Rtkbase station detection.
 - Detect Gnss receiver firmware version during receiver detection. [#428](https://github.com/Stefal/rtkbase/issues/428)
 - GUI -> Logs: Non-zipped files can be convert to rinex. [#348](https://github.com/Stefal/rtkbase/issues/348)
 - GUI -> Settings: Display network informations.

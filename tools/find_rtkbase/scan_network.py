@@ -1,9 +1,10 @@
-import scapy.all as scapy
-scapy.load_layer("http")
+#! /usr/bin/env python3
 import json
 import time
 import logging
 import argparse
+import scapy.all as scapy
+scapy.load_layer("http")
 from zeroconf import Zeroconf
 from zeroconf import ServiceBrowser
 logging.basicConfig(format='%(levelname)s: %(message)s')
@@ -22,12 +23,12 @@ class MyZeroConfListener:
     def update_service(self, *args, **kwargs):
         pass
 
-def zeroconf_scan(name, type, timeout=5):
+def zeroconf_scan(name, prot_type, timeout=5):
     log.debug("Scanning with zeroconf")
     service_list = []
     zeroconf = Zeroconf()
     listener = MyZeroConfListener()
-    browser = ServiceBrowser(zeroconf, type, listener)
+    browser = ServiceBrowser(zeroconf, prot_type, listener)
     time.sleep(timeout)
     for service in listener.services:
         if name.lower() in service.name.lower():
@@ -170,8 +171,8 @@ def arg_parse():
     parser.add_argument("-i", "--iprange", help="ip range to scan eg 192.168.1.0/24", type=str)
     parser.add_argument("-d", "--debug", action='store_true')
     parser.add_argument("--version", action="version", version="%(prog)s 1.0")
-    args = parser.parse_args()
-    return args
+    arguments = parser.parse_args()
+    return arguments
 
 
 def main(ports, allscan=False, iprange=None):
