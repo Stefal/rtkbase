@@ -252,6 +252,16 @@ upd_2.6.2() {
       rm /lib/systemd/system/firstboot.service
       systemctl daemon-reload
   fi
+  upd_2.6.3 "$@"
+}
+
+upd_2.6.3() {
+  echo '##########################'
+  echo 'Update from 2.6.3 to 2.6.x'
+  echo '##########################'
+  # install updated service and new avahi service definition (forgot it on the previous update)
+  "${destination_directory}"/tools/install.sh --user "${standard_user}" --unit-files --zeroconf
+
 }
 
 #check if we can apply the update
