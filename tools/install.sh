@@ -3,7 +3,7 @@
 ### RTKBASE INSTALLATION SCRIPT ###
 declare -a detected_gnss
 declare RTKBASE_USER
-APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
+APT_TIMEOUT='-o dpkg::lock::timeout=6000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
 MODEM_AT_PORT=/dev/ttymodemAT
 
 man_help(){
@@ -108,9 +108,13 @@ install_dependencies() {
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
+      apt-get "${APT_TIMEOUT}" upgrade -y
       apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-venv python3-dev python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables || exit 1
-      apt-get install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
-      #apt-get "${APT_TIMEOUT}" upgrade -y
+      apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
+      apt-get "${APT_TIMEOUT}" install -y wireless-tools wpasupplicant || exit 1
+      apt-get "${APT_TIMEOUT}" clean -y
+      apt-get "${APT_TIMEOUT}" autoclean -y
+      apt-get "${APT_TIMEOUT}" autoremove -y
 }
 
 install_gpsd_chrony() {
@@ -317,14 +321,36 @@ _add_rtkbase_path_to_environment(){
 }
 
 rtkbase_requirements(){
+  platform=$(uname -m)
+      if [[ $platform =~ 'riscv64' ]]
+        then
+          if command -v rustc &>/dev/null; then
+            echo "Rust is already installed. Skipping installation."
+          else
+            # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
+            apt-get "${APT_TIMEOUT}" install -y gcc gcc-riscv64-unknown-elf libc6-dev-riscv64-cross || exit 1
+            echo "Installing rustup..."
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo "Setting up Rust environment..."
+            source $HOME/.cargo/env
+            echo 'source $HOME/.cargo/env' >> ~/.bashrc
+            echo "Verifying Rust installation..."
+
+            rustc --version
+            cargo --version
+
+            echo "Rust and rustup installation completed for RISC-V!"
+          fi
+    fi 
     echo '################################'
     echo 'INSTALLING RTKBASE REQUIREMENTS'
-    echo '################################'
+    echo 'Platform:'
+    echo $platform
+    echo '################################' 
       # create virtual environnement for rtkbase
       sudo -u "${RTKBASE_USER}" python3 -m venv "${rtkbase_path}"/venv
       python_venv="${rtkbase_path}"/venv/bin/python
-      platform=$(uname -m)
-      if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
+      if [[ $platform =~ 'aarch64'  ||  $platform =~ 'x86_64'  ||  $platform =~ 'riscv64' ]]
         then
           # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
           apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
@@ -334,6 +360,7 @@ rtkbase_requirements(){
       cp "${rtkbase_path}"/tools/udev_rules/*.rules /etc/udev/rules.d/
       udevadm control --reload && udevadm trigger
       # Copying polkitd rules and add rtkbase group
+      echo '################################ 1' 
       "${rtkbase_path}"/tools/install_polkit_rules.sh "${RTKBASE_USER}"
       #Copying settings.conf.default as settings.conf
       if [[ ! -f "${rtkbase_path}/settings.conf" ]]
@@ -341,8 +368,10 @@ rtkbase_requirements(){
         cp "${rtkbase_path}/settings.conf.default" "${rtkbase_path}/settings.conf"
       fi
       #Then launch check cpu temp script for OPI zero LTS
+      echo '################################ 2' 
       source "${rtkbase_path}/tools/opizero_temp_offset.sh"
       #venv module installation
+      echo '################################ 3' 
       sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
       # install prebuilt wheel for cryptography because it is unavailable on piwheels (2023/01)
       # not needed anymore (2023/11)
@@ -353,12 +382,15 @@ rtkbase_requirements(){
       #  then
       #    sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv6l.whl
       #fi
+      echo '################################ 4' 
       sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       #when we will be able to launch the web server without root, we will use
       #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
       
       #Installing requirements for Cellular modem. Installing them during the Armbian firstrun doesn't work because the network isn't fully up.
+      echo '################################ 5' 
       sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
+      echo '################################ 6' 
       sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
 
 }
