@@ -1,2 +1,5 @@
 cryptography==42.0.7
 cffi==1.16.0
+gevent==24.2.1
+lxml==4.9.3
+pystemd==0.13.2

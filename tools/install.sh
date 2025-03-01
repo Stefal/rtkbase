@@ -109,12 +109,18 @@ install_dependencies() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
       apt-get "${APT_TIMEOUT}" upgrade -y
-      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-venv python3-dev python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables || exit 1
+      apt-get "${APT_TIMEOUT}" install -y python3.12 python3.12-dev python3.12-venv || exit 1
+      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl || exit 1
       apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
       apt-get "${APT_TIMEOUT}" install -y wireless-tools wpasupplicant || exit 1
       apt-get "${APT_TIMEOUT}" clean -y
       apt-get "${APT_TIMEOUT}" autoclean -y
       apt-get "${APT_TIMEOUT}" autoremove -y
+      sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 2
+      sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.12 2
+      sudo update-alternatives --set python /usr/bin/python3.12
+      sudo update-alternatives --set python3 /usr/bin/python3.12
+      python3 --version
 }
 
 install_gpsd_chrony() {
@@ -316,8 +322,8 @@ _add_rtkbase_path_to_environment(){
             echo "rtkbase_path=$(pwd)/rtkbase" >> /etc/environment
         fi
     fi
-    rtkbase_path=$(pwd)/rtkbase
-    export rtkbase_path
+    
+    
 }
 
 rtkbase_requirements(){
