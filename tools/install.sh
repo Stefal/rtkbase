@@ -109,17 +109,17 @@ install_dependencies() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
       apt-get "${APT_TIMEOUT}" upgrade -y
-      apt-get "${APT_TIMEOUT}" install -y python3.12 python3.12-dev python3.12-venv || exit 1
+      #apt-get "${APT_TIMEOUT}" install -y python3.12 python3.12-dev python3.12-venv || exit 1
       apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl || exit 1
-      apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
+      apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev libc6 || exit 1 # needed for lxml (for pystemd)
       apt-get "${APT_TIMEOUT}" install -y wireless-tools wpasupplicant || exit 1
       apt-get "${APT_TIMEOUT}" clean -y
       apt-get "${APT_TIMEOUT}" autoclean -y
       apt-get "${APT_TIMEOUT}" autoremove -y
-      sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 2
-      sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.12 2
-      sudo update-alternatives --set python /usr/bin/python3.12
-      sudo update-alternatives --set python3 /usr/bin/python3.12
+      #sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 2
+      #sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.12 2
+      #sudo update-alternatives --set python /usr/bin/python3.12
+      #sudo update-alternatives --set python3 /usr/bin/python3.12
       python3 --version
 }
 
@@ -215,9 +215,9 @@ _compil_rtklib() {
 _rtkbase_repo(){
     #Get rtkbase repository
     if [[ -n "${1}" ]]; then
-      sudo -u "${RTKBASE_USER}" git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
+      sudo -u "${RTKBASE_USER}" git clone --branch "${1}" --single-branch https://github.com/tommasopolonelli/rtkbase_riscv.git
     else
-      sudo -u "${RTKBASE_USER}" git clone https://github.com/stefal/rtkbase.git
+      sudo -u "${RTKBASE_USER}" git clone https://github.com/tommasopolonelli/rtkbase_riscv.git
     fi
     _add_rtkbase_path_to_environment
 
@@ -328,33 +328,15 @@ _add_rtkbase_path_to_environment(){
 
 rtkbase_requirements(){
   platform=$(uname -m)
-      if [[ $platform =~ 'riscv64' ]]
-        then
-          if command -v rustc &>/dev/null; then
-            echo "Rust is already installed. Skipping installation."
-          else
-            # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
-            apt-get "${APT_TIMEOUT}" install -y gcc gcc-riscv64-unknown-elf libc6-dev-riscv64-cross || exit 1
-            echo "Installing rustup..."
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            echo "Setting up Rust environment..."
-            source $HOME/.cargo/env
-            echo 'source $HOME/.cargo/env' >> ~/.bashrc
-            echo "Verifying Rust installation..."
-
-            rustc --version
-            cargo --version
-
-            echo "Rust and rustup installation completed for RISC-V!"
-          fi
-    fi 
     echo '################################'
     echo 'INSTALLING RTKBASE REQUIREMENTS'
     echo 'Platform:'
     echo $platform
     echo '################################' 
+      # install system python pre-built packages 
+      apt-get "${APT_TIMEOUT}" install -y python3-lxml python3-pystemd python3-cryptography python3-cffi python3-gevent || exit 1
       # create virtual environnement for rtkbase
-      sudo -u "${RTKBASE_USER}" python3 -m venv "${rtkbase_path}"/venv
+      sudo -u "${RTKBASE_USER}" python3 -m venv --system-site-packages "${rtkbase_path}"/venv
       python_venv="${rtkbase_path}"/venv/bin/python
       if [[ $platform =~ 'aarch64'  ||  $platform =~ 'x86_64'  ||  $platform =~ 'riscv64' ]]
         then
@@ -379,19 +361,9 @@ rtkbase_requirements(){
       #venv module installation
       echo '################################ 3' 
       sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
-      # install prebuilt wheel for cryptography because it is unavailable on piwheels (2023/01)
-      # not needed anymore (2023/11)
-      #if [[ $platform == 'armv7l' ]] && [[ $("${python_venv}" --version) =~ '3.7' ]]
-      #  then 
-      #    sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv7l.whl
-      #elif [[ $platform == 'armv6l' ]] && [[ $("${python_venv}" --version) =~ '3.7' ]]
-      #  then
-      #    sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv6l.whl
-      #fi
+
       echo '################################ 4' 
       sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
-      #when we will be able to launch the web server without root, we will use
-      #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
       
       #Installing requirements for Cellular modem. Installing them during the Armbian firstrun doesn't work because the network isn't fully up.
       echo '################################ 5' 
@@ -742,7 +714,7 @@ main() {
     then
       source /etc/environment
     else 
-      export rtkbase_path='rtkbase'
+      export rtkbase_path='rtkbase_riscv'
     fi
   fi
   
