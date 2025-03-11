@@ -29,7 +29,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 from gevent import monkey
-monkey.patch_all()
+#monkey.patch_all()
 
 import time
 import json
