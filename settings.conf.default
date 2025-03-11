@@ -31,7 +31,7 @@ cpu_temp_offset=0
 #base coordinates: lat long height
 position='47.0983869 -1.2655108 36.40'
 #gnss receiver com port
-com_port=''
+com_port='ttyS0'
 #gnss receiver com port settings
 com_port_settings='38400:8:n:1'
 #receiver model

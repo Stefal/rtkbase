@@ -5,7 +5,7 @@ Description=RTKBase Web Server
 
 [Service]
 User=root
-ExecStart={python_path} {script_path}/web_app/server.py
+ExecStart={python_path} {script_path}/web_app/server.py --debug
 Restart=on-failure
 RestartSec=30
 #ProtectHome=read-only
