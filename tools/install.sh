@@ -104,23 +104,33 @@ _check_user() {
 }
 
 install_dependencies() {
+
+    # Run swap.sh
+    echo '################################'
+    echo 'CONFIGURING SWAP'
+    echo '################################'
+    "${rtkbase_path}"/tools/swap.sh
+
     echo '################################'
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
       apt-get "${APT_TIMEOUT}" upgrade -y
-      #apt-get "${APT_TIMEOUT}" install -y python3.12 python3.12-dev python3.12-venv || exit 1
-      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl || exit 1
+      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl lrzsz || exit 1
       apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev libc6 || exit 1 # needed for lxml (for pystemd)
       apt-get "${APT_TIMEOUT}" install -y wireless-tools wpasupplicant || exit 1
       apt-get "${APT_TIMEOUT}" clean -y
       apt-get "${APT_TIMEOUT}" autoclean -y
       apt-get "${APT_TIMEOUT}" autoremove -y
-      #sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 2
-      #sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.12 2
-      #sudo update-alternatives --set python /usr/bin/python3.12
-      #sudo update-alternatives --set python3 /usr/bin/python3.12
       python3 --version
+
+      #enable Debian terminal via ttyS0
+    echo '################################'
+    echo 'CONFIGURING TERMINAL VIA ttyS0'
+    echo '################################'
+      systemctl enable serial-getty@ttyS0.service
+      systemctl start serial-getty@ttyS0.service
+
 }
 
 install_gpsd_chrony() {

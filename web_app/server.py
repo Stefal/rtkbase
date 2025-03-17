@@ -197,6 +197,7 @@ def manager():
                         "volume_total" : round(volume_usage.total / 10E8, 2),
                         "volume_percent_used" : volume_usage.percent,
                         "network_infos" : interfaces_infos}
+            print(sys_infos)
             socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
 
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive" or \
@@ -245,7 +246,7 @@ def old_get_cpu_temp():
 def get_cpu_temp():
     try:
         temps = psutil.sensors_temperatures()
-        current_cpu_temp = round(temps.get('cpu_thermal')[0].current, 1)
+        current_cpu_temp = round(temps.get('soc_thermal_0')[0].current, 1)
     except:
         current_cpu_temp = 0
     return current_cpu_temp
