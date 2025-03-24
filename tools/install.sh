@@ -344,6 +344,7 @@ rtkbase_requirements(){
     echo $platform
     echo '################################' 
       # install system python pre-built packages 
+      apt-get "${APT_TIMEOUT}" install -y python3.13-venv
       apt-get "${APT_TIMEOUT}" install -y python3-lxml python3-pystemd python3-cryptography python3-cffi python3-gevent || exit 1
       # create virtual environnement for rtkbase
       sudo -u "${RTKBASE_USER}" python3 -m venv --system-site-packages "${rtkbase_path}"/venv
