@@ -5,7 +5,7 @@ Description=RTKBase Web Server
 
 [Service]
 User=root
-ExecStart=/home/debian/{python_path} {script_path}/web_app/server.py --debug
+ExecStart=/home/debian/{python_path} {script_path}/web_app/server.py
 Restart=on-failure
 RestartSec=30
 #ProtectHome=read-only

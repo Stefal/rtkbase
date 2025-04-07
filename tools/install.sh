@@ -600,7 +600,7 @@ configure_gnss(){
           python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command reset --retry 5
           sleep_time=10 ; echo 'Waiting '$sleep_time's for ' "${model}" ' reboot' ; sleep $sleep_time
           echo 'Sending settings....'
-          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_rtcm3.cfg --store
+          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_rtcm3.cfg --store --retry 2
           if [[ $? -eq  0 ]]
           then
             echo 'Unicore UM980 successfuly configured'
