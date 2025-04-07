@@ -14,7 +14,7 @@ fi
 
 # Define swap file size and location
 SWAPFILE=/swapfile
-SWAPSIZE=1G
+SWAPSIZE=256M
 
 # Create the swap file with the specified size
 sudo fallocate -l $SWAPSIZE $SWAPFILE
