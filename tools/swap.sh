@@ -16,19 +16,27 @@ fi
 SWAPFILE=/swapfile
 SWAPSIZE=256M
 
+# Check if the swap file already exists
+if [[ -f "$SWAPFILE" ]]; then
+    echo "$SWAPFILE already exists. Exiting script."
+    exit 0
+fi
+
 # Create the swap file with the specified size
-sudo fallocate -l $SWAPSIZE $SWAPFILE
+fallocate -l $SWAPSIZE $SWAPFILE
 
 # Set the correct permissions
-sudo chmod 600 $SWAPFILE
+chmod 600 $SWAPFILE
 
 # Set up the swap area
-sudo mkswap $SWAPFILE
+mkswap $SWAPFILE
 
 # Enable the swap file
-sudo swapon $SWAPFILE
+swapon $SWAPFILE
 
-# Make the swap file permanent by adding it to /etc/fstab
-echo "$SWAPFILE none swap sw 0 0" | sudo tee -a /etc/fstab
+# Check if the fstab entry already exists before appending
+if ! grep -q "^$SWAPFILE" /etc/fstab; then
+    echo "$SWAPFILE none swap sw 0 0" >> /etc/fstab
+fi
 
 echo "Swap file of size $SWAPSIZE created and enabled successfully."
