@@ -116,7 +116,7 @@ install_dependencies() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
       apt-get "${APT_TIMEOUT}" upgrade -y
-      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl lrzsz || exit 1
+      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl lrzsz musl-tools || exit 1
       apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev libc6 || exit 1 # needed for lxml (for pystemd)
       apt-get "${APT_TIMEOUT}" install -y wireless-tools wpasupplicant || exit 1
       apt-get "${APT_TIMEOUT}" clean -y
@@ -130,6 +130,12 @@ install_dependencies() {
     echo '################################'
       systemctl enable serial-getty@ttyS0.service
       systemctl start serial-getty@ttyS0.service
+
+    # Run swap.sh
+    echo '################################'
+    echo 'CONFIGURING SWAP'
+    echo '################################'
+    "${rtkbase_path}"/tools/swap.sh
 
 }
 
