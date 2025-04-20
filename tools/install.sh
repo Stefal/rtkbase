@@ -423,7 +423,7 @@ detect_gnss() {
         echo '################################'
         echo 'UART GNSS RECEIVER DETECTION'
         echo '################################'
-        systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
+        systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
         # TODO remove port if not available in /dev/
         for port in ttyS0 ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS1 ttyS2 ttyS3 ttyS4 ttyS5; do
             for port_speed in 115200 57600 38400 19200 9600; do
@@ -513,7 +513,7 @@ configure_gnss(){
       if [ -d "${rtkbase_path}" ]
       then
         source <( grep -v '^#' "${rtkbase_path}"/settings.conf | grep '=' ) 
-        systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service
+        systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then
