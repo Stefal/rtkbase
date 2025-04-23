@@ -11,3 +11,4 @@ test.conf
 *.FCStd1
 **/venv*/*
 **/build/
+*.o
