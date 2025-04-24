@@ -1,57 +1,50 @@
-#include "EPD_Test.h"
+#include "EPD_2in15b_Manager.h"
 #include "EPD_2in15b.h"
 #include <time.h> 
 
-int EPD_2in15b_Manager(void)
+int EPD_2in15b_Manager(const char *file_r, const char *file_b)
 {
-    printf("EPD_2IN15B_test Demo\r\n");
+
     if(DEV_Module_Init()!=0){
         return -1;
     }
 
-    printf("e-Paper Init and Clear...\r\n");
+    Debug("e-Paper Init and Clear...\r\n");
     EPD_2IN15B_Init();
-    EPD_2IN15B_Clear();
-    DEV_Delay_ms(500);
+    //EPD_2IN15B_Clear();
+    //DEV_Delay_ms(500);
 
     //Create a new image cache
     UBYTE *BlackImage, *RedImage;
     /* you have to edit the startup_stm32fxxx.s file and set a big enough heap size */
     UWORD Imagesize = ((EPD_2IN15B_WIDTH % 8 == 0)? (EPD_2IN15B_WIDTH / 8 ): (EPD_2IN15B_WIDTH / 8 + 1)) * EPD_2IN15B_HEIGHT;
     if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
-        printf("Failed to apply for black memory...\r\n");
+        Debug("Failed to apply for black memory...\r\n");
         return -1;
     }
     if((RedImage = (UBYTE *)malloc(Imagesize)) == NULL) {
-        printf("Failed to apply for red memory...\r\n");
+        Debug("Failed to apply for red memory...\r\n");
         return -1;
     }
-    printf("Paint_NewImage\r\n");
-    Paint_NewImage(BlackImage, EPD_2IN15B_WIDTH, EPD_2IN15B_HEIGHT, 270, WHITE);
-	Paint_Clear(WHITE);
-	Paint_NewImage(RedImage, EPD_2IN15B_WIDTH, EPD_2IN15B_HEIGHT, 270, WHITE);
-	Paint_Clear(WHITE);
 
-#if 0   // show bmp
-    printf("show bmp------------------------\r\n");
+    Debug("show bmp------------------------\r\n");
     Paint_NewImage(BlackImage, EPD_2IN15B_WIDTH, EPD_2IN15B_HEIGHT, 0, WHITE);
     Paint_SelectImage(BlackImage);
-    GUI_ReadBmp("./pic/2.15__b.bmp", 0, 0);
+    GUI_ReadBmp(file_b, 0, 0);
     Paint_NewImage(RedImage, EPD_2IN15B_WIDTH, EPD_2IN15B_HEIGHT, 0, WHITE);
     Paint_SelectImage(RedImage);
-    GUI_ReadBmp("./pic/2.15__r.bmp", 0, 0);
+    GUI_ReadBmp(file_r, 0, 0);
     EPD_2IN15B_Display(BlackImage, RedImage);
-    DEV_Delay_ms(2000);
-#endif
+    DEV_Delay_ms(100);
 
-#if 1   // show image for array    
+#if 0   // show image for array    
     Debug("show image for array\r\n");
     EPD_2IN15B_Display(gImage_2in15b_B, gImage_2in15b_R);
     DEV_Delay_ms(2000);
 #endif
 
-#if 1   // Drawing on the image
-    printf("Drawing\r\n");
+#if 0   // Drawing on the image
+    Debug("Drawing\r\n");
 
     //1.Draw black image
     Paint_NewImage(BlackImage, EPD_2IN15B_WIDTH, EPD_2IN15B_HEIGHT, 270, WHITE);
@@ -86,16 +79,13 @@ int EPD_2in15b_Manager(void)
 
 #endif
 
-    printf("Clear...\r\n");
-    EPD_2IN15B_Clear();
-
-    printf("Goto Sleep...\r\n");
+    Debug("Goto Sleep...\r\n");
     EPD_2IN15B_Sleep();
     free(BlackImage);
     BlackImage = NULL;
     DEV_Delay_ms(2000);//important, at least 2s
     // close 5V
-    printf("close 5V, Module enters 0 power consumption ...\r\n");
+    Debug("Disable VDD, Module enters 0 power consumption ...\r\n");
     DEV_Module_Exit();
 
     return 0;

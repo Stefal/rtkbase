@@ -18,8 +18,8 @@
 
 /* SPI2 is routed to J3 B13-B15 */
 #define SPI_PORT    0
-#define EPD_DC_PIN (3) //26
-#define EPD_CS_PIN (5) //21
+#define EPD_DC_PIN (3)
+#define EPD_CS_PIN (21)
 #define EPD_RST_PIN (7)
 #define EPD_BUSY_PIN (24)
 #define EPD_PWR_PIN (15)

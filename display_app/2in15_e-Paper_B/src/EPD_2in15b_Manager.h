@@ -9,5 +9,5 @@
 #include "Debug.h"
 #include <stdlib.h> // malloc() free()
 
-int EPD_2in15b_Manager(void);
+int EPD_2in15b_Manager(const char *file_r, const char *file_b);
 #endif

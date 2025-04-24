@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "Debug.h"
 
 #define NELEMS(x) (sizeof(x) / sizeof((x)[0]))
 #define PINMUX_BASE 0x03001000
@@ -69,7 +70,7 @@ uint32_t convert_func_to_value(char *pin, char *func)
 	}
 
 	if (i == max_fun_num) {
-		printf("ERROR: invalid pin or func\n");
+		Debug("ERROR: invalid pin or func\n");
 		return INVALID_PIN;
 	}
 
@@ -83,8 +84,8 @@ int duos_pinmux(char *pin, char *func)
 	uint32_t value;
 	uint32_t f_val;
 
-	printf("pin %s\n", pin);
-	printf("func %s\n", func);
+	Debug("pin %s\n", pin);
+	Debug("func %s\n", func);
 
 	for (i = 0; i < NELEMS(cv181x_pin); i++) {
 		if (strcmp(pin, cv181x_pin[i].name) == 0)
@@ -97,11 +98,11 @@ int duos_pinmux(char *pin, char *func)
 				return 1;
 		devmem_writel(PINMUX_BASE + cv181x_pin[i].offset, f_val);
 
-		printf("register: %x\n", PINMUX_BASE + cv181x_pin[i].offset);
-		printf("value: %d\n", f_val);
+		Debug("register: %x\n", PINMUX_BASE + cv181x_pin[i].offset);
+		Debug("value: %d\n", f_val);
 
 	} else {
-		printf("\nInvalid option: %s\n", optarg);
+		Debug("\nInvalid option: %s\n", optarg);
 	}
 
 	return 0;

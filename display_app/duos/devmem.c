@@ -17,10 +17,7 @@
 #include <unistd.h>
 
 #include "devmem.h"
-
-// DEBUG_SET_LEVEL(DEBUG_LEVEL_ERR);
-#define ERR printf
-#define DEBUG printf
+#include "Debug.h"
 
 static int devmem_fd;
 
@@ -31,7 +28,7 @@ void *devm_map(unsigned long addr, int len)
 
 	devmem_fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if (devmem_fd == -1) {
-		ERR("cannot open '/dev/mem'\n");
+		Debug("cannot open '/dev/mem'\n");
 		goto open_err;
 	}
 	//    DEBUG("/dev/mem opened.\n");
@@ -40,7 +37,7 @@ void *devm_map(unsigned long addr, int len)
 
 	map_base = mmap(NULL, len + addr - offset, PROT_READ | PROT_WRITE, MAP_SHARED, devmem_fd, offset);
 	if (map_base == MAP_FAILED) {
-		ERR("mmap failed\n");
+		Debug("mmap failed\n");
 		goto mmap_err;
 	}
 
@@ -60,7 +57,7 @@ void devm_unmap(void *virt_addr, int len)
 	unsigned long addr;
 
 	if (devmem_fd == -1) {
-		ERR("'/dev/mem' is closed\n");
+		Debug("'/dev/mem' is closed\n");
 		return;
 	}
 
@@ -78,7 +75,7 @@ uint32_t devmem_readl(unsigned long addr)
 
 	virt_addr = devm_map(addr, 4);
 	if (virt_addr == NULL) {
-		ERR("readl addr map failed\n");
+		Debug("readl addr map failed\n");
 		return 0;
 	}
 
@@ -95,7 +92,7 @@ void devmem_writel(unsigned long addr, uint32_t val)
 
 	virt_addr = devm_map(addr, 4);
 	if (virt_addr == NULL) {
-		ERR("writel addr map failed\n");
+		Debug("writel addr map failed\n");
 		return;
 	}
 
