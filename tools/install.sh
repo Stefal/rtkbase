@@ -116,26 +116,13 @@ install_dependencies() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
       apt-get "${APT_TIMEOUT}" upgrade -y
-      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl lrzsz musl-tools || exit 1
+      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl lrzsz || exit 1
       apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev libc6 || exit 1 # needed for lxml (for pystemd)
       apt-get "${APT_TIMEOUT}" install -y wireless-tools wpasupplicant || exit 1
       apt-get "${APT_TIMEOUT}" clean -y
       apt-get "${APT_TIMEOUT}" autoclean -y
       apt-get "${APT_TIMEOUT}" autoremove -y
       python3 --version
-
-      #enable Debian terminal via ttyS0
-    echo '################################'
-    echo 'CONFIGURING TERMINAL VIA ttyS0'
-    echo '################################'
-      systemctl enable serial-getty@ttyS0.service
-      systemctl start serial-getty@ttyS0.service
-
-    # Run swap.sh
-    echo '################################'
-    echo 'CONFIGURING SWAP'
-    echo '################################'
-    "${rtkbase_path}"/tools/swap.sh
 
 }
 
@@ -349,11 +336,14 @@ rtkbase_requirements(){
     echo 'Platform:'
     echo $platform
     echo '################################' 
+    if [[$platform =~ 'riscv64' ]]
+        then
       # install system python pre-built packages 
       apt-get "${APT_TIMEOUT}" install -y python3.13-venv
       apt-get "${APT_TIMEOUT}" install -y python3-lxml python3-pystemd python3-cryptography python3-cffi python3-gevent || exit 1
       # create virtual environnement for rtkbase
       sudo -u "${RTKBASE_USER}" python3 -m venv --system-site-packages "${rtkbase_path}"/venv
+    fi
       python_venv="${rtkbase_path}"/venv/bin/python
       if [[ $platform =~ 'aarch64'  ||  $platform =~ 'x86_64'  ||  $platform =~ 'riscv64' ]]
         then
@@ -373,21 +363,17 @@ rtkbase_requirements(){
         cp "${rtkbase_path}/settings.conf.default" "${rtkbase_path}/settings.conf"
       fi
       #Then launch check cpu temp script for OPI zero LTS
-      echo '################################ 2' 
       source "${rtkbase_path}/tools/opizero_temp_offset.sh"
-      #venv module installation
-      echo '################################ 3' 
-      sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
-
-      echo '################################ 4' 
-      sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
+      if [[$platform =~ 'riscv64' ]]
+        then
+        #venv module installation
+        sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
+        sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       
-      #Installing requirements for Cellular modem. Installing them during the Armbian firstrun doesn't work because the network isn't fully up.
-      echo '################################ 5' 
-      sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
-      echo '################################ 6' 
-      sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
-
+        #Installing requirements for Cellular modem. Installing them during the Armbian firstrun doesn't work because the network isn't fully up.
+        sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
+        sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
+      if 
 }
 
 install_unit_files() {
@@ -406,28 +392,6 @@ install_unit_files() {
       else
         echo 'RtkBase is not installed, use option --rtkbase-release or any other rtkbase installation option.'
       fi
-}
-
-MilkV_DuoS_Pin_Mux() {
-
-  platform=$(uname -m)
-  # Only execute the function if $platform contains 'riscv64'.
-  if [[ "$platform" =~ riscv64 ]]; then
-
-    # Check if rtkbase_path variable is set.
-    if [ -z "$rtkbase_path" ]; then
-        echo "Error: rtkbase_path is not set. Please set rtkbase_path to the base directory."
-        return 1
-    fi
-
-    # Execute the duo-pinmux commands using the rtkbase_path.
-    #sudo "${rtkbase_path}/duo-pinmux/duos/duo-pinmux" -r B11
-    #sudo "${rtkbase_path}/duo-pinmux/duos/duo-pinmux" -r B12
-    sudo "${rtkbase_path}/duo-pinmux/duos/duo-pinmux" -w B11/UART2_TX
-    sudo "${rtkbase_path}/duo-pinmux/duos/duo-pinmux" -w B12/UART2_RX
-
-  fi
-
 }
 
 detect_gnss() {
@@ -474,10 +438,8 @@ detect_gnss() {
         echo 'UART GNSS RECEIVER DETECTION'
         echo '################################'
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
-        # Set correct PIN Multiplexer
-        MilkV_DuoS_Pin_Mux
         # TODO remove port if not available in /dev/
-        for port in ttyS2 ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS1 ttyS0 ttyS3 ttyS4 ttyS5; do
+        for port in ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS0 ttyS1 ttyS2 ttyS3 ttyS4 ttyS5; do
             for port_speed in 115200 57600 38400 19200 9600; do
                 echo 'DETECTION ON ' $port ' at ' $port_speed
                 if [[ $(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/ubxtool -f /dev/$port -s $port_speed -p MON-VER -w 5 2>/dev/null) =~ 'ZED-F9P' ]]; then
@@ -791,7 +753,7 @@ main() {
   ARG_PIN_MUX=0
   ARG_ALL=0
 
-  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsza: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-gnss,no-write-port,configure-gnss,detect-modem,start-services,zeroconf,pin-mux,all: -- "$@")
+  PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsza: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-gnss,no-write-port,configure-gnss,detect-modem,start-services,zeroconf,all: -- "$@")
   VALID_ARGUMENTS=$?
   if [ "$VALID_ARGUMENTS" != "0" ]; then
     #man_help
@@ -821,7 +783,6 @@ main() {
         -m | --detect-modem) ARG_DETECT_MODEM=1        ; shift   ;;
         -s | --start-services) ARG_START_SERVICES=1    ; shift   ;;
         -z | --zeroconf) ARG_ZEROCONF=1                ; shift   ;;
-        -p | --pin-mux) ARG_PIN_MUX=1                  ; shift   ;;
         -a | --all) ARG_ALL="${2}"                     ; shift 2 ;;
         # -- means the end of the arguments; drop this, and break out of the while loop
         --) shift; break ;;
@@ -885,7 +846,6 @@ main() {
   [ $ARG_DETECT_MODEM -eq 1 ] && { detect_usb_modem && _add_modem_port && _configure_modem ; ((cumulative_exit+=$?)) ;}
   [ $ARG_ZEROCONF -eq 1 ] && { install_zeroconf_service; ((cumulative_exit+=$?)) ;}
   [ $ARG_START_SERVICES -eq 1 ] && { start_services ; ((cumulative_exit+=$?)) ;}
-  [ $ARG_PIN_MUX -eq 1 ] && { MilkV_DuoS_Pin_Mux ; ((cumulative_exit+=$?)) ;}
 }
 
 main "$@"
