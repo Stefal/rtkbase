@@ -218,9 +218,9 @@ _compil_rtklib() {
 _rtkbase_repo(){
     #Get rtkbase repository
     if [[ -n "${1}" ]]; then
-      sudo -u "${RTKBASE_USER}" git clone --branch "${1}" --single-branch https://github.com/tommasopolonelli/rtkbase_riscv.git
+      sudo -u "${RTKBASE_USER}" git clone --branch "${1}" --single-branch https://github.com/stefal/rtkbase.git
     else
-      sudo -u "${RTKBASE_USER}" git clone https://github.com/tommasopolonelli/rtkbase_riscv.git
+      sudo -u "${RTKBASE_USER}" git clone https://github.com/stefal/rtkbase.git
     fi
     _add_rtkbase_path_to_environment
 
@@ -719,7 +719,7 @@ main() {
     then
       source /etc/environment
     else 
-      export rtkbase_path='rtkbase_riscv'
+      export rtkbase_path='rtkbase'
     fi
   fi
   
