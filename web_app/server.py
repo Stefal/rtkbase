@@ -92,6 +92,7 @@ bootstrap = Bootstrap4(app)
 
 #Get settings from settings.conf.default and settings.conf
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf"))
+app.config["DOWNLOAD_FOLDER"] = rtkbaseconfig.get("local_storage", "datadir").strip("'")
 
 rtk = RTKLIB(socketio,
             rtklib_path=path_to_rtklib,
