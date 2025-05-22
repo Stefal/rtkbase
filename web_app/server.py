@@ -634,8 +634,13 @@ def detect_receiver(json_msg):
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
             device_info = next(x for x in answer.stdout.splitlines() if x.startswith('/dev/')).split(' - ')
-            port, gnss_type, speed, firmware = [x.strip() for x in device_info]
-            result = {"result" : "success", "port" : port, "gnss_type" : gnss_type, "port_speed" : speed, "firmware" : firmware}
+            port, gnss_type, speed, firmware, model = [x.strip() for x in device_info]
+            result = {"result" : "success",
+                      "port" : port,
+                      "gnss_type" : gnss_type,
+                      "port_speed" : speed,
+                      "firmware" : firmware,
+                      "model" : model}
             result.update(json_msg)
         except Exception:
             result = {"result" : "failed"}
@@ -653,7 +658,7 @@ def apply_receiver_settings(json_msg):
     print(json_msg)
     rtkbaseconfig.update_setting("main", "com_port", json_msg.get("port").strip("/dev/"), write_file=False)
     rtkbaseconfig.update_setting("main", "com_port_settings", json_msg.get("port_speed") + ':8:n:1', write_file=False)
-    rtkbaseconfig.update_setting("main", "receiver", json_msg.get("gnss_type"), write_file=False)
+    rtkbaseconfig.update_setting("main", "receiver", json_msg.get("gnss_type") + '_' + json_msg.get("model"), write_file=False)
     rtkbaseconfig.update_setting("main", "receiver_firmware", json_msg.get("firmware"), write_file=True)
 
     socketio.emit("gnss_settings_saved", json.dumps(json_msg), namespace="/test")

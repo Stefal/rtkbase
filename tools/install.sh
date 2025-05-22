@@ -2,6 +2,7 @@
 
 ### RTKBASE INSTALLATION SCRIPT ###
 declare -a detected_gnss
+#detected_gnss content: port/device - brand - port speed - firmware - model
 declare RTKBASE_USER
 APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
 MODEM_AT_PORT=/dev/ttymodemAT
@@ -451,23 +452,29 @@ detect_gnss() {
       [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
       # If /dev/ttyGNSS is a symlink of the detected serial port, switch to ttyGNSS
       [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && detected_gnss[0]='ttyGNSS'
-      # Get firmware release
+      # Get model and firmware release
       if [[ "${detected_gnss[1]}" =~ 'u-blox' ]]
         then
-          #get F9P firmware release
-          detected_gnss[3]=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
-          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
+          #get U-Blox firmware release
+          ubx_monver="$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep -e 'FWVER' -e 'MOD')"
+          detected_gnss[3]=$(grep 'FWVER' <<< "${ubx_monver}" | awk '{print $NF}')
+          [[ $(grep 'MOD' <<< "${ubx_monver}" | awk -F '=' '{print $NF}') == 'ZED-F9P' ]] && detected_gnss[4]='ZED-F9P'
+
       elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]]
         then
           #get mosaic-X5 firmware release
           detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
+          detected_gnss[4]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_model --retry 5)" || firmware='?'
+
       elif [[ "${detected_gnss[1]}" =~ 'unicore' ]]
         then
           #get Unicore UM98X firmware release
           detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware 2>/dev/null)" || firmware='?'
+          detected_gnss[4]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_model 2>/dev/null)" || firmware='?'
+
       fi
       # "send" result
-      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"
+      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"' - ' "${detected_gnss[4]}"
 
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
@@ -483,7 +490,8 @@ detect_gnss() {
             #change the com port value/settings inside settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'${detected_gnss[2]}:8:n:1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'"${detected_gnss[3]}"\'/ "${rtkbase_path}"/settings.conf            
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'"${detected_gnss[3]}"\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'"${detected_gnss[1]}"_"${detected_gnss[4]}"\'/ "${rtkbase_path}"/settings.conf
           else
             echo 'settings.conf is missing'
             return 1
