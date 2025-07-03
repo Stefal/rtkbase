@@ -1010,8 +1010,6 @@ if __name__ == "__main__":
         #check if authentification is required
         if not rtkbaseconfig.get_web_authentification():
             app.config["LOGIN_DISABLED"] = True
-        #get data path
-        app.config["DOWNLOAD_FOLDER"] = rtkbaseconfig.get("local_storage", "datadir").strip("'")
         #load services status managed with systemd
         services_list = load_units(services_list)
         #Update standard user in settings.conf

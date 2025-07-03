@@ -1,4 +1,10 @@
 # Changelog
+## Not Released
+### Added
+### Changed
+### Fixed
+- GUI -> Logs: Fix wrong path when using custom data directory. [#471]
+### Security
 
 ## [2.6.3] - 2025-02-16
 ### Added
