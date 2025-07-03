@@ -2,6 +2,7 @@
 ## Not Released
 ### Added
 ### Changed
+- Add Galileo inside rinex preset for Nrcan. [#479]
 ### Fixed
 - GUI -> Logs: Fix wrong path when using custom data directory. [#471]
 - GUI -> Diagnostic: Fix missing line return. [#480]
