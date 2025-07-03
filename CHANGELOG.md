@@ -4,6 +4,7 @@
 ### Changed
 ### Fixed
 - GUI -> Logs: Fix wrong path when using custom data directory. [#471]
+- GUI -> Diagnostic: Fix missing line return. [#480]
 ### Security
 
 ## [2.6.3] - 2025-02-16
