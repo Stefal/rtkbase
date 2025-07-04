@@ -346,7 +346,7 @@ $(document).ready(function () {
         console.log(response);
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + response['model'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
+            detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + ' ' + response['model'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
             detectApplyBtnElt.onclick = function (){
                 socket.emit("apply_receiver_settings", response)
             };
