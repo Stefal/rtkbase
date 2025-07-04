@@ -478,7 +478,7 @@ detect_gnss() {
 
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
-      if [[ ${#detected_gnss[*]} -eq 4 ]] && [[ "${1}" -eq 0 ]]
+      if [[ ${#detected_gnss[*]} -eq 5 ]] && [[ "${1}" -eq 0 ]]
         then
           echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}"
           #if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
@@ -496,7 +496,7 @@ detect_gnss() {
             echo 'settings.conf is missing'
             return 1
           fi
-      elif [[ ${#detected_gnss[*]} -ne 4 ]]
+      elif [[ ${#detected_gnss[*]} -ne 5 ]]
         then
           return 1
       fi
