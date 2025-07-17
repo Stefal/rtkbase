@@ -1,6 +1,7 @@
 # Changelog
 ## Not Released
 ### Added
+- GUI -> Settings: Add display of network interface mac address.
 ### Changed
 - Add Galileo inside rinex preset for Nrcan. [#479]
 ### Fixed
