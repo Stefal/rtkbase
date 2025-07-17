@@ -455,6 +455,7 @@ detect_gnss() {
       # Get model and firmware release
       if [[ "${detected_gnss[1]}" =~ 'u-blox' ]]
         then
+          detected_gnss[1]='u-blox'
           #get U-Blox firmware release
           ubx_monver="$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep -e 'FWVER' -e 'MOD')"
           detected_gnss[3]=$(grep 'FWVER' <<< "${ubx_monver}" | awk '{print $NF}')
@@ -462,12 +463,14 @@ detect_gnss() {
 
       elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]]
         then
+          detected_gnss[1]='septentrio'
           #get mosaic-X5 firmware release
           detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
           detected_gnss[4]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_model --retry 5)" || firmware='?'
 
       elif [[ "${detected_gnss[1]}" =~ 'unicore' ]]
         then
+          detected_gnss[1]='unicore'
           #get Unicore UM98X firmware release
           detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware 2>/dev/null)" || firmware='?'
           detected_gnss[4]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_model 2>/dev/null)" || firmware='?'
@@ -480,7 +483,7 @@ detect_gnss() {
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
       if [[ ${#detected_gnss[*]} -eq 5 ]] && [[ "${1}" -eq 0 ]]
         then
-          echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}"
+          echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}" ' - ' "${detected_gnss[3]}"' - ' "${detected_gnss[4]}"
           #if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
           #then
           #  gnss_format='ubx'
@@ -521,7 +524,17 @@ configure_gnss(){
       if [ -d "${rtkbase_path}" ]
       then
         source <( grep -v '^#' "${rtkbase_path}"/settings.conf | grep '=' ) 
-        systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service
+        systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service
+        #cleaning receiver options
+        sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=/ "${rtkbase_path}"/settings.conf                              && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_client_receiver_options=.*/rtcm_client_receiver_options=/ "${rtkbase_path}"/settings.conf                && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_svr_receiver_options=.*/rtcm_udp_svr_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_client_receiver_options=.*/rtcm_udp_client_receiver_options=/ "${rtkbase_path}"/settings.conf        && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=/ "${rtkbase_path}"/settings.conf
+          
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then
