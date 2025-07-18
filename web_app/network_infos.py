@@ -44,7 +44,7 @@ def get_up_if():
     if_stats.pop('lo')
     log.debug(if_stats)
     if_stats = {k:v for (k,v) in if_stats.items() if if_stats[k].isup} # keep only up interface
-    if_stats = {k:v for (k,v) in if_stats.items() if if_stats[k].speed > 0 or 'pointopoint' in if_stats[k].flags} # keep only interface with speed > 0
+    if_stats = {k:v for (k,v) in if_stats.items() if if_stats[k].speed > 0 or 'pointtopoint' in if_stats[k].flags} # keep only interface with speed > 0
     if_stats = {k:v for (k,v) in if_stats.items() if not k.startswith('docker')} # remove docker interface
     return if_stats
 
