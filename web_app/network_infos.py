@@ -44,7 +44,7 @@ def get_up_if():
     if_stats.pop('lo')
     log.debug(if_stats)
     if_stats = {k:v for (k,v) in if_stats.items() if if_stats[k].isup} # keep only up interface
-    if_stats = {k:v for (k,v) in if_stats.items() if if_stats[k].speed > 0 or 'pointtopoint' in if_stats[k].flags} # keep only interface with speed > 0
+    if_stats = {k:v for (k,v) in if_stats.items() if if_stats[k].speed > 0 or 'pointopoint' in if_stats[k].flags} # keep only interface with speed > 0
     if_stats = {k:v for (k,v) in if_stats.items() if not k.startswith('docker')} # remove docker interface
     return if_stats
 
@@ -54,6 +54,9 @@ def get_interfaces_infos():
         the connection name and its mac address.
         It returns a list of dict
         e.g. [{'device': 'end0', 'ipv4': ['192.168.1.135'], 'ipv6': [], 'conn_name': 'Wired connection 1'}, 'hwaddr': '02:81:4E:7C:37:4F']
+
+        psutil is used to get basic informations and for maximum compatibility
+        nmcli is used to get more details, and requires NetworkManager
 
         Return:
             list: all up network interfaces as dict
@@ -72,21 +75,30 @@ def get_interfaces_infos():
 
     interfaces_infos = []
     for k,v in up_interface.items():
+        print("k : ", k)
+        print('v : ', v)
         device_info = {"device" : k}
         ipv4 = []
         ipv6 = []
         for part in v:
             if part.family.name == 'AF_INET6':
                 ipv6.append(part.address)
+                device_info["ipv6_netmask"] = part.netmask
             elif part.family.name == 'AF_INET':
                 ipv4.append(part.address)
+                device_info["ipv4_netmask"] = part.netmask
             log.debug("{} : {} : {}".format(k, part.family.name, part.address))
         device_info["ipv4"] = ipv4 if len(ipv4) > 0 else None
         device_info["ipv6"] = ipv6 if len(ipv6) > 0 else None
         conn_name = get_conn_name(k)
         if conn_name:
             device_info["conn_name"] = conn_name
-        device_info["hwaddr"] = nmcli.device.show(k).get('GENERAL.HWADDR')
+        device_show = nmcli.device.show(k)
+        device_info["hwaddr"] = device_show.get('GENERAL.HWADDR')
+        device_info['ip4_gateway'] = device_show.get('IP4.GATEWAY')
+        device_info['ip4_dns'] = [device_show.get('IP4.DNS[{}]'.format(x)) for x in range(3) if device_show.get('IP4.DNS[{}]'.format(x)) is not None]
+        device_info['ip6_gateway'] = device_show.get('IP6.GATEWAY')
+        device_info['ip6_dns'] = [device_show.get('IP6.DNS[{}]'.format(x)) for x in range(3) if device_show.get('IP6.DNS[{}]'.format(x)) is not None]
         interfaces_infos.append(device_info)
     return interfaces_infos
 
