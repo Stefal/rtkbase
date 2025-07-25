@@ -214,7 +214,7 @@ def repaint_services_button(services_list):
        status = running => green button
         status = auto-restart => orange button (alert)
         result = exit-code => red button (danger)
-    """ 
+    """
     for service in services_list:
         if service.get("status") == "running":
             service["btn_color"] = "success"
@@ -414,7 +414,11 @@ def status_page():
     """
     base_position = rtkbaseconfig.get("main", "position").replace("'", "").split()
     base_coordinates = {"lat" : base_position[0], "lon" : base_position[1]}
-    return render_template("status.html", base_coordinates = base_coordinates, tms_key = {"maptiler_key" : rtkbaseconfig.get("general", "maptiler_key")})
+    station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
+
+    return render_template("status.html", base_coordinates = base_coordinates,
+                           tms_key = {"maptiler_key" : rtkbaseconfig.get("general", "maptiler_key")},
+                           station_name=station_name)
 
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
@@ -449,6 +453,8 @@ def settings_page():
     rtcm_udp_client_settings = rtkbaseconfig.get_rtcm_udp_client_settings()
     rtcm_serial_settings = rtkbaseconfig.get_rtcm_serial_settings()
     file_settings = rtkbaseconfig.get_file_settings()
+    station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
+
 
     return render_template("settings.html", main_settings = main_settings,
                                             ntrip_A_settings = ntrip_A_settings,
@@ -460,7 +466,8 @@ def settings_page():
                                             rtcm_udp_client_settings = rtcm_udp_client_settings,
                                             rtcm_serial_settings = rtcm_serial_settings,
                                             file_settings = file_settings,
-                                            os_infos = distro.info(),)
+                                            os_infos = distro.info(),
+                                            station_name=station_name,)
 
 @app.route('/logs')
 @login_required
@@ -468,7 +475,8 @@ def logs_page():
     """
         The data web pages where you can download/delete the raw gnss data
     """
-    return render_template("logs.html")
+    station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
+    return render_template("logs.html",station_name=station_name,)
 
 @app.route("/logs/download/<path:log_name>")
 @login_required
@@ -492,12 +500,14 @@ def login_page():
 
         login_user(user, remember=loginform.remember_me.data)
         next_page = request.args.get('next')
+        station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
+
         if not next_page or urllib.parse.urlsplit(next_page).netloc != '':
             next_page = url_for('status_page')
 
         return redirect(next_page)
 
-    return render_template('login.html', title='Sign In', form=loginform)
+    return render_template('login.html', title='Sign In', form=loginform,station_name=station_name,)
 
 @app.route('/logout')
 def logout():
@@ -518,17 +528,17 @@ def diagnostic():
                                 stdout=subprocess.PIPE,
                                 universal_newlines=True,
                                 check=False)
-        journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']], 
+        journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']],
                                  stdout=subprocess.PIPE,
                                  universal_newlines=True,
                                  check=False)
-        
+
         #Replace carrier return to <br> for html view
         sysctl_status = html.escape(sysctl_status.stdout.replace('\n', '<br>'))
         journalctl = html.escape(journalctl.stdout.replace('\n', '<br>'))
         active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
-        
+
     return render_template('diagnostic.html', logs = logs)
 
 
@@ -537,7 +547,7 @@ def get_infos():
     """Small api route to get basic informations about the base station"""
 
     infos = {"app" : "RTKBase",
-             "app_version" : rtkbaseconfig.get("general", "version"), 
+             "app_version" : rtkbaseconfig.get("general", "version"),
              "url" : html.escape(request.base_url),
              "fqdn" : socket.getfqdn(),
              "uptime" : get_uptime(),
@@ -587,7 +597,7 @@ def shutdownBase():
 @socketio.on("start base", namespace="/test")
 def startBase():
     saved_input_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
-    #check if the main service is running and the gnss format is correct. If not, don't try to start rtkrcv with startBase() 
+    #check if the main service is running and the gnss format is correct. If not, don't try to start rtkrcv with startBase()
     if services_list[0].get("active") is False or saved_input_type not in ["rtcm2","rtcm3","nov","oem3","ubx","ss2","hemis","stq","javad","nvs","binex","rt17","sbf", "unicore"]:
         print("DEBUG: Can't start rtkrcv as main service isn't enabled or gnss format is wrong")
         result = {"result" : "failed"}
@@ -815,10 +825,10 @@ def load_units(services):
         :param services: A list of systemd services (dict) containing a service_unit key:value
         :return The dict list updated with the pystemd ServiceController object
 
-        example: 
+        example:
             services = [{"service_unit" : "str2str_tcp.service"}]
             return will be [{"service_unit" : "str2str_tcp.service", "unit" : a pystemd object}]
-        
+
     """
     for service in services:
         service["unit"] = ServiceController(service["service_unit"])
@@ -836,7 +846,7 @@ def update_std_user(services):
 def restartServices(restart_services_list=None):
     """
         Restart already running services
-        This function will refresh all services status, then compare the global services_list and 
+        This function will refresh all services status, then compare the global services_list and
         then restart_services_list to find the services we need to restart.
         #TODO I don't really like this global services_list use.
     """
@@ -871,8 +881,8 @@ def getServicesStatus(emit_pingback=True):
     """
         Get the status of services listed in services_list
         (services_list is global)
-        
-        :param emit_pingback: whether or not the services status is sent to clients 
+
+        :param emit_pingback: whether or not the services status is sent to clients
             (defaults to true as the socketio.on() should receive back the information)
         :return The gathered services status list
     """
@@ -959,7 +969,7 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial", "raw2nmea"))  
+            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial", "raw2nmea"))
         elif source_section == "ntrip_A":
             restartServices(("ntrip_A",))
         elif source_section == "ntrip_B":

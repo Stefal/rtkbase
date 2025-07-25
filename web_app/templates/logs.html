@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}{{ station_name }}{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-table-1.21.1.min.css') }}">
@@ -8,14 +9,14 @@
 {% block content %}
 <div class="container">
     <table id="logtable" data-mobile-responsive="true" data-toggle="table">
-        
+
         <thead>
           <tr>
             <th data-field="name" data-sortable="true">File name</th>
             <th data-field="format" data-sortable="true">type</th>
             <th data-field="size" data-sortable="true">size (MB)</th>
             <th data-field="actions" data-formatter="actionFormatter" data-events="operateEvents">actions</th>
-            
+
           </tr>
         </thead>
       </table>
@@ -25,25 +26,25 @@
 <div class="modal" id="deleteModal">
     <div class="modal-dialog">
       <div class="modal-content">
-      
+
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Warning</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
-        
+
         <!-- Modal body -->
         <div class="modal-body text-center ">
           Do you really want to delete this file ?
           <p id="filename" class="font-weight-bold"></p>
         </div>
-        
+
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
           <button id="confirm-delete-button" type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
         </div>
-        
+
       </div>
     </div>
   </div>
@@ -52,13 +53,13 @@
 <div class="modal" id="editModal">
     <div class="modal-dialog">
       <div class="modal-content">
-      
+
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Convert raw file to rinex file</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
-        
+
          <!-- Modal body -->
          <div class="modal-body text-center ">
             <div class="rinex-table" role="tabpanel">
@@ -93,13 +94,13 @@
             </div>
           <div id="rinex-conversion-msg"></div>
         </div>
-        
+
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
           <button id="edit-button" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          
+
         </div>
-        
+
       </div>
     </div>
   </div>

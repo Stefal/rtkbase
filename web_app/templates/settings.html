@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}{{ station_name }}{% endblock %}
 
 {% block styles %}
 {{super()}}
@@ -174,7 +175,7 @@
             <input id="ntrip_A_receiver_options" type="text" name="ntrip_A_receiver_options" aria-describedby="ntrip_A_receiver_optionsHelp" class="form-control" value="{{ ntrip_A_settings[5].ntrip_A_receiver_options }}" pattern="[^\|><\/]*">
             <small class="form-text text-muted" id="ntrip_A_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
-      </div>      
+      </div>
 
         <div class="clearfix">
           <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
@@ -248,7 +249,7 @@
             <input id="ntrip_B_receiver_options" type="text" name="ntrip_B_receiver_options" class="form-control" aria-describedby="ntrip_B_receiver_optionsHelp" value="{{ ntrip_B_settings[5].ntrip_B_receiver_options }}" pattern="[^\|><\/]*">
             <small class="form-text text-muted" id="ntrip_B_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
-      </div>      
+      </div>
 
         <div class="clearfix">
           <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
@@ -322,7 +323,7 @@
             <input id="local_ntripc_receiver_options" type="text" name="local_ntripc_receiver_options" class="form-control" aria-describedby="local_ntripc_receiver_optionsHelp" value="{{ local_ntripc_settings[5].local_ntripc_receiver_options }}" pattern="[^\|><\/]*">
             <small class="form-text text-muted" id="local_ntripc_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
-      </div>      
+      </div>
 
         <div class="clearfix">
           <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
@@ -365,7 +366,7 @@
             <small class="form-text text-muted" id="rtcm_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>
-        
+
         <div class="clearfix">
         <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
       </div>
@@ -414,7 +415,7 @@
             <small class="form-text text-muted" id="rtcm_serial_receiver_optionsHelp">Receiver dependent options. ie: -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>
-        
+
         <div class="clearfix">
         <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
       </div>
@@ -490,8 +491,8 @@
       <div class="col-sm-4">
         <span class="col-sm-3">Change Password:</span>
       </div>
-      <div class="col-sm-8"> 
-        <form id="change_password">  
+      <div class="col-sm-8">
+        <form id="change_password">
           <!--
           <div class="form-group row">
             <label for="cur_pwd" class="col-sm-3 col-form-label">Current: </label>
@@ -500,7 +501,7 @@
                 <div class="invalid-feedback">Current password</div>
             </div>
           </div>
-          -->      
+          -->
           <div class="form-group row">
             <label for="new_password" class="col-sm-3 col-form-label">New: </label>
             <div class="col-sm-9">
@@ -594,7 +595,7 @@
 
     </div>
   </div>
-  
+
   <div class="row py-2 align-items-center">
     <div class="col-sm-4">
       <span class="col-sm-3">Settings:</span>
@@ -625,7 +626,7 @@
           <button id="shutdown-button" class="btn btn-secondary" type="button">Shutdown</button>
       </div>
   </div>
-    
+
 </div>
 
 <!-- The Detect/configure Gnss receiver Modal dialog box-->
@@ -640,10 +641,10 @@
         <div class="modal-body">
           <!-- <p id="gnss-detection" class="text-center" hidden><span class="spinner-border spinner-border-sm"></span> Detecting GNSS receiver...'</p> -->
           <p class="text-center"></p>
-        </div>       
+        </div>
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
-          <button id="apply-button" type="button" class="btn btn-success" disabled>Apply</button>          
+          <button id="apply-button" type="button" class="btn btn-success" disabled>Apply</button>
           <button id="cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
         </div>
     </div>
@@ -653,20 +654,20 @@
 <!-- The update Modal dialog box-->
 <div class="modal" id="updateModal" data-backdrop="static">
     <div class="modal-dialog">
-      <div class="modal-content">     
+      <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Update</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>       
+        </div>
         <!-- Modal body -->
-        <div class="modal-body">          
-        </div>       
+        <div class="modal-body">
+        </div>
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
           <button id="start-update-button" type="button" class="btn btn-success" disabled>Update</button>
-          <button id="cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>         
-        </div>      
+          <button id="cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
@@ -674,19 +675,19 @@
   <!-- The Paswword is changed Modal dialog box-->
 <div class="modal" id="passwordChangedModal">
   <div class="modal-dialog">
-    <div class="modal-content">     
+    <div class="modal-content">
       <!-- Modal Header -->
       <div class="modal-header">
         <h4 class="modal-title">Password Update</h4>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>       
+      </div>
       <!-- Modal body -->
       <div class="modal-body text-center ">The password was updated successfuly
-      </div>       
+      </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
         <a href="{{ url_for('logout') }}" class="btn btn-success" role="button">Log out</a>
-      </div>      
+      </div>
     </div>
   </div>
 </div>
@@ -694,12 +695,12 @@
   <!-- The restore settings Modal dialog box-->
   <div class="modal" id="restoreSettingsModal" data-backdrop="static">
     <div class="modal-dialog">
-      <div class="modal-content">     
+      <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Restore saved settings</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>       
+        </div>
         <!-- Modal body -->
         <div class="modal-body text-center ">
           <p>Restore RTKBase with previously saved settings.</p>
@@ -708,14 +709,14 @@
               <!--<input type="submit" class="btn btn-danger" role="button" value="Restore">-->
             </p><p id="restoration_server_answer"></p>
         </form>
-        </div>       
+        </div>
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
           <a href="{{ url_for('logout') }}" id="restore-logout-button" class="btn btn-success" role="button" style="display: none;">Logout</a>
           <!--<button id="restore-logout-button" type="button" class="btn btn-success" style="display: none;">Logout</button> -->
           <button id="restore-settings-button" type="button" class="btn btn-danger" disabled>Restore Settings</button>
           <button type="button" id="restore-cancel-button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-        </div>      
+        </div>
       </div>
     </div>
   </div>
@@ -731,13 +732,13 @@
       <!-- Modal body -->
       <div class="modal-body text-center ">
         <p>Reset RTKBase to default settings (including password). You will be redirected to the login page.</p>
-        <p>Are you sure?</p>          
+        <p>Are you sure?</p>
       </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
         <button id="confirm-reset-button" type="button" class="btn btn-danger">Reset</button>
         <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-      </div>     
+      </div>
     </div>
   </div>
 </div>
@@ -752,13 +753,13 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <!-- Modal body -->
-      <div class="modal-body text-center ">Reboot the GNSS Base. Are you sure?          
+      <div class="modal-body text-center ">Reboot the GNSS Base. Are you sure?
       </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
         <button id="confirm-reboot-button" type="button" class="btn btn-danger">Reboot</button>
         <button id="reboot-cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-      </div>     
+      </div>
     </div>
   </div>
 </div>
@@ -773,13 +774,13 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <!-- Modal body -->
-      <div class="modal-body text-center ">Shutdown the GNSS Base. Are you sure?          
+      <div class="modal-body text-center ">Shutdown the GNSS Base. Are you sure?
       </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
         <button id="confirm-shutdown-button" type="button" class="btn btn-danger">Shutdown</button>
         <button id="shutdown-cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-      </div>     
+      </div>
     </div>
   </div>
 </div>

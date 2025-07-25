@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}{{ station_name }}{% endblock %}
 
 {% block styles %}
 {{super()}}
@@ -15,49 +16,49 @@
     <div class="col py-3 border bg-light"><b>Longitude: </b><span id="lon_value"></span></div>
     <div class="col py-3 border bg-light"><b>Height: </b><span id="height_value"></span></div>
     <div class="col-auto py-3 border bg-light"><span id="solution_status"></span></div>
-    <div class="col-auto py-3 border bg-light" id="clipboard_cell" ><img class="mx-auto align-baseline" src="../static/images/paste-solid-svgrepo-com.svg" 
+    <div class="col-auto py-3 border bg-light" id="clipboard_cell" ><img class="mx-auto align-baseline" src="../static/images/paste-solid-svgrepo-com.svg"
       title="copy coordinates to clipboard" alt="clipboard"></div>
 </div>
 
-<div id="map" style="height: 420px; margin-top: 2em; margin-bottom: 2em;">    
+<div id="map" style="height: 420px; margin-top: 2em; margin-bottom: 2em;">
 </div>
 <!-- The copy coordinate Modal dialog box-->
 <div class="modal" id="copyCoordModal">
     <div class="modal-dialog">
-      <div class="modal-content">     
+      <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Coordinates sent to clipboard</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>       
+        </div>
         <!-- Modal body -->
         <div class="modal-body">
-            <input id="dummy_input" class="form-control" type="text">   
-        </div>       
+            <input id="dummy_input" class="form-control" type="text">
+        </div>
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
           <button id="start-update-button" type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-        </div>      
+        </div>
       </div>
     </div>
   </div>
 
   <div class="modal" id="mainServiceOffModal">
     <div class="modal-dialog">
-      <div class="modal-content">     
+      <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
           <!--<h4 class="modal-title">Coordinates sent to clipboard</h4>-->
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>       
+        </div>
         <!-- Modal body -->
         <div class="modal-body text-center">
-            <p>Main service is off or malfunctioning. Nothing could be displayed here.</p>  
-        </div>       
+            <p>Main service is off or malfunctioning. Nothing could be displayed here.</p>
+        </div>
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
           <button id="start-update-button" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>      
+        </div>
       </div>
     </div>
   </div>
@@ -69,7 +70,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='lib/d3.v3.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='graph.js', v=g.version) }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='lib/leaflet-1.7.js') }}" charset="utf-8"></script>
-<script> 
+<script>
 // baseCoordinates and maptiler_key are used inside status.js
 var baseCoordinates = {{ base_coordinates|tojson }};
 var maptiler_key = '{{ tms_key.maptiler_key }}';
