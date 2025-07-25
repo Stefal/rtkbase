@@ -538,8 +538,9 @@ def diagnostic():
         journalctl = html.escape(journalctl.stdout.replace('\n', '<br>'))
         active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
+        station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
 
-    return render_template('diagnostic.html', logs = logs)
+    return render_template('diagnostic.html', logs = logs,station_name=station_name,)
 
 
 @app.route('/api/v1/infos', methods=['GET'])
