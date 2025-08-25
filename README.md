@@ -54,8 +54,13 @@ If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), yo
    - [rtklibexplorer - PPP - for dual frequency receivers](https://rtklibexplorer.wordpress.com/2017/11/23/ppp-solutions-with-the-swiftnav-piksi-multi/)
    - [Centipede documentation (in french)](https://docs.centipede.fr/docs/base/positionnement.html)
 
+   For Quectel LC29HBS receivers, open a shell, and run the following to survey-in the device (averaging samples across 1 day), and display the base station coordinates:
+   ```bash
+   python3 tools/lc29h-bs_survey.py --mode survey --min-dur 86400 --speed 921600 /dev/ttyS0
+   ```
+
 + To help you find your base ip address, you can use the simple `find_rtkase` gui tool. It is available for Gnu/Linux and Windows in [./tools/find_rtkbase/dist](./tools/find_rtkbase/dist/).
-  
+
    - Click on the "Find" button, wait, then click on the "Open" button. It will open the RTKBase GUI in your web browser.
 
      <img src="./tools/find_rtkbase/find_rtkbase_screenshot.png" alt="screenshot of find_rtkbase tool" width="300" />
@@ -195,9 +200,9 @@ So, if you really want it, let's go for a manual installation with some explanat
    ```
 1. Install and configure chrony and gpsd with `sudo ./install.sh --gpsd-chrony`, or:
    + Install chrony with `sudo apt install chrony` then add this parameter in the chrony conf file (/etc/chrony/chrony.conf):
-   
+
       ```refclock SHM 0 refid GPS precision 1e-1 offset 0.2 delay 0.2```
-   
+
      Edit the chrony unit file. You should set `After=gpsd.service`
    + Install a gpsd release >= 3.2 or it won't work with a F9P. Its conf file should contains:
    ```
