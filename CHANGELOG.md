@@ -8,6 +8,8 @@
 - GUI -> Logs: Fix wrong path when using custom data directory. [#471]
 - GUI -> Diagnostic: Fix missing line return. [#480]
 ### Security
+- Update various python module
+- Update js library (leaflet, bootstrap-table)
 
 ## [2.6.3] - 2025-02-16
 ### Added
