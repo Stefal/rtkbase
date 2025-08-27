@@ -3,6 +3,7 @@
 ### Added
 - GUI -> Settings: Add display of network interface mac address.
 ### Changed
+- RTKLib upgraded to release v2.5.0-EX.
 - Add Galileo inside rinex preset for Nrcan. [#479]
 ### Fixed
 - GUI -> Logs: Fix wrong path when using custom data directory. [#471]
