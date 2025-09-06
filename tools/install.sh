@@ -5,6 +5,7 @@ declare -a detected_gnss
 declare RTKBASE_USER
 APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
 MODEM_AT_PORT=/dev/ttymodemAT
+RTKLIB_RELEASE='RTKLIB-2.5.0'
 
 man_help(){
     echo '################################'
@@ -170,14 +171,14 @@ install_rtklib() {
     sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi' 'OrangePi Zero3')
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
-        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_v2.5.0/'"${arch_package}"'/str2str' ]] \
+        && [[ -f "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"'/str2str' ]] \
         && lsb_release -c | grep -qE 'bullseye|bookworm|trixie' \
-        && "${rtkbase_path}"'/tools/bin/rtklib_v2.5.0/'"${arch_package}"/str2str --version > /dev/null 2>&1
+        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str --version > /dev/null 2>&1
     then
       echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
-      cp "${rtkbase_path}"'/tools/bin/rtklib_v2.5.0/'"${arch_package}"/str2str /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_v2.5.0/'"${arch_package}"/rtkrcv /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_v2.5.0/'"${arch_package}"/convbin /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/rtkrcv /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/convbin /usr/local/bin/
     else
       echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
       _compil_rtklib
@@ -186,20 +187,21 @@ install_rtklib() {
 
 _compil_rtklib() {
     echo '################################'
-    echo 'COMPILING RTKLIB 2.5.0-EX'
+    echo 'COMPILING ' "${RTKLIB_RELEASE}"
     echo '################################'
+    TMPDIR=$(mktemp -dt RTKLIB.XXXXX)
     #Get Rtklib 2.5.0 release
-    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/v2.5.0.tar.gz | tar -xvz
+    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/v2.5.0.tar.gz | tar -xvz --directory "${TMPDIR}"
     #Install Rtklib app
     #TODO add correct CTARGET in makefile?
-    make --directory=RTKLIB-2.5.0/app/consapp/str2str/gcc
-    make --directory=RTKLIB-2.5.0/app/consapp/str2str/gcc install
-    make --directory=RTKLIB-2.5.0/app/consapp/rtkrcv/gcc
-    make --directory=RTKLIB-2.5.0/app/consapp/rtkrcv/gcc install
-    make --directory=RTKLIB-2.5.0/app/consapp/convbin/gcc
-    make --directory=RTKLIB-2.5.0/app/consapp/convbin/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/str2str/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/str2str/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/rtkrcv/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/rtkrcv/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/convbin/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/convbin/gcc install
     #deleting RTKLIB
-    rm -rf RTKLIB-2.5.0/
+    rm -rf "${TMPDIR}"/"${RTKLIB_RELEASE}"/
 }
 
 _rtkbase_repo(){
