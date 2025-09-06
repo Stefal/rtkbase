@@ -170,7 +170,7 @@ install_rtklib() {
     sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi' 'OrangePi Zero3')
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
-        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_v2.5.0j/'"${arch_package}"'/str2str' ]] \
+        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_v2.5.0/'"${arch_package}"'/str2str' ]] \
         && lsb_release -c | grep -qE 'bullseye|bookworm|trixie' \
         && "${rtkbase_path}"'/tools/bin/rtklib_v2.5.0/'"${arch_package}"/str2str --version > /dev/null 2>&1
     then
