@@ -189,7 +189,7 @@ _compil_rtklib() {
     echo '################################'
     echo 'COMPILING ' "${RTKLIB_RELEASE}"
     echo '################################'
-    TMPDIR=$(mktemp -dt RTKLIB.XXXXX)
+    TMPDIR=$(mktemp -dt RTKLIB.XXXXX) || return 1
     #Get Rtklib 2.5.0 release
     sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/v2.5.0.tar.gz | tar -xvz --directory "${TMPDIR}"
     #Install Rtklib app
