@@ -1,4 +1,16 @@
 # Changelog
+## Not Released
+### Added
+- GUI -> Settings: Add display of network interface mac address.
+### Changed
+- RTKLib upgraded to release v2.5.0-EX.
+- Add Galileo inside rinex preset for Nrcan. [#479]
+### Fixed
+- GUI -> Logs: Fix wrong path when using custom data directory. [#471]
+- GUI -> Diagnostic: Fix missing line return. [#480]
+### Security
+- Update various python module
+- Update js library (leaflet, bootstrap-table)
 
 ## [2.6.3] - 2025-02-16
 ### Added

@@ -51,9 +51,9 @@ def get_up_if():
 def get_interfaces_infos():
     """
         Get all up network interfaces with their ip v4/v6 addresses
-        and the connection name.
+        the connection name and its mac address.
         It returns a list of dict
-        e.g. [{'device': 'end0', 'ipv4': ['192.168.1.135'], 'ipv6': [], 'conn_name': 'Wired connection 1'}]
+        e.g. [{'device': 'end0', 'ipv4': ['192.168.1.135'], 'ipv6': [], 'conn_name': 'Wired connection 1'}, 'hwaddr': '02:81:4E:7C:37:4F']
 
         Return:
             list: all up network interfaces as dict
@@ -86,6 +86,7 @@ def get_interfaces_infos():
         conn_name = get_conn_name(k)
         if conn_name:
             device_info["conn_name"] = conn_name
+        device_info["hwaddr"] = nmcli.device.show(k).get('GENERAL.HWADDR')
         interfaces_infos.append(device_info)
     return interfaces_infos
 

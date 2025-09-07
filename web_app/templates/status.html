@@ -2,7 +2,7 @@
 
 {% block styles %}
 {{super()}}
-<link rel="stylesheet" href="{{ url_for('static', filename='lib/leaflet-1.7.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/leaflet-1.9.4.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -68,7 +68,7 @@
 {{super()}}
 <script type="text/javascript" src="{{ url_for('static', filename='lib/d3.v3.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='graph.js', v=g.version) }}" charset="utf-8"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='lib/leaflet-1.7.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='lib/leaflet-1.9.4.js') }}" charset="utf-8"></script>
 <script> 
 // baseCoordinates and maptiler_key are used inside status.js
 var baseCoordinates = {{ base_coordinates|tojson }};

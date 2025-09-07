@@ -616,6 +616,9 @@ $(document).ready(function () {
         if (interface.ipv6) {
             html += `<li>IPv6: ${interface.ipv6.join(' - ')}</li>`;
         }
+        if (interface.hwaddr) {
+            html += `<li>MAC: ${interface.hwaddr}</li>`;
+        }
         html += '</ul></dd>';
         });
         html += '</dl>';

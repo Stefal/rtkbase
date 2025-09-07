@@ -6,6 +6,7 @@ declare -a detected_gnss
 declare RTKBASE_USER
 APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
 MODEM_AT_PORT=/dev/ttymodemAT
+RTKLIB_RELEASE='RTKLIB-2.5.0'
 
 man_help(){
     echo '################################'
@@ -38,8 +39,8 @@ man_help(){
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
     echo '        -r | --rtklib'
-    echo '                         Get RTKlib 2.4.3b34j from github and compile it.'
-    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/b34j'
+    echo '                         Get RTKlib 2.5-EX from github and compile it.'
+    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/v2.5.0'
     echo ''
     echo '        -b | --rtkbase-release'
     echo '                         Get last release of RTKBase:'
@@ -171,14 +172,14 @@ install_rtklib() {
     sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi' 'OrangePi Zero3')
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
-        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"'/str2str' ]] \
-        && lsb_release -c | grep -qE 'bullseye|bookworm' \
-        && "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/str2str --version > /dev/null 2>&1
+        && [[ -f "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"'/str2str' ]] \
+        && lsb_release -c | grep -qE 'bullseye|bookworm|trixie' \
+        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str --version > /dev/null 2>&1
     then
       echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/str2str /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/rtkrcv /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/convbin /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/rtkrcv /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/convbin /usr/local/bin/
     else
       echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
       _compil_rtklib
@@ -187,20 +188,21 @@ install_rtklib() {
 
 _compil_rtklib() {
     echo '################################'
-    echo 'COMPILING RTKLIB 2.4.3 b34j'
+    echo 'COMPILING ' "${RTKLIB_RELEASE}"
     echo '################################'
-    #Get Rtklib 2.4.3 b34j release
-    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34j.tar.gz | tar -xvz
+    TMPDIR=$(mktemp -dt RTKLIB.XXXXX) || return 1
+    #Get Rtklib 2.5.0 release
+    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/v2.5.0.tar.gz | tar -xvz --directory "${TMPDIR}"
     #Install Rtklib app
     #TODO add correct CTARGET in makefile?
-    make --directory=RTKLIB-b34j/app/consapp/str2str/gcc
-    make --directory=RTKLIB-b34j/app/consapp/str2str/gcc install
-    make --directory=RTKLIB-b34j/app/consapp/rtkrcv/gcc
-    make --directory=RTKLIB-b34j/app/consapp/rtkrcv/gcc install
-    make --directory=RTKLIB-b34j/app/consapp/convbin/gcc
-    make --directory=RTKLIB-b34j/app/consapp/convbin/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/str2str/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/str2str/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/rtkrcv/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/rtkrcv/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/convbin/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/convbin/gcc install
     #deleting RTKLIB
-    rm -rf RTKLIB-b34j/
+    rm -rf "${TMPDIR}"/"${RTKLIB_RELEASE}"/
 }
 
 _rtkbase_repo(){
@@ -424,7 +426,7 @@ detect_gnss() {
         echo '################################'
         echo 'UART GNSS RECEIVER DETECTION'
         echo '################################'
-        systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
+        systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
         # TODO remove port if not available in /dev/
         for port in ttyS0 ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS1 ttyS2 ttyS3 ttyS4 ttyS5; do
             for port_speed in 115200 57600 38400 19200 9600; do
@@ -534,7 +536,7 @@ configure_gnss(){
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_svr_receiver_options=.*/rtcm_udp_svr_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_client_receiver_options=.*/rtcm_udp_client_receiver_options=/ "${rtkbase_path}"/settings.conf        && \
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=/ "${rtkbase_path}"/settings.conf
-          
+
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then

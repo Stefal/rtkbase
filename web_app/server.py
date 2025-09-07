@@ -92,6 +92,7 @@ bootstrap = Bootstrap4(app)
 
 #Get settings from settings.conf.default and settings.conf
 rtkbaseconfig = RTKBaseConfigManager(os.path.join(rtkbase_path, "settings.conf.default"), os.path.join(rtkbase_path, "settings.conf"))
+app.config["DOWNLOAD_FOLDER"] = rtkbaseconfig.get("local_storage", "datadir").strip("'")
 
 rtk = RTKLIB(socketio,
             rtklib_path=path_to_rtklib,
@@ -524,8 +525,8 @@ def diagnostic():
                                  check=False)
         
         #Replace carrier return to <br> for html view
-        sysctl_status = html.escape(sysctl_status.stdout.replace('\n', '<br>'))
-        journalctl = html.escape(journalctl.stdout.replace('\n', '<br>'))
+        sysctl_status = html.escape(sysctl_status.stdout).replace('\n', '<br>')
+        journalctl = html.escape(journalctl.stdout).replace('\n', '<br>')
         active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
         
@@ -1014,8 +1015,6 @@ if __name__ == "__main__":
         #check if authentification is required
         if not rtkbaseconfig.get_web_authentification():
             app.config["LOGIN_DISABLED"] = True
-        #get data path
-        app.config["DOWNLOAD_FOLDER"] = rtkbaseconfig.get("local_storage", "datadir").strip("'")
         #load services status managed with systemd
         services_list = load_units(services_list)
         #Update standard user in settings.conf
