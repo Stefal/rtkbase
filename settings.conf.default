@@ -44,6 +44,8 @@ receiver_firmware=''
 receiver_carrier=''
 #Antenna info, id, serial number. Without space inside the strings
 antenna_info='ADVNULLANTENNA'
+#Tcp host address to bind the tcp stream
+tcp_host_addr='127.0.0.1'
 #tcp port for RAW stream. If you change this value, edit gpsd conf file to reflect the port in DEVICES.
 tcp_port='5015'
 #ext_tcp_source is mainly for dev purpose to receive a raw stream from another base
