@@ -92,11 +92,21 @@
       </div>
 
   </div>
+
+    <div class="form-group row">
+
+            <label for="tcp_host" class="col-sm-3 col-form-label">Tcp host addr: </label>
+            <div class="col-sm-9">
+              <input id="tcp_host-switch" type="text" name="host_addr" class="form-control" aria-describedby="tcp_hostHelp" placeholder="127.0.0.1" value="{{ main_settings[7].tcp_host_addr }}">
+              <small class="form-text text-muted" id="tcp_hostHelp">Empty value enable external access to the Gnss receiver from another computer. Default is 127.0.0.1 (no external access)</small>
+            </div>
+        </div>
+
     <div class="form-group row">
 
         <label for="tcp_port" class="col-sm-3 col-form-label">Tcp port: </label>
         <div class="col-sm-9">
-            <input id="tcp_port" type="text" name="tcp_port" class="form-control" aria-describedby="tcp_portHelp" placeholder="5015" value="{{ main_settings[7].tcp_port }}" pattern="[0-9]{4,5}" required>
+            <input id="tcp_port" type="text" name="tcp_port" class="form-control" aria-describedby="tcp_portHelp" placeholder="5015" value="{{ main_settings[8].tcp_port }}" pattern="[0-9]{4,5}" required>
             <small class="form-text text-muted" id="tcp_portHelp">Local tcp port</small>
 
         </div>

@@ -33,7 +33,7 @@ out_local_caster="-msg ${local_ntripc_msg} -out ntripc://${local_ntripc_user}:${
 #add receiver options if it exists
 [[ ! -z "${local_ntripc_receiver_options}" ]] && out_local_caster="${out_local_caster} -opt ${local_ntripc_receiver_options}"
 
-out_tcp="tcpsvr://:${tcp_port}"
+out_tcp="tcpsvr://${tcp_host_addr}:${tcp_port}"
 
 out_file="file://${datadir}/${file_name}.${receiver_format}::T::S=${file_rotate_time} -f ${file_overlap_time}"
 
