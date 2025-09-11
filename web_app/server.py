@@ -500,14 +500,15 @@ def login_page():
 
         login_user(user, remember=loginform.remember_me.data)
         next_page = request.args.get('next')
-        station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
+        # station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
 
         if not next_page or urllib.parse.urlsplit(next_page).netloc != '':
             next_page = url_for('status_page')
 
         return redirect(next_page)
 
-    return render_template('login.html', title='Sign In', form=loginform,station_name=station_name,)
+    # return render_template('login.html', title='Sign In', form=loginform)
+    return render_template('login.html', title='Sign In', form=loginform)
 
 @app.route('/logout')
 def logout():
