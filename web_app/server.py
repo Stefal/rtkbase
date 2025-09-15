@@ -394,11 +394,12 @@ def download_update(update_path):
         return update_archive
 
 @app.before_request
-def inject_release():
+def inject_global_infos():
     """
-        Insert the RTKBase release number as a global variable for Flask/Jinja
+        Insert various informations as global variables for Flask/Jinja
     """
     g.version = rtkbaseconfig.get("general", "version")
+    g.station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
     g.sbc_model = get_sbc_model()
 
 @login.user_loader
