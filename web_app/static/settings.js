@@ -406,7 +406,7 @@ $(document).ready(function () {
         detectApplyBtnElt.removeAttribute('data-dismiss');
         detectApplyBtnElt.onclick = function (){}; //remove the previous attached event
         $('#detectModal').modal();
-        socket.emit("detect_receiver" ,{"then_configure" : true});
+        socket.emit("detect_receiver", {"then_configure" : true});
     });
 
     // ####################### HANDLE UPDATE #######################
