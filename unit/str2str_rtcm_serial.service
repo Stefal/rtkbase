@@ -6,7 +6,7 @@ Requires=str2str_tcp.service
 After=str2str_tcp.service
 
 [Service]
-Type=forking
+Type=simple
 User={user}
 ExecStart={script_path}/run_cast.sh in_tcp out_rtcm_serial
 Restart=on-failure

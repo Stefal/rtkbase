@@ -59,41 +59,41 @@ mkdir -p ${logdir}
     out_tcp)
     #echo ${cast} -in ${!1} -out $out_tcp
     # What is this ${!1} ? It's variable indirection
-    ${cast} -in ${!1} -out ${out_tcp} -b 1 -t ${level} -fl ${logdir}/str2str_tcp.log &
+    ${cast} -in ${!1} -out ${out_tcp} -b 1 -t ${level} -fl ${logdir}/str2str_tcp_$(date "+%F-%T").log
     ;;
 
   out_caster_A)
     #echo ${cast} -in ${!1} -out $out_caster
-    ${cast} -in ${!1} ${out_caster_A} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_A.log &
+    ${cast} -in ${!1} ${out_caster_A} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_A.log
     ;;
 
   out_caster_B)
-    ${cast} -in ${!1} ${out_caster_B} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_B.log &
+    ${cast} -in ${!1} ${out_caster_B} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_B.log
     ;;
 
   out_local_caster)
     #echo ${cast} -in ${!1} -out "${out_local_caster}"
-    ${cast} -in ${!1} ${out_local_caster} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip.log &
+    ${cast} -in ${!1} ${out_local_caster} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip.log
     ;;
 
   out_rtcm_svr)
     #echo ${cast} -in ${!1} -out $out_rtcm_svr
-    ${cast} -in ${!1} ${out_rtcm_svr} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_svr.log &
+    ${cast} -in ${!1} ${out_rtcm_svr} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_svr.log
     ;;
   
   out_rtcm_client)
     #echo ${cast} -in ${!1} -out $out_rtcm_client
-    ${cast} -in ${!1} ${out_rtcm_client} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_client.log &
+    ${cast} -in ${!1} ${out_rtcm_client} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_client.log
   ;;
 
   out_rtcm_udp_svr)
     #echo ${cast} -in ${!1} -out $out_rtcm_udp_svr
-    ${cast} -in ${!1} ${out_rtcm_udp_svr} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_udp_svr.log &
+    ${cast} -in ${!1} ${out_rtcm_udp_svr} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_udp_svr.log
     ;;
   
   out_rtcm_serial)
     #echo ${cast} -in ${!1} -out $out_rtcm_serial
-    ${cast} -in ${!1} ${out_rtcm_serial} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_serial.log &
+    ${cast} -in ${!1} ${out_rtcm_serial} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_rtcm_serial.log
     ;;
 
   out_file)
@@ -103,7 +103,7 @@ mkdir -p ${logdir}
     if [ ${ret} -eq 0 ]
     then
       mkdir -p ${datadir}
-      ${cast} -in ${!1} -out ${out_file} -t ${level} -fl ${logdir}/str2str_file.log &
+      ${cast} -in ${!1} -out ${out_file} -t ${level} -fl ${logdir}/str2str_file.log
     fi
     ;;
     

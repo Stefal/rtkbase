@@ -5,7 +5,7 @@ Description=RTKBase Tcp
 #Requires=network-online.target
 
 [Service]
-Type=forking
+Type=simple
 User={user}
 ExecStart={script_path}/run_cast.sh in_serial out_tcp
 Restart=on-failure
