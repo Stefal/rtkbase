@@ -55,12 +55,23 @@ class ServiceController(object):
         return (self.unit.Unit.SubState).decode()
 
     def start(self):
+        """
+            Start the unit.
+            It will reset the failed counter before starting the unit.
+        """
+        self.manager.Manager.ResetFailedUnit(self.unit.Unit.Names[0])
         self.manager.Manager.EnableUnitFiles(self.unit.Unit.Names, False, True)
         return self.unit.Unit.Start(b'replace')
         
     def stop(self):
+        """
+            Stop the unit.
+        """
         self.manager.Manager.DisableUnitFiles(self.unit.Unit.Names, False)
         return self.unit.Unit.Stop(b'replace')
         
     def restart(self):
+        """
+            Restart the unit.
+        """
         return self.unit.Unit.Restart(b'replace')
