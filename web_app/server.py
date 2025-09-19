@@ -211,25 +211,39 @@ def manager():
 
 def repaint_services_button(services_list):
     """
-       set service color on web app frontend depending on the service status:
-       status = running => green button
+        Sets service color on web app frontend depending on the service status:
+        status = running => green button
         status = auto-restart => orange button (alert)
-        result = exit-code => red button (danger)
+        result = exit-code or signal => red button (danger)
     """ 
     for service in services_list:
+        """ 
         if service.get("status") == "running":
             service["btn_color"] = "success"
-        #elif service.get("status") == "dead":
-        #    service["btn_color"] = "danger"
-        elif service.get("result") == "exit-code":
+            service["btn_off_color"] = "outline-secondary"
+        elif service.get("result") == "exit-code" or service.get("result") == "signal":
             service["btn_color"] = "warning"
+            service["btn_off_color"] = "danger"
         elif service.get("status") == "auto-restart":
             service["btn_color"] = "warning"
+
+        if service.get("status") == "failed":
+            service["btn_off_color"] = "danger"
 
         if service.get("state_ok") == False:
             service["btn_off_color"] = "outline-danger"
         elif service.get("state_ok") == True:
+            service["btn_off_color"] = "outline-secondary" 
+        """
+
+        if service.get("status") == "running":
+            service["btn_color"] = "success"
+        elif service.get("status") == "auto-restart":
+            service["btn_color"] = "warning"
+        elif service.get("result") == "success":
             service["btn_off_color"] = "outline-secondary"
+        elif service.get("result") == "exit-code" or service.get("result") == "signal":
+            service["btn_off_color"] = "danger"
 
     return services_list
 
@@ -907,7 +921,6 @@ def getServicesStatus(emit_pingback=True):
         services_status.append({key:service[key] for key in service if key != 'unit'})
 
     services_status = repaint_services_button(services_status)
-    #print(services_status)
     if emit_pingback:
         socketio.emit("services status", json.dumps(services_status), namespace="/test")
     return services_status
@@ -930,6 +943,11 @@ def switchService(json_msg):
             elif json_msg["name"] == service["name"] and json_msg["active"] == False:
                 print("Trying to stop service {}".format(service["name"]))
                 service["unit"].stop()
+
+        # When the service is in failed state and we try to restart the service from the web UI during
+        # the StartLimitIntervalSec, the service status doesn't change (stay failed off), but the button switch to on
+        # I think I need to find another way to manage this case
+        #getServicesStatus(emit_pingback = True)
 
     except Exception as e:
         print(e)
