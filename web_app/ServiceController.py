@@ -59,7 +59,10 @@ class ServiceController(object):
             Start the unit.
             It will reset the failed counter before starting the unit.
         """
-        self.manager.Manager.ResetFailedUnit(self.unit.Unit.Names[0])
+        try:
+            self.manager.Manager.ResetFailedUnit(self.unit.Unit.Names[0])
+        except:
+            pass
         self.manager.Manager.EnableUnitFiles(self.unit.Unit.Names, False, True)
         return self.unit.Unit.Start(b'replace')
         
