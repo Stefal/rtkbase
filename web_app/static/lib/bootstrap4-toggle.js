@@ -88,9 +88,9 @@
        this.trigger(true)
    }
 
-   Toggle.prototype.toggle = function () {
-       if (this.$element.prop('checked')) this.off()
-       else this.on()
+   Toggle.prototype.toggle = function (silent = false) {
+       if (this.$element.prop('checked')) this.off(silent)
+       else this.on(silent)
    }
 
    Toggle.prototype.on = function (silent) {
