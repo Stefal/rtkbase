@@ -6,6 +6,7 @@ Description=RTKBase Tcp
 
 [Service]
 Type=simple
+SyslogIdentifier=str2str_tcp
 User={user}
 ExecStart={script_path}/run_cast.sh in_serial out_tcp
 Restart=on-failure

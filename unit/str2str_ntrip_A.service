@@ -7,6 +7,7 @@ After=str2str_tcp.service
 
 [Service]
 Type=simple
+SyslogIdentifier=str2str_ntrip_A
 User={user}
 ExecStart={script_path}/run_cast.sh in_tcp out_caster_A
 Restart=on-failure
