@@ -9,7 +9,7 @@
   font-style: italic;
 }
 </style>
-<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap4-toggle.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap4-toggle-3.7.1-beta.css') }}">
 
 {% endblock %}
 
@@ -799,7 +799,7 @@
 
 {% block scripts %}
 {{super()}}
-<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap4-toggle.js') }}" charset="utf-8"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap4-toggle-3.7.1-beta.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='lib/snarkdown.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='settings.js', v=g.version) }}" charset="utf-8"></script>
 {% endblock %}
