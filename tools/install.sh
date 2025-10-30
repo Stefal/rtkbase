@@ -466,16 +466,16 @@ detect_gnss() {
       elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]]
         then
           detected_gnss[1]='septentrio'
-          #get mosaic-X5 firmware release
-          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
-          detected_gnss[4]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_model --retry 5)" || firmware='?'
+          #get Septentrio model and firmware release
+          detected_gnss[3]="$( { python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
+          detected_gnss[4]="$( { python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_model --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
 
       elif [[ "${detected_gnss[1]}" =~ 'unicore' ]]
         then
           detected_gnss[1]='unicore'
-          #get Unicore UM98X firmware release
-          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware 2>/dev/null)" || firmware='?'
-          detected_gnss[4]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_model 2>/dev/null)" || firmware='?'
+          #get Unicore model and firmware release
+          detected_gnss[3]="$( { python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
+          detected_gnss[4]="$( { python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_model --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
 
       fi
       # "send" result
