@@ -10,7 +10,7 @@ from operator import methodcaller
 
 logging.basicConfig(format='%(levelname)s: %(message)s')
 log = logging.getLogger(__name__)
-log.setLevel('ERROR')
+log.setLevel('WARNING')
 
 class CmdMapping(Enum):
     """Mapping human command to septentrio_cmd methods"""
@@ -33,17 +33,16 @@ def arg_parse():
     parser.add_argument("-r", "--retry", help="set a number of retry if the command fails", default=0, type=int)
     parser.add_argument("-d", "--debug", action='store_true')
     parser.add_argument("--version", action="version", version="%(prog)s 1.1")
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 if __name__ == '__main__':
     args = arg_parse()
     if args.debug:
         log.setLevel('DEBUG')
-        log.debug(f"Arguments: {args}")
+        log.debug("Arguments: %s", args)
     command = args.command[0]
     retries = 0
-    retry_delay = 2
+    RETRY_DELAY = 2
     while retries <= args.retry:
         try:
             with SeptGnss(args.port, baudrate=args.baudrate, timeout=30, debug=args.debug) as gnss:
@@ -54,11 +53,11 @@ if __name__ == '__main__':
                     gnss.set_config_permanent()
             break
         except Exception as e:
-            log.debug("Exception: ",e)
+            log.debug("Exception: %s",e)
             retries += 1
             if retries <= args.retry:
-                print("Failed...retrying in {}s".format(retry_delay))
-                time.sleep(retry_delay)
+                log.warning("Failed...retrying in %ss", RETRY_DELAY)
+                time.sleep(RETRY_DELAY)
     if retries > args.retry:
-        print("Command failed!")
+        log.error("Command failed!")
         sys.exit(1)
