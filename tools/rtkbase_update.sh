@@ -49,21 +49,21 @@ check_before_update() {
 
   case $ID in
     debian)
-      if (( $(echo "$VERSION_ID < 11" | bc -l) ))
+      if (( $(echo "$VERSION_ID < 12" | bc -l) ))
       then
         printf "${TOO_OLD}" >/dev/stderr
         exit 1
       fi
       ;;
     raspbian)
-    if (( $(echo "$VERSION_ID < 11" | bc -l) ))
+    if (( $(echo "$VERSION_ID < 12" | bc -l) ))
       then
         printf "${TOO_OLD}" >/dev/stderr
         exit 1
       fi
       ;;
     ubuntu)
-      if (( $(echo "$VERSION_ID < 22.04" | bc -l) ))
+      if (( $(echo "$VERSION_ID < 24.04" | bc -l) ))
       then
         printf "${TOO_OLD}" >/dev/stderr
         exit 1
@@ -265,7 +265,7 @@ upd_2.6.3() {
 }
 
 #check if we can apply the update
-#FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.5.x release !!!
+#FOR THE OLDER ME -> Don't forget to modify the os detection if there is a 2.7.x release !!!
 [[ $checking == '--checking' ]] && check_before_update && exit
 
 echo '################################'
