@@ -111,7 +111,7 @@ install_dependencies() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
       apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-venv python3-dev python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables || exit 1
-      apt-get install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
+      apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
       #apt-get "${APT_TIMEOUT}" upgrade -y
 }
 
@@ -707,6 +707,7 @@ install_zeroconf_service() {
   echo 'INSTALLING ZEROCONF/AVAHI DEFINITION SERVICE'
   echo '################################'
   #Test is avahi is running and directory for services definition exists
+  type avahi-daemon >/dev/null 2>&1 || apt-get "${APT_TIMEOUT}" install -y avahi-daemon
   if systemctl is-active --quiet avahi-daemon.service && [[ -d /etc/avahi/services ]]
   then
     web_port=$(grep "^web_port=.*" "${rtkbase_path}"/settings.conf | cut -d "=" -f2)
