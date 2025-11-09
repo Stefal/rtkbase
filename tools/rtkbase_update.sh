@@ -73,24 +73,24 @@ check_before_update() {
 }
 
 update() {
-echo 'remove existing rtkbase.old directory'
-rm -rf /var/tmp/rtkbase.old
-mkdir /var/tmp/rtkbase.old
+  echo 'remove existing rtkbase.old directory'
+  rm -rf /var/tmp/rtkbase.old
+  mkdir /var/tmp/rtkbase.old
 
-echo "copy rtkbase to rtkbase.old except /data directory"
-cp -r ${destination_directory}/!(${data_dir}|venv) /var/tmp/rtkbase.old
+  echo "copy rtkbase to rtkbase.old except /data directory"
+  cp -r ${destination_directory}/!(${data_dir}|venv) /var/tmp/rtkbase.old
 
-#Don't do that or it will stop the update process
-#systemctl stop rtkbase_web.service
+  #Don't do that or it will stop the update process
+  #systemctl stop rtkbase_web.service
 
-echo "copy new release to destination"
-if [[ -d ${source_directory} ]] && [[ -d ${destination_directory} ]] 
-  then
-    cp -rfp ${source_directory}/. ${destination_directory}
-  else
-    echo 'can t copy'
-    exit 1
-fi
+  echo "copy new release to destination"
+  if [[ -d ${source_directory} ]] && [[ -d ${destination_directory} ]] 
+    then
+      cp -rfp ${source_directory}/. ${destination_directory}
+    else
+      echo 'can t copy'
+      exit 1
+  fi
 }
 
 insert_rtcm_msg() {
@@ -261,7 +261,15 @@ upd_2.6.3() {
   echo '##########################'
   # install updated service and new avahi service definition (forgot it on the previous update)
   "${destination_directory}"/tools/install.sh --user "${standard_user}" --unit-files --zeroconf
-
+  # upgrade dependencies
+  "${destination_directory}"/tools/install.sh --user "${standard_user}" --dependencies --rtkbase-requirements
+  #upgrade rtklib to RTKLib 2.5
+  upgrade_rtklib
+  # restart str2str if it was active before upgrading rtklib
+  [ $str2str_active = 'active' ] && systemctl restart str2str_tcp 
+  [ $str2str_file = 'active' ] && systemctl restart str2str_file 
+  [ $rtkrcv_raw2nmea = 'active' ] && systemctl restart rtkbase_raw2nmea
+  echo 'Main service restarted'
 }
 
 #check if we can apply the update
