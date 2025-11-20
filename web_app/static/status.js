@@ -123,7 +123,10 @@ $(document).ready(function () {
 
     if (typeof(aerialLayer) !== 'undefined') {
         baseMaps["Aerial_Hybrid"] = aerialLayer;
+	    L.control.layers(baseMaps).addTo(map);
+	    aerialLayer.addTo(map);
     };
+	
     L.control.layers(baseMaps).addTo(map);
     osm2Layer.addTo(map);
     
