@@ -301,6 +301,7 @@ _add_rtkbase_path_to_environment(){
     echo '################################'
     echo 'ADDING RTKBASE PATH TO ENVIRONMENT'
     echo '################################'
+	find . -type f -name "*.sh" -exec chmod +x {} \;
     if [ -d rtkbase ]
       then
         if grep -q '^rtkbase_path=' /etc/environment
