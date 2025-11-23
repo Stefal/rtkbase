@@ -37,8 +37,8 @@ man_help(){
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
     echo '        -r | --rtklib'
-    echo '                         Get RTKlib 2.4.3b34j from github and compile it.'
-    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/b34j'
+    echo '                         Get RTKlib 2.5.0 from github and compile it.'
+    echo '                         https://github.com/rtklibexplorer/RTKLIB/
     echo ''
     echo '        -b | --rtkbase-release'
     echo '                         Get last release of RTKBase:'
@@ -186,20 +186,20 @@ install_rtklib() {
 
 _compil_rtklib() {
     echo '################################'
-    echo 'COMPILING RTKLIB 2.4.3 b34j'
+    echo 'COMPILING RTKLIB 2.5.0 '
     echo '################################'
-    #Get Rtklib 2.4.3 b34j release
-    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34j.tar.gz | tar -xvz
+    #Get Rtklib 2.5.0 release
+    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/v2.5.0.tar.gz | tar -xvz
     #Install Rtklib app
     #TODO add correct CTARGET in makefile?
-    make --directory=RTKLIB-b34j/app/consapp/str2str/gcc
-    make --directory=RTKLIB-b34j/app/consapp/str2str/gcc install
-    make --directory=RTKLIB-b34j/app/consapp/rtkrcv/gcc
-    make --directory=RTKLIB-b34j/app/consapp/rtkrcv/gcc install
-    make --directory=RTKLIB-b34j/app/consapp/convbin/gcc
-    make --directory=RTKLIB-b34j/app/consapp/convbin/gcc install
+    make --directory=RTKLIB-2.5.0/app/consapp/str2str/gcc
+    make --directory=RTKLIB-2.5.0/app/consapp/str2str/gcc install
+    make --directory=RTKLIB-2.5.0/app/consapp/rtkrcv/gcc
+    make --directory=RTKLIB-2.5.0/app/consapp/rtkrcv/gcc install
+    make --directory=RTKLIB-2.5.0/app/consapp/convbin/gcc
+    make --directory=RTKLIB-2.5.0/app/consapp/convbin/gcc install
     #deleting RTKLIB
-    rm -rf RTKLIB-b34j/
+    rm -rf RTKLIB-2.5.0/
 }
 
 _rtkbase_repo(){
@@ -579,13 +579,13 @@ configure_gnss(){
           python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command reset --retry 5
           sleep_time=10 ; echo 'Waiting '$sleep_time's for ' "${model}" ' reboot' ; sleep $sleep_time
           echo 'Sending settings....'
-          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_rtcm3.cfg --store --retry 2
+          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_raw.cfg --store --retry 2
           if [[ $? -eq  0 ]]
           then
             echo 'Unicore UM980 successfuly configured'
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                        && \
             sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Unicore_$model\'/ "${rtkbase_path}"/settings.conf                                         && \
-            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'rtcm3\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'unicore\'/ "${rtkbase_path}"/settings.conf
             #UM980 archives a bigger, we need more remaining space to compress archives
             sudo -u "${RTKBASE_USER}" sed -i s/^min_free_space=.*/min_free_space=\'1500\'/ "${rtkbase_path}"/settings.conf
 
@@ -804,7 +804,8 @@ main() {
         ;;
     esac                      && \
     rtkbase_requirements      && \
-    install_rtklib            && \
+    #install_rtklib           && \
+	_compil_rtklib            && \
     install_unit_files        && \
     install_gpsd_chrony
     ret=$?

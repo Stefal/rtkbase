@@ -30,7 +30,7 @@ done
 
 #archive and compress previous day's gnss data.
 #find . -maxdepth 1 -type f -mtime -1 -mmin +60 -name "*.ubx*" -exec tar -jcvf ${archive_name} --remove-files {} +;
-find . -maxdepth 1 -type f -mtime -960 -mmin +60 \( -name "*.rtcm*" -o -name "*.nov*" -o -name "*.oem*" -o -name "*.ubx*" -o -name "*.ss2*" -o -name "*.hemis*" -o -name "*.stq*" -o -name "*.javad*" -o -name "*.nvs*" -o -name "*.binex*" -o -name "*.sbf*" \) -exec zip -m9 ${archive_name} {} +;
+find . -maxdepth 1 -type f -mtime -960 -mmin +60 \( -name "*.rtcm*" -o -name "*.nov*" -o -name "*.oem*" -o -name "*.ubx*" -o -name "*.ss2*" -o -name "*.hemis*" -o -name "*.stq*" -o -name "*.javad*" -o -name "*.nvs*" -o -name "*.binex*" -o -name "*.sbf*" -o -name "*.unicore*"\) -exec zip -m9 ${archive_name} {} +;
 
 #delete gnss data older than x days.
 #find . -maxdepth 1 -type f -name "*.tar.bz2" -mtime +${archive_rotate} -delete
