@@ -33,7 +33,7 @@ position='47.0983869 -1.2655108 36.40'
 #gnss receiver com port
 com_port=''
 #gnss receiver com port settings
-com_port_settings='38400:8:n:1'
+com_port_settings='115200:8:n:1'
 #receiver model
 receiver='unknown'
 #gnss receiver format
@@ -88,7 +88,7 @@ svr_port_a='2101'
 svr_pwd_a=''
 #Mount name
 mnt_name_a='Your_mount_name'
-rtcm_msg_a='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_msg_a='1005(30),1006(30),1033(30),1077(1),1087(1),1097(1),1117(1),1127(1),1230(30)'
 #Receiver dependent options
 ntrip_a_receiver_options=''
 
@@ -104,7 +104,7 @@ svr_port_b='2101'
 svr_pwd_b=''
 #Mount name
 mnt_name_b='Your_mount_name'
-rtcm_msg_b='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_msg_b='1005(30),1006(30),1033(30),1077(1),1087(1),1097(1),1117(1),1127(1),1230(30)'
 #Receiver dependent options
 ntrip_b_receiver_options=''
 
@@ -120,7 +120,7 @@ local_ntripc_pwd=''
 local_ntripc_port='2101'
 #mount point name for this local ntrip caster
 local_ntripc_mnt_name=''
-local_ntripc_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+local_ntripc_msg='1005(30),1006(30),1033(30),1077(1),1087(1),1097(1),1117(1),1127(1),1230(30)'
 #Receiver dependent options
 local_ntripc_receiver_options=''
 
@@ -131,7 +131,7 @@ local_ntripc_receiver_options=''
 #port for rtcm local use
 rtcm_svr_port='5016'
 #messages for rtcm local use
-rtcm_svr_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_svr_msg='1005(30),1006(30),1033(30),1077(1),1087(1),1097(1),1117(1),1127(1),1230(30)'
 #Receiver dependent options
 rtcm_receiver_options=''
 
@@ -146,7 +146,7 @@ rtcm_client_port='80'
 rtcm_client_user=''
 rtcm_client_pwd=''
 #messages for rtcm client use
-rtcm_client_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_client_msg='1005(30),1006(30),1033(30),1077(1),1087(1),1097(1),1117(1),1127(1),1230(30)'
 #Receiver dependent options
 rtcm_client_receiver_options=''
 
@@ -157,7 +157,7 @@ rtcm_client_receiver_options=''
 #port for rtcm UDP use
 rtcm_udp_svr_port=''
 #messages for rtcm udp use
-rtcm_udp_svr_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_udp_svr_msg='1005(30),1006(30),1033(30),1077(1),1087(1),1097(1),1117(1),1127(1),1230(30)'
 #Receiver dependent options
 rtcm_udp_svr_receiver_options=''
 
@@ -170,7 +170,7 @@ rtcm_udp_client_addr=''
 #port for rtcm UDP use
 rtcm_udp_client_port=''
 #messages for rtcm udp use
-rtcm_udp_client_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_udp_client_msg='1005(30),1006(30),1033(30),1077(1),1087(1),1097(1),1117(1),1127(1),1230(30)'
 #Receiver dependent options
 rtcm_udp_client_receiver_options=''
 
@@ -183,7 +183,7 @@ out_com_port=''
 #serial output settings
 out_com_port_settings='115200:8:n:1'
 #messages for rtcm local use
-rtcm_serial_msg='1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'
+rtcm_serial_msg='1005(30),1006(30),1033(30),1077(1),1087(1),1097(1),1117(1),1127(1),1230(30)'
 #Receiver dependent options
 rtcm_serial_receiver_options=''
 
