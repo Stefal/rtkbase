@@ -1,5 +1,5 @@
 # Changelog
-## Not Released
+## [2.7.0] Not Released
 ### Added
 - GUI -> Settings: Add display of network interface mac address.
 - GUI -> Settings: Add Tcp host addr entry to open or block external access to the Gnss receiver. [#490](https://github.com/Stefal/rtkbase/issues/490)
@@ -12,7 +12,6 @@
 - U-Blox ZED-F9P settings : Dynamic model sets to static during configuration. Thanks to @Jef239 [#488](https://github.com/Stefal/rtkbase/issues/488)
 ### Fixed
 - GUI -> Logs: Fix wrong path when using custom data directory. [#471](https://github.com/Stefal/rtkbase/issues/471)
-- GUI -> Diagnostic: Fix missing line return. [#480](https://github.com/Stefal/rtkbase/issues/480)
 - GUI -> Settings: Better toggle buttons color behaviour.
 ### Security
 - Update various python module
