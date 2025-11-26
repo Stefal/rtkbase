@@ -257,7 +257,16 @@ upd_2.6.2() {
 
 upd_2.6.3() {
   echo '##########################'
-  echo 'Update from 2.6.3 to 2.6.x'
+  echo 'Update from 2.6.3 to 2.6.4'
+  echo '##########################'
+  # install updated service and new avahi service definition (forgot it on the previous update)
+  "${destination_directory}"/tools/install.sh --user "${standard_user}" --unit-files --zeroconf
+  upd_2.6.4 "$@"
+}
+
+upd_2.6.4() {
+  echo '##########################'
+  echo 'Update from 2.6.4 to 2.7.0'
   echo '##########################'
   # install updated service and new avahi service definition (forgot it on the previous update)
   "${destination_directory}"/tools/install.sh --user "${standard_user}" --unit-files --zeroconf
