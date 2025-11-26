@@ -121,9 +121,9 @@ install_gpsd_chrony() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" install chrony gpsd -y || exit 1
       #Disabling and masking systemd-timesyncd
-      systemctl stop systemd-timesyncd
-      systemctl disable systemd-timesyncd
-      systemctl mask systemd-timesyncd
+      systemctl stop systemd-timesyncd > /dev/null 2>&1
+      systemctl disable systemd-timesyncd > /dev/null 2>&1
+      systemctl mask systemd-timesyncd > /dev/null 2>&1
       #Adding GPS as source for chrony
       grep -q 'set larger delay to allow the GPS' /etc/chrony/chrony.conf || echo '# set larger delay to allow the GPS source to overlap with the other sources and avoid the falseticker status
 ' >> /etc/chrony/chrony.conf
