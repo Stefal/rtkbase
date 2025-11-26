@@ -711,7 +711,7 @@ install_zeroconf_service() {
   if systemctl is-active --quiet avahi-daemon.service && [[ -d /etc/avahi/services ]]
   then
     web_port=$(grep "^web_port=.*" "${rtkbase_path}"/settings.conf | cut -d "=" -f2)
-    sed -e 's|{port}|'$web_port'|' "${rtkbase_path}"/tools/zeroconf/rtkbase_web.service >> /etc/avahi/services/rtkbase_web.service
+    sed -e 's|{port}|'$web_port'|' "${rtkbase_path}"/tools/zeroconf/rtkbase_web.service > /etc/avahi/services/rtkbase_web.service
   else
     echo 'Can'\''t install avahi definition service, missing avahi service or /etc/avahi/services directory'
   fi
