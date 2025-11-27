@@ -105,6 +105,12 @@ _check_user() {
   fi
 }
 
+_version() { 
+  # Snippet from https://stackoverflow.com/a/37939589
+  echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; 
+}
+
+
 install_dependencies() {
     echo '################################'
     echo 'INSTALLING DEPENDENCIES'
@@ -574,8 +580,14 @@ configure_gnss(){
           echo 'Resetting the mosaic-X5 settings....'
           python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command reset --retry 5
           sleep_time=30 ; echo 'Waiting '$sleep_time's for mosaic-X5 reboot' ; sleep $sleep_time
-          echo 'Sending settings....'
-          python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5.cfg --store --retry 5
+          if [ $(_version $firmware) -ge $(_version '4.15.0') ]
+          then
+            echo 'Sending settings....'
+            python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5_4.15.cfg --store --retry 5
+          else
+            echo 'Sending legacy settings....'
+            python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5.cfg --store --retry 5
+          fi
           if [[ $? -eq  0 ]]
           then
             echo 'Septentrio Mosaic-X5 successfuly configured'
