@@ -5,12 +5,21 @@ Description=RTKBase Web Server
 
 [Service]
 User=root
-ExecStart={python_path} {script_path}/web_app/server.py
+WorkingDirectory=/home/debian
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="HOME=/home/debian"
+Environment="LOGNAME=debian"
+#StandardOutput=append:/var/log/rtkbase_web.log
+
+# Run the install.sh command before starting the main service
+ExecStartPre=/home/debian/rtkbase_riscv/tools/install.sh -u debian --pin-mux
+
+ExecStart=/home/debian/rtkbase_riscv/venv/bin/python /home/debian/rtkbase_riscv/web_app/server.py
 Restart=on-failure
 RestartSec=30
 #ProtectHome=read-only
 #ProtectSystem=strict
-#ReadWritePaths={script_path} /var/tmp /usr/local/bin
+#ReadWritePaths=/home/debian/rtkbase_riscv /var/tmp /usr/local/bin
 
 [Install]
 WantedBy=multi-user.target

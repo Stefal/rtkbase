@@ -29,7 +29,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 from gevent import monkey
-monkey.patch_all()
+#monkey.patch_all()
 
 import time
 import json
@@ -46,12 +46,6 @@ from RTKLIB import RTKLIB
 from ServiceController import ServiceController
 from RTKBaseConfigManager import RTKBaseConfigManager
 import network_infos
-
-#print("Installing all required packages")
-#provisioner.provision_reach()
-
-#import reach_bluetooth.bluetoothctl
-#import reach_bluetooth.tcp_bridge
 
 from flask_bootstrap import Bootstrap4
 from flask import Flask, render_template, session, request, flash, url_for
@@ -72,6 +66,10 @@ from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.utils import safe_join
 import gunicorn.app.base
+
+#Delay before rtkrcv will stop if no user is on status.html page
+rtkcv_standby_delay = 600
+connected_clients = 0
 
 app = Flask(__name__)
 app.debug = False
@@ -110,10 +108,6 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {'service_unit' : 'rtkbase_raw2nmea.service', "name" : "raw2nmea"},
                  {'service_unit' : 'rtkbase_gnss_web_proxy.service', "name": "RTKBase Reverse Proxy for Gnss receiver Web Server"}
                  ]
-
-#Delay before rtkrcv will stop if no user is on status.html page
-rtkcv_standby_delay = 600
-connected_clients = 0
 
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
     def __init__(self, app, options=None):
@@ -158,46 +152,58 @@ def update_password(config_object):
         config_object.update_setting("general", "web_password_hash", generate_password_hash(new_password))
         config_object.update_setting("general", "new_web_password", "")
 
+
+def update_sys_informations():
+
+    if not hasattr(update_sys_informations, "max_cpu_temp"):
+        update_sys_informations.max_cpu_temp = 0  # it doesn't exist yet, so initialize it
+    
+    cpu_temp_offset = int(rtkbaseconfig.get("general", "cpu_temp_offset"))
+
+    cpu_temp = get_cpu_temp() + cpu_temp_offset
+    update_sys_informations.max_cpu_temp = max(cpu_temp, update_sys_informations.max_cpu_temp)
+
+    try:
+        interfaces_infos = network_infos.get_interfaces_infos()
+    except Exception:
+        # network-manager not installed ?
+        interfaces_infos = None
+
+    volume_usage = get_volume_usage()
+    sys_infos = {"cpu_temp" : cpu_temp,
+                "max_cpu_temp" : update_sys_informations.max_cpu_temp,
+                "uptime" : get_uptime(),
+                "volume_free" : round(volume_usage.free / 10E8, 2),
+                "volume_used" : round(volume_usage.used / 10E8, 2),
+                "volume_total" : round(volume_usage.total / 10E8, 2),
+                "volume_percent_used" : volume_usage.percent,
+                "network_infos" : interfaces_infos}
+
+    return sys_infos
+
 def manager():
     """ This manager runs inside a separate thread
         It checks how long rtkrcv is running since the last user leaves the
         status web page, and stop rtkrcv when sleep_count reaches rtkrcv_standby delay
         And it sends various system informations to the web interface
     """
-    max_cpu_temp = 0
-    cpu_temp_offset = int(rtkbaseconfig.get("general", "cpu_temp_offset"))
     services_status = getServicesStatus(emit_pingback=False)
     main_service = {}
     while True:
-        # Make sure max_cpu_temp is always updated
-        cpu_temp = get_cpu_temp() + cpu_temp_offset
-        max_cpu_temp = max(cpu_temp, max_cpu_temp)
 
         if connected_clients > 0:
+        
             # We only need to emit to the socket if there are clients able to receive it.
             updated_services_status = getServicesStatus(emit_pingback=False)
             main_service = updated_services_status[0]
             if  services_status != updated_services_status:
                 services_status = updated_services_status
                 socketio.emit("services status", json.dumps(services_status), namespace="/test")
-                #print("service status", services_status)
+                print("service status", services_status)
 
-            try:
-                interfaces_infos = network_infos.get_interfaces_infos()
-            except Exception:
-                # network-manager not installed ?
-                interfaces_infos = None
-
-            volume_usage = get_volume_usage()
-            sys_infos = {"cpu_temp" : cpu_temp,
-                        "max_cpu_temp" : max_cpu_temp,
-                        "uptime" : get_uptime(),
-                        "volume_free" : round(volume_usage.free / 10E8, 2),
-                        "volume_used" : round(volume_usage.used / 10E8, 2),
-                        "volume_total" : round(volume_usage.total / 10E8, 2),
-                        "volume_percent_used" : volume_usage.percent,
-                        "network_infos" : interfaces_infos}
-            socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
+        # Make sure max_cpu_temp is always updated 
+        sys_infos = update_sys_informations()
+        socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
 
         if rtk.sleep_count > rtkcv_standby_delay and rtk.state != "inactive" or \
                  main_service.get("active") == False and rtk.state != "inactive":
@@ -245,7 +251,7 @@ def old_get_cpu_temp():
 def get_cpu_temp():
     try:
         temps = psutil.sensors_temperatures()
-        current_cpu_temp = round(temps.get('cpu_thermal')[0].current, 1)
+        current_cpu_temp = round(temps.get('soc_thermal_0')[0].current, 1)
     except:
         current_cpu_temp = 0
     return current_cpu_temp
@@ -556,11 +562,13 @@ def clientConnect():
         rtkbaseconfig.write_file()
         socketio.emit("update_successful", json.dumps({"result": 'true'}), namespace="/test")
     rtk.sendState()
+    sys_infos = update_sys_informations()
+    socketio.emit("sys_informations", json.dumps(sys_infos), namespace="/test")
 
 @socketio.on("disconnect", namespace="/test")
 def clientDisconnect():
     global connected_clients
-    connected_clients -=1
+    connected_clients -= 1
     print("Browser client disconnected")
 
 #### Log list handling ###
@@ -627,9 +635,11 @@ def deleteLog(json_msg):
 
 @socketio.on("detect_receiver", namespace="/test")
 def detect_receiver(json_msg):
-    print("Detecting gnss receiver")
+    #print("Detecting gnss receiver")
     #print("DEBUG json_msg: ", json_msg)
+    #print([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"])
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
+    #print(answer)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
         #print("DEBUG ok stdout: ", answer.stdout)
         try:
@@ -665,13 +675,15 @@ def configure_receiver(brand="", model=""):
     # configure the receiver. We wait a few seconds before stopping it to remove conflicting calls.
     time.sleep(4)
     main_service = services_list[0]
+    #print(main_service)
     if main_service.get("active") is True:
         main_service["unit"].stop()
         restart_main = True
     else:
         restart_main = False
 
-    print("configuring {} gnss receiver model {}".format(brand, model))
+    #print("configuring {} gnss receiver model {}".format(brand, model))
+    #print([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"])
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     #print("DEBUG - stdout: ", answer.stdout)
     #print("DEBUG - returncode: ", answer.returncode)

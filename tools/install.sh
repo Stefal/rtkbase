@@ -3,7 +3,7 @@
 ### RTKBASE INSTALLATION SCRIPT ###
 declare -a detected_gnss
 declare RTKBASE_USER
-APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
+APT_TIMEOUT='-o dpkg::lock::timeout=6000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
 MODEM_AT_PORT=/dev/ttymodemAT
 
 man_help(){
@@ -104,13 +104,26 @@ _check_user() {
 }
 
 install_dependencies() {
+
+    # Run swap.sh
+    echo '################################'
+    echo 'CONFIGURING SWAP'
+    echo '################################'
+    "${rtkbase_path}"/tools/swap.sh
+
     echo '################################'
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
-      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-venv python3-dev python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables || exit 1
-      apt-get install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
-      #apt-get "${APT_TIMEOUT}" upgrade -y
+      apt-get "${APT_TIMEOUT}" upgrade -y
+      apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables wget curl lrzsz || exit 1
+      apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev libc6 || exit 1 # needed for lxml (for pystemd)
+      apt-get "${APT_TIMEOUT}" install -y wireless-tools wpasupplicant || exit 1
+      apt-get "${APT_TIMEOUT}" clean -y
+      apt-get "${APT_TIMEOUT}" autoclean -y
+      apt-get "${APT_TIMEOUT}" autoremove -y
+      python3 --version
+
 }
 
 install_gpsd_chrony() {
@@ -312,19 +325,27 @@ _add_rtkbase_path_to_environment(){
             echo "rtkbase_path=$(pwd)/rtkbase" >> /etc/environment
         fi
     fi
-    rtkbase_path=$(pwd)/rtkbase
-    export rtkbase_path
+    
+    
 }
 
 rtkbase_requirements(){
+  platform=$(uname -m)
     echo '################################'
     echo 'INSTALLING RTKBASE REQUIREMENTS'
-    echo '################################'
+    echo 'Platform:'
+    echo $platform
+    echo '################################' 
+    if [[$platform =~ 'riscv64' ]]
+        then
+      # install system python pre-built packages 
+      apt-get "${APT_TIMEOUT}" install -y python3.13-venv
+      apt-get "${APT_TIMEOUT}" install -y python3-lxml python3-pystemd python3-cryptography python3-cffi python3-gevent || exit 1
       # create virtual environnement for rtkbase
-      sudo -u "${RTKBASE_USER}" python3 -m venv "${rtkbase_path}"/venv
+      sudo -u "${RTKBASE_USER}" python3 -m venv --system-site-packages "${rtkbase_path}"/venv
+    fi
       python_venv="${rtkbase_path}"/venv/bin/python
-      platform=$(uname -m)
-      if [[ $platform =~ 'aarch64' ]] || [[ $platform =~ 'x86_64' ]]
+      if [[ $platform =~ 'aarch64'  ||  $platform =~ 'x86_64'  ||  $platform =~ 'riscv64' ]]
         then
           # More dependencies needed for aarch64 as there is no prebuilt wheel on piwheels.org
           apt-get "${APT_TIMEOUT}" install -y libssl-dev libffi-dev || exit 1
@@ -334,6 +355,7 @@ rtkbase_requirements(){
       cp "${rtkbase_path}"/tools/udev_rules/*.rules /etc/udev/rules.d/
       udevadm control --reload && udevadm trigger
       # Copying polkitd rules and add rtkbase group
+      echo '################################ 1' 
       "${rtkbase_path}"/tools/install_polkit_rules.sh "${RTKBASE_USER}"
       #Copying settings.conf.default as settings.conf
       if [[ ! -f "${rtkbase_path}/settings.conf" ]]
@@ -342,25 +364,16 @@ rtkbase_requirements(){
       fi
       #Then launch check cpu temp script for OPI zero LTS
       source "${rtkbase_path}/tools/opizero_temp_offset.sh"
-      #venv module installation
-      sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
-      # install prebuilt wheel for cryptography because it is unavailable on piwheels (2023/01)
-      # not needed anymore (2023/11)
-      #if [[ $platform == 'armv7l' ]] && [[ $("${python_venv}" --version) =~ '3.7' ]]
-      #  then 
-      #    sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv7l.whl
-      #elif [[ $platform == 'armv6l' ]] && [[ $("${python_venv}" --version) =~ '3.7' ]]
-      #  then
-      #    sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install "${rtkbase_path}"/tools/wheel/cryptography-38.0.0-cp37-cp37m-linux_armv6l.whl
-      #fi
-      sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
-      #when we will be able to launch the web server without root, we will use
-      #sudo -u $(logname) python3 -m pip install -r requirements.txt --user.
+      if [[$platform =~ 'riscv64' ]]
+        then
+        #venv module installation
+        sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install --upgrade pip setuptools wheel  --extra-index-url https://www.piwheels.org/simple
+        sudo -u "${RTKBASE_USER}" "${python_venv}" -m pip install -r "${rtkbase_path}"/web_app/requirements.txt  --extra-index-url https://www.piwheels.org/simple
       
-      #Installing requirements for Cellular modem. Installing them during the Armbian firstrun doesn't work because the network isn't fully up.
-      sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
-      sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
-
+        #Installing requirements for Cellular modem. Installing them during the Armbian firstrun doesn't work because the network isn't fully up.
+        sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install nmcli  --extra-index-url https://www.piwheels.org/simple
+        sudo -u "${RTKBASE_USER}" "${rtkbase_path}/venv/bin/python" -m pip install git+https://github.com/Stefal/sim-modem.git
+      if 
 }
 
 install_unit_files() {
@@ -382,6 +395,7 @@ install_unit_files() {
 }
 
 detect_gnss() {
+  python_venv="${rtkbase_path}"/venv/bin/python
     echo '################################'
     echo 'USB GNSS RECEIVER DETECTION'
     echo '################################'
@@ -425,16 +439,16 @@ detect_gnss() {
         echo '################################'
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
         # TODO remove port if not available in /dev/
-        for port in ttyS0 ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS1 ttyS2 ttyS3 ttyS4 ttyS5; do
+        for port in ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS0 ttyS1 ttyS2 ttyS3 ttyS4 ttyS5; do
             for port_speed in 115200 57600 38400 19200 9600; do
                 echo 'DETECTION ON ' $port ' at ' $port_speed
-                if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/$port -s $port_speed -p MON-VER -w 5 2>/dev/null) =~ 'ZED-F9P' ]]; then
+                if [[ $(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/ubxtool -f /dev/$port -s $port_speed -p MON-VER -w 5 2>/dev/null) =~ 'ZED-F9P' ]]; then
                     detected_gnss[0]=$port
                     detected_gnss[1]='u-blox'
                     detected_gnss[2]=$port_speed
                     #echo 'U-blox ZED-F9P DETECTED ON '$port $port_speed
                     break
-                elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}; then
+                elif { model=$(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/unicore_tool.py --port /dev/$port --baudrate $port_speed --retry 2 --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}; then
                     detected_gnss[0]=$port
                     detected_gnss[1]='unicore'
                     detected_gnss[2]=$port_speed
@@ -455,16 +469,16 @@ detect_gnss() {
       if [[ "${detected_gnss[1]}" =~ 'u-blox' ]]
         then
           #get F9P firmware release
-          detected_gnss[3]=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
+          detected_gnss[3]=$(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
       elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]]
         then
           #get mosaic-X5 firmware release
-          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
+          detected_gnss[3]="$(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
       elif [[ "${detected_gnss[1]}" =~ 'unicore' ]]
         then
           #get Unicore UM98X firmware release
-          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware 2>/dev/null)" || firmware='?'
+          detected_gnss[3]="$(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware 2>/dev/null)" || firmware='?'
       fi
       # "send" result
       echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"
@@ -507,6 +521,7 @@ _get_device_path() {
 }
 
 configure_gnss(){
+  python_venv="${rtkbase_path}"/venv/bin/python
     echo '################################'
     echo 'CONFIGURE GNSS RECEIVER'
     echo '################################'
@@ -515,10 +530,10 @@ configure_gnss(){
         source <( grep -v '^#' "${rtkbase_path}"/settings.conf | grep '=' ) 
         systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
-        if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
+        if [[ $(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then
           #get F9P firmware release
-          firmware=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
+          firmware=$(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
           echo 'F9P Firmware: ' "${firmware}"
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
           #configure the F9P for RTKBase
@@ -541,18 +556,18 @@ configure_gnss(){
           sudo -u "${RTKBASE_USER}" sed -i -r '/^rtcm_/s/1107(\([0-9]+\))?,//' "${rtkbase_path}"/settings.conf                                              && \
           return $?
         
-        elif [[ $(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model) =~ 'mosaic-X5' ]]
+        elif [[ $(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_model) =~ 'mosaic-X5' ]]
         then
           #get mosaic-X5 firmware release
-          firmware="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_firmware --retry 5)" || firmware='?'
+          firmware="$(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command get_firmware --retry 5)" || firmware='?'
           echo 'Mosaic-X5 Firmware: ' "${firmware}"
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
           #configure the mosaic-X5 for RTKBase
           echo 'Resetting the mosaic-X5 settings....'
-          python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command reset --retry 5
+          sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command reset --retry 5
           sleep_time=30 ; echo 'Waiting '$sleep_time's for mosaic-X5 reboot' ; sleep $sleep_time
           echo 'Sending settings....'
-          python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5.cfg --store --retry 5
+          sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5.cfg --store --retry 5
           if [[ $? -eq  0 ]]
           then
             echo 'Septentrio Mosaic-X5 successfuly configured'
@@ -568,18 +583,18 @@ configure_gnss(){
             return $?
           fi
 
-        elif { model=$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}
+        elif { model=$(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --retry 2 --command get_model 2>/dev/null) ; [[ "${model}" == 'UM98'[0-2] ]] ;}
           then
           #get UM98x firmware release
-          firmware="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_firmware 2>/dev/null)" || firmware='?'
+          firmware="$(sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --retry 2 --command get_firmware 2>/dev/null)" || firmware='?'
           echo 'Unicore-' "${model}" 'Firmware: ' "${firmware}"
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
           #configure the UM980/UM982 for RTKBase
           echo 'Resetting the ' "${model}" ' settings....'
-          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command reset --retry 5
+          sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command reset --retry 5
           sleep_time=10 ; echo 'Waiting '$sleep_time's for ' "${model}" ' reboot' ; sleep $sleep_time
           echo 'Sending settings....'
-          python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_rtcm3.cfg --store --retry 2
+          sudo -u "${RTKBASE_USER}" "${python_venv}" "${rtkbase_path}"/tools/unicore_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Unicore_"${model}"_rtcm3.cfg --store --retry 2
           if [[ $? -eq  0 ]]
           then
             echo 'Unicore UM980 successfuly configured'
@@ -735,6 +750,7 @@ main() {
   ARG_DETECT_MODEM=0
   ARG_START_SERVICES=0
   ARG_ZEROCONF=0
+  ARG_PIN_MUX=0
   ARG_ALL=0
 
   PARSED_ARGUMENTS=$(getopt --name install --options hu:drbi:jf:qtgencmsza: --longoptions help,user:,dependencies,rtklib,rtkbase-release,rtkbase-repo:,rtkbase-bundled,rtkbase-custom:,rtkbase-requirements,unit-files,gpsd-chrony,detect-gnss,no-write-port,configure-gnss,detect-modem,start-services,zeroconf,all: -- "$@")
