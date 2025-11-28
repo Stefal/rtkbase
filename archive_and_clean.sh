@@ -7,7 +7,7 @@ source <( grep '=' ${BASEDIR}/settings.conf )
 cd ${datadir}
 
 check_space(){
-  df -mP ${datadir} | grep -v '^Filesystem' | awk '{ print $4 }'
+  df -mP ${datadir} | tail -n1 | awk '{ print $4 }'
 }
 
 #Check if there is enough available space (default value is more than 500MB), and delete oldest archive if needed.
