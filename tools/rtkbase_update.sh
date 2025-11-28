@@ -278,6 +278,8 @@ upd_2.6.4() {
   [ $str2str_active = 'active' ] && systemctl restart str2str_tcp 
   [ $str2str_file = 'active' ] && systemctl restart str2str_file 
   [ $rtkrcv_raw2nmea = 'active' ] && systemctl restart rtkbase_raw2nmea
+  # some users informed me that the archive time was not enabled, fix that:
+  [[ ! $(systemctl is-active --quiet rtkbase_archive.timer) ]] && systemctl enable --now rtkbase_archive.timer
   echo 'Main service restarted'
 }
 
