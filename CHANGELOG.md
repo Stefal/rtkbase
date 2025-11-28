@@ -7,7 +7,7 @@
 - Now compatible with Septentrio Mosaic-X5 firmware 4.15. Default login/password is `basegnss/basegnss!`.
 - GUI -> Settings: Add display of network interface mac address.
 - GUI -> Settings: Add Tcp host addr entry to open or block external access to the Gnss receiver. [#490](https://github.com/Stefal/rtkbase/issues/490)
-- GUI ->: Add mount name in the web page title. Thanks to @sbonaime [#484](https://github.com/Stefal/rtkbase/issues/484)
+- GUI -> Add mount name in the web page title. Thanks to @sbonaime [#484](https://github.com/Stefal/rtkbase/issues/484)
 - GUI -> Logs: .sbf files get a type in the type column.
 - GUI -> Logs: .obs and .2?o files displayed as RINEX in type column.
 
