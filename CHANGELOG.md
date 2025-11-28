@@ -18,6 +18,11 @@
 - Update various python module
 - Update js library (leaflet, bootstrap-table)
 
+## [2.6.4] - 2025-11-26
+### Fixed
+- GUI -> Diagnostic: Fix missing line return. [#480](https://github.com/Stefal/rtkbase/issues/480)
+- Install missing Avahi-daemon service and settings
+
 ## [2.6.3] - 2025-02-16
 ### Added
 - New [Linux/Windows Gui](https://github.com/Stefal/rtkbase/tree/master/tools/find_rtkbase/dist) to detect online Station.
