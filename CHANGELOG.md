@@ -3,6 +3,7 @@
 ## [2.7.0] - 2025-11-28
 
 ### Added
+- Now compatible with Debian 13 (Trixie).
 - Now compatible with Septentrio Mosaic-X5 firmware 4.15. Default login/password is `basegnss/basegnss!`.
 - GUI -> Settings: Add display of network interface mac address.
 - GUI -> Settings: Add Tcp host addr entry to open or block external access to the Gnss receiver. [#490](https://github.com/Stefal/rtkbase/issues/490)
