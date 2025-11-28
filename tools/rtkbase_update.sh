@@ -280,6 +280,8 @@ upd_2.6.4() {
   [ $rtkrcv_raw2nmea = 'active' ] && systemctl restart rtkbase_raw2nmea
   # some users informed me that the archive time was not enabled, fix that:
   [[ ! $(systemctl is-active --quiet rtkbase_archive.timer) ]] && systemctl enable --now rtkbase_archive.timer
+  # restarting the gnss proxy service:
+  [[ $(systemctl is-active --quiet rtkbase_gnss_web_proxy.service) ]] && systemctl restart rtkbase_gnss_web_proxy.service 
   echo 'Main service restarted'
 }
 
