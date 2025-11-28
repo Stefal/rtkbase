@@ -179,8 +179,11 @@ install_rtklib() {
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
         && [[ -f "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"'/str2str' ]] \
-        && lsb_release -c | grep -qE 'bullseye|bookworm|trixie' \
-        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str --version > /dev/null 2>&1
+        && lsb_release -c | grep -qE 'bookworm|trixie' \
+        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str --version > /dev/null 2>&1 \
+        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/convbin --version > /dev/null 2>&1 \
+        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/rtkrcv --version > /dev/null 2>&1
+
     then
       echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
       cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str /usr/local/bin/
