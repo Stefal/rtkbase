@@ -21,7 +21,7 @@ class MyApp:
         self.master = master
         self.ports = ports
         self.allscan = allscan
-        master.title("Find RTKBase v0.1")
+        master.title("Find RTKBase v0.2")
         master.geometry("400x200")
         master.columnconfigure(0, weight=1)
         master.rowconfigure(0, weight=1)
@@ -123,12 +123,16 @@ class MyApp:
         self.base_buttons_list = ["base" + str(i) + "Button" for i, j in enumerate(self.available_base)]
         if len(self.available_base)>0:
             for i, base in enumerate(self.available_base):
-                def action(ip = (base.get('server') or base.get('ip')), port = base.get('port')):
+                def browser_fqdn(event, ip = (base.get('server') or base.get('ip')), port = base.get('port')):
+                    self.launch_browser(ip, port)
+                def browser_ip(event, ip = (base.get('ip')), port = base.get('port')):
                     self.launch_browser(ip, port)
 
                 self.base_labels_list[i] = ttk.Label(self.top_frame, text=f"{base.get('server') or base.get('fqdn')} ({base.get('ip')})")
                 self.base_labels_list[i].grid(column=0, row=i)
-                self.base_buttons_list[i] = ttk.Button(self.top_frame, text='Open', command=action)
+                self.base_buttons_list[i] = ttk.Button(self.top_frame, text='Open')
+                self.base_buttons_list[i].bind("<Button-1>", browser_fqdn)
+                self.base_buttons_list[i].bind("<Shift-Button-1>", browser_ip)
                 self.base_buttons_list[i].grid(column=3, row=i)
         else:
             self.nobase_label.grid()

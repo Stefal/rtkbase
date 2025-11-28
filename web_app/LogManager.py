@@ -94,11 +94,15 @@ class LogManager():
         if os.path.isfile(potential_zip_path):
             return "RINEX"
         """
-        if (extension in self.supported_solution_formats or
-                    extension in self.convbin.supported_log_formats):
-            return extension.upper()
-        else:
-            return ""
+        log_format = "?"
+        if extension :
+            if (extension in self.supported_solution_formats or
+                 extension in self.convbin.supported_log_formats):
+                log_format = extension.upper()
+            if extension in self.convbin.supported_output_formats:
+                log_format = "RINEX"
+        
+        return log_format
 
     def formTimeString(self, seconds):
         # form a x minutes y seconds string from seconds

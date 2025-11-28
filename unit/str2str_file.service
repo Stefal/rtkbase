@@ -4,7 +4,8 @@ Requires=str2str_tcp.service
 After=str2str_tcp.service
 
 [Service]
-Type=forking
+Type=simple
+SyslogIdentifier=str2str_file
 User={user}
 ExecStart={script_path}/run_cast.sh in_tcp out_file
 Restart=on-failure

@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
-import json
 import time
 import logging
 import argparse
+import requests
 import scapy.all as scapy
 scapy.load_layer("http")
 from zeroconf import Zeroconf
@@ -111,12 +111,12 @@ def get_rtkbase_infos(host_list):
                             if address is None:
                                 continue
                             log.debug(f"{address}:{port} Api request")
-                            res = http_request(address, path="/api/v1/infos", port=port)
+                            res = requests.get(f"http://{address}:{port}/api/v1/infos", timeout=10)
                             log.debug(f"{address}:{port} Api response: {res}")
-                            ans = json.loads(res.load.decode()) if res is not None else None
+                            ans = res.json() if res is not None and res.status_code == 200 else None
                             if ans:
                                 break
-                        except (TimeoutError, TypeError, ConnectionRefusedError) as e:
+                        except (TimeoutError, TypeError, requests.exceptions.ConnectionError) as e:
                             log.debug(f"{address}:{port} - {e}")
 
                     if ans and ans.get('app') == 'RTKBase':

@@ -346,7 +346,7 @@ $(document).ready(function () {
         console.log(response);
         detectApplyBtnElt.setAttribute('data-dismiss', 'modal');
         if (response['result'] === 'success') {
-            detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
+            detectBodyElt.innerHTML = '<b>' + response['gnss_type'] + ' ' + response['model'] + '</b>' + ' detected on ' + '<b>' + response['port'] + '</b>' + '<br>' + '<br>' + 'Do you want to apply?';
             detectApplyBtnElt.onclick = function (){
                 socket.emit("apply_receiver_settings", response)
             };
@@ -406,7 +406,7 @@ $(document).ready(function () {
         detectApplyBtnElt.removeAttribute('data-dismiss');
         detectApplyBtnElt.onclick = function (){}; //remove the previous attached event
         $('#detectModal').modal();
-        socket.emit("detect_receiver" ,{"then_configure" : true});
+        socket.emit("detect_receiver", {"then_configure" : true});
     });
 
     // ####################### HANDLE UPDATE #######################
@@ -615,6 +615,9 @@ $(document).ready(function () {
         }
         if (interface.ipv6) {
             html += `<li>IPv6: ${interface.ipv6.join(' - ')}</li>`;
+        }
+        if (interface.hwaddr) {
+            html += `<li>MAC: ${interface.hwaddr}</li>`;
         }
         html += '</ul></dd>';
         });

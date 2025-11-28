@@ -26,7 +26,8 @@ from .logs import Log, LogMetadata
 
 class Convbin:
 
-    supported_log_formats = ["rtcm2", "rtcm3", "nov", "oem3", "ubx", "ss2", "hemis", "stq", "javad", "nvs", "binex", "rinex", "unicore"]
+    supported_log_formats = ["rtcm2", "rtcm3", "nov", "oem3", "ubx", "ss2", "hemis", "stq", "javad", "nvs", "binex", "rinex", "unicore", "sbf"]
+    supported_output_formats = ["obs", "20o", "21o", "22o", "23o", "24o", "25o", "26o", "27o", "28o", "29o", "30o", ]
 
     def __init__(self, rtklib_path):
         self.bin_path = rtklib_path

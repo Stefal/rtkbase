@@ -125,7 +125,7 @@ def redirect_to_API_HOST(path):  #NOTE var :path will be unused as all path we n
     return response
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/gnsslogin', methods=['GET', 'POST'])
 def login_page():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -146,7 +146,7 @@ def login_page():
         
     return render_template('proxy_login.html', title='Sign In', form=loginform)
 
-@app.route('/logout')
+@app.route('/gnsslogout')
 def logout():
     logout_user()
     return redirect(url_for('login_page'))

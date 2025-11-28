@@ -6,6 +6,7 @@ The U-Blox_ZED-F9P_rtkbase.txt config file is based on default settings with the
 - NAV-PVT enabled
 - NAV-SAT enabled
 - NAV-SIG enabled
+- CFG-NAVSPG-DYNMODEL Dynamic model sets to static
 - NMEA on USB out disabled
 - NMEA on UART1 out disabled
 

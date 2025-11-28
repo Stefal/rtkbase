@@ -2,9 +2,11 @@
 
 ### RTKBASE INSTALLATION SCRIPT ###
 declare -a detected_gnss
+#detected_gnss content: port/device - brand - port speed - firmware - model
 declare RTKBASE_USER
 APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
 MODEM_AT_PORT=/dev/ttymodemAT
+RTKLIB_RELEASE='RTKLIB-2.5.0'
 
 man_help(){
     echo '################################'
@@ -37,8 +39,8 @@ man_help(){
     echo '                         Install all dependencies like git build-essential python3-pip ...'
     echo ''
     echo '        -r | --rtklib'
-    echo '                         Get RTKlib 2.4.3b34j from github and compile it.'
-    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/b34j'
+    echo '                         Get RTKlib 2.5-EX from github and compile it.'
+    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/v2.5.0'
     echo ''
     echo '        -b | --rtkbase-release'
     echo '                         Get last release of RTKBase:'
@@ -103,13 +105,19 @@ _check_user() {
   fi
 }
 
+_version() { 
+  # Snippet from https://stackoverflow.com/a/37939589
+  echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; 
+}
+
+
 install_dependencies() {
     echo '################################'
     echo 'INSTALLING DEPENDENCIES'
     echo '################################'
       apt-get "${APT_TIMEOUT}" update -y || exit 1
       apt-get "${APT_TIMEOUT}" install -y git build-essential pps-tools python3-pip python3-venv python3-dev python3-setuptools python3-wheel python3-serial libsystemd-dev bc dos2unix socat zip unzip pkg-config psmisc proj-bin nftables || exit 1
-      apt-get install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
+      apt-get "${APT_TIMEOUT}" install -y libxml2-dev libxslt-dev || exit 1 # needed for lxml (for pystemd)
       #apt-get "${APT_TIMEOUT}" upgrade -y
 }
 
@@ -119,9 +127,9 @@ install_gpsd_chrony() {
     echo '################################'
       apt-get "${APT_TIMEOUT}" install chrony gpsd -y || exit 1
       #Disabling and masking systemd-timesyncd
-      systemctl stop systemd-timesyncd
-      systemctl disable systemd-timesyncd
-      systemctl mask systemd-timesyncd
+      systemctl stop systemd-timesyncd > /dev/null 2>&1
+      systemctl disable systemd-timesyncd > /dev/null 2>&1
+      systemctl mask systemd-timesyncd > /dev/null 2>&1
       #Adding GPS as source for chrony
       grep -q 'set larger delay to allow the GPS' /etc/chrony/chrony.conf || echo '# set larger delay to allow the GPS source to overlap with the other sources and avoid the falseticker status
 ' >> /etc/chrony/chrony.conf
@@ -170,14 +178,14 @@ install_rtklib() {
     sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi' 'OrangePi Zero3')
     #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
     if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
-        && [[ -f "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"'/str2str' ]] \
-        && lsb_release -c | grep -qE 'bullseye|bookworm' \
-        && "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/str2str --version > /dev/null 2>&1
+        && [[ -f "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"'/str2str' ]] \
+        && lsb_release -c | grep -qE 'bullseye|bookworm|trixie' \
+        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str --version > /dev/null 2>&1
     then
       echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/str2str /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/rtkrcv /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/rtklib_b34j/'"${arch_package}"/convbin /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/rtkrcv /usr/local/bin/
+      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/convbin /usr/local/bin/
     else
       echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
       _compil_rtklib
@@ -186,20 +194,21 @@ install_rtklib() {
 
 _compil_rtklib() {
     echo '################################'
-    echo 'COMPILING RTKLIB 2.4.3 b34j'
+    echo 'COMPILING ' "${RTKLIB_RELEASE}"
     echo '################################'
-    #Get Rtklib 2.4.3 b34j release
-    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/b34j.tar.gz | tar -xvz
+    TMPDIR=$(mktemp -dt RTKLIB.XXXXX) || return 1
+    #Get Rtklib 2.5.0 release
+    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/v2.5.0.tar.gz | tar -xvz --directory "${TMPDIR}"
     #Install Rtklib app
     #TODO add correct CTARGET in makefile?
-    make --directory=RTKLIB-b34j/app/consapp/str2str/gcc
-    make --directory=RTKLIB-b34j/app/consapp/str2str/gcc install
-    make --directory=RTKLIB-b34j/app/consapp/rtkrcv/gcc
-    make --directory=RTKLIB-b34j/app/consapp/rtkrcv/gcc install
-    make --directory=RTKLIB-b34j/app/consapp/convbin/gcc
-    make --directory=RTKLIB-b34j/app/consapp/convbin/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/str2str/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/str2str/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/rtkrcv/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/rtkrcv/gcc install
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/convbin/gcc
+    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/convbin/gcc install
     #deleting RTKLIB
-    rm -rf RTKLIB-b34j/
+    rm -rf "${TMPDIR}"/"${RTKLIB_RELEASE}"/
 }
 
 _rtkbase_repo(){
@@ -423,7 +432,7 @@ detect_gnss() {
         echo '################################'
         echo 'UART GNSS RECEIVER DETECTION'
         echo '################################'
-        systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
+        systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
         # TODO remove port if not available in /dev/
         for port in ttyS0 ttyUSB0 ttyUSB1 ttyUSB2 serial0 ttyS1 ttyS2 ttyS3 ttyS4 ttyS5; do
             for port_speed in 115200 57600 38400 19200 9600; do
@@ -451,29 +460,38 @@ detect_gnss() {
       [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
       # If /dev/ttyGNSS is a symlink of the detected serial port, switch to ttyGNSS
       [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && detected_gnss[0]='ttyGNSS'
-      # Get firmware release
+      # Get model and firmware release
       if [[ "${detected_gnss[1]}" =~ 'u-blox' ]]
         then
-          #get F9P firmware release
-          detected_gnss[3]=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep 'FWVER' | awk '{print $NF}')
-          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
+          detected_gnss[1]='u-blox'
+          #get U-Blox firmware release
+          ubx_monver="$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${detected_gnss[0]}" -s ${detected_gnss[2]} -p MON-VER | grep -e 'FWVER' -e 'MOD')"
+          detected_gnss[3]=$(grep 'FWVER' <<< "${ubx_monver}" | awk '{print $NF}')
+          [[ $(grep 'MOD' <<< "${ubx_monver}" | awk -F '=' '{print $NF}') == 'ZED-F9P' ]] && detected_gnss[4]='ZED-F9P'
+
       elif [[ "${detected_gnss[1]}" =~ 'Septentrio' ]]
         then
-          #get mosaic-X5 firmware release
-          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5)" || firmware='?'
+          detected_gnss[1]='septentrio'
+          #get Septentrio model and firmware release
+          detected_gnss[3]="$( { python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_firmware --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
+          detected_gnss[4]="$( { python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${detected_gnss[2]} --command get_model --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
+
       elif [[ "${detected_gnss[1]}" =~ 'unicore' ]]
         then
-          #get Unicore UM98X firmware release
-          detected_gnss[3]="$(python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware 2>/dev/null)" || firmware='?'
+          detected_gnss[1]='unicore'
+          #get Unicore model and firmware release
+          detected_gnss[3]="$( { python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
+          detected_gnss[4]="$( { python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_model --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
+
       fi
       # "send" result
-      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"
+      echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"' - ' "${detected_gnss[4]}"
 
       #Write Gnss receiver settings inside settings.conf
       #Optional argument --no-write-port (here as variable $1) will prevent settings.conf modifications. It will be just a detection without any modification. 
-      if [[ ${#detected_gnss[*]} -eq 4 ]] && [[ "${1}" -eq 0 ]]
+      if [[ ${#detected_gnss[*]} -eq 5 ]] && [[ "${1}" -eq 0 ]]
         then
-          echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}"
+          echo 'GNSS RECEIVER DETECTED: /dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}" ' - ' "${detected_gnss[2]}" ' - ' "${detected_gnss[3]}"' - ' "${detected_gnss[4]}"
           #if [[ ${detected_gnss[1]} =~ 'u-blox' ]]
           #then
           #  gnss_format='ubx'
@@ -483,12 +501,13 @@ detect_gnss() {
             #change the com port value/settings inside settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port=.*/com_port=\'${detected_gnss[0]}\'/ "${rtkbase_path}"/settings.conf
             sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'${detected_gnss[2]}:8:n:1\'/ "${rtkbase_path}"/settings.conf
-            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'"${detected_gnss[3]}"\'/ "${rtkbase_path}"/settings.conf            
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'"${detected_gnss[3]}"\'/ "${rtkbase_path}"/settings.conf
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'"${detected_gnss[1]}"_"${detected_gnss[4]}"\'/ "${rtkbase_path}"/settings.conf
           else
             echo 'settings.conf is missing'
             return 1
           fi
-      elif [[ ${#detected_gnss[*]} -ne 4 ]]
+      elif [[ ${#detected_gnss[*]} -ne 5 ]]
         then
           return 1
       fi
@@ -513,7 +532,17 @@ configure_gnss(){
       if [ -d "${rtkbase_path}" ]
       then
         source <( grep -v '^#' "${rtkbase_path}"/settings.conf | grep '=' ) 
-        systemctl is-active --quiet str2str_tcp.service && sudo systemctl stop str2str_tcp.service
+        systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service
+        #cleaning receiver options
+        sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=/ "${rtkbase_path}"/settings.conf                              && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_client_receiver_options=.*/rtcm_client_receiver_options=/ "${rtkbase_path}"/settings.conf                && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_svr_receiver_options=.*/rtcm_udp_svr_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_client_receiver_options=.*/rtcm_udp_client_receiver_options=/ "${rtkbase_path}"/settings.conf        && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=/ "${rtkbase_path}"/settings.conf
+
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then
@@ -551,8 +580,14 @@ configure_gnss(){
           echo 'Resetting the mosaic-X5 settings....'
           python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command reset --retry 5
           sleep_time=30 ; echo 'Waiting '$sleep_time's for mosaic-X5 reboot' ; sleep $sleep_time
-          echo 'Sending settings....'
-          python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5.cfg --store --retry 5
+          if [ $(_version $firmware) -ge $(_version '4.15.0') ]
+          then
+            echo 'Sending settings....'
+            python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5_4.15.cfg --store --retry 5
+          else
+            echo 'Sending legacy settings....'
+            python3 "${rtkbase_path}"/tools/sept_tool.py --port /dev/ttyGNSS_CTRL --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/Septentrio_Mosaic-X5.cfg --store --retry 5
+          fi
           if [[ $? -eq  0 ]]
           then
             echo 'Septentrio Mosaic-X5 successfuly configured'
@@ -684,10 +719,11 @@ install_zeroconf_service() {
   echo 'INSTALLING ZEROCONF/AVAHI DEFINITION SERVICE'
   echo '################################'
   #Test is avahi is running and directory for services definition exists
+  type avahi-daemon >/dev/null 2>&1 || apt-get "${APT_TIMEOUT}" install -y avahi-daemon
   if systemctl is-active --quiet avahi-daemon.service && [[ -d /etc/avahi/services ]]
   then
     web_port=$(grep "^web_port=.*" "${rtkbase_path}"/settings.conf | cut -d "=" -f2)
-    sed -e 's|{port}|'$web_port'|' "${rtkbase_path}"/tools/zeroconf/rtkbase_web.service >> /etc/avahi/services/rtkbase_web.service
+    sed -e 's|{port}|'$web_port'|' "${rtkbase_path}"/tools/zeroconf/rtkbase_web.service > /etc/avahi/services/rtkbase_web.service
   else
     echo 'Can'\''t install avahi definition service, missing avahi service or /etc/avahi/services directory'
   fi

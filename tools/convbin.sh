@@ -44,14 +44,14 @@ convert_to_rinex_ign_bis() {
   "${CONVBIN_PATH}" "${args}"
     return $?
 }
-# Rinex v3.04 - 30s -  GPS + GLONASS
+# Rinex v3.04 - 30s -  GPS + GLONASS + GALILEO
 convert_to_rinex_nrcan() {
   echo "- CREATING RINEX " "${RINEX_FILE}"
   "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}"       \
         -hc "${RTKBASE_VERSION}" -hm "${MOUNT_NAME}"   \
         -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"   \
         -hr 0000/"${RECEIVER}"/"${REC_VERSION}"        \
-        -f 2 -y E -y J -y S -y C -y I                  \
+        -f 2 -y J -y S -y C -y I                  \
         -od -os -oi -ot -ti 30 -tt 0                   \
         -ro "${REC_OPTION}" -o "${RINEX_FILE}"
     return $?
