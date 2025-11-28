@@ -14,6 +14,9 @@
 ### Fixed
 - GUI -> Logs: Fix wrong path when using custom data directory. [#471](https://github.com/Stefal/rtkbase/issues/471)
 - GUI -> Settings: Better toggle buttons color behaviour.
+### Deprecated
+- Operating systems older than Debian 12 / Ubuntu 24.04 can't update RTKBase anymore.
+- Python release < 3.11 deprecated
 ### Security
 - Update various python module
 - Update js library (leaflet, bootstrap-table)
@@ -35,9 +38,6 @@
 - GUI -> Settings: Better changelog display (Convert markdown to html).
 ### Changed
 - Faster Septentrio Mosaic-X5 detection
-### Deprecated
-- Operating systems older than Debian 12 / Ubuntu 24.04 can't update RTKBase anymore.
-- Python release < 3.11 deprecated
 ### Fixed
 - Fix some services were not restarted after saving new settings in the main service.
 - Fix pystemd result request for timer services. [#162](https://github.com/Stefal/rtkbase/issues/162) [#445](https://github.com/Stefal/rtkbase/issues/445)
