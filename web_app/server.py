@@ -647,7 +647,7 @@ def detect_receiver(json_msg):
     #print("DEBUG json_msg: ", json_msg)
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
     if answer.returncode == 0 and "/dev/" in answer.stdout:
-        #print("DEBUG ok stdout: ", answer.stdout)
+        print(answer.stdout)
         try:
             device_info = next(x for x in answer.stdout.splitlines() if x.startswith('/dev/')).split(' - ')
             port, gnss_type, speed, firmware, model = [x.strip() for x in device_info]
@@ -694,7 +694,7 @@ def configure_receiver(brand="", model=""):
 
     print("configuring {} gnss receiver model {}".format(brand, model))
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--configure-gnss"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
-    #print("DEBUG - stdout: ", answer.stdout)
+    print(answer.stdout)
     #print("DEBUG - returncode: ", answer.returncode)
 
     if answer.returncode == 0: # and "Done" in answer.stdout:
