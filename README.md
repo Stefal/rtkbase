@@ -27,9 +27,9 @@ Frontend's main features are:
 Other images are available in the ./images folder.
 
 ## Ready to flash release:
-A ready to flash image is available for Orange Pi Zero, Orange Pi Zero 2, Orange Pi Zero 3 SBC : [Armbian_RTKBase](https://github.com/Stefal/build/releases/latest)
+A ready to flash Armbian image is available for Raspberry Pi, Orange Pi Zero, Orange Pi Zero 2, Orange Pi Zero 3 SBC : [Armbian_RTKBase](https://github.com/Stefal/build/releases/latest)
 
-If you use a Raspberry Pi, thanks to [jancelin](https://github.com/jancelin), you can download a ready to flash iso file [here](https://github.com/jancelin/pi-gen/releases/latest).
+For older Raspberry Pi releases, see [here](https://github.com/jancelin/pi-gen/releases/latest).
 
 ## Easy installation:
 + Connect your gnss receiver to your raspberry pi/orange pi/....
