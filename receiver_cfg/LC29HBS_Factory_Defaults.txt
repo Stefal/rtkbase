@@ -1,0 +1,2 @@
+# Restore factory defaults
+$PQTMRESTOREPAR
