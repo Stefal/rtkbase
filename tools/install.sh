@@ -844,6 +844,7 @@ main() {
     esac                      && \
     rtkbase_requirements      && \
     install_rtklib            && \
+    install_zeroconf_service  && \
     install_unit_files        && \
     install_gpsd_chrony
     ret=$?
