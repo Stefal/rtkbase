@@ -31,11 +31,12 @@ def zeroconf_scan(name, prot_type, timeout=5):
     browser = ServiceBrowser(zeroconf, prot_type, listener)
     time.sleep(timeout)
     for service in listener.services:
-        if name.lower() in service.name.lower():
-            service_list.append({'NAME' : service.name,
-                                'PORTS' : [service.port],
-                                'SERVER' : service.server.rstrip('.'),
-                                'IP' : '.'.join(str(byte) for byte in service.addresses[0])})
+        if not (service is None):
+            if name.lower() in service.name.lower():
+                service_list.append({'NAME' : service.name,
+                                    'PORTS' : [service.port],
+                                    'SERVER' : service.server.rstrip('.'),
+                                    'IP' : '.'.join(str(byte) for byte in service.addresses[0])})
     log.debug(f"filtered list for {name}")
     log.debug(service_list)
     return service_list
@@ -51,6 +52,9 @@ def arp_scan(ip, interface=conf.iface):
         answered_list = []
         answered_list = scapy.srp(arp_request_broadcast, iface=interface, timeout=1, verbose=False)[0]
     except (PermissionError) as e:
+        log.debug(f"{interface} - {ip} : {e}")
+        pass
+    except (RuntimeError) as e:
         log.debug(f"{interface} - {ip} : {e}")
         pass
     results = []
