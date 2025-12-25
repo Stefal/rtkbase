@@ -7,9 +7,11 @@ import nmcli
 from sim_modem import *
 
 nmcli.disable_use_sudo()
-CONN_NAME='Cellular Modem'
-MODEM_PORT='/dev/ttymodemAT'
-USE_PUBLIC_IP=True
+CONN_NAME = 'Cellular Modem'
+MODEM_PORT = '/dev/ttymodemAT'
+USE_PUBLIC_IP = True
+
+
 def sleep(timeout, retry=10):
     def the_real_decorator(function):
         def wrapper(*args, **kwargs):
@@ -19,19 +21,22 @@ def sleep(timeout, retry=10):
                     value = function(*args, **kwargs)
                     if value is not None:
                         return value
-                except:
-                    print(f'{function.__name__}: Sleeping for {timeout + retries*timeout} seconds')
-                    time.sleep(timeout + retries*timeout)
+                except Exception:
+                    print(f'{function.__name__}: Sleeping for {timeout + retries * timeout} seconds')
+                    time.sleep(timeout + retries * timeout)
                     retries += 1
-                    
+
         return wrapper
+
     return the_real_decorator
+
 
 @sleep(10)
 def check_modem():
     nmcli.connection.show(CONN_NAME)
     if nmcli.connection.show(CONN_NAME).get("GENERAL.STATE") == 'activated':
         return True
+
 
 @sleep(10, retry=2)
 def check_network_registration():
@@ -46,7 +51,11 @@ def check_network_registration():
         print(e)
         raise Exception
     finally:
-        modem.close()
+        try:
+            modem.close()
+        except Exception:
+            pass
+
 
 @sleep(10)
 def get_public_ip_address():
@@ -54,28 +63,55 @@ def get_public_ip_address():
         modem = Modem(MODEM_PORT)
         public_ip = modem.get_ip_address()
         public_ip = None if public_ip == '0.0.0.0' else public_ip
-        
+
     except Exception as e:
-        print (e)
+        print(e)
         raise Exception
     finally:
-        modem.close()
+        try:
+            modem.close()
+        except Exception:
+            pass
     return public_ip
+
 
 @sleep(10)
 def get_in_use_ip_address():
     return nmcli.connection.show(CONN_NAME)['IP4.ADDRESS[1]'].split('/')[0]
 
+
 @sleep(10)
-def ping(host):
-    res = os.system("ping -c 4 " + host + ' >/dev/null')
+def get_interface_name():
+    """Return the device name used by the Cellular Modem connection (e.g. enx...)."""
+    conn_info = nmcli.connection.show(CONN_NAME)
+    devs = conn_info.get('GENERAL.DEVICES', '')
+    if not devs:
+        return None
+    # In theory there could be several devices separated by commas, keep the first one.
+    return devs.split(',')[0].strip() or None
+
+
+@sleep(10)
+def ping(host, iface=None):
+    """Ping a host, optionally forcing the use of a specific network interface."""
+    if iface:
+        cmd = f"ping -I {iface} -c 4 {host} >/dev/null"
+    else:
+        cmd = f"ping -c 4 {host} >/dev/null"
+    res = os.system(cmd)
     return res == 0
+
+
+# --- Main logic --------------------------------------------------------------
 
 check_modem()
 network_reg = check_network_registration()
 ip_in_use = get_in_use_ip_address()
 public_ip = get_public_ip_address()
-ping_host = ping('caster.centipede.fr') or ping('pch.net')
+iface_name = get_interface_name()
+
+# Check connectivity using the modem interface if available
+ping_host = ping('caster.centipede.fr', iface_name) or ping('pch.net', iface_name)
 
 if USE_PUBLIC_IP and ip_in_use != public_ip and public_ip is not None:
     try:
@@ -93,26 +129,74 @@ if USE_PUBLIC_IP and ip_in_use != public_ip and public_ip is not None:
         print(e)
     finally:
         print("closing modem connexion")
-        modem.close()
+        try:
+            modem.close()
+        except Exception:
+            pass
 
-if ip_in_use == None or public_ip == None or network_reg == False or ping_host == False:
+# If something looks wrong (no IP, no public IP, not registered, or no connectivity)
+if ip_in_use is None or public_ip is None or network_reg is False or ping_host is False:
     print("Internal Ip address in use: ", ip_in_use)
     print("Modem public Ip address: ", public_ip)
     print("Ping caster.centipede.fr or pch.net", ping_host)
-    print("Modem problem. Switching to airplane mode and back to normal")
-    try:
-        print("Connecting to modem...")
-        modem = Modem(MODEM_PORT)
-        print("Sending AT+CFUN=0")
-        modem.custom_read_lines('AT+CFUN=0')
-        time.sleep(20)
-        print("Sending AT+CFUN=1")
-        modem.custom_read_lines('AT+CFUN=1')
-    except Exception as e:
-        print(e)
-    finally:
-        modem.close()
 
-#else:
-#    print("We are already using the public Ip")
+    # First, if the modem is registered and we have IP addresses, try a NetworkManager reconnect
+    modem_action_needed = False
+    if ip_in_use is not None and public_ip is not None and network_reg:
+        print("Modem registered and IP configured but ping failed. Trying NetworkManager reconnect on",
+              iface_name or CONN_NAME)
+        try:
+            if iface_name:
+                os.system(f"nmcli device disconnect {iface_name}")
+                time.sleep(5)
+                os.system(f"nmcli device connect {iface_name}")
+            else:
+                nmcli.connection.down(CONN_NAME)
+                time.sleep(5)
+                nmcli.connection.up(CONN_NAME)
+        except Exception as e:
+            print("Error while reconnecting interface:", e)
+
+        # Re-check modem/connection status after reconnect
+        try:
+            network_reg = check_network_registration()
+            ip_in_use = get_in_use_ip_address()
+            public_ip = get_public_ip_address()
+            iface_name = get_interface_name()
+            ping_host = ping('caster.centipede.fr', iface_name) or ping('pch.net', iface_name)
+        except Exception as e:
+            print("Error while checking modem after reconnect:", e)
+
+        if ip_in_use is not None and public_ip is not None and network_reg and ping_host:
+            print("Connectivity restored after NetworkManager reconnect. No need to toggle airplane mode.")
+            modem_action_needed = False
+        else:
+            modem_action_needed = True
+    else:
+        # We clearly miss registration or IP configuration -> act on the modem itself
+        modem_action_needed = True
+
+    # If things are still wrong, fallback to modem airplane mode reset
+    if modem_action_needed:
+        print("Modem problem persists. Switching to airplane mode and back to normal")
+        modem = None
+        try:
+            print("Connecting to modem...")
+            modem = Modem(MODEM_PORT)
+            print("Sending AT+CFUN=0")
+            modem.custom_read_lines('AT+CFUN=0')
+            time.sleep(20)
+            print("Sending AT+CFUN=1")
+            modem.custom_read_lines('AT+CFUN=1')
+        except Exception as e:
+            print(e)
+        finally:
+            if modem is not None:
+                try:
+                    modem.close()
+                except Exception:
+                    pass
+
+# else:
+#     print("We are already using the public Ip")
 
