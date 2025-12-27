@@ -1,0 +1,2 @@
+#Crank the baud rate up (Could also go 3000000)
+$PAIR864,0,0,921600

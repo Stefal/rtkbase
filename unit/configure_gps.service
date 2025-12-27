@@ -1,0 +1,19 @@
+[Unit]
+Description=Configure GPS
+Before=str2str_tcp.service
+#After=network-online.target
+#Wants=network-online.target
+#Requires=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User={user}
+ExecStart={script_path}/configure_gps.sh
+Restart=no
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths={script_path}
+
+[Install]
+WantedBy=multi-user.target

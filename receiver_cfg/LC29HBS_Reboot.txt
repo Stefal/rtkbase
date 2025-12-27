@@ -1,0 +1,9 @@
+#Power off the GNSS
+$PAIR003
+
+#SLEEP# 1000
+
+#Power on the GNSS
+$PAIR002
+
+#SLEEP# 5000
