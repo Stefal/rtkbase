@@ -95,10 +95,10 @@
 
     <div class="form-group row">
 
-            <label for="tcp_host" class="col-sm-3 col-form-label">Tcp host addr: </label>
+            <label for="tcp_host_addr" class="col-sm-3 col-form-label">Tcp host addr: </label>
             <div class="col-sm-9">
-              <input id="tcp_host-switch" type="text" name="host_addr" class="form-control" aria-describedby="tcp_hostHelp" placeholder="127.0.0.1" value="{{ main_settings[7].tcp_host_addr }}">
-              <small class="form-text text-muted" id="tcp_hostHelp">Empty value enable external access to the Gnss receiver from another computer. Default is 127.0.0.1 (no external access)</small>
+              <input id="tcp_host_addr" type="text" name="tcp_host_addr" class="form-control" aria-describedby="tcp_host_addrHelp" placeholder="127.0.0.1" value="{{ main_settings[7].tcp_host_addr }}">
+              <small class="form-text text-muted" id="tcp_host_addrHelp">Empty value enable external access to the Gnss receiver from another computer. Default is 127.0.0.1 (no external access).</small>
             </div>
         </div>
 
