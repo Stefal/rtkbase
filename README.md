@@ -261,6 +261,8 @@ RTKBase use several RTKLIB `str2str` instances started with `run_cast.sh` as sys
 + `str2str_tcp.service` is the main instance. It is connected to the gnss receiver and broadcast the raw data on TCP for all the others services.
 + `str2str_ntrip_A.service` get the data from the main instance, convert the data to rtcm and stream them to a Ntrip caster.
 + `str2str_ntrip_B.service` get the data from the main instance, convert the data to rtcm and stream them to another Ntrip caster.
++ `str2str_ntrip_C.service` get the data from the main instance, convert the data to rtcm and stream them to another Ntrip caster.
++ `str2str_ntrip_D.service` get the data from the main instance, convert the data to rtcm and stream them to another Ntrip caster.
 + `str2str_local_ntrip_caster.service` get the data from the main instance, convert the data to rtcm, and act as a local Ntrip caster.
 + `str2str_rtcm_svr.service` get the data from the main instance, convert the data to rtcm and stream them to clients
 + `str2str_rtcm_serial.service` get the data from the main instance, convert the data to rtcm and stream them to a serial port (radio link, or other peripherals)

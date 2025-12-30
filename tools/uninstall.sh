@@ -6,6 +6,8 @@ BASEDIR=$(dirname "$0")
 for service_name in str2str_tcp.service \
                     str2str_ntrip_A.service \
                     str2str_ntrip_B.service \
+                    str2str_ntrip_C.service \
+                    str2str_ntrip_D.service \
                     str2str_local_ntrip_caster \
                     str2str_rtcm_svr.service \
                     str2str_rtcm_client.service \

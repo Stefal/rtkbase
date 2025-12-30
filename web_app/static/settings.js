@@ -198,6 +198,62 @@ $(document).ready(function () {
             socket.emit("services switch", {"name" : "ntrip_B", "active" : switchStatus});           
         })
 
+        // ####################  NTRIP C service Switch #########################
+        var ntrip_C_Switch = $('#ntrip_C-switch');
+        // set the switch to on/off depending of the service status
+        if (servicesStatus[1].active === true) {
+            //document.querySelector("#main-switch").bootstrapToggle('on');
+            ntrip_C_Switch.bootstrapToggle('on', true);
+        } else {
+            //document.querySelector("#main-switch").bootstrapToggle('off');
+            ntrip_C_Switch.bootstrapToggle('off', true);
+        }
+        //console.log(servicesStatus[1]);
+        if (servicesStatus[1].btn_color) {
+            ntrip_C_Switch.bootstrapToggle('setOnStyle', servicesStatus[1].btn_color);
+        }
+        if (servicesStatus[1].btn_off_color) {
+            ntrip_C_Switch.bootstrapToggle('setOffStyle', servicesStatus[1].btn_off_color);
+        }
+        
+        // event for switching on/off service on user mouse click
+        //TODO When the switch changes its position, this event seems attached before
+        //the switch finish its transition, then fire another event.
+        $( "#ntrip_C-switch" ).one("change", function(e) {
+            var switchStatus = $(this).prop('checked');
+            //console.log(" e : " + e);
+            //console.log("Ntrip SwitchStatus : " + switchStatus);
+            socket.emit("services switch", {"name" : "ntrip_C", "active" : switchStatus});           
+        })
+
+        // ####################  NTRIP D service Switch #########################
+        var ntrip_D_Switch = $('#ntrip_D-switch');
+        // set the switch to on/off depending of the service status
+        if (servicesStatus[1].active === true) {
+            //document.querySelector("#main-switch").bootstrapToggle('on');
+            ntrip_D_Switch.bootstrapToggle('on', true);
+        } else {
+            //document.querySelector("#main-switch").bootstrapToggle('off');
+            ntrip_D_Switch.bootstrapToggle('off', true);
+        }
+        //console.log(servicesStatus[1]);
+        if (servicesStatus[1].btn_color) {
+            ntrip_D_Switch.bootstrapToggle('setOnStyle', servicesStatus[1].btn_color);
+        }
+        if (servicesStatus[1].btn_off_color) {
+            ntrip_D_Switch.bootstrapToggle('setOffStyle', servicesStatus[1].btn_off_color);
+        }
+        
+        // event for switching on/off service on user mouse click
+        //TODO When the switch changes its position, this event seems attached before
+        //the switch finish its transition, then fire another event.
+        $( "#ntrip_D-switch" ).one("change", function(e) {
+            var switchStatus = $(this).prop('checked');
+            //console.log(" e : " + e);
+            //console.log("Ntrip SwitchStatus : " + switchStatus);
+            socket.emit("services switch", {"name" : "ntrip_D", "active" : switchStatus});           
+        })
+
         // ################  Local NTRIP Caster service Switch #####################
 
         var ntripcSwitch = $('#ntripc-switch');

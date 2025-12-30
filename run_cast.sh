@@ -21,6 +21,14 @@ out_caster_B="-msg ${rtcm_msg_b} -out ntrips://:${svr_pwd_b}@${svr_addr_b}:${svr
 #add receiver options if it exists
 [[ ! -z "${ntrip_b_receiver_options}" ]] && out_caster_B=""${out_caster_B}" -opt "${ntrip_b_receiver_options}""
 
+out_caster_C="-msg ${rtcm_msg_c} -out ntrips://:${svr_pwd_c}@${svr_addr_c}:${svr_port_c}/${mnt_name_c}#rtcm3 -p ${position}"
+#add receiver options if it exists
+[[ ! -z "${ntrip_c_receiver_options}" ]] && out_caster_C=""${out_caster_C}" -opt "${ntrip_c_receiver_options}""
+
+out_caster_D="-msg ${rtcm_msg_d} -out ntrips://:${svr_pwd_d}@${svr_addr_d}:${svr_port_d}/${mnt_name_d}#rtcm3 -p ${position}"
+#add receiver options if it exists
+[[ ! -z "${ntrip_d_receiver_options}" ]] && out_caster_D=""${out_caster_D}" -opt "${ntrip_d_receiver_options}""
+
 array_pos=(${position})
 if [[ ${local_ntripc_user} == '' ]] && [[ ${local_ntripc_pwd} == '' ]]
   then
@@ -69,6 +77,14 @@ mkdir -p ${logdir}
 
   out_caster_B)
     ${cast} -in ${!1} ${out_caster_B} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_B.log
+    ;;
+
+  out_caster_C)
+    ${cast} -in ${!1} ${out_caster_C} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_C.log
+    ;;
+
+  out_caster_D)
+    ${cast} -in ${!1} ${out_caster_D} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_D.log
     ;;
 
   out_local_caster)
