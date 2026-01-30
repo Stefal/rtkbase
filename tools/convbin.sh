@@ -53,13 +53,14 @@ TS_HMS="00:00:00"
 TE_HMS="23:59:30"
 
 # Rinex v2.11 - 30s - GPS
+# doc: https://rgp.ign.fr/SERVICES/aide_calcul_ligne.php
 convert_to_rinex_ign() {
   echo "- CREATING RINEX ${RINEX_FILE}"
   "${CONVBIN_PATH}" "${raw_file}" -v 2.11 -r "${RAW_TYPE}" \
         -hc "${RTKBASE_VERSION}" -hm "${MOUNT_NAME}"        \
         -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"        \
         -hr 0000/"${RECEIVER}"/"${REC_VERSION}"             \
-        -f 3 -y R -y E -y J -y S -y C -y I                  \
+        -f 2 -y R -y E -y J -y S -y C -y I                  \
         -od -os -oi -ot                                     \
         -ti 30 -tt 0.005                                    \
         -ts "${OBS_DATE}" "${TS_HMS}"                       \
@@ -74,7 +75,7 @@ convert_to_rinex_ign_bis() {
         -hc "${RTKBASE_VERSION}" -hm "${MOUNT_NAME}"        \
         -hp "${ANT_POSITION}" -ha 0000/"${ANT_TYPE}"        \
         -hr 0000/"${RECEIVER}"/"${REC_VERSION}"             \
-        -f 3 -y R -y E -y J -y S -y C -y I                  \
+        -f 2 -y R -y E -y J -y S -y C -y I                  \
         -od -os -oi -ot                                     \
         -ti 30 -tt 0                                        \
         -ts "${OBS_DATE}" "${TS_HMS}"                       \
@@ -83,6 +84,9 @@ convert_to_rinex_ign_bis() {
 }
 
 # Rinex v3.04 - 30s - GPS + GLONASS + GALILEO
+# doc: https://webapp.csrs-scrs.nrcan-rncan.gc.ca/geod/tools-outils/ppp-info.php?locale=en#csrs_ppp_v5_upgrade_header
+# Galileo only supported for "rapid" and "final" products, not "ultra-rapid"
+# Wait 18h after observation day start for Galileo "rapid" products to be available to improve accuracy.
 convert_to_rinex_nrcan() {
   echo "- CREATING RINEX ${RINEX_FILE}"
   "${CONVBIN_PATH}" "${raw_file}" -v 3.04 -r "${RAW_TYPE}" \
@@ -168,8 +172,24 @@ fi
 "${rnx_conversion_func}"
 return_code=$?
 
-echo -n "rinex_file=${RINEX_FILE}"
+# var for tar.gz output
+TAR_GZ_OUTPUT="${RINEX_FILE}.tar.gz"
 
+# Compress output rinex file to .tar.gz
+if [[ "${return_code}" -eq 0 ]]; then
+  echo "- COMPRESSING RINEX ${TAR_GZ_OUTPUT}"
+  tar -czf "${TAR_GZ_OUTPUT}" "${RINEX_FILE}"
+  rm -f "${RINEX_FILE}"
+fi
+
+# Output rinex file path
+echo -n "rinex_file=${TAR_GZ_OUTPUT}"
+
+# Clean up extracted raw file if needed
 [[ "${file_extension}" == "zip" ]] && rm -f "${raw_file}"
 
+# Clean up non-compressed rinex if exists
+[[ -f "${RINEX_FILE}" ]] && rm -f "${RINEX_FILE}"
+
+# Exit with convbin return code
 exit "${return_code}"
