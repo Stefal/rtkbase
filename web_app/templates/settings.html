@@ -117,12 +117,18 @@
           </div>
       </form>
 
-<!-- ######## Ntrip A Service ########-->
-  <div id="ntrip_A_service_space" class="form-group row">
+  <div class="form-group row">
     <div class="col">
-    <label for="ntrip_A-switch" class="col-4 col-form-label col-form-label-lg">Ntrip A service</label>
-    <input id="ntrip_A-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip_A_settings[0].source_section }}" aria-expanded="false" aria-controls="ntrip_A_service_options">Options</button>
+      <button id="add-ntrip-service" type="button" class="btn btn-outline-primary">Add Ntrip caster</button>
+    </div>
+  </div>
+
+  {% for ntrip in ntrip_settings %}
+  <div id="{{ ntrip.source_section }}_service_space" class="form-group row">
+    <div class="col">
+    <label for="{{ ntrip.switch_id }}" class="col-4 col-form-label col-form-label-lg">{{ ntrip.service_label }}</label>
+    <input id="{{ ntrip.switch_id }}" class="ntrip-service-toggle" data-service-name="{{ ntrip.service_name }}" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip.source_section }}" aria-expanded="false" aria-controls="{{ ntrip.source_section }}_options">Options</button>
     <a role="button" data-toggle="tooltip" title="This service sends the rtcm messages to a Ntrip (broad)caster server like rtk2go, centipede, or others.">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -131,28 +137,28 @@
     </a>
     </div>
   </div>
-    <form id="{{ ntrip_A_settings.pop(0).source_section }}" class="collapse was-validated">
+    <form id="{{ ntrip.source_section }}" class="collapse was-validated">
       <div class="form-group row">
-        <label for="svr_addr_A" class="col-sm-3 col-form-label">Caster address: </label>
+        <label for="{{ ntrip.svr_addr.name }}" class="col-sm-3 col-form-label">Caster address: </label>
         <div class="col-sm-9">
-            <input id="svr_addr_A" type="text" name="svr_addr_A" class="form-control" aria-describedby="svr_addr_AHelp" placeholder="caster.centipede.fr" value="{{ ntrip_A_settings[0].svr_addr_A }}" pattern="\w+[^\|><\s]*" required>
-            <small class="form-text text-muted" id="svr_addr_AHelp">Caster url address</small>
+            <input id="{{ ntrip.svr_addr.name }}" type="text" name="{{ ntrip.svr_addr.name }}" class="form-control" aria-describedby="{{ ntrip.svr_addr.name }}Help" placeholder="caster.centipede.fr" value="{{ ntrip.svr_addr.value }}" pattern="\w+[^\|><\s]*" required>
+            <small class="form-text text-muted" id="{{ ntrip.svr_addr.name }}Help">Caster url address</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="svr_port_A" class="col-sm-3 col-form-label">Caster port: </label>
+        <label for="{{ ntrip.svr_port.name }}" class="col-sm-3 col-form-label">Caster port: </label>
         <div class="col-sm-9">
-            <input id="svr_port_A" type="text" name="svr_port_A" class="form-control" aria-describedby="svr_port_AHelp" placeholder="2101" value="{{ ntrip_A_settings[1].svr_port_A }}" pattern="[0-9]{4,5}" required>
-            <small class="form-text text-muted" id="svr_port_AHelp">Caster port</small>
+            <input id="{{ ntrip.svr_port.name }}" type="text" name="{{ ntrip.svr_port.name }}" class="form-control" aria-describedby="{{ ntrip.svr_port.name }}Help" placeholder="2101" value="{{ ntrip.svr_port.value }}" pattern="[0-9]{4,5}" required>
+            <small class="form-text text-muted" id="{{ ntrip.svr_port.name }}Help">Caster port</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="svr_pwd_A" class="col-sm-3 col-form-label">Caster password: </label>
+        <label for="{{ ntrip.svr_pwd.name }}" class="col-sm-3 col-form-label">Caster password: </label>
         <div class="col-sm-9">
           <div class="input-group">
-            <input id="svr_pwd_A" type="password" name="svr_pwd_A" class="form-control" aria-describedby="svr_pwd_AHelp" placeholder="Enter Password" value="{{ ntrip_A_settings[2].svr_pwd_A }}" required>
+            <input id="{{ ntrip.svr_pwd.name }}" type="password" name="{{ ntrip.svr_pwd.name }}" class="form-control" aria-describedby="{{ ntrip.svr_pwd.name }}Help" placeholder="Enter password" value="{{ ntrip.svr_pwd.value }}" required>
               <span class="input-group-append">
-                <button class="btn btn-outline-secondary" id="svr_pwd_A_button" type="button">
+                <button class="btn btn-outline-secondary" id="{{ ntrip.svr_pwd.name }}_button" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
                     <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
                     <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
@@ -161,109 +167,36 @@
                 </button>
               </span>
             </div>
-            <small class="form-text text-muted" id="svr_pwd_AHelp">Caster password</small>
+            <small class="form-text text-muted" id="{{ ntrip.svr_pwd.name }}Help">Caster password</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="mnt_name_A" class="col-sm-3 col-form-label">Mount name: </label>
+        <label for="{{ ntrip.mnt_name.name }}" class="col-sm-3 col-form-label">Mount name: </label>
         <div class="col-sm-9">
-            <input id="mnt_name_A" type="text" name="mnt_name_A" class="form-control" aria-describedby="mnt_name_AHelp" value="{{ ntrip_A_settings[3].mnt_name_A }}" pattern="[a-zA-Z\d_\-]+" required>
-            <small class="form-text text-muted" id="mnt_name_AHelp">Mount name</small>
+            <input id="{{ ntrip.mnt_name.name }}" type="text" name="{{ ntrip.mnt_name.name }}" class="form-control" aria-describedby="{{ ntrip.mnt_name.name }}Help" value="{{ ntrip.mnt_name.value }}" pattern="[a-zA-Z\d_\-]+" required>
+            <small class="form-text text-muted" id="{{ ntrip.mnt_name.name }}Help">Mount name</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="rtcm_msg_A" class="col-sm-3 col-form-label">Rtcm messages: </label>
+        <label for="{{ ntrip.rtcm_msg.name }}" class="col-sm-3 col-form-label">Rtcm messages: </label>
         <div class="col-sm-9">
-            <input id="rtcm_msg_A" type="text" name="rtcm_msg_A" class="form-control" aria-describedby="rtcm_msg_AHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ ntrip_A_settings[4].rtcm_msg_A }}" pattern="[0-9,\(\).]+" required>
-            <small class="form-text text-muted" id="rtcm_msg_AHelp">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
+            <input id="{{ ntrip.rtcm_msg.name }}" type="text" name="{{ ntrip.rtcm_msg.name }}" class="form-control" aria-describedby="{{ ntrip.rtcm_msg.name }}Help" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ ntrip.rtcm_msg.value }}" pattern="[0-9,\(\).]+" required>
+            <small class="form-text text-muted" id="{{ ntrip.rtcm_msg.name }}Help">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="ntrip_A_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <label for="{{ ntrip.receiver_options.name }}" class="col-sm-3 col-form-label">Receiver options: </label>
         <div class="col-sm-9">
-            <input id="ntrip_A_receiver_options" type="text" name="ntrip_A_receiver_options" aria-describedby="ntrip_A_receiver_optionsHelp" class="form-control" value="{{ ntrip_A_settings[5].ntrip_A_receiver_options }}" pattern="[^\|><\/]*">
-            <small class="form-text text-muted" id="ntrip_A_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
+            <input id="{{ ntrip.receiver_options.name }}" type="text" name="{{ ntrip.receiver_options.name }}" aria-describedby="{{ ntrip.receiver_options.name }}Help" class="form-control" value="{{ ntrip.receiver_options.value }}" pattern="[^\|><\/]*">
+            <small class="form-text text-muted" id="{{ ntrip.receiver_options.name }}Help">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
-      </div>      
+      </div>
 
         <div class="clearfix">
           <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
         </div>
     </form>
-
-  <!-- ######## Ntrip B Service ########-->
-  <div id="ntrip_B_service_space" class="form-group row">
-    <div class="col">
-    <label for="ntrip_B-switch" class="col-4 col-form-label col-form-label-lg">Ntrip B service</label>
-    <input id="ntrip_B-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip_B_settings[0].source_section }}" aria-expanded="false" aria-controls="ntrip_B_service_options">Options</button>
-    <a role="button" data-toggle="tooltip" title="This service sends the rtcm messages to a Ntrip (broad)caster server like rtk2go, centipede, or others.">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
-        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-      </svg>
-    </a>
-    </div>
-  </div>
-    <form id="{{ ntrip_B_settings.pop(0).source_section }}" class="collapse was-validated">
-      <div class="form-group row">
-        <label for="svr_addr_B" class="col-sm-3 col-form-label">Caster address: </label>
-        <div class="col-sm-9">
-            <input id="svr_addr_B" type="text" name="svr_addr_B" class="form-control" aria-describedby="svr_addr_BHelp" placeholder="caster.centipede.fr" value="{{ ntrip_B_settings[0].svr_addr_B }}" pattern="\w+[^\|><\s]*" required>
-            <small class="form-text text-muted" id="svr_addr_BHelp">Caster url address</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="svr_port_B" class="col-sm-3 col-form-label">Caster port: </label>
-        <div class="col-sm-9">
-            <input id="svr_port_B" type="text" name="svr_port_B" class="form-control" aria-describedby="svr_port_BHelp" placeholder="2101" value="{{ ntrip_B_settings[1].svr_port_B }}" pattern="[0-9]{4,5}" required>
-            <small class="form-text text-muted" id="svr_port_BHelp">Caster port</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="svr_pwd_B" class="col-sm-3 col-form-label">Caster password: </label>
-        <div class="col-sm-9">
-          <div class="input-group">
-            <input id="svr_pwd_B" type="password" name="svr_pwd_B" class="form-control" aria-describedby="svr_pwd_BHelp" placeholder="Enter password" value="{{ ntrip_B_settings[2].svr_pwd_B }}" required>
-              <span class="input-group-append">
-                <button class="btn btn-outline-secondary" id="svr_pwd_B_button" type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
-                    <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
-                    <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
-                    <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
-                  </svg>
-                </button>
-              </span>
-            </div>
-            <small class="form-text text-muted" id="svr_pwd_BHelp">Caster password</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="mnt_name_B" class="col-sm-3 col-form-label">Mount name: </label>
-        <div class="col-sm-9">
-            <input id="mnt_name_B" type="text" name="mnt_name_B" class="form-control" aria-describedby="mnt_name_BHelp" value="{{ ntrip_B_settings[3].mnt_name_B }}" pattern="[a-zA-Z\d_\-]+" required>
-            <small class="form-text text-muted" id="mnt_name_BHelp">Mount name</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="rtcm_msg_B" class="col-sm-3 col-form-label">Rtcm messages: </label>
-        <div class="col-sm-9">
-            <input id="rtcm_msg_B" type="text" name="rtcm_msg_B" class="form-control" aria-describedby="rtcm_msg_BHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ ntrip_B_settings[4].rtcm_msg_B }}" pattern="[0-9,\(\).]+" required>
-            <small class="form-text text-muted" id="rtcm_msg_BHelp">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="ntrip_B_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
-        <div class="col-sm-9">
-            <input id="ntrip_B_receiver_options" type="text" name="ntrip_B_receiver_options" class="form-control" aria-describedby="ntrip_B_receiver_optionsHelp" value="{{ ntrip_B_settings[5].ntrip_B_receiver_options }}" pattern="[^\|><\/]*">
-            <small class="form-text text-muted" id="ntrip_B_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
-        </div>
-      </div>      
-
-        <div class="clearfix">
-          <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
-        </div>
-    </form>
+  {% endfor %}
 
   <!-- ######## Local Ntrip Caster Service ########-->
   <div id="local_ntripc_service_space" class="form-group row">

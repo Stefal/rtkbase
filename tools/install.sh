@@ -537,14 +537,12 @@ configure_gnss(){
         source <( grep -v '^#' "${rtkbase_path}"/settings.conf | grep '=' ) 
         systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service
         #cleaning receiver options
-        sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
-        sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
-        sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
-        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=/ "${rtkbase_path}"/settings.conf                              && \
-        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_client_receiver_options=.*/rtcm_client_receiver_options=/ "${rtkbase_path}"/settings.conf                && \
-        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_svr_receiver_options=.*/rtcm_udp_svr_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
-        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_client_receiver_options=.*/rtcm_udp_client_receiver_options=/ "${rtkbase_path}"/settings.conf        && \
-        sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=/ "${rtkbase_path}"/settings.conf
+        for option_name in $(grep -Eo '^ntrip_[a-z0-9]+_receiver_options' "${rtkbase_path}"/settings.conf); do
+          sudo -u "${RTKBASE_USER}" sed -i "s/^${option_name}=.*/${option_name}=/" "${rtkbase_path}"/settings.conf || return 1
+        done
+        for option_name in local_ntripc_receiver_options rtcm_receiver_options rtcm_client_receiver_options rtcm_udp_svr_receiver_options rtcm_udp_client_receiver_options rtcm_serial_receiver_options; do
+          sudo -u "${RTKBASE_USER}" sed -i "s/^${option_name}=.*/${option_name}=/" "${rtkbase_path}"/settings.conf || return 1
+        done
 
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
@@ -560,9 +558,8 @@ configure_gnss(){
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                                      && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'ubx\'/ "${rtkbase_path}"/settings.conf                                   && \
-          #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
-          sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf             && \
-          sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf             && \
+          #add option -TADJ=1 on RTK outputs
+          for option_name in $(grep -Eo '^ntrip_[a-z0-9]+_receiver_options' "${rtkbase_path}"/settings.conf); do sudo -u "${RTKBASE_USER}" sed -i "s/^${option_name}=.*/${option_name}=\'-TADJ=1\'/" "${rtkbase_path}"/settings.conf || exit 1; done && \
           sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf   && \
           sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf                   && \
           sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_client_receiver_options=.*/rtcm_client_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf     && \
