@@ -133,6 +133,9 @@ class RTKBaseConfigManager:
     def is_ntrip_section(self, section):
         return section.startswith("ntrip_") and section != "local_ntrip_caster"
 
+    def is_dynamic_ntrip_section(self, section):
+        return self.is_ntrip_section(section) and self.get_ntrip_suffix(section) not in ("A", "B")
+
     def get_ntrip_suffix(self, section):
         return section.split("_", 1)[1].upper()
 
@@ -170,6 +173,8 @@ class RTKBaseConfigManager:
             "service_name": section,
             "service_label": f"Ntrip {suffix} service",
             "switch_id": f"{section}-switch",
+            "can_remove": self.is_dynamic_ntrip_section(section),
+            "remove_button_id": f"{section}-remove",
             "suffix": suffix,
             "svr_addr": {"name": field_names["svr_addr"], "value": self.config.get(section, field_names["svr_addr"]).strip("'")},
             "svr_port": {"name": field_names["svr_port"], "value": self.config.get(section, field_names["svr_port"]).strip("'")},
@@ -223,6 +228,14 @@ class RTKBaseConfigManager:
         self.config[section][f"ntrip_{suffix_lower}_receiver_options"] = template.get("ntrip_a_receiver_options", "''")
         self.write_file()
         return section
+
+    def remove_ntrip_settings(self, section):
+        if not self.is_dynamic_ntrip_section(section):
+            raise ValueError("Only dynamically added NTRIP casters can be removed")
+        if not self.config.has_section(section):
+            raise ValueError(f"Unknown NTRIP section: {section}")
+        self.config.remove_section(section)
+        self.write_file()
 
     def get_local_ntripc_settings(self):
         """

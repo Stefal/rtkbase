@@ -129,6 +129,9 @@
     <label for="{{ ntrip.switch_id }}" class="col-4 col-form-label col-form-label-lg">{{ ntrip.service_label }}</label>
     <input id="{{ ntrip.switch_id }}" class="ntrip-service-toggle" data-service-name="{{ ntrip.service_name }}" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip.source_section }}" aria-expanded="false" aria-controls="{{ ntrip.source_section }}_options">Options</button>
+    {% if ntrip.can_remove %}
+    <button id="{{ ntrip.remove_button_id }}" class="btn btn-outline-danger remove-ntrip-service" type="button" data-section="{{ ntrip.source_section }}">Remove</button>
+    {% endif %}
     <a role="button" data-toggle="tooltip" title="This service sends the rtcm messages to a Ntrip (broad)caster server like rtk2go, centipede, or others.">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>

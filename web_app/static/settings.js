@@ -167,6 +167,27 @@ $(document).ready(function () {
         $('#add-ntrip-service').prop("disabled", false).text("Add Ntrip caster");
     });
 
+    $('.remove-ntrip-service').on("click", function () {
+        var removeButton = $(this);
+        var sectionName = removeButton.data('section');
+        if (!window.confirm('Remove ' + sectionName.replace('_', ' ') + '?')) {
+            return;
+        }
+        removeButton.prop("disabled", true);
+        removeButton.html('<span class="spinner-border spinner-border-sm"></span> Removing...');
+        socket.emit("remove ntrip service", {"section": sectionName});
+    });
+
+    socket.on("ntrip service removed", function() {
+        location.href = document.URL.replace(/#$/, '');
+    });
+
+    socket.on("ntrip service remove failed", function(msg) {
+        var response = JSON.parse(msg);
+        window.alert(response.error);
+        $('.remove-ntrip-service').prop("disabled", false).text("Remove");
+    });
+
     socket.on("system time corrected", function(msg) {
         $('.warning_footer h1').text("Reach time synced with GPS!");
         setTimeout(function(){$('.warning_footer').slideUp()}, 5000);

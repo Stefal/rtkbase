@@ -1042,6 +1042,35 @@ def add_ntrip_service():
     except Exception as e:
         socketio.emit("ntrip service add failed", json.dumps({"error": str(e)}), namespace="/test")
 
+
+@socketio.on("remove ntrip service", namespace="/test")
+def remove_ntrip_service(json_msg):
+    try:
+        section_name = json_msg.get("section")
+        if not section_name:
+            raise ValueError("Missing NTRIP section name")
+        if not rtkbaseconfig.is_dynamic_ntrip_section(section_name):
+            raise ValueError("Only dynamically added NTRIP casters can be removed")
+
+        service = next((service for service in services_list if service["name"] == section_name), None)
+        if service is not None and service.get("unit") is not None:
+            try:
+                service["unit"].stop()
+            except Exception:
+                subprocess.run(
+                    ["systemctl", "disable", "--now", service["service_unit"]],
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+
+        rtkbaseconfig.remove_ntrip_settings(section_name)
+        refresh_services_list(load_units_now=True)
+        socketio.emit("ntrip service removed", json.dumps({"section": section_name}), namespace="/test")
+        getServicesStatus()
+    except Exception as e:
+        socketio.emit("ntrip service remove failed", json.dumps({"error": str(e)}), namespace="/test")
+
 def arg_parse():
     parser = argparse.ArgumentParser(
         description="RTKBase Web server",
