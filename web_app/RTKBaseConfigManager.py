@@ -1,12 +1,14 @@
 import os
 from configparser import ConfigParser
 from secrets import token_urlsafe
+import string
 
 class RTKBaseConfigManager:
     """ A class to easily access the settings from RTKBase settings.conf """
 
     NON_QUOTED_KEYS = ("basedir", "web_authentification", "new_web_password", "web_password_hash",
                      "flask_secret_key", "archive_name", "user")
+    NTRIP_TEMPLATE_SECTION = "ntrip_A"
 
     def __init__(self, default_settings_path, user_settings_path):
         """ 
@@ -119,21 +121,121 @@ class RTKBaseConfigManager:
             Get a subset of the settings from the ntrip A section in an ordered object
             and remove the single quotes.    
         """
-        ordered_ntrip = [{"source_section" : "ntrip_A"}]
-        for key in ("svr_addr_A", "svr_port_A", "svr_pwd_A", "mnt_name_A", "rtcm_msg_A", "ntrip_A_receiver_options"):
-            ordered_ntrip.append({key : self.config.get('ntrip_A', key).strip("'")})
-        return ordered_ntrip
+        return self.get_legacy_ntrip_settings("ntrip_A")
     
     def get_ntrip_B_settings(self):
         """
             Get a subset of the settings from the ntrip B section in an ordered object
             and remove the single quotes.    
         """
-        #TODO need refactoring with get_ntrip_A_settings
-        ordered_ntrip = [{"source_section" : "ntrip_B"}]
-        for key in ("svr_addr_B", "svr_port_B", "svr_pwd_B", "mnt_name_B", "rtcm_msg_B", "ntrip_B_receiver_options"):
-            ordered_ntrip.append({key : self.config.get('ntrip_B', key).strip("'")})
+        return self.get_legacy_ntrip_settings("ntrip_B")
+
+    def is_ntrip_section(self, section):
+        return section.startswith("ntrip_") and section != "local_ntrip_caster"
+
+    def is_dynamic_ntrip_section(self, section):
+        return self.is_ntrip_section(section) and self.get_ntrip_suffix(section) not in ("A", "B")
+
+    def get_ntrip_suffix(self, section):
+        return section.split("_", 1)[1].upper()
+
+    def get_ntrip_sections(self):
+        return sorted(
+            [section for section in self.config.sections() if self.is_ntrip_section(section)],
+            key=lambda section: self.get_ntrip_suffix(section),
+        )
+
+    def _get_ntrip_field_names(self, suffix):
+        suffix = suffix.upper()
+        suffix_lower = suffix.lower()
+        return {
+            "svr_addr": f"svr_addr_{suffix}",
+            "svr_port": f"svr_port_{suffix}",
+            "svr_pwd": f"svr_pwd_{suffix}",
+            "mnt_name": f"mnt_name_{suffix}",
+            "rtcm_msg": f"rtcm_msg_{suffix}",
+            "receiver_options": f"ntrip_{suffix}_receiver_options",
+        }, suffix_lower
+
+    def get_legacy_ntrip_settings(self, section):
+        suffix = self.get_ntrip_suffix(section)
+        field_names, _ = self._get_ntrip_field_names(suffix)
+        ordered_ntrip = [{"source_section" : section}]
+        for key in field_names.values():
+            ordered_ntrip.append({key : self.config.get(section, key).strip("'")})
         return ordered_ntrip
+
+    def get_ntrip_settings(self, section):
+        suffix = self.get_ntrip_suffix(section)
+        field_names, _ = self._get_ntrip_field_names(suffix)
+        return {
+            "source_section": section,
+            "service_name": section,
+            "service_label": f"Ntrip {suffix} service",
+            "switch_id": f"{section}-switch",
+            "can_remove": self.is_dynamic_ntrip_section(section),
+            "remove_button_id": f"{section}-remove",
+            "suffix": suffix,
+            "svr_addr": {"name": field_names["svr_addr"], "value": self.config.get(section, field_names["svr_addr"]).strip("'")},
+            "svr_port": {"name": field_names["svr_port"], "value": self.config.get(section, field_names["svr_port"]).strip("'")},
+            "svr_pwd": {"name": field_names["svr_pwd"], "value": self.config.get(section, field_names["svr_pwd"]).strip("'")},
+            "mnt_name": {"name": field_names["mnt_name"], "value": self.config.get(section, field_names["mnt_name"]).strip("'")},
+            "rtcm_msg": {"name": field_names["rtcm_msg"], "value": self.config.get(section, field_names["rtcm_msg"]).strip("'")},
+            "receiver_options": {
+                "name": field_names["receiver_options"],
+                "value": self.config.get(section, field_names["receiver_options"]).strip("'"),
+            },
+        }
+
+    def get_all_ntrip_settings(self):
+        return [self.get_ntrip_settings(section) for section in self.get_ntrip_sections()]
+
+    def get_first_ntrip_mount_name(self):
+        sections = self.get_ntrip_sections()
+        if not sections:
+            return "RTKBase"
+        field_names, _ = self._get_ntrip_field_names(self.get_ntrip_suffix(sections[0]))
+        return self.config.get(sections[0], field_names["mnt_name"]).strip("'")
+
+    def _load_default_ntrip_template(self):
+        defaults = ConfigParser(interpolation=None)
+        defaults.read(self.default_settings_path)
+        if defaults.has_section(self.NTRIP_TEMPLATE_SECTION):
+            return defaults[self.NTRIP_TEMPLATE_SECTION]
+        return self.config[self.NTRIP_TEMPLATE_SECTION]
+
+    def _next_ntrip_suffix(self):
+        existing_suffixes = {self.get_ntrip_suffix(section) for section in self.get_ntrip_sections()}
+        for suffix in string.ascii_uppercase:
+            if suffix not in existing_suffixes:
+                return suffix
+        raise ValueError("No available NTRIP caster suffix left")
+
+    def add_ntrip_settings(self):
+        suffix = self._next_ntrip_suffix()
+        suffix_lower = suffix.lower()
+        section = f"ntrip_{suffix}"
+        template = self._load_default_ntrip_template()
+        self.config.add_section(section)
+        self.config[section][f"svr_addr_{suffix_lower}"] = template.get("svr_addr_a", "'caster.centipede.fr'")
+        self.config[section][f"svr_port_{suffix_lower}"] = template.get("svr_port_a", "'2101'")
+        self.config[section][f"svr_pwd_{suffix_lower}"] = template.get("svr_pwd_a", "''")
+        self.config[section][f"mnt_name_{suffix_lower}"] = template.get("mnt_name_a", "'Your_mount_name'")
+        self.config[section][f"rtcm_msg_{suffix_lower}"] = template.get(
+            "rtcm_msg_a",
+            "'1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230'",
+        )
+        self.config[section][f"ntrip_{suffix_lower}_receiver_options"] = template.get("ntrip_a_receiver_options", "''")
+        self.write_file()
+        return section
+
+    def remove_ntrip_settings(self, section):
+        if not self.is_dynamic_ntrip_section(section):
+            raise ValueError("Only dynamically added NTRIP casters can be removed")
+        if not self.config.has_section(section):
+            raise ValueError(f"Unknown NTRIP section: {section}")
+        self.config.remove_section(section)
+        self.write_file()
 
     def get_local_ntripc_settings(self):
         """
@@ -212,8 +314,7 @@ class RTKBaseConfigManager:
         """
         ordered_settings = {}
         ordered_settings['main'] = self.get_main_settings()
-        ordered_settings['ntrip_A'] = self.get_ntrip_A_settings()
-        ordered_settings['ntrip_B'] = self.get_ntrip_B_settings()
+        ordered_settings['ntrip'] = self.get_all_ntrip_settings()
         ordered_settings['local_ntripc'] = self.get_local_ntripc_settings()
         ordered_settings['file'] = self.get_file_settings()
         ordered_settings['rtcm_svr'] = self.get_rtcm_svr_settings()

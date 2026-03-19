@@ -6,6 +6,7 @@ BASEDIR=$(dirname "$0")
 for service_name in str2str_tcp.service \
                     str2str_ntrip_A.service \
                     str2str_ntrip_B.service \
+                    str2str_ntrip@.service \
                     str2str_local_ntrip_caster \
                     str2str_rtcm_svr.service \
                     str2str_rtcm_client.service \
@@ -25,6 +26,16 @@ do
     systemctl disable "${service_name}"
     rm /etc/systemd/system/"${service_name}"
     rm /usr/lib/systemd/system/"${service_name}" 
+    systemctl daemon-reload
+    systemctl reset-failed
+done
+
+for service_name in $(systemctl list-units 'str2str_ntrip@*.service' --plain --all --no-legend 2>/dev/null | awk '{print $1}'); do
+    echo 'Deleting ' "${service_name}"
+    systemctl stop "${service_name}"
+    systemctl disable "${service_name}"
+    rm /etc/systemd/system/"${service_name}"
+    rm /usr/lib/systemd/system/"${service_name}"
     systemctl daemon-reload
     systemctl reset-failed
 done

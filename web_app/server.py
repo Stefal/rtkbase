@@ -99,18 +99,45 @@ rtk = RTKLIB(socketio,
             log_path=app.config["DOWNLOAD_FOLDER"],
             )
 
-services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
-                 {"service_unit" : "str2str_ntrip_A.service", "name" : "ntrip_A"},
-                 {"service_unit" : "str2str_ntrip_B.service", "name" : "ntrip_B"},
-                 {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
-                 {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
-                 {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
-                 {"service_unit" : "str2str_file.service", "name" : "file"},
-                 {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"},
-                 {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
-                 {'service_unit' : 'rtkbase_raw2nmea.service', "name" : "raw2nmea"},
-                 {'service_unit' : 'rtkbase_gnss_web_proxy.service', "name": "RTKBase Reverse Proxy for Gnss receiver Web Server"}
-                 ]
+def get_ntrip_service_unit(section_name):
+    suffix = rtkbaseconfig.get_ntrip_suffix(section_name)
+    if suffix in ("A", "B"):
+        return f"str2str_ntrip_{suffix}.service"
+    return f"str2str_ntrip@{suffix}.service"
+
+
+def build_services_list():
+    services = [{"service_unit" : "str2str_tcp.service", "name" : "main"}]
+    services.extend(
+        {"service_unit": get_ntrip_service_unit(section_name), "name": section_name}
+        for section_name in rtkbaseconfig.get_ntrip_sections()
+    )
+    services.extend(
+        [
+            {"service_unit" : "str2str_local_ntrip_caster.service", "name" : "local_ntrip_caster"},
+            {"service_unit" : "str2str_rtcm_svr.service", "name" : "rtcm_svr"},
+            {'service_unit' : 'str2str_rtcm_serial.service', "name" : "rtcm_serial"},
+            {"service_unit" : "str2str_file.service", "name" : "file"},
+            {'service_unit' : 'rtkbase_archive.timer', "name" : "archive_timer"},
+            {'service_unit' : 'rtkbase_archive.service', "name" : "archive_service"},
+            {'service_unit' : 'rtkbase_raw2nmea.service', "name" : "raw2nmea"},
+            {'service_unit' : 'rtkbase_gnss_web_proxy.service', "name": "RTKBase Reverse Proxy for Gnss receiver Web Server"},
+        ]
+    )
+    return services
+
+
+services_list = build_services_list()
+
+
+def refresh_services_list(load_units_now=False):
+    global services_list
+
+    previous_units = {service["name"]: service.get("unit") for service in services_list}
+    services_list = build_services_list()
+    if load_units_now:
+        services_list = load_units(services_list, existing_units=previous_units)
+    return services_list
 
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
@@ -413,7 +440,7 @@ def inject_global_infos():
         Insert various informations as global variables for Flask/Jinja
     """
     g.version = rtkbaseconfig.get("general", "version")
-    g.station_name = rtkbaseconfig.get_ntrip_A_settings()[4]['mnt_name_A']
+    g.station_name = rtkbaseconfig.get_first_ntrip_mount_name()
     g.sbc_model = get_sbc_model()
 
 @login.user_loader
@@ -456,8 +483,7 @@ def settings_page():
     #TODO use dict and not list
     main_settings = rtkbaseconfig.get_main_settings()
     main_settings.append(gnss_rcv_url.geturl())
-    ntrip_A_settings = rtkbaseconfig.get_ntrip_A_settings()
-    ntrip_B_settings = rtkbaseconfig.get_ntrip_B_settings()
+    ntrip_settings = rtkbaseconfig.get_all_ntrip_settings()
     local_ntripc_settings = rtkbaseconfig.get_local_ntripc_settings()
     rtcm_svr_settings = rtkbaseconfig.get_rtcm_svr_settings()
     rtcm_client_settings = rtkbaseconfig.get_rtcm_client_settings()
@@ -467,8 +493,7 @@ def settings_page():
     file_settings = rtkbaseconfig.get_file_settings()
 
     return render_template("settings.html", main_settings = main_settings,
-                                            ntrip_A_settings = ntrip_A_settings,
-                                            ntrip_B_settings = ntrip_B_settings,
+                                            ntrip_settings = ntrip_settings,
                                             local_ntripc_settings = local_ntripc_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
                                             rtcm_client_settings = rtcm_client_settings,
@@ -722,7 +747,7 @@ def reset_settings():
 @app.route("/logs/download/settings")
 @login_required
 def backup_settings():
-    settings_file_name = str("RTKBase_{}_{}_{}.conf".format(rtkbaseconfig.get("general", "version"), rtkbaseconfig.get("ntrip_A", "mnt_name_a").strip("'"), time.strftime("%Y-%m-%d_%HH%M")))
+    settings_file_name = str("RTKBase_{}_{}_{}.conf".format(rtkbaseconfig.get("general", "version"), rtkbaseconfig.get_first_ntrip_mount_name(), time.strftime("%Y-%m-%d_%HH%M")))
     #return send_file(os.path.join(rtkbase_path, "settings.conf"), as_attachment=True, download_name=settings_file_name)
     return send_from_directory(rtkbase_path, "settings.conf", as_attachment=True, download_name=settings_file_name)
 
@@ -830,7 +855,7 @@ def turnOffWiFi():
 
 #### Systemd Services functions ####
 
-def load_units(services):
+def load_units(services, existing_units=None):
     """
         load unit service before getting status
         :param services: A list of systemd services (dict) containing a service_unit key:value
@@ -841,8 +866,12 @@ def load_units(services):
             return will be [{"service_unit" : "str2str_tcp.service", "unit" : a pystemd object}]
         
     """
+    existing_units = existing_units or {}
     for service in services:
-        service["unit"] = ServiceController(service["service_unit"])
+        if existing_units.get(service["name"]) is not None:
+            service["unit"] = existing_units[service["name"]]
+        elif service.get("unit") is None:
+            service["unit"] = ServiceController(service["service_unit"])
     return services
 
 def update_std_user(services):
@@ -984,11 +1013,9 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial", "raw2nmea"))  
-        elif source_section == "ntrip_A":
-            restartServices(("ntrip_A",))
-        elif source_section == "ntrip_B":
-            restartServices(("ntrip_B",))
+            restartServices(tuple(["main", *rtkbaseconfig.get_ntrip_sections(), "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial", "raw2nmea"]))
+        elif rtkbaseconfig.is_ntrip_section(source_section):
+            restartServices((source_section,))
         elif source_section == "local_ntrip_caster":
             restartServices(("local_ntrip_caster",))
         elif source_section == "rtcm_svr":
@@ -1003,6 +1030,46 @@ def update_settings(json_msg):
             restartServices(("rtcm_serial",))
         elif source_section == "local_storage":
             restartServices(("file",))
+
+
+@socketio.on("add ntrip service", namespace="/test")
+def add_ntrip_service():
+    try:
+        new_section = rtkbaseconfig.add_ntrip_settings()
+        refresh_services_list(load_units_now=True)
+        socketio.emit("ntrip service added", json.dumps({"section": new_section}), namespace="/test")
+        getServicesStatus()
+    except Exception as e:
+        socketio.emit("ntrip service add failed", json.dumps({"error": str(e)}), namespace="/test")
+
+
+@socketio.on("remove ntrip service", namespace="/test")
+def remove_ntrip_service(json_msg):
+    try:
+        section_name = json_msg.get("section")
+        if not section_name:
+            raise ValueError("Missing NTRIP section name")
+        if not rtkbaseconfig.is_dynamic_ntrip_section(section_name):
+            raise ValueError("Only dynamically added NTRIP casters can be removed")
+
+        service = next((service for service in services_list if service["name"] == section_name), None)
+        if service is not None and service.get("unit") is not None:
+            try:
+                service["unit"].stop()
+            except Exception:
+                subprocess.run(
+                    ["systemctl", "disable", "--now", service["service_unit"]],
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+
+        rtkbaseconfig.remove_ntrip_settings(section_name)
+        refresh_services_list(load_units_now=True)
+        socketio.emit("ntrip service removed", json.dumps({"section": section_name}), namespace="/test")
+        getServicesStatus()
+    except Exception as e:
+        socketio.emit("ntrip service remove failed", json.dumps({"error": str(e)}), namespace="/test")
 
 def arg_parse():
     parser = argparse.ArgumentParser(

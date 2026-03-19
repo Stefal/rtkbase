@@ -76,10 +76,10 @@ $(document).ready(function () {
     });
     
 
-    // View/hide password buttons for: Ntrip A, Ntrip B and Local caster
+    // View/hide password buttons for dynamic NTRIP casters, local caster and RTCM client
     document.querySelectorAll(".input-group-append").forEach(function(e) {
         var name = e.querySelector("button").id.replace("_button", "");
-        if (!["svr_pwd_A", "svr_pwd_B", "local_ntripc_pwd", "rtcm_client_pwd"].includes(name))
+        if (!/^svr_pwd_[A-Z0-9]+$/.test(name) && !["local_ntripc_pwd", "rtcm_client_pwd"].includes(name))
             return;
 
         var button = $("#" + name + "_button");
@@ -106,215 +106,87 @@ $(document).ready(function () {
         });
     });
     
+    function updateServiceToggle(toggle, serviceStatus, serviceName) {
+        if (toggle.length === 0 || !serviceStatus) {
+            return;
+        }
+
+        if (serviceStatus.active === true) {
+            toggle.bootstrapToggle('on', true);
+        } else {
+            toggle.bootstrapToggle('off', true);
+        }
+        if (serviceStatus.btn_color) {
+            toggle.bootstrapToggle('setOnStyle', serviceStatus.btn_color);
+        }
+        if (serviceStatus.btn_off_color) {
+            toggle.bootstrapToggle('setOffStyle', serviceStatus.btn_off_color);
+        }
+
+        toggle.off("change.serviceToggle").one("change.serviceToggle", function() {
+            var switchStatus = $(this).prop('checked');
+            socket.emit("services switch", {"name" : serviceName, "active" : switchStatus});
+        });
+    }
+
     // ####################### HANDLE RTKBASE SERVICES    #######################
 
     socket.on("services status", function(msg) {
-        // gestion des services
         var servicesStatus = JSON.parse(msg);
-        //console.log("service status: " + servicesStatus);
-        
-        // ################ MAiN service Switch  ######################
-        //console.log("REFRESHING  service switch");
-        var mainSwitch = $('#main-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[0].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            mainSwitch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            mainSwitch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[0]);
-        if (servicesStatus[0].btn_color) {
-            mainSwitch.bootstrapToggle('setOnStyle', servicesStatus[0].btn_color);
-        }
-        if (servicesStatus[0].btn_off_color) {
-            mainSwitch.bootstrapToggle('setOffStyle', servicesStatus[0].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#main-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            console.log("Main SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "main", "active" : switchStatus});          
-        })
+        var servicesByName = {};
+        servicesStatus.forEach(function(service) {
+            servicesByName[service.name] = service;
+        });
 
-        // ####################  NTRIP A service Switch #########################
-        var ntrip_A_Switch = $('#ntrip_A-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[1].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            ntrip_A_Switch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            ntrip_A_Switch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[1]);
-        if (servicesStatus[1].btn_color) {
-            ntrip_A_Switch.bootstrapToggle('setOnStyle', servicesStatus[1].btn_color);
-        }
-        if (servicesStatus[1].btn_off_color) {
-            ntrip_A_Switch.bootstrapToggle('setOffStyle', servicesStatus[1].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#ntrip_A-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("Ntrip SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "ntrip_A", "active" : switchStatus});           
-        })
+        updateServiceToggle($('#main-switch'), servicesByName.main, "main");
+        $('.ntrip-service-toggle').each(function() {
+            var toggle = $(this);
+            var serviceName = toggle.data('service-name');
+            updateServiceToggle(toggle, servicesByName[serviceName], serviceName);
+        });
+        updateServiceToggle($('#ntripc-switch'), servicesByName.local_ntrip_caster, "local_ntrip_caster");
+        updateServiceToggle($('#rtcm_svr-switch'), servicesByName.rtcm_svr, "rtcm_svr");
+        updateServiceToggle($('#rtcm_serial-switch'), servicesByName.rtcm_serial, "rtcm_serial");
+        updateServiceToggle($('#file-switch'), servicesByName.file, "file");
+    });
 
-        // ####################  NTRIP B service Switch #########################
-        var ntrip_B_Switch = $('#ntrip_B-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[2].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            ntrip_B_Switch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            ntrip_B_Switch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[2]);
-        if (servicesStatus[2].btn_color) {
-            ntrip_B_Switch.bootstrapToggle('setOnStyle', servicesStatus[2].btn_color);
-        }
-        if (servicesStatus[2].btn_off_color) {
-            ntrip_B_Switch.bootstrapToggle('setOffStyle', servicesStatus[2].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#ntrip_B-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("Ntrip SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "ntrip_B", "active" : switchStatus});           
-        })
+    $('#add-ntrip-service').on("click", function () {
+        var addButton = $(this);
+        addButton.prop("disabled", true);
+        addButton.html('<span class="spinner-border spinner-border-sm"></span> Adding...');
+        socket.emit("add ntrip service");
+    });
 
-        // ################  Local NTRIP Caster service Switch #####################
+    socket.on("ntrip service added", function() {
+        location.href = document.URL.replace(/#$/, '');
+    });
 
-        var ntripcSwitch = $('#ntripc-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[3].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            ntripcSwitch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            ntripcSwitch.bootstrapToggle('off', true);
-        }
-        
-        //console.log(servicesStatus[2]);
-        if (servicesStatus[3].btn_color) {
-            ntripcSwitch.bootstrapToggle('setOnStyle', servicesStatus[3].btn_color);
-        }
-        if (servicesStatus[3].btn_off_color) {
-            ntripcSwitch.bootstrapToggle('setOffStyle', servicesStatus[3].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#ntripc-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("Ntrip Caster SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "local_ntrip_caster", "active" : switchStatus});         
-        })
+    socket.on("ntrip service add failed", function(msg) {
+        var response = JSON.parse(msg);
+        window.alert(response.error);
+        $('#add-ntrip-service').prop("disabled", false).text("Add Ntrip caster");
+    });
 
-        // ####################  RTCM TCP server service Switch #########################
+    $('.remove-ntrip-service').on("click", function () {
+        var removeButton = $(this);
+        var sectionName = removeButton.data('section');
+        if (!window.confirm('Remove ' + sectionName.replace('_', ' ') + '?')) {
+            return;
+        }
+        removeButton.prop("disabled", true);
+        removeButton.html('<span class="spinner-border spinner-border-sm"></span> Removing...');
+        socket.emit("remove ntrip service", {"section": sectionName});
+    });
 
-        var rtcmSvrSwitch = $('#rtcm_svr-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[4].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            rtcmSvrSwitch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            rtcmSvrSwitch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[3]);
-        if (servicesStatus[4].btn_color) {
-            rtcmSvrSwitch.bootstrapToggle('setOnStyle', servicesStatus[4].btn_color);
-        }
-        if (servicesStatus[4].btn_off_color) {
-            rtcmSvrSwitch.bootstrapToggle('setOffStyle', servicesStatus[4].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#rtcm_svr-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("RTCM Server SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "rtcm_svr", "active" : switchStatus});         
-        })
+    socket.on("ntrip service removed", function() {
+        location.href = document.URL.replace(/#$/, '');
+    });
 
-        // ####################  Serial RTCM service Switch #########################
-        
-        var rtcmSerialSwitch = $('#rtcm_serial-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[5].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            rtcmSerialSwitch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            rtcmSerialSwitch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[4]);
-        if (servicesStatus[5].btn_color) {
-            rtcmSerialSwitch.bootstrapToggle('setOnStyle', servicesStatus[5].btn_color);
-        }
-        if (servicesStatus[5].btn_off_color) {
-            rtcmSerialSwitch.bootstrapToggle('setOffStyle', servicesStatus[5].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#rtcm_serial-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("Serial RTCM SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "rtcm_serial", "active" : switchStatus});           
-        })
-    
-        // ####################  LOG service Switch #########################
-
-        var fileSwitch = $('#file-switch');
-        // set the switch to on/off depending of the service status
-        if (servicesStatus[6].active === true) {
-            //document.querySelector("#main-switch").bootstrapToggle('on');
-            fileSwitch.bootstrapToggle('on', true);
-        } else {
-            //document.querySelector("#main-switch").bootstrapToggle('off');
-            fileSwitch.bootstrapToggle('off', true);
-        }
-        //console.log(servicesStatus[5]);
-        if (servicesStatus[6].btn_color) {
-            fileSwitch.bootstrapToggle('setOnStyle', servicesStatus[6].btn_color);
-        }
-        if (servicesStatus[6].btn_off_color) {
-            fileSwitch.bootstrapToggle('setOffStyle', servicesStatus[6].btn_off_color);
-        }
-        
-        // event for switching on/off service on user mouse click
-        //TODO When the switch changes its position, this event seems attached before
-        //the switch finish its transition, then fire another event.
-        $( "#file-switch" ).one("change", function(e) {
-            var switchStatus = $(this).prop('checked');
-            //console.log(" e : " + e);
-            //console.log("File SwitchStatus : " + switchStatus);
-            socket.emit("services switch", {"name" : "file", "active" : switchStatus});          
-        })
-    })
+    socket.on("ntrip service remove failed", function(msg) {
+        var response = JSON.parse(msg);
+        window.alert(response.error);
+        $('.remove-ntrip-service').prop("disabled", false).text("Remove");
+    });
 
     socket.on("system time corrected", function(msg) {
         $('.warning_footer h1').text("Reach time synced with GPS!");

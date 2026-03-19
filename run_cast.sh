@@ -13,13 +13,31 @@ in_tcp="tcpcli://localhost:${tcp_port}#${receiver_format}"
 #in_ext_tcp is mainly for dev purpose to receive a raw stream from another base
 in_ext_tcp="tcpcli://${ext_tcp_source}:${ext_tcp_port}#${receiver_format}"
 
-out_caster_A="-msg ${rtcm_msg_a} -out ntrips://:${svr_pwd_a}@${svr_addr_a}:${svr_port_a}/${mnt_name_a}#rtcm3 -p ${position}"
-#add receiver options if it exists
-[[ ! -z "${ntrip_a_receiver_options}" ]] && out_caster_A=""${out_caster_A}" -opt "${ntrip_a_receiver_options}""
+build_out_caster() {
+  local suffix="${1^^}"
+  local suffix_lower="${suffix,,}"
+  local msg_var="rtcm_msg_${suffix_lower}"
+  local pwd_var="svr_pwd_${suffix_lower}"
+  local addr_var="svr_addr_${suffix_lower}"
+  local port_var="svr_port_${suffix_lower}"
+  local mount_var="mnt_name_${suffix_lower}"
+  local options_var="ntrip_${suffix_lower}_receiver_options"
+  local out_caster="-msg ${!msg_var} -out ntrips://:${!pwd_var}@${!addr_var}:${!port_var}/${!mount_var}#rtcm3 -p ${position}"
 
-out_caster_B="-msg ${rtcm_msg_b} -out ntrips://:${svr_pwd_b}@${svr_addr_b}:${svr_port_b}/${mnt_name_b}#rtcm3 -p ${position}"
-#add receiver options if it exists
-[[ ! -z "${ntrip_b_receiver_options}" ]] && out_caster_B=""${out_caster_B}" -opt "${ntrip_b_receiver_options}""
+  [[ -n "${!options_var}" ]] && out_caster="${out_caster} -opt \"${!options_var}\""
+  printf '%s' "${out_caster}"
+}
+
+run_out_caster() {
+  local input_var="${1}"
+  local suffix="${2^^}"
+  local out_caster
+  out_caster="$(build_out_caster "${suffix}")"
+  ${cast} -in ${!input_var} ${out_caster} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_${suffix}.log
+}
+
+out_caster_A="$(build_out_caster A)"
+out_caster_B="$(build_out_caster B)"
 
 array_pos=(${position})
 if [[ ${local_ntripc_user} == '' ]] && [[ ${local_ntripc_pwd} == '' ]]
@@ -63,12 +81,16 @@ mkdir -p ${logdir}
     ;;
 
   out_caster_A)
-    #echo ${cast} -in ${!1} -out $out_caster
-    ${cast} -in ${!1} ${out_caster_A} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_A.log
+    run_out_caster "$1" "A"
     ;;
 
   out_caster_B)
-    ${cast} -in ${!1} ${out_caster_B} -i "${receiver_info}" -a "${antenna_info}" -t ${level} -fl ${logdir}/str2str_ntrip_B.log
+    run_out_caster "$1" "B"
+    ;;
+
+  out_caster)
+    [[ -z "${3}" ]] && { echo "Missing NTRIP caster suffix"; exit 1; }
+    run_out_caster "$1" "$3"
     ;;
 
   out_local_caster)

@@ -27,6 +27,7 @@ checking=$6
 str2str_active=$(systemctl is-active str2str_tcp)
 str2str_ntrip_A_active=$(systemctl is-active str2str_ntrip_A)
 str2str_ntrip_B_active=$(systemctl is-active str2str_ntrip_B)
+mapfile -t str2str_dynamic_ntrip_active_units < <(systemctl list-units 'str2str_ntrip@*.service' --plain --all --no-legend 2>/dev/null | awk '$3=="active" {print $1}')
 str2str_local_caster=$(systemctl is-active str2str_local_ntrip_caster)
 str2str_rtcm=$(systemctl is-active str2str_rtcm_svr)
 str2str_serial=$(systemctl is-active str2str_rtcm_serial)
@@ -171,6 +172,7 @@ upd_2.4.2() {
   # restart previously running services
   [ $str2str_ntrip_A_active = 'active' ] && systemctl start str2str_ntrip_A
   [ $str2str_ntrip_B_active = 'active' ] && systemctl start str2str_ntrip_B  
+  for unit_name in "${str2str_dynamic_ntrip_active_units[@]}"; do systemctl start "${unit_name}"; done
   [ $str2str_local_caster = 'active' ] && systemctl start str2str_local_ntrip_caster
   [ $str2str_rtcm = 'active' ] && systemctl start str2str_rtcm_svr
   [ $str2str_serial = 'active' ] && systemctl start str2str_rtcm_serial
@@ -320,6 +322,7 @@ chown -R ${standard_user}:${standard_user} ${destination_directory}
   # restart needed with all update to propagate the release number in the rtcm stream
   [ $str2str_ntrip_A_active = 'active' ] && systemctl restart str2str_ntrip_A
   [ $str2str_ntrip_B_active = 'active' ] && systemctl restart str2str_ntrip_B  
+  for unit_name in "${str2str_dynamic_ntrip_active_units[@]}"; do systemctl restart "${unit_name}"; done
   [ $str2str_local_caster = 'active' ] && systemctl restart str2str_local_ntrip_caster
   [ $str2str_rtcm = 'active' ] && systemctl restart str2str_rtcm_svr
   [ $str2str_serial = 'active' ] && systemctl restart str2str_rtcm_serial
