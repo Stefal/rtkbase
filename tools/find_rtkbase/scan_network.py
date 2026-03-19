@@ -11,6 +11,63 @@ logging.basicConfig(format='%(levelname)s: %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel('ERROR')
 
+
+def _normalize_address(address):
+    if address in (None, '', 'None'):
+        return None
+    return address
+
+
+def iter_access_addresses(result):
+    ip_address = _normalize_address(result.get('ip') or result.get('IP'))
+    server_name = _normalize_address(result.get('server') or result.get('SERVER') or result.get('fqdn'))
+    seen = set()
+
+    for address in (ip_address, server_name):
+        if address and address not in seen:
+            seen.add(address)
+            yield address
+
+
+def preferred_access_address(result):
+    return next(iter_access_addresses(result), None)
+
+
+def alternate_access_address(result):
+    addresses = list(iter_access_addresses(result))
+    if not addresses:
+        return None
+    return addresses[1] if len(addresses) > 1 else addresses[0]
+
+def sort_hosts(hosts_list):
+    def first_port(host):
+        if host.get('port') is not None:
+            return host.get('port')
+        ports = host.get('PORTS') or []
+        return ports[0] if ports else 0
+
+    def host_sort_key(host):
+        return (
+            (host.get('server') or host.get('SERVER') or host.get('fqdn') or host.get('NAME') or '').casefold(),
+            host.get('ip') or host.get('IP') or '',
+            first_port(host),
+        )
+
+    return sorted(hosts_list, key=host_sort_key)
+
+
+def iter_probe_addresses(result):
+    ip_address = _normalize_address(result.get('IP'))
+    server_name = _normalize_address(result.get('SERVER'))
+
+    if ip_address:
+        # Direct IP probes are faster and more reliable than mDNS on some VPN setups.
+        yield ip_address
+        yield ip_address
+    if server_name and server_name != ip_address:
+        yield server_name
+
+
 class MyZeroConfListener:
     def __init__(self):
         self.services = []
@@ -27,15 +84,19 @@ def zeroconf_scan(name, prot_type, timeout=5):
     log.debug("Scanning with zeroconf")
     service_list = []
     zeroconf = Zeroconf()
-    listener = MyZeroConfListener()
-    browser = ServiceBrowser(zeroconf, prot_type, listener)
-    time.sleep(timeout)
-    for service in listener.services:
-        if name.lower() in service.name.lower():
-            service_list.append({'NAME' : service.name,
-                                'PORTS' : [service.port],
-                                'SERVER' : service.server.rstrip('.'),
-                                'IP' : '.'.join(str(byte) for byte in service.addresses[0])})
+    try:
+        listener = MyZeroConfListener()
+        browser = ServiceBrowser(zeroconf, prot_type, listener)
+        time.sleep(timeout)
+        for service in listener.services:
+            if name.lower() in service.name.lower():
+                service_list.append({'NAME' : service.name,
+                                    'PORTS' : [service.port],
+                                    'SERVER' : service.server.rstrip('.'),
+                                    'IP' : '.'.join(str(byte) for byte in service.addresses[0])})
+    finally:
+        zeroconf.close()
+    service_list = sort_hosts(service_list)
     log.debug(f"filtered list for {name}")
     log.debug(service_list)
     return service_list
@@ -104,10 +165,10 @@ def get_rtkbase_infos(host_list):
         if result.get('PORTS') and len(result.get('PORTS')) > 0:
             try:
                 for port in result.get('PORTS'):
-                    #try with mDns server name at first, then with the ip address if it fails
-                    for address in (result.get('SERVER'), result.get('IP')):
+                    ans = None
+                    # Prefer direct IP probes before falling back to the advertised mDNS name.
+                    for address in iter_probe_addresses(result):
                         try:
-                            ans = None
                             if address is None:
                                 continue
                             log.debug(f"{address}:{port} Api request")
@@ -202,6 +263,7 @@ def main(ports, allscan=False, iprange=None):
     available_rtkbase = get_rtkbase_infos(scan_results)
     #remove duplicate
     available_rtkbase = remove_duplicate_hosts(available_rtkbase)
+    available_rtkbase = sort_hosts(available_rtkbase)
     log.debug("RTKBase station found: ")
     log.debug(available_rtkbase)
     return available_rtkbase
