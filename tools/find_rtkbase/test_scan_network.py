@@ -43,6 +43,18 @@ class FakeResponse:
 
 
 class ScanNetworkTests(unittest.TestCase):
+    def test_preferred_access_address_prefers_ip_over_server_name(self):
+        host = {"ip": "10.0.0.5", "server": "alpha.local", "fqdn": "alpha.local"}
+
+        self.assertEqual("10.0.0.5", scan_network.preferred_access_address(host))
+        self.assertEqual("alpha.local", scan_network.alternate_access_address(host))
+
+    def test_access_address_helpers_ignore_placeholder_server_values(self):
+        host = {"ip": "10.0.0.5", "server": "None"}
+
+        self.assertEqual("10.0.0.5", scan_network.preferred_access_address(host))
+        self.assertEqual("10.0.0.5", scan_network.alternate_access_address(host))
+
     def test_zeroconf_scan_returns_results_sorted_by_server_name(self):
         fake_services = {
             "svc-b": FakeService(

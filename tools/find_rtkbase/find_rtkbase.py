@@ -16,6 +16,14 @@ log = logging.getLogger(__name__)
 log.setLevel('ERROR')
 
 
+def format_base_label(base):
+    display_host = base.get('server') or base.get('fqdn') or base.get('ip') or 'Unknown host'
+    ip_address = base.get('ip')
+    if ip_address and display_host != ip_address:
+        return f"{display_host} ({ip_address})"
+    return display_host
+
+
 class MyApp:
     def __init__(self, master, ports=[80, 443], allscan=False):
         self.master = master
@@ -123,16 +131,23 @@ class MyApp:
         self.base_buttons_list = ["base" + str(i) + "Button" for i, j in enumerate(self.available_base)]
         if len(self.available_base)>0:
             for i, base in enumerate(self.available_base):
-                def browser_fqdn(event, ip = (base.get('server') or base.get('ip')), port = base.get('port')):
-                    self.launch_browser(ip, port)
-                def browser_ip(event, ip = (base.get('ip')), port = base.get('port')):
-                    self.launch_browser(ip, port)
+                primary_host = scan_network.preferred_access_address(base)
+                alternate_host = scan_network.alternate_access_address(base)
 
-                self.base_labels_list[i] = ttk.Label(self.top_frame, text=f"{base.get('server') or base.get('fqdn')} ({base.get('ip')})")
+                def browser_primary(event, host = primary_host, port = base.get('port')):
+                    if host:
+                        self.launch_browser(host, port)
+
+                def browser_alternate(event, host = alternate_host, port = base.get('port')):
+                    if host:
+                        self.launch_browser(host, port)
+
+                self.base_labels_list[i] = ttk.Label(self.top_frame, text=format_base_label(base))
                 self.base_labels_list[i].grid(column=0, row=i)
                 self.base_buttons_list[i] = ttk.Button(self.top_frame, text='Open')
-                self.base_buttons_list[i].bind("<Button-1>", browser_fqdn)
-                self.base_buttons_list[i].bind("<Shift-Button-1>", browser_ip)
+                self.base_buttons_list[i].bind("<Button-1>", browser_primary)
+                if alternate_host and alternate_host != primary_host:
+                    self.base_buttons_list[i].bind("<Shift-Button-1>", browser_alternate)
                 self.base_buttons_list[i].grid(column=3, row=i)
         else:
             self.nobase_label.grid()

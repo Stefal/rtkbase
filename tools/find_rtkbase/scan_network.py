@@ -11,6 +11,34 @@ logging.basicConfig(format='%(levelname)s: %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel('ERROR')
 
+
+def _normalize_address(address):
+    if address in (None, '', 'None'):
+        return None
+    return address
+
+
+def iter_access_addresses(result):
+    ip_address = _normalize_address(result.get('ip') or result.get('IP'))
+    server_name = _normalize_address(result.get('server') or result.get('SERVER') or result.get('fqdn'))
+    seen = set()
+
+    for address in (ip_address, server_name):
+        if address and address not in seen:
+            seen.add(address)
+            yield address
+
+
+def preferred_access_address(result):
+    return next(iter_access_addresses(result), None)
+
+
+def alternate_access_address(result):
+    addresses = list(iter_access_addresses(result))
+    if not addresses:
+        return None
+    return addresses[1] if len(addresses) > 1 else addresses[0]
+
 def sort_hosts(hosts_list):
     def first_port(host):
         if host.get('port') is not None:
@@ -29,8 +57,8 @@ def sort_hosts(hosts_list):
 
 
 def iter_probe_addresses(result):
-    ip_address = result.get('IP')
-    server_name = result.get('SERVER')
+    ip_address = _normalize_address(result.get('IP'))
+    server_name = _normalize_address(result.get('SERVER'))
 
     if ip_address:
         # Direct IP probes are faster and more reliable than mDNS on some VPN setups.
