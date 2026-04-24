@@ -8,13 +8,15 @@ After=str2str_tcp.service
 [Service]
 Type=simple
 SyslogIdentifier=str2str_rtcm_serial
+LogNamespace=rtkbase_str2str_log
 User={user}
 ExecStart={script_path}/run_cast.sh in_tcp out_rtcm_serial
+ExecStopPost=/usr/bin/python3 {script_path}/tools/stoppost.py %n
 Restart=on-failure
 RestartSec=30
 #Limiting log to 1 msg per minute
-LogRateLimitIntervalSec=1 minute
-LogRateLimitBurst=1
+#LogRateLimitIntervalSec=1 minute
+#LogRateLimitBurst=1
 ProtectHome=read-only
 ProtectSystem=strict
 ReadWritePaths={script_path}
