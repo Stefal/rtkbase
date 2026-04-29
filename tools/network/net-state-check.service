@@ -1,0 +1,6 @@
+[Unit]
+Description=Network State Watchdog
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/net-state.sh --check

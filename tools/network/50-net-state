@@ -1,0 +1,4 @@
+#!/bin/bash
+#for NetworkManager dispatcher -> /etc/NetworkManager/dispatcher.d/50-net-state
+
+/usr/local/bin/net-state.sh --event

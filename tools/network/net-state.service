@@ -1,0 +1,12 @@
+[Unit]
+Description=Network State Machine
+After=NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+ExecStart=/usr/local/bin/net-state.sh --event
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

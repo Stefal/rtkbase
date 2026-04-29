@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodic network state check
+
+[Timer]
+OnBootSec=30
+OnUnitActiveSec=30
+Persistent=true
+
+[Install]
+WantedBy=timers.target
