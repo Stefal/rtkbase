@@ -27,7 +27,7 @@ install -m 644 net-state-check.service /etc/systemd/system/net-state-check.servi
 install -m 644 net-state-check.timer /etc/systemd/system/net-state-check.timer
 
 echo "[6/8] Installing NetworkManager dispatcher..."
-install -m 755 dispatcher /etc/NetworkManager/dispatcher.d/50-net-state
+install -m 755 50-net-state /etc/NetworkManager/dispatcher.d/50-net-state
 
 echo "[7/8] Creating NetworkManager profiles..."
 
