@@ -10,6 +10,7 @@
 - Fix missing zeroconf installation when executing `./install.sh --all`. Thanks to @Jef239 [#520](https://github.com/Stefal/rtkbase/issues/520)
 - Fix crash whith empty zeroconf service list and missing WinPcap. Thanks to @Jef239 [#520](https://github.com/Stefal/rtkbase/issues/520)
 - Fix tcp host addr not read/saved correctly. Thanks to @y3nd
+- Fix polkit rules to be able to start/stop rtkbase services without sudo privileges.
 
 ### Deprecated
 
