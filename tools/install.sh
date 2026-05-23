@@ -539,6 +539,8 @@ configure_gnss(){
         #cleaning receiver options
         sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
         sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_c_receiver_options=.*/ntrip_c_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
+        sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_d_receiver_options=.*/ntrip_d_receiver_options=/ "${rtkbase_path}"/settings.conf                        && \
         sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=/ "${rtkbase_path}"/settings.conf                              && \
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_client_receiver_options=.*/rtcm_client_receiver_options=/ "${rtkbase_path}"/settings.conf                && \
@@ -560,9 +562,11 @@ configure_gnss(){
           sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf                      && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'U-blox_ZED-F9P\'/ "${rtkbase_path}"/settings.conf                                      && \
           sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'ubx\'/ "${rtkbase_path}"/settings.conf                                   && \
-          #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/serial outputs
+          #add option -TADJ=1 on rtcm/ntrip_a/ntrip_b/ntrip_c/ntrip_d serial outputs
           sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_a_receiver_options=.*/ntrip_a_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf             && \
           sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_b_receiver_options=.*/ntrip_b_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf             && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_c_receiver_options=.*/ntrip_c_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf             && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^ntrip_d_receiver_options=.*/ntrip_d_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf             && \
           sudo -u "${RTKBASE_USER}" sed -i s/^local_ntripc_receiver_options=.*/local_ntripc_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf   && \
           sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_receiver_options=.*/rtcm_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf                   && \
           sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_client_receiver_options=.*/rtcm_client_receiver_options=\'-TADJ=1\'/ "${rtkbase_path}"/settings.conf     && \
