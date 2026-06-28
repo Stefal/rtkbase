@@ -64,7 +64,7 @@ class LogManager():
                 "is_being_converted": is_being_converted
             })
 
-            self.available_logs.sort(key = lambda date: date['name'], reverse = True)
+        self.available_logs.sort(key = lambda date: date['name'], reverse = True)
         
         #Adding an id to each log
         id = 0
