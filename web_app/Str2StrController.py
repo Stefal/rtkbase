@@ -178,7 +178,7 @@ class Str2StrController:
         if tcp_client_parameters is None:
             tcp_client_parameters = def_parameters
 
-        port = "tcpcli://" + ":".join(tcp_server_parameters)
+        port = "tcpcli://" + ":".join(tcp_client_parameters)
 
         self.setPort(port, input, format)
 
@@ -193,7 +193,7 @@ class Str2StrController:
         if tcp_server_parameters is None:
             tcp_server_parameters = def_parameters
 
-        port = "tcpsvr://:" + def_parameters[0]
+        port = "tcpsvr://:" + tcp_server_parameters[0]
 
         self.setPort(port, input, format)
 
@@ -219,9 +219,9 @@ class Str2StrController:
         # 4. mount point
         # 5. str ???
 
-        port = "ntrips://:" + ntrip_client_parameters[0] + "@" + ntrip_client_parameters[1]
-        port += ":" + ntrip_client_parameters[2] + "/" + ntrip_client_parameters[3] + ":"
-        port += ntrip_client_parameters[4]
+        port = "ntrips://:" + ntrip_server_parameters[0] + "@" + ntrip_server_parameters[1]
+        port += ":" + ntrip_server_parameters[2] + "/" + ntrip_server_parameters[3] + ":"
+        port += ntrip_server_parameters[4]
 
         self.setPort(port, input, format)
 

@@ -965,6 +965,9 @@ def update_settings(json_msg):
         param json_msg: A json variable containing the source form and the new paramaters
     """
     #print("received settings form", json_msg)
+    if not json_msg:
+        print("ERROR: update_settings received empty message")
+        return
     source_section = json_msg.pop().get("source_form")
     #print("section: ", source_section)
     if source_section == "change_password":
