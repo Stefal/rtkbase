@@ -83,10 +83,14 @@ def get_interfaces_infos():
             log.debug("{} : {} : {}".format(k, part.family.name, part.address))
         device_info["ipv4"] = ipv4 if len(ipv4) > 0 else None
         device_info["ipv6"] = ipv6 if len(ipv6) > 0 else None
-        conn_name = get_conn_name(k)
-        if conn_name:
-            device_info["conn_name"] = conn_name
-        device_info["hwaddr"] = nmcli.device.show(k).get('GENERAL.HWADDR')
+        try:
+            device_show = nmcli.device.show(k)
+            conn_name = device_show.get("GENERAL.CONNECTION")
+            if conn_name:
+                device_info["conn_name"] = conn_name
+            device_info["hwaddr"] = device_show.get('GENERAL.HWADDR')
+        except nmcli.NotExistException:
+            log.debug("No device info for {}".format(k))
         interfaces_infos.append(device_info)
     return interfaces_infos
 
