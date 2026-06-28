@@ -87,12 +87,12 @@ class RTKBaseConfigManager:
         """
         datadir = self.config.get("local_storage", "datadir")
         if "$BASEDIR" in datadir:
-            exp_datadir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", datadir.strip("$BASEDIR/")))
+            exp_datadir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", datadir.removeprefix("$BASEDIR/")))
             self.update_setting("local_storage", "datadir", exp_datadir)
         
         logdir = self.config.get("log", "logdir")
         if "$BASEDIR" in logdir:
-            exp_logdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", logdir.strip("$BASEDIR/")))
+            exp_logdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", logdir.removeprefix("$BASEDIR/")))
             self.update_setting("log", "logdir", exp_logdir)
 
     def listvalues(self):
