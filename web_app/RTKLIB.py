@@ -372,7 +372,7 @@ class RTKLIB:
 
         # shutdown base
 
-        elif self.state == "base":
+        if self.state == "base":
             return self.shutdownBase()
 
         # otherwise, we are inactive
@@ -412,8 +412,7 @@ class RTKLIB:
         currently_converting = False
 
         try:
-            print("conversion thread is alive " + str(self.conversion_thread.isAlive()))
-            currently_converting = self.conversion_thread.isAlive()
+            currently_converting = self.conversion_thread.is_alive()
         except AttributeError:
             pass
 
