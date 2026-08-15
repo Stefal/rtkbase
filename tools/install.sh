@@ -419,7 +419,7 @@ detect_gnss() {
       done
       if [[ ${#detected_gnss[*]} -ne 2 ]]; then
           vendor_and_product_ids=$(lsusb | grep -i "u-blox\|Septentrio" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
-          if [[ -z "$vendor_and_product_ids" ]]; then 
+          if [[ -z "$vendor_and_product_ids" ]]; then
             echo 'NO USB GNSS RECEIVER DETECTED'
             echo 'YOU CAN REDETECT IT FROM THE WEB UI'
             #return 1
@@ -459,6 +459,33 @@ detect_gnss() {
             [[ ${#detected_gnss[*]} -eq 3 ]] && break
         done
       fi
+    # detection of a Quectel LG290P
+      # Tried last, after the UART loop above: the CH343 USB-serial bridge on the
+      # Waveshare/SparkFun LG290P breakouts has no vendor-identifying ID_SERIAL string
+      # (it's a generic WCH bridge used on many unrelated devices), so it can't be
+      # matched by udev property like u-blox/Septentrio above, and needs its own probe.
+      # Running that probe only as a last resort (rather than before the UART loop)
+      # avoids adding a multi-port/multi-baud Quectel-specific scan - and unsolicited
+      # writes to whatever's on those ports - ahead of the existing F9P/Unicore
+      # detection on ttyUSB0-2, which would otherwise be delayed by it on every install
+      # where those receivers are connected over USB-serial.
+      # lg290p_tool.py --detect scans likely ports/bauds itself and only reports a match
+      # once it gets a real PQTMVERNO response, so detection is content-based rather
+      # than VID:PID-based.
+      # -lt 2 rather than -ne 2: both this probe and the UART loop above set 3 elements
+      # (port, vendor, baud) on a match, since they already know the baud - unlike the
+      # u-blox/Septentrio USB paths earlier, which only set 2 and leave baud to the
+      # default-fill just below.
+      if [[ ${#detected_gnss[*]} -lt 2 ]]; then
+          systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
+          lg290p_probe="$(python3 "${rtkbase_path}"/tools/lg290p_tool.py --detect 2>/dev/null)"
+          if [[ "${lg290p_probe}" =~ ^/dev/([^\ ]+)\ -\ quectel\ -\ ([0-9]+)\ - ]]
+          then
+            detected_gnss[0]="${BASH_REMATCH[1]}"
+            detected_gnss[1]='quectel'
+            detected_gnss[2]="${BASH_REMATCH[2]}"
+          fi
+      fi
       # Test if speed is in detected_gnss array. If not, add the default value.
       [[ ${#detected_gnss[*]} -eq 2 ]] && detected_gnss[2]='115200'
       # If /dev/ttyGNSS is a symlink of the detected serial port, switch to ttyGNSS
@@ -485,6 +512,13 @@ detect_gnss() {
           #get Unicore model and firmware release
           detected_gnss[3]="$( { python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
           detected_gnss[4]="$( { python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_model --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
+
+      elif [[ "${detected_gnss[1]}" =~ 'quectel' ]]
+        then
+          detected_gnss[1]='quectel'
+          #get Quectel model and firmware release
+          detected_gnss[3]="$( { python3 "${rtkbase_path}"/tools/lg290p_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_firmware --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
+          detected_gnss[4]="$( { python3 "${rtkbase_path}"/tools/lg290p_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_model --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
 
       fi
       # "send" result
@@ -633,6 +667,40 @@ configure_gnss(){
               return 1
           fi
 
+        elif { model=$(python3 "${rtkbase_path}"/tools/lg290p_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_model 2>/dev/null) ; [[ "${model}" == 'LG290P' ]] ;}
+          then
+          #get LG290P firmware release
+          firmware="$(python3 "${rtkbase_path}"/tools/lg290p_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command get_firmware 2>/dev/null)" || firmware='?'
+          echo 'Quectel-' "${model}" 'Firmware: ' "${firmware}"
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_firmware=.*/receiver_firmware=\'${firmware}\'/ "${rtkbase_path}"/settings.conf
+          #factory reset, then apply the RTKBase base-station config. It's split into two
+          #save+reset cycles (mode change, then RTCM/message-rate settings) to work around a
+          #firmware quirk - see receiver_cfg/LG290P_rtkbase_rtcm3.cfg and HANDOVER_lg290p_rtkbase.md
+          #for why. lg290p_tool.py blocks until the USB port re-enumerates after each reset, so
+          #no extra sleep is needed here (unlike the Unicore branch above).
+          echo 'Resetting the ' "${model}" ' settings....'
+          if ! python3 "${rtkbase_path}"/tools/lg290p_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command reset --retry 5
+          then
+            echo 'Failed to factory reset the Gnss receiver'
+            return 1
+          fi
+          echo 'Sending settings....'
+          python3 "${rtkbase_path}"/tools/lg290p_tool.py --port /dev/${com_port} --baudrate ${com_port_settings%%:*} --command send_config_file "${rtkbase_path}"/receiver_cfg/LG290P_rtkbase_rtcm3.cfg --store --retry 3
+          if [[ $? -eq 0 ]]
+          then
+            echo 'Quectel LG290P successfuly configured'
+            sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'460800:8:n:1\'/ "${rtkbase_path}"/settings.conf                       && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'Quectel_$model\'/ "${rtkbase_path}"/settings.conf                                        && \
+            sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'rtcm3\'/ "${rtkbase_path}"/settings.conf
+            #matches the Unicore/Septentrio branches - RTCM3 logging needs more headroom
+            sudo -u "${RTKBASE_USER}" sed -i s/^min_free_space=.*/min_free_space=\'1500\'/ "${rtkbase_path}"/settings.conf
+
+            return $?
+            else
+              echo 'Failed to configure the Gnss receiver'
+              return 1
+          fi
+
         else
           echo 'No Gnss receiver has been set. We can'\''t configure'
           return 1
@@ -708,6 +776,12 @@ start_services() {
   systemctl enable --now rtkbase_archive.timer
   grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer
   grep -q "receiver='Septentrio_Mosaic-X5'" "${rtkbase_path}"/settings.conf && systemctl enable --now rtkbase_gnss_web_proxy.service
+  #gpsd can't get a time fix from a raw rtcm3/sbf/etc stream, only from NMEA - and in base
+  #mode the receiver's own NMEA position fields are typically empty anyway. raw2nmea.sh
+  #computes a real position+time from the observables and feeds gpsd from that instead; it
+  #already no-ops itself for ubx (which gpsd can read directly), so enable it for anything
+  #else once a receiver has actually been configured (empty receiver_format means none has).
+  grep -qE "^receiver_format=('ubx'|'')" "${rtkbase_path}"/settings.conf || systemctl enable --now rtkbase_raw2nmea.service
   echo '################################'
   echo 'END OF INSTALLATION'
   echo 'You can open your browser to http://'"$(hostname -I)"
