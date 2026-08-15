@@ -776,6 +776,12 @@ start_services() {
   systemctl enable --now rtkbase_archive.timer
   grep -qE "^modem_at_port='/[[:alnum:]]+.*'" "${rtkbase_path}"/settings.conf && systemctl enable --now modem_check.timer
   grep -q "receiver='Septentrio_Mosaic-X5'" "${rtkbase_path}"/settings.conf && systemctl enable --now rtkbase_gnss_web_proxy.service
+  #gpsd can't get a time fix from a raw rtcm3/sbf/etc stream, only from NMEA - and in base
+  #mode the receiver's own NMEA position fields are typically empty anyway. raw2nmea.sh
+  #computes a real position+time from the observables and feeds gpsd from that instead; it
+  #already no-ops itself for ubx (which gpsd can read directly), so enable it for anything
+  #else once a receiver has actually been configured (empty receiver_format means none has).
+  grep -qE "^receiver_format=('ubx'|'')" "${rtkbase_path}"/settings.conf || systemctl enable --now rtkbase_raw2nmea.service
   echo '################################'
   echo 'END OF INSTALLATION'
   echo 'You can open your browser to http://'"$(hostname -I)"
