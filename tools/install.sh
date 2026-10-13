@@ -6,7 +6,7 @@ declare -a detected_gnss
 declare RTKBASE_USER
 APT_TIMEOUT='-o dpkg::lock::timeout=3000' #Timeout on lock file (Could not get lock /var/lib/dpkg/lock-frontend)
 MODEM_AT_PORT=/dev/ttymodemAT
-RTKLIB_RELEASE='RTKLIB-2.5.0'
+RTKLIB_RELEASE='RTKLIB-2.5.1'
 
 man_help(){
     echo '################################'
@@ -40,7 +40,7 @@ man_help(){
     echo ''
     echo '        -r | --rtklib'
     echo '                         Get RTKlib 2.5-EX from github and compile it.'
-    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/v2.5.0'
+    echo '                         https://github.com/rtklibexplorer/RTKLIB/tree/v2.5.1'
     echo ''
     echo '        -b | --rtkbase-release'
     echo '                         Get last release of RTKBase:'
@@ -167,51 +167,26 @@ install_gpsd_chrony() {
 }
 
 install_rtklib() {
-    echo '################################'
-    echo 'INSTALLING RTKLIB'
-    echo '################################'
-    arch_package=$(uname -m)
-    #[[ $arch_package == 'x86_64' ]] && arch_package='x86'
-    [[ -f /sys/firmware/devicetree/base/model ]] && computer_model=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
-    # convert "Raspberry Pi 3 Model B plus rev 1.3" or other Raspi model to the variable "Raspberry Pi"
-    [ -n "${computer_model}" ] && [ -z "${computer_model##*'Raspberry Pi'*}" ] && computer_model='Raspberry Pi'
-    sbc_array=('Xunlong Orange Pi Zero' 'Raspberry Pi' 'OrangePi Zero3')
-    #test if computer_model in sbc_array (https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value)
-    if printf '%s\0' "${sbc_array[@]}" | grep -Fxqz -- "${computer_model}" \
-        && [[ -f "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"'/str2str' ]] \
-        && lsb_release -c | grep -qE 'bookworm|trixie' \
-        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str --version > /dev/null 2>&1 \
-        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/convbin --version > /dev/null 2>&1 \
-        && "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/rtkrcv --version > /dev/null 2>&1
-
-    then
-      echo 'Copying new rtklib binary for ' "${computer_model}" ' - ' "${arch_package}"
-      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/str2str /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/rtkrcv /usr/local/bin/
-      cp "${rtkbase_path}"'/tools/bin/'"${RTKLIB_RELEASE}"'/'"${arch_package}"/convbin /usr/local/bin/
-    else
-      echo 'No binary available for ' "${computer_model}" ' - ' "${arch_package}" '. We will build it from source'
-      _compil_rtklib
-    fi
+    # Compile and verify all tools before replacing installed RTKLIB binaries.
+    _compil_rtklib
 }
 
 _compil_rtklib() {
-    echo '################################'
-    echo 'COMPILING ' "${RTKLIB_RELEASE}"
-    echo '################################'
-    TMPDIR=$(mktemp -dt RTKLIB.XXXXX) || return 1
-    #Get Rtklib 2.5.0 release
-    sudo -u "${RTKBASE_USER}" wget -qO - https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/v2.5.0.tar.gz | tar -xvz --directory "${TMPDIR}"
-    #Install Rtklib app
-    #TODO add correct CTARGET in makefile?
-    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/str2str/gcc
-    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/str2str/gcc install
-    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/rtkrcv/gcc
-    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/rtkrcv/gcc install
-    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/convbin/gcc
-    make --directory="${TMPDIR}"/"${RTKLIB_RELEASE}"/app/consapp/convbin/gcc install
-    #deleting RTKLIB
-    rm -rf "${TMPDIR}"/"${RTKLIB_RELEASE}"/
+    local rtklib_work rtklib_name
+    rtklib_work=$(mktemp -dt RTKLIB-EX251.XXXXX) || return 1
+    echo "Building verified ${RTKLIB_RELEASE}; source and binary versions are checked"
+    if ! wget -q -O "${rtklib_work}/source.tar.gz" https://github.com/rtklibexplorer/RTKLIB/archive/refs/tags/v2.5.1.tar.gz; then
+        echo 'RTKLIB source download failed; installed binaries unchanged' >&2
+        return 1
+    fi
+    if ! python3 "${rtkbase_path}/tools/build_rtklib_ex251.py" --source-archive "${rtklib_work}/source.tar.gz" --output "${rtklib_work}/verified"; then
+        echo 'RTKLIB build or verification failed; installed binaries unchanged' >&2
+        return 1
+    fi
+    for rtklib_name in str2str rtkrcv convbin; do
+        install -m 0755 "${rtklib_work}/verified/${rtklib_name}" "/usr/local/bin/${rtklib_name}" || return 1
+    done
+    echo "RTKLIB EX 2.5.1 installed; verified build retained in ${rtklib_work}/verified"
 }
 
 _rtkbase_repo(){
@@ -546,8 +521,23 @@ configure_gnss(){
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_client_receiver_options=.*/rtcm_udp_client_receiver_options=/ "${rtkbase_path}"/settings.conf        && \
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=/ "${rtkbase_path}"/settings.conf
 
+        # Configure the explicitly selected X20P; do not scan other receivers.
+        if [[ "${receiver}" == 'u-blox_ZED-X20P' || "${receiver}" == 'U-blox_ZED-X20P' ]]
+        then
+          "${rtkbase_path}"/tools/set_zed-x20p.sh \
+             "/dev/${com_port}" \
+             "${com_port_settings%%:*}" \
+             "${rtkbase_path}"/receiver_cfg/X20P_RTCM3_OUT.txt \
+             "${position}" || return 1
+
+          echo 'U-blox ZED-X20P successfully configured'
+          sudo -u "${RTKBASE_USER}" sed -i s/^com_port_settings=.*/com_port_settings=\'115200:8:n:1\'/ "${rtkbase_path}"/settings.conf && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver=.*/receiver=\'u-blox_ZED-X20P\'/ "${rtkbase_path}"/settings.conf && \
+          sudo -u "${RTKBASE_USER}" sed -i s/^receiver_format=.*/receiver_format=\'rtcm3\'/ "${rtkbase_path}"/settings.conf
+          return $?
+
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
-        if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
+        elif [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
         then
           #get F9P firmware release
           firmware=$(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER | grep 'FWVER' | awk '{print $NF}')

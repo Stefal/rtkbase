@@ -1,20 +1,15 @@
 [Unit]
-Description=RTKBase Ntrip A
-#After=network-online.target
-#Wants=network-online.target
-Requires=str2str_tcp.service
-After=str2str_tcp.service
+Description=RTKBase NTRIP A
+Requires=rtkbase_receiver_streams.service
+After=str2str_tcp.service rtkbase_receiver_streams.service
 
 [Service]
 Type=simple
 SyslogIdentifier=str2str_ntrip_A
 User={user}
-ExecStart={script_path}/run_cast.sh in_tcp out_caster_A
+ExecStart={python_path} {script_path}/tools/ntrip_output_service.py --root {script_path} --channel A
 Restart=on-failure
 RestartSec=30
-#Limiting log to 1 msg per minute
-LogRateLimitIntervalSec=1 minute
-LogRateLimitBurst=1
 ProtectHome=read-only
 ProtectSystem=strict
 ReadWritePaths={script_path}

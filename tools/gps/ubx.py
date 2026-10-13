@@ -296,6 +296,11 @@ class ubx(object):
          "Use AssistNow Autonomous"),
         ("CFG-ANA-ORBMAXERR", 0x30230002, "U2", 1, "m",
          "Maximum acceptable (modeled) orbit error"),
+        # CFG-BDS-
+        ("CFG-BDS", 0x1034FFFF, "", 0, "",
+         "get all CFG-BDS"),
+        ("CFG-BDS-D1D2_NAVDATA", 0x20340009, "U1", 1, "",
+         "Enable only the given BDS D1/D2 navigation data streams, ignoring the others"),
         # CFG-BATCH-
         ("CFG-BATCH", 0x1026FFFF, "", 0, "",
          "get all CFG-BATCH"),
@@ -1531,6 +1536,8 @@ class ubx(object):
          "BeiDou B1I"),
         ("CFG-SIGNAL-BDS_B2_ENA", 0x1031000e, "L", 1, "",
          "BeiDou B2I"),
+        ("CFG-SIGNAL-PLAN", 0x2031003a, "U1", 1, "",
+         "SIGNAL PLAN"),
         ("CFG-SIGNAL-QZSS_ENA", 0x10310024, "L", 1, "",
          "QZSS enable"),
         ("CFG-SIGNAL-QZSS_L1CA_ENA", 0x10310012, "L", 1, "",

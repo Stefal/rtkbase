@@ -1,0 +1,18 @@
+[Unit]
+Description=RTKBase NTRIP D
+Requires=rtkbase_receiver_streams.service
+After=str2str_tcp.service rtkbase_receiver_streams.service
+
+[Service]
+Type=simple
+SyslogIdentifier=str2str_ntrip_D
+User={user}
+ExecStart={python_path} {script_path}/tools/ntrip_output_service.py --root {script_path} --channel D
+Restart=on-failure
+RestartSec=30
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths={script_path}
+
+[Install]
+WantedBy=multi-user.target

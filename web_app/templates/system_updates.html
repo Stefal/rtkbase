@@ -1,0 +1,9 @@
+<div class="row py-2 align-items-center"><div class="col-sm-4"><span class="col-sm-3">System updates</span></div><div class="col-sm-8"><button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#system-update-panel">Options</button></div></div>
+<div id="system-update-panel" class="collapse px-3 pb-3" data-token="{{ ntrip_registration_token }}">
+<p id="system-update-last">Last successful system update: not yet recorded.</p>
+<p class="text-muted">Update your system regularly to receive security fixes. This date tracks updates completed through RTKBase.</p>
+<p>Update Debian package lists and install available system updates. Package scripts may restart services. No automatic reboot.</p>
+<button id="system-update-check" class="btn btn-secondary" type="button">Update system</button>
+<p id="system-update-status" role="status" aria-live="polite"></p>
+<details id="system-update-error-details" hidden><summary>Error details</summary>
+<pre id="system-update-progress" style="max-height:220px;overflow:auto;white-space:pre-wrap"></pre></details></div>

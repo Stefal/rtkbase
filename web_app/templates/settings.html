@@ -2,6 +2,7 @@
 
 {% block styles %}
 {{super()}}
+<script src="{{ url_for('static', filename='system_updates.js', v=g.version) }}" charset="utf-8"></script>
 <style>
 .form-control::placeholder {
   color: gray;
@@ -19,7 +20,7 @@
 <!-- ######## Main Service ########-->
   <div id="main_service_space" class="form-group row pt-3 pb-3">
     <div class="col">
-    <label for="main-switch" class="col-4 col-form-label col-form-label-lg">Main service</label>
+    <label for="main-switch" class="col-4 col-form-label col-form-label-lg" data-i18n="Main service">Main service</label>
     <input id="main-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ main_settings[0].source_section }}" aria-expanded="false" aria-controls="main_service_options">Options</button>
     <a role="button" data-toggle="tooltip" title="This service manages the connection with the GNSS receiver. Here you can set its parameters. It is mandatory, all other services depend on this one.">
@@ -33,7 +34,7 @@
       <form id="{{ main_settings.pop(0).source_section }}" class="collapse was-validated">
 
         <div class="form-group row">
-        <label for="position" class="col-sm-3 col-form-label">Base coordinates: </label>
+        <label for="position" class="col-sm-3 col-form-label" data-i18n="Base coordinates:">Base coordinates: </label>
         <div class="col-sm-9">
             <input id="position" type="text" name="position" class="form-control" aria-describedby="positionHelp" placeholder="latitude longitude elevation" value="{{ main_settings[0].position }}" pattern="-?\d{1,3}\.\d+[\s]-?\d{1,3}\.\d+[\s][\-+]?\d+\.\d{2,6}" required>
             <small class="form-text text-muted" id="positionHelp">Antenna's coordinates: latitude (decimal degree) longitude (decimal degree) elevation (meter)</small>
@@ -41,23 +42,24 @@
     </div>
     <div class="form-group row">
 
-        <label for="com_port" class="col-sm-3 col-form-label">Com port: </label>
+        <label for="com_port" class="col-sm-3 col-form-label" data-i18n="Com port:">Com port: </label>
         <div class="col-sm-6">
             <input id="com_port" type="text" name="com_port" class="form-control" aria-describedby="com_portHelp" placeholder="ttyGNSS" value="{{ main_settings[1].com_port }}" pattern="\w+[^\|><\/\s]*" required>
             <small class="form-text text-muted" id="com_portHelp">Gnss receiver com port (without /dev/)</small>
         </div>
         <div class="col-sm-3 dropdown">
-          <button class="btn btn-secondary dropdown-toggle float-right" type="button" id="dropdowndetect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Try to detect and/or configure the GNSS receiver. It works only with USB GNSS receiver">Detect/Configure</button>
+          <button class="btn btn-secondary dropdown-toggle float-right" type="button" id="dropdowndetect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Detect and configure GNSS receivers" data-i18n="Receivers">Receivers</button>
           <div class="dropdown-menu" aria-labelledby="dropdowndetect">
             <a class="dropdown-item" id="detect_receiver_button" role="button">Detect</a>
-            <a class="dropdown-item" id="configure_receiver_button" role="button">Configure</a>
-            <a class="dropdown-item" id="detect_and_configure_receiver_button" role="button">Detect and Configure</a>
+            <a class="dropdown-item" id="configure_receiver_button" role="button">Configure receiver</a>
+            <a class="dropdown-item" id="detect_and_configure_receiver_button" role="button">Detect and configure</a>
+            <a class="dropdown-item" id="receiver-sources-menu" role="button">Receiver sources for NTRIP</a>
           </div>
         </div>
     </div>
     <div class="form-group row">
 
-        <label for="com_port_settings" class="col-sm-3 col-form-label">Com port settings: </label>
+        <label for="com_port_settings" class="col-sm-3 col-form-label" data-i18n="Com port settings:">Com port settings: </label>
         <div class="col-sm-9">
             <input id="com_port_settings" type="text" name="com_port_settings" class="form-control" aria-describedby="com_port_settingsHelp" placeholder="115200:8:n:1" value="{{ main_settings[2].com_port_settings }}" pattern="\w[^\|><\/\s]*" required>
             <small class="form-text text-muted" id="com_port_settingsHelp">Com port settings: baudrate:data bits:parity:stop bits:flow control</small>
@@ -65,7 +67,7 @@
     </div>
     <div class="form-group row">
 
-        <label for="receiver" class="col-sm-3 col-form-label">Receiver type: </label>
+        <label for="receiver" class="col-sm-3 col-form-label" data-i18n="Receiver type:">Receiver type: </label>
         <div class="col-sm-9">
             <input id="receiver" type="text" name="receiver" class="form-control" aria-describedby="receiverHelp" placeholder="Receiver brand & model" value="{{ main_settings[3].receiver }}" title="Gnss receiver Brand and model" pattern="\w[^\|><\/\s]*" required >
             <small class="form-text text-muted" id="receiverHelp">Gnss receiver brand and model</small>
@@ -74,7 +76,7 @@
     </div>
     <div class="form-group row">
 
-        <label for="receiver_format" class="col-sm-3 col-form-label">Receiver format: </label>
+        <label for="receiver_format" class="col-sm-3 col-form-label" data-i18n="Receiver format:">Receiver format: </label>
         <div class="col-sm-9">
             <input id="receiver_format" type="text" name="receiver_format" class="form-control" aria-describedby="receiver_formatHelp" placeholder="Receiver format" value="{{ main_settings[5].receiver_format }}" pattern="\w[^\|><\/\s]*" required>
             <small class="form-text text-muted" id="receiver_formatHelp">Gnss receiver format (ubx,sbf,stq,rtcm3,tersus,...)</small>
@@ -84,7 +86,7 @@
     </div>
     <div class="form-group row">
 
-      <label for="antenna_info" class="col-sm-3 col-form-label">Antenna info: </label>
+      <label for="antenna_info" class="col-sm-3 col-form-label" data-i18n="Antenna info:">Antenna info: </label>
       <div class="col-sm-9">
           <input id="antenna_info" type="text" name="antenna_info" class="form-control" aria-describedby="antenna_infoHelp" placeholder="ADVNULLANTENNA" value="{{ main_settings[6].antenna_info }}" pattern="\w[^\|><\/\s]*" required>
           <small class="form-text text-muted" id="antenna_infoHelp">ADVNULLANTENNA or information (model,serial number) for IGS calibrated antenna</small>
@@ -113,159 +115,14 @@
 
     </div>
           <div class="clearfix">
-            <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+            <button type="submit" class="btn btn-primary float-right" disabled data-i18n="Save">Save</button>
           </div>
       </form>
 
-<!-- ######## Ntrip A Service ########-->
-  <div id="ntrip_A_service_space" class="form-group row">
-    <div class="col">
-    <label for="ntrip_A-switch" class="col-4 col-form-label col-form-label-lg">Ntrip A service</label>
-    <input id="ntrip_A-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip_A_settings[0].source_section }}" aria-expanded="false" aria-controls="ntrip_A_service_options">Options</button>
-    <a role="button" data-toggle="tooltip" title="This service sends the rtcm messages to a Ntrip (broad)caster server like rtk2go, centipede, or others.">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
-        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-      </svg>
-    </a>
-    </div>
-  </div>
-    <form id="{{ ntrip_A_settings.pop(0).source_section }}" class="collapse was-validated">
-      <div class="form-group row">
-        <label for="svr_addr_A" class="col-sm-3 col-form-label">Caster address: </label>
-        <div class="col-sm-9">
-            <input id="svr_addr_A" type="text" name="svr_addr_A" class="form-control" aria-describedby="svr_addr_AHelp" placeholder="caster.centipede.fr" value="{{ ntrip_A_settings[0].svr_addr_A }}" pattern="\w+[^\|><\s]*" required>
-            <small class="form-text text-muted" id="svr_addr_AHelp">Caster url address</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="svr_port_A" class="col-sm-3 col-form-label">Caster port: </label>
-        <div class="col-sm-9">
-            <input id="svr_port_A" type="text" name="svr_port_A" class="form-control" aria-describedby="svr_port_AHelp" placeholder="2101" value="{{ ntrip_A_settings[1].svr_port_A }}" pattern="[0-9]{4,5}" required>
-            <small class="form-text text-muted" id="svr_port_AHelp">Caster port</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="svr_pwd_A" class="col-sm-3 col-form-label">Caster password: </label>
-        <div class="col-sm-9">
-          <div class="input-group">
-            <input id="svr_pwd_A" type="password" name="svr_pwd_A" class="form-control" aria-describedby="svr_pwd_AHelp" placeholder="Enter Password" value="{{ ntrip_A_settings[2].svr_pwd_A }}" required>
-              <span class="input-group-append">
-                <button class="btn btn-outline-secondary" id="svr_pwd_A_button" type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
-                    <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
-                    <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
-                    <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
-                  </svg>
-                </button>
-              </span>
-            </div>
-            <small class="form-text text-muted" id="svr_pwd_AHelp">Caster password</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="mnt_name_A" class="col-sm-3 col-form-label">Mount name: </label>
-        <div class="col-sm-9">
-            <input id="mnt_name_A" type="text" name="mnt_name_A" class="form-control" aria-describedby="mnt_name_AHelp" value="{{ ntrip_A_settings[3].mnt_name_A }}" pattern="[a-zA-Z\d_\-]+" required>
-            <small class="form-text text-muted" id="mnt_name_AHelp">Mount name</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="rtcm_msg_A" class="col-sm-3 col-form-label">Rtcm messages: </label>
-        <div class="col-sm-9">
-            <input id="rtcm_msg_A" type="text" name="rtcm_msg_A" class="form-control" aria-describedby="rtcm_msg_AHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ ntrip_A_settings[4].rtcm_msg_A }}" pattern="[0-9,\(\).]+" required>
-            <small class="form-text text-muted" id="rtcm_msg_AHelp">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="ntrip_A_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
-        <div class="col-sm-9">
-            <input id="ntrip_A_receiver_options" type="text" name="ntrip_A_receiver_options" aria-describedby="ntrip_A_receiver_optionsHelp" class="form-control" value="{{ ntrip_A_settings[5].ntrip_A_receiver_options }}" pattern="[^\|><\/]*">
-            <small class="form-text text-muted" id="ntrip_A_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
-        </div>
-      </div>      
+{% include 'ntrip_services.html' %}
+<div id="ntrip-settings-feedback" class="alert" role="status" hidden></div>
 
-        <div class="clearfix">
-          <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
-        </div>
-    </form>
-
-  <!-- ######## Ntrip B Service ########-->
-  <div id="ntrip_B_service_space" class="form-group row">
-    <div class="col">
-    <label for="ntrip_B-switch" class="col-4 col-form-label col-form-label-lg">Ntrip B service</label>
-    <input id="ntrip_B-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary">
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{ ntrip_B_settings[0].source_section }}" aria-expanded="false" aria-controls="ntrip_B_service_options">Options</button>
-    <a role="button" data-toggle="tooltip" title="This service sends the rtcm messages to a Ntrip (broad)caster server like rtk2go, centipede, or others.">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#6c757d" class="bi bi-info-circle" viewBox="0 0 16 16">
-        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-      </svg>
-    </a>
-    </div>
-  </div>
-    <form id="{{ ntrip_B_settings.pop(0).source_section }}" class="collapse was-validated">
-      <div class="form-group row">
-        <label for="svr_addr_B" class="col-sm-3 col-form-label">Caster address: </label>
-        <div class="col-sm-9">
-            <input id="svr_addr_B" type="text" name="svr_addr_B" class="form-control" aria-describedby="svr_addr_BHelp" placeholder="caster.centipede.fr" value="{{ ntrip_B_settings[0].svr_addr_B }}" pattern="\w+[^\|><\s]*" required>
-            <small class="form-text text-muted" id="svr_addr_BHelp">Caster url address</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="svr_port_B" class="col-sm-3 col-form-label">Caster port: </label>
-        <div class="col-sm-9">
-            <input id="svr_port_B" type="text" name="svr_port_B" class="form-control" aria-describedby="svr_port_BHelp" placeholder="2101" value="{{ ntrip_B_settings[1].svr_port_B }}" pattern="[0-9]{4,5}" required>
-            <small class="form-text text-muted" id="svr_port_BHelp">Caster port</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="svr_pwd_B" class="col-sm-3 col-form-label">Caster password: </label>
-        <div class="col-sm-9">
-          <div class="input-group">
-            <input id="svr_pwd_B" type="password" name="svr_pwd_B" class="form-control" aria-describedby="svr_pwd_BHelp" placeholder="Enter password" value="{{ ntrip_B_settings[2].svr_pwd_B }}" required>
-              <span class="input-group-append">
-                <button class="btn btn-outline-secondary" id="svr_pwd_B_button" type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
-                    <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
-                    <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
-                    <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
-                  </svg>
-                </button>
-              </span>
-            </div>
-            <small class="form-text text-muted" id="svr_pwd_BHelp">Caster password</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="mnt_name_B" class="col-sm-3 col-form-label">Mount name: </label>
-        <div class="col-sm-9">
-            <input id="mnt_name_B" type="text" name="mnt_name_B" class="form-control" aria-describedby="mnt_name_BHelp" value="{{ ntrip_B_settings[3].mnt_name_B }}" pattern="[a-zA-Z\d_\-]+" required>
-            <small class="form-text text-muted" id="mnt_name_BHelp">Mount name</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="rtcm_msg_B" class="col-sm-3 col-form-label">Rtcm messages: </label>
-        <div class="col-sm-9">
-            <input id="rtcm_msg_B" type="text" name="rtcm_msg_B" class="form-control" aria-describedby="rtcm_msg_BHelp" placeholder="1004,1005(10),1006,1008(10),1012,1019,1020,1033(10),1042,1045,1046,1077,1087,1097,1107,1127,1230" value="{{ ntrip_B_settings[4].rtcm_msg_B }}" pattern="[0-9,\(\).]+" required>
-            <small class="form-text text-muted" id="rtcm_msg_BHelp">Rtcm messages list: msg(interval in seconds),msg(interval in seconds),...</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="ntrip_B_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
-        <div class="col-sm-9">
-            <input id="ntrip_B_receiver_options" type="text" name="ntrip_B_receiver_options" class="form-control" aria-describedby="ntrip_B_receiver_optionsHelp" value="{{ ntrip_B_settings[5].ntrip_B_receiver_options }}" pattern="[^\|><\/]*">
-            <small class="form-text text-muted" id="ntrip_B_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
-        </div>
-      </div>      
-
-        <div class="clearfix">
-          <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
-        </div>
-    </form>
-
-  <!-- ######## Local Ntrip Caster Service ########-->
+<!-- ######## Local Ntrip Caster Service ########-->
   <div id="local_ntripc_service_space" class="form-group row">
     <div class="col">
     <label for="ntripc-switch" class="col-4 col-form-label col-form-label-lg">Ntrip Caster service</label>
@@ -332,10 +189,10 @@
             <input id="local_ntripc_receiver_options" type="text" name="local_ntripc_receiver_options" class="form-control" aria-describedby="local_ntripc_receiver_optionsHelp" value="{{ local_ntripc_settings[5].local_ntripc_receiver_options }}" pattern="[^\|><\/]*">
             <small class="form-text text-muted" id="local_ntripc_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
-      </div>      
+      </div>
 
         <div class="clearfix">
-          <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+          <button type="submit" class="btn btn-primary float-right" disabled data-i18n="Save">Save</button>
         </div>
     </form>
 
@@ -369,15 +226,15 @@
         </div>
       </div>
       <div class="form-group row">
-        <label for="rtcm_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <label for="rtcm_receiver_options" class="col-sm-3 col-form-label" data-i18n="Receiver options:">Receiver options: </label>
         <div class="col-sm-9">
             <input id="rtcm_receiver_options" type="text" name="rtcm_receiver_options" class="form-control" aria-describedby="rtcm_receiver_optionsHelp" value="{{ rtcm_svr_settings[2].rtcm_receiver_options }}" pattern="[^\|><\/]*">
             <small class="form-text text-muted" id="rtcm_receiver_optionsHelp">Receiver dependent options, e.g. -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>
-        
+
         <div class="clearfix">
-        <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+        <button type="submit" class="btn btn-primary float-right" disabled data-i18n="Save">Save</button>
       </div>
     </form>
 
@@ -418,15 +275,15 @@
         </div>
       </div>
       <div class="form-group row">
-        <label for="rtcm_serial_receiver_options" class="col-sm-3 col-form-label">Receiver options: </label>
+        <label for="rtcm_serial_receiver_options" class="col-sm-3 col-form-label" data-i18n="Receiver options:">Receiver options: </label>
         <div class="col-sm-9">
             <input id="rtcm_serial_receiver_options" type="text" name="rtcm_serial_receiver_options" class="form-control" aria-describedby="rtcm_serial_receiver_optionsHelp" value="{{ rtcm_serial_settings[3].rtcm_serial_receiver_options }}" pattern="[^\|><\/]*">
             <small class="form-text text-muted" id="rtcm_serial_receiver_optionsHelp">Receiver dependent options. ie: -TADJ=1 for U-Blox F9P</small>
         </div>
       </div>
-        
+
         <div class="clearfix">
-        <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+        <button type="submit" class="btn btn-primary float-right" disabled data-i18n="Save">Save</button>
       </div>
     </form>
 
@@ -446,53 +303,53 @@
   </div>
     <form id="{{ file_settings.pop(0).source_section }}" class="collapse was-validated">
       <div class="form-group row">
-        <label for="datadir" class="col-sm-3 col-form-label">Data directory: </label>
+        <label for="datadir" class="col-sm-3 col-form-label" data-i18n="Data directory:">Data directory: </label>
         <div class="col-sm-9">
             <input id="datadir" type="text" name="datadir" class="form-control" aria-describedby="datadirHelp" placeholder="/home/basegnss/rtkbase/data" value="{{ file_settings[0].datadir }}" pattern=".+[^\|\s]" required>
             <small class="form-text text-muted" id="datadirHelp">Absolute path to the directory where the data will be stored</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="file_name" class="col-sm-3 col-form-label">File name: </label>
+        <label for="file_name" class="col-sm-3 col-form-label" data-i18n="File name:">File name: </label>
         <div class="col-sm-9">
             <input id="file_name" type="text" name="file_name" class="form-control" aria-describedby="file_nameHelp" placeholder="%Y-%m-%d_%h-%M-%S_GNSS-1" value="{{ file_settings[1].file_name }}" pattern="%Y-%m-%d_%h-%M-%S[^\|><\s]*" required>
             <small class="form-text text-muted" id="file_nameHelp">Data file name construction (should start with %Y-%m-%d_%h-%M-%S)</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="file_rotate_time" class="col-sm-3 col-form-label">File rotation: </label>
+        <label for="file_rotate_time" class="col-sm-3 col-form-label" data-i18n="File rotation:">File rotation: </label>
         <div class="col-sm-9">
             <input id="file_rotate_time" type="text" name="file_rotate_time" class="form-control" aria-describedby="file_rotate_timeHelp" placeholder="24" value="{{ file_settings[2].file_rotate_time }}" pattern="\d+\.?\d*" required>
             <small class="form-text text-muted" id="file_rotate_timeHelp">File rotation time (in hours)</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="file_overlap_time" class="col-sm-3 col-form-label">File overlap: </label>
+        <label for="file_overlap_time" class="col-sm-3 col-form-label" data-i18n="File overlap:">File overlap: </label>
         <div class="col-sm-9">
             <input id="file_overlap_time" type="text" name="file_overlap_time" class="form-control" aria-describedby="file_overlap_timeHelp" placeholder="0" value="{{ file_settings[3].file_overlap_time }}" pattern="\d+" required>
             <small class="form-text text-muted" id="file_overlap_timeHelp">File overlap time (in seconds)</small>
         </div>
       </div>
       <div class="form-group row">
-        <label for="archive_rotate" class="col-sm-3 col-form-label">Archive duration: </label>
+        <label for="archive_rotate" class="col-sm-3 col-form-label" data-i18n="Archive duration:">Archive duration: </label>
         <div class="col-sm-9">
             <input id="archive_rotate" type="text" name="archive_rotate" class="form-control" aria-describedby="archive_rotateHelp" placeholder="60" value="{{ file_settings[4].archive_rotate }}" pattern="\d+" required>
             <small class="form-text text-muted" id="archive_rotateHelp">Archives older than this value (in days) will be deleted</small>
         </div>
       </div>
         <div class="clearfix">
-          <button type="submit" class="btn btn-primary float-right" disabled>Save</button>
+          <button type="submit" class="btn btn-primary float-right" disabled data-i18n="Save">Save</button>
         </div>
     </form>
 </div>
 <div id="system_settings" class="container">
-    <h4> System Settings:</h4>
+    <h4 data-i18n="System Settings:"> System Settings:</h4>
     <div class="row py-2 align-items-center">
         <div class="col-sm-4">
             <span class="col-sm-3">Rtkbase {{ g.version }}</span>
         </div>
         <div class="col-sm-8">
-            <button id="check_update_button" class="btn btn-secondary" type="button">Check update</button>
+            <button id="check_update_button" class="btn btn-secondary" type="button" data-i18n="Check update">Check update</button>
         </div>
     </div>
 
@@ -500,8 +357,8 @@
       <div class="col-sm-4">
         <span class="col-sm-3">Change Password:</span>
       </div>
-      <div class="col-sm-8"> 
-        <form id="change_password">  
+      <div class="col-sm-8">
+        <form id="change_password">
           <!--
           <div class="form-group row">
             <label for="cur_pwd" class="col-sm-3 col-form-label">Current: </label>
@@ -510,7 +367,7 @@
                 <div class="invalid-feedback">Current password</div>
             </div>
           </div>
-          -->      
+          -->
           <div class="form-group row">
             <label for="new_password" class="col-sm-3 col-form-label">New: </label>
             <div class="col-sm-9">
@@ -526,7 +383,7 @@
             </div>
           </div>
           <div class="clearfix">
-            <button type="submit" class="btn btn-primary float-right" disabled>Change password</button>
+            <button type="submit" class="btn btn-primary float-right" disabled data-i18n="Change password">Change password</button>
           </div>
         </form>
       </div>
@@ -534,7 +391,7 @@
 
   <div class="row py-2 align-items-center">
     <div class="col-sm-4">
-      <span class="col-sm-3">Gnss receiver:</span>
+      <span class="col-sm-3" data-i18n="Gnss receiver:">Gnss receiver:</span>
     </div>
     <div class="col-sm-8">
       <span>{{ main_settings[3].receiver }} - {{ main_settings[4].receiver_firmware }}
@@ -568,9 +425,9 @@
       <span class="col-sm-3">CPU Temp:</span>
     </div>
     <div class="col-sm-8">
-      <span id="cpu_temperature">- C°</span>
+      <span id="cpu_temperature">- CÃ‚Â°</span>
       <span>- (highest record: </span>
-      <span id="max_cpu_temperature">- C°)</span>
+      <span id="max_cpu_temperature">- CÃ‚Â°)</span>
     </div>
   </div>
 
@@ -604,15 +461,15 @@
 
     </div>
   </div>
-  
+
   <div class="row py-2 align-items-center">
     <div class="col-sm-4">
-      <span class="col-sm-3">Settings:</span>
+      <span class="col-sm-3" data-i18n="Settings:">Settings:</span>
     </div>
     <div class="col-sm-8">
-        <button id="backup-button" class="btn btn-secondary" type="button">Backup</button>
-        <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#restoreSettingsModal">Restore</button>
-        <button id="reset-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#resetModal">Reset</button>
+        <button id="backup-button" class="btn btn-secondary" type="button" data-i18n="Backup">Backup</button>
+        <button id="restore-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#restoreSettingsModal" data-i18n="Restore">Restore</button>
+        <button id="reset-button" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#resetModal" data-i18n="Reset">Reset</button>
     </div>
   </div>
 
@@ -622,9 +479,12 @@
     </div>
     <div class="col-sm-8">
         <a href="{{ url_for('diagnostic') }}" target="_blank" class="btn btn-secondary" role="button">View</a>
-        <!--<button id="download-diag-button" class="btn btn-secondary" type="button" disabled>Download</button>-->
+        <!--<button id="download-diag-button" class="btn btn-secondary" type="button" disabled data-i18n="Download">Download</button>-->
     </div>
+
   </div>
+
+  {% include "system_updates.html" %}
 
     <div class="row py-2 align-items-center">
       <div class="col-sm-4">
@@ -635,10 +495,29 @@
           <button id="shutdown-button" class="btn btn-secondary" type="button">Shutdown</button>
       </div>
   </div>
-    
+
 </div>
 
 <!-- The Detect/configure Gnss receiver Modal dialog box-->
+<div class="modal" id="receiverSourcesModal" tabindex="-1" role="dialog" aria-labelledby="receiver-discovery-title">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-body"><section class="border rounded p-3 mb-4" aria-labelledby="receiver-discovery-title" id="receiver-discovery" data-token="{{ ntrip_registration_token }}">
+<h5 id="receiver-discovery-title">Receiver sources</h5>
+<p>Detect connected USB devices, choose your receiver and give it a name. Detection does not open or configure receivers.</p>
+<button id="receiver-discover" class="btn btn-secondary" type="button" data-i18n="Detect receivers">Detect receivers</button>
+<div id="receiver-discovery-fields" hidden>
+<label for="receiver-discovered-device" data-i18n="Connected device">Connected device</label><select id="receiver-discovered-device" class="form-control"></select>
+<label for="receiver-discovered-name" data-i18n="Receiver name">Receiver name</label><input id="receiver-discovered-name" class="form-control" maxlength="80">
+<label for="receiver-discovered-format" data-i18n="Current receiver output format">Current receiver output format</label><select id="receiver-discovered-format" class="form-control"><option value="">Select the format already configured on the receiver</option><option value="rtcm3">RTCM3</option><option value="ubx">u-blox UBX</option><option value="sbf">Septentrio SBF</option><option value="unicore">Unicore binary</option></select>
+<small class="form-text text-muted">USB detection cannot verify the receiver model, output format or baudrate. Adding a source does not change NTRIP selections or start a receiver.</small>
+<details><summary>Serial connection options</summary><label for="receiver-discovered-baud" data-i18n="Current baudrate">Current baudrate</label><select id="receiver-discovered-baud" class="form-control">{% for baud in [9600,19200,38400,57600,115200,230400,460800,921600] %}<option {% if baud == 115200 %}selected{% endif %}>{{ baud }}</option>{% endfor %}</select></details>
+<button id="receiver-discovered-add" type="button" class="btn btn-primary mt-3" data-i18n="Save receiver">Save receiver</button>
+</div><p id="receiver-discovery-result" class="mt-2" role="status" aria-live="polite"></p>
+</section></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal" data-i18n="Close">Close</button></div>
+  </div></div>
+</div>
+
 <div class="modal" id="detectModal" data-backdrop="static">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -650,11 +529,11 @@
         <div class="modal-body">
           <!-- <p id="gnss-detection" class="text-center" hidden><span class="spinner-border spinner-border-sm"></span> Detecting GNSS receiver...'</p> -->
           <p class="text-center"></p>
-        </div>       
+        </div>
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
-          <button id="apply-button" type="button" class="btn btn-success" disabled>Apply</button>          
-          <button id="cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+          <button id="apply-button" type="button" class="btn btn-success" disabled data-i18n="Apply">Apply</button>
+          <button id="cancel-button" type="button" class="btn btn-primary" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
         </div>
     </div>
   </div>
@@ -663,20 +542,20 @@
 <!-- The update Modal dialog box-->
 <div class="modal" id="updateModal" data-backdrop="static">
     <div class="modal-dialog">
-      <div class="modal-content">     
+      <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
-          <h4 class="modal-title">Update</h4>
+          <h4 class="modal-title" data-i18n="Update">Update</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>       
+        </div>
         <!-- Modal body -->
-        <div class="modal-body">          
-        </div>       
+        <div class="modal-body">
+        </div>
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
-          <button id="start-update-button" type="button" class="btn btn-success" disabled>Update</button>
-          <button id="cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>         
-        </div>      
+          <button id="start-update-button" type="button" class="btn btn-success" disabled data-i18n="Update">Update</button>
+          <button id="update-cancel-button" type="button" class="btn btn-primary" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
@@ -684,19 +563,19 @@
   <!-- The Paswword is changed Modal dialog box-->
 <div class="modal" id="passwordChangedModal">
   <div class="modal-dialog">
-    <div class="modal-content">     
+    <div class="modal-content">
       <!-- Modal Header -->
       <div class="modal-header">
         <h4 class="modal-title">Password Update</h4>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>       
+      </div>
       <!-- Modal body -->
       <div class="modal-body text-center ">The password was updated successfuly
-      </div>       
+      </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
-        <a href="{{ url_for('logout') }}" class="btn btn-success" role="button">Log out</a>
-      </div>      
+        <a href="{{ url_for('logout') }}" class="btn btn-success" role="button" data-i18n="Log out">Log out</a>
+      </div>
     </div>
   </div>
 </div>
@@ -704,12 +583,12 @@
   <!-- The restore settings Modal dialog box-->
   <div class="modal" id="restoreSettingsModal" data-backdrop="static">
     <div class="modal-dialog">
-      <div class="modal-content">     
+      <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Restore saved settings</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>       
+        </div>
         <!-- Modal body -->
         <div class="modal-body text-center ">
           <p>Restore RTKBase with previously saved settings.</p>
@@ -718,14 +597,14 @@
               <!--<input type="submit" class="btn btn-danger" role="button" value="Restore">-->
             </p><p id="restoration_server_answer"></p>
         </form>
-        </div>       
+        </div>
         <!-- Modal footer -->
         <div class="modal-footer mx-auto">
-          <a href="{{ url_for('logout') }}" id="restore-logout-button" class="btn btn-success" role="button" style="display: none;">Logout</a>
-          <!--<button id="restore-logout-button" type="button" class="btn btn-success" style="display: none;">Logout</button> -->
+          <a href="{{ url_for('logout') }}" id="restore-logout-button" class="btn btn-success" role="button" style="display: none;" data-i18n="Logout">Logout</a>
+          <!--<button id="restore-logout-button" type="button" class="btn btn-success" style="display: none;" data-i18n="Logout">Logout</button> -->
           <button id="restore-settings-button" type="button" class="btn btn-danger" disabled>Restore Settings</button>
-          <button type="button" id="restore-cancel-button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-        </div>      
+          <button type="button" id="restore-cancel-button" class="btn btn-primary" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
@@ -741,13 +620,13 @@
       <!-- Modal body -->
       <div class="modal-body text-center ">
         <p>Reset RTKBase to default settings (including password). You will be redirected to the login page.</p>
-        <p>Are you sure?</p>          
+        <p>Are you sure?</p>
       </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
-        <button id="confirm-reset-button" type="button" class="btn btn-danger">Reset</button>
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-      </div>     
+        <button id="confirm-reset-button" type="button" class="btn btn-danger" data-i18n="Reset">Reset</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -762,13 +641,13 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <!-- Modal body -->
-      <div class="modal-body text-center ">Reboot the GNSS Base. Are you sure?          
+      <div class="modal-body text-center ">Reboot the GNSS Base. Are you sure?
       </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
         <button id="confirm-reboot-button" type="button" class="btn btn-danger">Reboot</button>
-        <button id="reboot-cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-      </div>     
+        <button id="reboot-cancel-button" type="button" class="btn btn-primary" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -783,13 +662,13 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <!-- Modal body -->
-      <div class="modal-body text-center ">Shutdown the GNSS Base. Are you sure?          
+      <div class="modal-body text-center ">Shutdown the GNSS Base. Are you sure?
       </div>
       <!-- Modal footer -->
       <div class="modal-footer mx-auto">
         <button id="confirm-shutdown-button" type="button" class="btn btn-danger">Shutdown</button>
-        <button id="shutdown-cancel-button" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-      </div>     
+        <button id="shutdown-cancel-button" type="button" class="btn btn-primary" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -799,6 +678,7 @@
 
 {% block scripts %}
 {{super()}}
+<script src="{{ url_for('static', filename='system_updates.js', v=g.version) }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap4-toggle-3.7.1-beta.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='lib/snarkdown.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='settings.js', v=g.version) }}" charset="utf-8"></script>
