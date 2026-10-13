@@ -1,0 +1,13 @@
+[Unit]
+Description=RTKBase system package updates
+After=network-online.target
+RefuseManualStop=yes
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+StateDirectory=rtkbase-system-update
+StateDirectoryMode=0700
+ExecStart={python_path} {script_path}/tools/system_update_worker.py
+TimeoutStartSec=infinity

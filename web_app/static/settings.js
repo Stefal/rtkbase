@@ -79,7 +79,7 @@ $(document).ready(function () {
     // View/hide password buttons for: Ntrip A, Ntrip B and Local caster
     document.querySelectorAll(".input-group-append").forEach(function(e) {
         var name = e.querySelector("button").id.replace("_button", "");
-        if (!["svr_pwd_A", "svr_pwd_B", "local_ntripc_pwd", "rtcm_client_pwd"].includes(name))
+        if (!/^svr_pwd_[a-f]$/i.test(name) && !["local_ntripc_pwd", "rtcm_client_pwd"].includes(name))
             return;
 
         var button = $("#" + name + "_button");
@@ -106,11 +106,65 @@ $(document).ready(function () {
         });
     });
     
+    $('#receiver-sources-menu').on('click', function() {
+        $('#receiverSourcesModal').modal('show');
+        $('#receiver-discover').trigger('click');
+    });
+    $('#receiver-discover').on('click', async function() {
+        var button=this;button.disabled=true;
+        var result=document.getElementById('receiver-discovery-result');
+        var fields=document.getElementById('receiver-discovery-fields');fields.hidden=true;
+        result.textContent='Detecting connected USB devices...';
+        try {
+            var response=await fetch('/api/v1/ntrip/receiver-sources/discover');
+            if (!response.ok) {throw new Error('Receiver detection failed. Check your login and try again.');}
+            var body=await response.json();var select=document.getElementById('receiver-discovered-device');
+            select.replaceChildren();
+            body.receivers.forEach(function(receiver) {
+                var option=document.createElement('option');option.value=receiver.device;
+                option.textContent=receiver.label+' — '+receiver.usb_name;option.dataset.label=receiver.label;select.appendChild(option);
+            });
+            fields.hidden=body.receivers.length===0;
+            result.textContent=fields.hidden?'No additional USB device found. Connected sources and the main receiver are excluded.':'Select a receiver and confirm its current output format.';
+            if (!fields.hidden) {document.getElementById('receiver-discovered-name').value=select.selectedOptions[0].dataset.label;}
+            document.getElementById('receiver-discovered-format').value='';
+        } catch(error) {result.textContent=error.message;} finally {button.disabled=false;}
+    });
+    $('#receiver-discovered-device').on('change', function() {
+        document.getElementById('receiver-discovered-name').value=this.selectedOptions[0].dataset.label;
+        document.getElementById('receiver-discovered-format').value='';
+    });
+    $('#receiver-discovered-add').on('click', async function() {
+        var result=document.getElementById('receiver-discovery-result');var button=this;
+        if (!$('#receiver-discovered-format').val()) {result.textContent='Select the current receiver output format.';return;}
+        button.disabled=true;
+        try {
+            var response=await fetch('/api/v1/ntrip/receiver-sources', {method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':document.getElementById('receiver-discovery').dataset.token},body:JSON.stringify({detected_device:$('#receiver-discovered-device').val(),label:$('#receiver-discovered-name').val(),format:$('#receiver-discovered-format').val(),baudrate:$('#receiver-discovered-baud').val()})});
+            var body=await response.json();if (!response.ok) {throw new Error(body.message || 'Receiver registration failed');}
+            window.location.reload();
+        } catch(error) {result.textContent=error.message;button.disabled=false;}
+    });
+
+    socket.on('ntrip_settings_result', function(result) {
+        var feedback=document.getElementById('ntrip-settings-feedback');
+        feedback.hidden=false;feedback.className='alert '+(result.result==='success'?'alert-success':'alert-danger');
+        feedback.textContent=result.message;
+        if (result.result!=='success') { $('[id^="ntrip_"] button[type=submit]').prop('disabled',false); }
+    });
+
     // ####################### HANDLE RTKBASE SERVICES    #######################
 
     socket.on("services status", function(msg) {
         // gestion des services
         var servicesStatus = JSON.parse(msg);
+        servicesStatus.filter(function(service) { return /^ntrip_[C-F]$/.test(service.name); }).forEach(function(service) {
+            var toggle=$('#'+service.name+'-switch');
+            toggle.bootstrapToggle(service.active === true ? 'on' : 'off', true);
+            toggle.off('change.ntripRouting').on('change.ntripRouting', function() {
+                socket.emit('services switch', {name:service.name,active:$(this).prop('checked')});
+            });
+        });
+
         //console.log("service status: " + servicesStatus);
         
         // ################ MAiN service Switch  ######################
@@ -467,7 +521,7 @@ $(document).ready(function () {
         $("#updateModal .modal-body").text("Please wait...Downloading update...");
         $(this).prop("disabled", true);
         $(this).html('<span class="spinner-border spinner-border-sm"></span> Updating...');
-        $("#cancel-button").prop("disabled", true);
+        $("#update-cancel-button").prop("disabled", true);
         //now, we waiting for a download result message from the server
     })
 
@@ -479,7 +533,7 @@ $(document).ready(function () {
         } else {
             $("#updateModal .modal-body").text("Download failure");
             $("#start-update-button").html('Update...');
-            $("#cancel-button").prop("disabled", false);
+            $("#update-cancel-button").prop("disabled", false);
         }
     })
 
@@ -493,7 +547,7 @@ $(document).ready(function () {
         }
         $("#start-update-button").html('Update');
         $("#start-update-button").prop("disabled", true);
-        $("#cancel-button").prop("disabled", false);
+        $("#update-cancel-button").prop("disabled", false);
     })
 
     socket.on("updating_rtkbase", function() {

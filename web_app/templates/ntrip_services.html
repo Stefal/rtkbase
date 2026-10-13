@@ -1,0 +1,23 @@
+{# Independent NTRIP channels; source IDs are stable configuration IDs. #}
+{% for channel in ntrip_channels %}
+<section class="mb-4" aria-labelledby="title-ntrip-{{ channel.letter }}">
+  <div class="form-group row"><div class="col">
+    <label id="title-ntrip-{{ channel.letter }}" for="ntrip_{{ channel.letter }}-switch" class="col-4 col-form-label col-form-label-lg">NTRIP {{ channel.letter }} service</label>
+    <input id="ntrip_{{ channel.letter }}-switch" type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="outline-secondary" {% if not channel.installed %}disabled{% endif %}>
+    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#ntrip_{{ channel.letter }}" aria-expanded="false">Options</button>
+    {% if not channel.installed %}<small class="text-muted">Service installation required before activation.</small>{% endif %}
+  </div></div>
+  <form id="ntrip_{{ channel.letter }}" class="collapse was-validated">
+    <div class="form-group row"><label for="ntrip_{{ channel.lower }}_source" class="col-sm-3 col-form-label" data-i18n="Receiver">Receiver</label><div class="col-sm-9">
+      <select id="ntrip_{{ channel.lower }}_source" name="ntrip_{{ channel.lower }}_source" class="form-control" required>
+      {% for source in receiver_sources %}<option value="{{ source.identity }}" {% if source.identity == channel.source %}selected{% endif %}>{{ source.label }} â€” local port {{ source.port }}</option>{% endfor %}
+      {% if channel.source_missing %}<option value="{{ channel.source }}" selected>Unavailable receiver: {{ channel.source }}</option>{% endif %}
+      </select><small class="form-text text-muted">Services selecting the same receiver share its input stream. The caster port is independent.</small>
+    </div></div>
+    {% for field in channel.fields %}
+    <div class="form-group row"><label for="{{ field.name }}" class="col-sm-3 col-form-label">{{ field.label }}</label><div class="col-sm-9">{% if field.type == 'password' %}<div class="input-group">{% endif %}<input id="{{ field.name }}" name="{{ field.name }}" type="{{ field.type }}" class="form-control" value="{{ field.value }}" {% if field.required %}required{% endif %}{% if field.type == 'number' %} min="1" max="65535"{% endif %}>{% if field.type == 'password' %}<div class="input-group-append"><button id="{{ field.name }}_button" class="btn btn-outline-secondary" type="button" aria-label="Show or hide password">Show</button></div></div>{% endif %}</div></div>
+    {% endfor %}
+    <div class="clearfix"><button type="submit" class="btn btn-primary float-right" disabled data-i18n="Save">Save</button></div>
+  </form>
+</section>
+{% endfor %}

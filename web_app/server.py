@@ -2,7 +2,7 @@
 
 # This Flask app is a heavily modified version of Reachview
 # modified to be used as a front end for GNSS base
-# author: Stéphane Péneau
+# author: StÃƒÂ©phane PÃƒÂ©neau
 # source: https://github.com/Stefal/rtkbase
 
 # ReachView code is placed under the GPL license.
@@ -40,6 +40,7 @@ import requests
 import tempfile
 import argparse
 import html
+from pathlib import Path
 
 from threading import Thread
 from RTKLIB import RTKLIB
@@ -58,6 +59,7 @@ from flask import Flask, render_template, session, request, flash, url_for
 from flask import send_from_directory, redirect, abort
 from flask import g
 from flask_wtf import FlaskForm
+from flask_wtf.csrf import generate_csrf, validate_csrf
 from wtforms import PasswordField, BooleanField, SubmitField
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from wtforms.validators import ValidationError, DataRequired, EqualTo
@@ -83,6 +85,11 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 128
 app.config['UPLOAD_EXTENSIONS'] = ['.conf', '.txt', 'ini']
 
 rtkbase_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.insert(0, os.path.join(rtkbase_path, "tools"))
+from receiver_batch_lock import ReceiverBatchLock
+from ntrip_routing import settings_context, resolve_route, validate_channel_update, register_source
+from usb_identity import data_links
+from receiver_source_discovery import discover_sources, detected_payload
 path_to_rtklib = "/usr/local/bin" #TODO find path with which or another tool
 
 login=LoginManager(app)
@@ -111,6 +118,12 @@ services_list = [{"service_unit" : "str2str_tcp.service", "name" : "main"},
                  {'service_unit' : 'rtkbase_raw2nmea.service', "name" : "raw2nmea"},
                  {'service_unit' : 'rtkbase_gnss_web_proxy.service', "name": "RTKBase Reverse Proxy for Gnss receiver Web Server"}
                  ]
+
+# Append channels without shifting the legacy service indices.
+for channel in 'CDEF':
+    unit_name = 'str2str_ntrip_' + channel + '.service'
+    if os.path.isfile('/etc/systemd/system/' + unit_name):
+        services_list.append({'service_unit': unit_name, 'name': 'ntrip_' + channel})
 
 #Delay before rtkrcv will stop if no user is on status.html page
 rtkcv_standby_delay = 600
@@ -215,9 +228,9 @@ def repaint_services_button(services_list):
         status = running => green button
         status = auto-restart => orange button (alert)
         result = exit-code or signal => red button (danger)
-    """ 
+    """
     for service in services_list:
-        """ 
+        """
         if service.get("status") == "running":
             service["btn_color"] = "success"
             service["btn_off_color"] = "outline-secondary"
@@ -233,7 +246,7 @@ def repaint_services_button(services_list):
         if service.get("state_ok") == False:
             service["btn_off_color"] = "outline-danger"
         elif service.get("state_ok") == True:
-            service["btn_off_color"] = "outline-secondary" 
+            service["btn_off_color"] = "outline-secondary"
         """
 
         if service.get("status") == "running":
@@ -467,7 +480,10 @@ def settings_page():
     file_settings = rtkbaseconfig.get_file_settings()
 
     return render_template("settings.html", main_settings = main_settings,
+                                            ntrip_registration_token=generate_csrf(),
+                                            receiver_data_ports=[str(path) for path in data_links()],
                                             ntrip_A_settings = ntrip_A_settings,
+                                            **settings_context(rtkbaseconfig.config, [service['name'][-1] for service in services_list if service['name'].startswith('ntrip_')]),
                                             ntrip_B_settings = ntrip_B_settings,
                                             local_ntripc_settings = local_ntripc_settings,
                                             rtcm_svr_settings = rtcm_svr_settings,
@@ -477,6 +493,54 @@ def settings_page():
                                             rtcm_serial_settings = rtcm_serial_settings,
                                             file_settings = file_settings,
                                             os_infos = distro.info(),)
+
+@app.route('/api/v1/system-updates', methods=['GET', 'POST'])
+@login_required
+def system_package_updates():
+    from system_updates import queue, status
+    from receiver_batch_lock import BatchBusy
+    try:
+        if request.method == 'POST':
+            validate_csrf(request.headers.get('X-CSRFToken'))
+            payload = request.get_json()
+            if not isinstance(payload, dict) or set(payload) - {'action', 'review_id'}:
+                raise ValueError('Invalid update request')
+            return jsonify(queue(payload.get('action'), payload.get('review_id')))
+        return jsonify(status())
+    except (ValueError, RuntimeError, OSError, ValidationError, BatchBusy) as error:
+        return jsonify({'error': str(error)}), 400
+
+
+@app.route('/api/v1/ntrip/receiver-sources/discover', methods=['GET'])
+@login_required
+def discover_ntrip_receiver_sources():
+    return jsonify({'receivers': discover_sources(rtkbaseconfig.config),
+                    'receivers_opened': False, 'commands_sent': False})
+
+
+@app.route('/api/v1/ntrip/receiver-sources', methods=['POST'])
+@login_required
+def add_ntrip_receiver_source():
+    try:
+        validate_csrf(request.headers.get('X-CSRFToken'))
+        payload=request.get_json()
+        if not isinstance(payload,dict):raise ValueError('Invalid receiver settings')
+        if 'detected_device' in payload:
+            payload=detected_payload(rtkbaseconfig.config,payload,discover_sources(rtkbaseconfig.config))
+        candidate=register_source(rtkbaseconfig.config,payload)
+        device=Path(payload['device'])
+        if not device.is_symlink() or not device.exists():raise ValueError('USB data port is unavailable')
+        existing=[Path(value.strip("'")) for section in rtkbaseconfig.config.sections() if section.startswith('receiver_stream_') for key,value in rtkbaseconfig.config.items(section) if key.endswith('_device')]
+        main_port=rtkbaseconfig.get('main','com_port').strip("'")
+        if main_port:existing.append(Path(main_port) if main_port.startswith('/') else Path('/dev')/main_port)
+        if any(path.exists() and path.resolve()==device.resolve() for path in existing):raise ValueError('This USB data port already belongs to a receiver source')
+        section='receiver_stream_'+payload['identity']
+        rtkbaseconfig.config.add_section(section)
+        for key,value in candidate.items(section):rtkbaseconfig.update_setting(section,key,value,write_file=False)
+        rtkbaseconfig.write_file()
+        return jsonify({'result':'success'})
+    except (ValueError,KeyError,ValidationError) as error:
+        return jsonify({'result':'failed','message':str(error)}),400
 
 @app.route('/logs')
 @login_required
@@ -534,17 +598,17 @@ def diagnostic():
                                 stdout=subprocess.PIPE,
                                 universal_newlines=True,
                                 check=False)
-        journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']], 
+        journalctl = subprocess.run(['journalctl', '--since', '7 days ago', '-u', service['service_unit']],
                                  stdout=subprocess.PIPE,
                                  universal_newlines=True,
                                  check=False)
-        
+
         #Replace carrier return to <br> for html view
         sysctl_status = html.escape(sysctl_status.stdout).replace('\n', '<br>')
         journalctl = html.escape(journalctl.stdout).replace('\n', '<br>')
         active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
-        
+
     return render_template('diagnostic.html', logs = logs)
 
 
@@ -553,7 +617,7 @@ def get_infos():
     """Small api route to get basic informations about the base station"""
 
     infos = {"app" : "RTKBase",
-             "app_version" : rtkbaseconfig.get("general", "version"), 
+             "app_version" : rtkbaseconfig.get("general", "version"),
              "url" : html.escape(request.base_url),
              "fqdn" : socket.getfqdn(),
              "uptime" : get_uptime(),
@@ -603,7 +667,7 @@ def shutdownBase():
 @socketio.on("start base", namespace="/test")
 def startBase():
     saved_input_type = rtkbaseconfig.get("main", "receiver_format").strip("'")
-    #check if the main service is running and the gnss format is correct. If not, don't try to start rtkrcv with startBase() 
+    #check if the main service is running and the gnss format is correct. If not, don't try to start rtkrcv with startBase()
     if services_list[0].get("active") is False or saved_input_type not in ["rtcm2","rtcm3","nov","oem3","ubx","ss2","hemis","stq","javad","nvs","binex","rt17","sbf", "unicore"]:
         print("DEBUG: Can't start rtkrcv as main service isn't enabled or gnss format is wrong")
         result = {"result" : "failed"}
@@ -641,8 +705,8 @@ def deleteLog(json_msg):
 
 #### Detect GNSS receiver button handler ####
 
-@socketio.on("detect_receiver", namespace="/test")
-def detect_receiver(json_msg):
+
+def _detect_receiver_unlocked(json_msg):
     print("Detecting gnss receiver")
     #print("DEBUG json_msg: ", json_msg)
     answer = subprocess.run([os.path.join(rtkbase_path, "tools", "install.sh"), "--user", rtkbaseconfig.get("general", "user"), "--detect-gnss", "--no-write-port"], encoding="UTF-8", stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=False)
@@ -666,10 +730,11 @@ def detect_receiver(json_msg):
     #result = {"result" : "failed"}
     #result = {"result" : "success", "port" : "/dev/ttybestport", "gnss_type" : "F12P", "port_speed" : "115200", "firmware" : "1.55"}
     result.update(json_msg) ## get back "then_configure" key/value
-    socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test")
+    socketio.emit("gnss_detection_result", json.dumps(result), namespace="/test", room=request.sid)
 
-@socketio.on("apply_receiver_settings", namespace="/test")
-def apply_receiver_settings(json_msg):
+
+
+def _apply_receiver_settings_unlocked(json_msg):
     print("Applying gnss receiver new settings")
     print(json_msg)
     rtkbaseconfig.update_setting("main", "com_port", json_msg.get("port").strip("/dev/"), write_file=False)
@@ -677,10 +742,9 @@ def apply_receiver_settings(json_msg):
     rtkbaseconfig.update_setting("main", "receiver", json_msg.get("gnss_type") + '_' + json_msg.get("model"), write_file=False)
     rtkbaseconfig.update_setting("main", "receiver_firmware", json_msg.get("firmware"), write_file=True)
 
-    socketio.emit("gnss_settings_saved", json.dumps(json_msg), namespace="/test")
+    socketio.emit("gnss_settings_saved", json.dumps(json_msg), namespace="/test", room=request.sid)
 
-@socketio.on("configure_receiver", namespace="/test")
-def configure_receiver(brand="", model=""):
+def _configure_receiver_unlocked(brand="", model=""):
     # only some receiver could be configured automaticaly
     # After port detection, the main service will be restarted, and it will take some time. But we have to stop it to
     # configure the receiver. We wait a few seconds before stopping it to remove conflicting calls.
@@ -706,7 +770,53 @@ def configure_receiver(brand="", model=""):
         #print("DEBUG: Restarting main service after F9P configuration")
         main_service["unit"].start()
     #result = {"result" : "success"}
-    socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test")
+    socketio.emit("gnss_configuration_result", json.dumps(result), namespace="/test", room=request.sid)
+
+
+
+@socketio.on("detect_receiver", namespace="/test")
+def detect_receiver(*args, **kwargs):
+    if not current_user.is_authenticated:
+        socketio.emit("gnss_detection_result", json.dumps({"result": "failed", "error_type": "AuthenticationRequired"}), namespace="/test", room=request.sid)
+        return
+    try:
+        with ReceiverBatchLock(os.path.join(rtkbase_path, '.receiver-configuration.lock')):
+            return _detect_receiver_unlocked(*args, **kwargs)
+    except Exception as error:
+        socketio.emit("gnss_detection_result", json.dumps({"result": "failed", "error_type": type(error).__name__}), namespace="/test", room=request.sid)
+
+
+
+
+@socketio.on("apply_receiver_settings", namespace="/test")
+def apply_receiver_settings(*args, **kwargs):
+    if not current_user.is_authenticated:
+        socketio.emit("gnss_settings_saved", json.dumps({"result": "failed", "error_type": "AuthenticationRequired"}), namespace="/test", room=request.sid)
+        return
+    try:
+        with ReceiverBatchLock(os.path.join(rtkbase_path, '.receiver-configuration.lock')):
+            return _apply_receiver_settings_unlocked(*args, **kwargs)
+    except Exception as error:
+        socketio.emit("gnss_settings_saved", json.dumps({"result": "failed", "error_type": type(error).__name__}), namespace="/test", room=request.sid)
+
+
+@socketio.on("configure_receiver", namespace="/test")
+def configure_receiver(*args, **kwargs):
+    if not current_user.is_authenticated:
+        socketio.emit("gnss_configuration_result", json.dumps({"result": "failed", "error_type": "AuthenticationRequired"}), namespace="/test", room=request.sid)
+        return
+    try:
+        with ReceiverBatchLock(os.path.join(rtkbase_path, '.receiver-configuration.lock')):
+            return _configure_receiver_unlocked(*args, **kwargs)
+    except Exception as error:
+        socketio.emit("gnss_configuration_result", json.dumps({"result": "failed", "error_type": type(error).__name__}), namespace="/test", room=request.sid)
+
+
+
+
+
+
+
 
 #### Settings Backup Restore Reset ####
 
@@ -836,10 +946,10 @@ def load_units(services):
         :param services: A list of systemd services (dict) containing a service_unit key:value
         :return The dict list updated with the pystemd ServiceController object
 
-        example: 
+        example:
             services = [{"service_unit" : "str2str_tcp.service"}]
             return will be [{"service_unit" : "str2str_tcp.service", "unit" : a pystemd object}]
-        
+
     """
     for service in services:
         service["unit"] = ServiceController(service["service_unit"])
@@ -857,7 +967,7 @@ def update_std_user(services):
 def restartServices(restart_services_list=None):
     """
         Restart already running services
-        This function will refresh all services status, then compare the global services_list and 
+        This function will refresh all services status, then compare the global services_list and
         then restart_services_list to find the services we need to restart.
         #TODO I don't really like this global services_list use.
     """
@@ -892,8 +1002,8 @@ def getServicesStatus(emit_pingback=True):
     """
         Get the status of services listed in services_list
         (services_list is global)
-        
-        :param emit_pingback: whether or not the services status is sent to clients 
+
+        :param emit_pingback: whether or not the services status is sent to clients
             (defaults to true as the socketio.on() should receive back the information)
         :return The gathered services status list
     """
@@ -901,7 +1011,7 @@ def getServicesStatus(emit_pingback=True):
     #print("Getting services status")
     for service in services_list:
         try:
-            #print("unit qui déconne : ", service["name"])
+            #print("unit qui dÃƒÂ©conne : ", service["name"])
             service["active"] = service["unit"].isActive()
             service["status"] = service["unit"].status()
             service["result"] = service["unit"].get_result()
@@ -934,6 +1044,15 @@ def switchService(json_msg):
         param: json_msg: A json var from the web front end containing one or more service
         name with their new status.
     """
+    if json_msg.get('name') in tuple('ntrip_'+c for c in 'ABCDEF'):
+        if not current_user.is_authenticated:
+            return
+        if json_msg.get('active') is True:
+            try:
+                resolve_route(rtkbaseconfig.config,json_msg['name'][-1])
+            except ValueError as error:
+                socketio.emit('ntrip_settings_result', {'result':'failed', 'message':str(error)}, namespace='/test', room=request.sid)
+                return
     #print("Received service to switch", json_msg)
     try:
         for service in services_list:
@@ -964,6 +1083,22 @@ def update_settings(json_msg):
         Then restart the services which have a dependency with these parameters.
         param json_msg: A json variable containing the source form and the new paramaters
     """
+    if json_msg and json_msg[-1].get('source_form') in tuple('ntrip_'+c for c in 'ABCDEF'):
+        if not current_user.is_authenticated:
+            socketio.emit('ntrip_settings_result', {'result':'failed', 'message':'Authentication required'}, namespace='/test', room=request.sid)
+            return
+        section=json_msg[-1]['source_form'];channel=section[-1]
+        try:
+            submitted={field['name'].lower():field['value'] for field in json_msg[:-1]}
+            candidate=validate_channel_update(rtkbaseconfig.config,channel,submitted)
+            for key,value in submitted.items():
+                rtkbaseconfig.update_setting(section,key,value,write_file=False)
+            rtkbaseconfig.write_file()
+            restartServices((section,))
+            socketio.emit('ntrip_settings_result', {'result':'success', 'message':'Settings saved'}, namespace='/test', room=request.sid)
+        except (ValueError,KeyError) as error:
+            socketio.emit('ntrip_settings_result', {'result':'failed', 'message':str(error)}, namespace='/test', room=request.sid)
+        return
     #print("received settings form", json_msg)
     source_section = json_msg.pop().get("source_form")
     #print("section: ", source_section)
@@ -984,7 +1119,7 @@ def update_settings(json_msg):
 
         #Restart service if needed
         if source_section == "main":
-            restartServices(("main", "ntrip_A", "ntrip_B", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial", "raw2nmea"))  
+            restartServices(("main", "ntrip_A", "ntrip_B", "ntrip_C", "ntrip_D", "ntrip_E", "ntrip_F", "local_ntrip_caster", "rtcm_svr", "rtcm_client", "rtcm_udp_svr", "rtcm_udp_client", "file", "rtcm_serial", "raw2nmea"))
         elif source_section == "ntrip_A":
             restartServices(("ntrip_A",))
         elif source_section == "ntrip_B":

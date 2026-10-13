@@ -1,0 +1,16 @@
+[Unit]
+Description=RTKBase shared receiver input streams
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart={python_path} {script_path}/tools/receiver_stream_service.py --root {script_path}
+Restart=on-failure
+RestartSec=5
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths={script_path}
+
+[Install]
+WantedBy=multi-user.target

@@ -11,3 +11,5 @@ test.conf
 *.FCStd1
 **/venv*/*
 **/build/
+# Shared receiver input/configuration synchronization
+.receiver-configuration.lock

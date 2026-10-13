@@ -39,3 +39,4 @@ wsproto==1.2.0
 WTForms==3.2.1
 zope.event==5.1.1
 zope.interface==7.2
+pyserial==3.5

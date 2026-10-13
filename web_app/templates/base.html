@@ -6,29 +6,47 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="{{ url_for('static', filename='theme.js', v=g.version) }}"></script>
+    <script defer src="{{ url_for('static', filename='language-fr.js', v=g.version) }}"></script>
+    <script defer src="{{ url_for('static', filename='language.js', v=g.version) }}"></script>
 
     {% block styles %}
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-4.6.1.min.css') }}">
     {% endblock %}
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css', v=g.version) }}">
      <title>{{ g.station_name }} - RTKBase </title>
     {% endblock %}
   </head>
   <body style="min-height: 100vh; display:flex; flex-direction: column;">
-    <div class="container">
-      <ul class="nav nav-pills nav-justified bg-light font-weight-bolder text-uppercase">
-        <li class="nav-item">{{ render_nav_item('status_page', 'Status') }}</li>
-        <li class="nav-item">{{ render_nav_item('settings_page', 'Settings') }}</li>
-        <li class="nav-item">{{ render_nav_item('logs_page', 'Logs') }}</li>
+    <header class="interface-header">
+    <div class="container interface-toolbar">
+      <a class="interface-brand" href="{{ url_for('status_page') }}"><span class="interface-brand-mark" aria-hidden="true">R</span> RTKBase <span class="small text-muted">{{ g.version }}</span></a>
+      <nav aria-label="Main navigation">
+      <ul class="nav nav-pills interface-navigation">
+        <li class="nav-item" data-i18n="Status">{{ render_nav_item('status_page', 'Status') }}</li>
+        <li class="nav-item" data-i18n="Settings">{{ render_nav_item('settings_page', 'Settings') }}</li>
+        <li class="nav-item" data-i18n="Logs">{{ render_nav_item('logs_page', 'Logs') }}</li>
       </ul>
+      </nav>
+      <div class="interface-theme-control d-flex align-items-center">
+        <label for="interface-theme" class="small text-muted mb-0 mr-2" data-i18n="Theme">Theme</label>
+        <select id="interface-theme" class="custom-select custom-select-sm" aria-label="Interface theme">
+          <option value="light" data-i18n="Light">Light</option><option value="dark" data-i18n="Dark">Dark</option><option value="system" selected data-i18n="System">System</option>
+        </select>
+        <label for="interface-language" class="small text-muted mb-0 ml-3 mr-2" data-i18n="Language">Language</label>
+        <select id="interface-language" class="custom-select custom-select-sm" aria-label="Langue / Language"><option value="fr">Français</option><option value="en">English</option></select>
+      </div>
     </div>
+    </header>
     <!-- Your page content -->
     <main style="flex-grow: 1;">
+    <div class="interface-pagebar"><strong>{{ g.station_name }}</strong><span class="small text-muted" data-i18n="GNSS station management">GNSS station management</span></div>
     {% block content %}{% endblock %}
   </main>
-    <footer style="flex-grow: 0; display: block;"></footer>
-      <div class="container text-center bg-light"><span class="text-muted small"><a href="https://github.com/Stefal/rtkbase" target="_blank">RTKBase v{{ g.version }}</a></span></div>
+    <footer class="interface-footer">
+      <div class="container text-center"><span class="text-muted small"><a href="https://github.com/Stefal/rtkbase" target="_blank" rel="noopener noreferrer">RTKBase v{{ g.version }}</a></span></div>
     </footer>
 
     {% block scripts %}
