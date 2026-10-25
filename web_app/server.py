@@ -42,6 +42,7 @@ import argparse
 import html
 
 from threading import Thread
+from packaging.version import Version, InvalidVersion
 from RTKLIB import RTKLIB
 from ServiceController import ServiceController
 from RTKBaseConfigManager import RTKBaseConfigManager
@@ -287,6 +288,21 @@ def get_sbc_model():
         sbc_model = "unknown"
     return sbc_model
 
+
+def _parse_version(version_str):
+    """Safely parse a version string into a packaging Version object.
+
+    Returns None if the string is empty or cannot be parsed, so that
+    callers can skip malformed versions instead of crashing.
+    """
+    if not version_str:
+        return None
+    try:
+        return Version(version_str)
+    except InvalidVersion:
+        return None
+
+
 @socketio.on("check update", namespace="/test")
 def check_update(source_url = None, current_release = None, prerelease=rtkbaseconfig.getboolean("general", "prerelease"), return_emit = True):
     """
@@ -305,16 +321,19 @@ def check_update(source_url = None, current_release = None, prerelease=rtkbaseco
     ## test
     new_release = {}
     source_url = source_url if source_url is not None else "https://api.github.com/repos/stefal/rtkbase/releases"
-    current_release = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
-    current_release = current_release.split("-beta", 1)[0].split("-alpha", 1)[0].split("-rc", 1)[0].split("b", 1)[0]
+    current_release_str = current_release if current_release is not None else rtkbaseconfig.get("general", "version").strip("v")
+    current_release_str = current_release_str.split("-beta", 1)[0].split("-alpha", 1)[0].split("-rc", 1)[0].split("b", 1)[0]
+    current_release = _parse_version(current_release_str)
+    checkpoint_version = _parse_version(rtkbaseconfig.get("general", "checkpoint_version"))
 
     try:
         response = requests.get(source_url)
         response = response.json()
         for release in response:
             if release.get("prerelease") & prerelease or release.get("prerelease") == False:
-                latest_release = release.get("tag_name").strip("v").replace("-beta", "").replace("-alpha", "").replace("-rc", "")
-                if latest_release > current_release and latest_release <= rtkbaseconfig.get("general", "checkpoint_version"):
+                latest_release_str = release.get("tag_name").strip("v").replace("-beta", "").replace("-alpha", "").replace("-rc", "")
+                latest_release = _parse_version(latest_release_str)
+                if latest_release and current_release and latest_release > current_release and latest_release <= checkpoint_version:
                     new_release = {"new_release" : release.get("tag_name"), "comment" : release.get("body")}
                     #find url for rtkbase.tar.gz
                     for i, asset in enumerate(release["assets"]):
