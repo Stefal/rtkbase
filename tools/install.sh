@@ -400,6 +400,8 @@ detect_gnss() {
       #This function try to detect a gnss receiver and write the port/format inside settings.conf
       #If the receiver is a U-Blox, it will add the TADJ=1 option on all ntrip/rtcm outputs.
       #If there are several receiver, the last one detected will be add to settings.conf.
+      str2str_tcp_was_running=0
+      systemctl is-active --quiet str2str_tcp.service && str2str_tcp_was_running=1
       for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
           ID_SERIAL=''
           syspath="${sysdevpath%/dev}"
@@ -417,9 +419,24 @@ detect_gnss() {
             [[ '/dev/ttyGNSS' -ef '/dev/'"${detected_gnss[0]}" ]] && break
           fi
       done
-      if [[ ${#detected_gnss[*]} -ne 2 ]]; then
+      if [[ ${#detected_gnss[*]} -eq 0 ]]; then
+        systemctl is-active --quiet str2str_tcp.service && systemctl stop str2str_tcp.service && echo 'Stopping str2str_tcp service'
+        for device in /dev/ttyACM* /dev/ttyUSB*; do
+            [[ -c "$device" ]] || continue
+            firmware="$(python3 "${rtkbase_path}"/tools/quectel_tool.py --port "$device" --baudrate 460800 --command get_version 2>/dev/null)" || continue
+            if [[ "${firmware}" == LG290P03* ]]; then
+              detected_gnss[0]="${device#/dev/}"
+              detected_gnss[1]='quectel'
+              detected_gnss[2]='460800'
+              detected_gnss[3]="${firmware}"
+              detected_gnss[4]='LG290P03'
+              break
+            fi
+        done
+      fi
+      if [[ ${#detected_gnss[*]} -eq 0 ]]; then
           vendor_and_product_ids=$(lsusb | grep -i "u-blox\|Septentrio" | grep -Eo "[0-9A-Za-z]+:[0-9A-Za-z]+")
-          if [[ -z "$vendor_and_product_ids" ]]; then 
+          if [[ -z "$vendor_and_product_ids" ]]; then
             echo 'NO USB GNSS RECEIVER DETECTED'
             echo 'YOU CAN REDETECT IT FROM THE WEB UI'
             #return 1
@@ -431,7 +448,7 @@ detect_gnss() {
           fi
       fi
     # detection on uart port
-      if [[ ${#detected_gnss[*]} -ne 2 ]]; then
+      if [[ ${#detected_gnss[*]} -eq 0 ]]; then
         echo '################################'
         echo 'UART GNSS RECEIVER DETECTION'
         echo '################################'
@@ -487,6 +504,11 @@ detect_gnss() {
           detected_gnss[4]="$( { python3 "${rtkbase_path}"/tools/unicore_tool.py --port /dev/"${detected_gnss[0]}" --baudrate ${detected_gnss[2]} --command get_model --retry 5 2>/dev/null || echo '?'; } | tail -n 1 )"
 
       fi
+      # Restore the streaming service stopped for port probing, so detection alone never leaves it stopped
+      if [[ "${str2str_tcp_was_running}" -eq 1 ]] && ! systemctl is-active --quiet str2str_tcp.service
+        then
+          systemctl start str2str_tcp.service && echo 'Starting str2str_tcp service'
+        fi
       # "send" result
       echo '/dev/'"${detected_gnss[0]}" ' - ' "${detected_gnss[1]}"' - ' "${detected_gnss[2]}"' - ' "${detected_gnss[3]}"' - ' "${detected_gnss[4]}"
 
@@ -545,6 +567,21 @@ configure_gnss(){
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_svr_receiver_options=.*/rtcm_udp_svr_receiver_options=/ "${rtkbase_path}"/settings.conf              && \
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_udp_client_receiver_options=.*/rtcm_udp_client_receiver_options=/ "${rtkbase_path}"/settings.conf        && \
         sudo -u "${RTKBASE_USER}" sed -i s/^rtcm_serial_receiver_options=.*/rtcm_serial_receiver_options=/ "${rtkbase_path}"/settings.conf
+
+        if [[ "${receiver}" == quectel_* ]]
+        then
+          firmware="$(python3 "${rtkbase_path}"/tools/quectel_tool.py --port "/dev/${com_port}" --baudrate "${com_port_settings%%:*}" --command get_version)" || return 1
+          if [[ ! "${firmware}" =~ ^LG290P03[A-Za-z0-9._-]+$ ]]; then
+            echo "Unsupported Quectel firmware: ${firmware}"
+            return 1
+          fi
+          echo 'Quectel LG290P03 Firmware: ' "${firmware}"
+          sudo -u "${RTKBASE_USER}" sed -i "s|^receiver_firmware=.*|receiver_firmware='${firmware}'|" "${rtkbase_path}"/settings.conf || return 1
+          python3 "${rtkbase_path}"/tools/quectel_tool.py --port "/dev/${com_port}" --baudrate "${com_port_settings%%:*}" --command send_config_file --config-file "${rtkbase_path}"/receiver_cfg/Quectel_LG290P03_rtkbase.cfg || return 1
+          sudo -u "${RTKBASE_USER}" sed -i "s|^receiver_format=.*|receiver_format='rtcm3'|" "${rtkbase_path}"/settings.conf || return 1
+          echo 'Quectel LG290P03 successfully configured'
+          return 0
+        fi
 
         #if the receiver is a U-Blox F9P, launch the set_zed-f9p.sh. This script will reset the F9P and configure it with the corrects settings for rtkbase
         if [[ $(python3 "${rtkbase_path}"/tools/ubxtool -f /dev/"${com_port}" -s ${com_port_settings%%:*} -p MON-VER) =~ 'ZED-F9P' ]]
