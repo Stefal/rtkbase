@@ -40,6 +40,7 @@ import requests
 import tempfile
 import argparse
 import html
+import re
 
 from threading import Thread
 from RTKLIB import RTKLIB
@@ -520,6 +521,12 @@ def logout():
     logout_user()
     return redirect(url_for('login_page'))
 
+def format_diagnostic_output(output):
+    """Format command output for HTML after masking NTRIP user information."""
+    output = re.sub(r"""(?i)(ntrip[sc]?://)[^\s/<>"']+@""", r"\1***@", output)
+    return html.escape(output).replace('\n', '<br>')
+
+
 @app.route('/diagnostic')
 @login_required
 def diagnostic():
@@ -539,9 +546,8 @@ def diagnostic():
                                  universal_newlines=True,
                                  check=False)
         
-        #Replace carrier return to <br> for html view
-        sysctl_status = html.escape(sysctl_status.stdout).replace('\n', '<br>')
-        journalctl = html.escape(journalctl.stdout).replace('\n', '<br>')
+        sysctl_status = format_diagnostic_output(sysctl_status.stdout)
+        journalctl = format_diagnostic_output(journalctl.stdout)
         active_state = "Active" if service.get('active') == True else "Inactive"
         logs.append({'name' : service['service_unit'], 'active' : active_state, 'sysctl_status' : sysctl_status, 'journalctl' : journalctl})
         
