@@ -15,5 +15,7 @@ add_polkit_rules() {
 #check if polkitd package is available, else exit
 apt-cache --quiet=0 show polkitd 2>&1 | grep -q 'No packages found' && exit 1
 #install it if not already installed
-! dpkg-query -W --showformat='${Status}\n' polkitd >/dev/null 2>&1 && apt-get -y install polkitd
+if [[ "$(dpkg-query -W --showformat='${db:Status-Status}' polkitd 2>/dev/null)" != "installed" ]]; then
+  apt-get -y install polkitd || exit 1
+fi
 add_polkit_rules
